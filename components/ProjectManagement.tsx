@@ -23,7 +23,7 @@ const MOCK_PROJECTS: Project[] = [
     members: [
       { userId: 'u1', name: 'Qui', avatar: 'https://picsum.photos/id/64/100/100', projectRole: 'Marketing Lead' },
       { userId: 'u4', name: 'Quo', avatar: 'https://picsum.photos/id/67/100/100', projectRole: 'Copywriter' },
-      { userId: 'u4', name: 'Qua', avatar: 'https://picsum.photos/id/67/100/100', projectRole: 'Maronn'' },
+      { userId: 'u4', name: 'Qua', avatar: 'https://picsum.photos/id/67/100/100', projectRole: 'Maronn' },
     ]
   }
 ];
