@@ -6,23 +6,24 @@ import KanbanBoard from './KanbanBoard';
 const MOCK_PROJECTS: Project[] = [
   {
     id: 'p1',
-    name: 'Project Alpha Roadmap',
-    description: 'Main product development for the next quarter.',
+    name: 'ft_transcendence',
+    description: 'Let\'s close this chapter (or die trying)!',
     status: 'active',
     members: [
-      { userId: 'u1', name: 'Alex Rivera', avatar: 'https://picsum.photos/id/64/100/100', projectRole: 'Project Manager' },
-      { userId: 'u2', name: 'Sarah Chen', avatar: 'https://picsum.photos/id/65/100/100', projectRole: 'Lead Designer' },
-      { userId: 'u3', name: 'Mike Johnson', avatar: 'https://picsum.photos/id/66/100/100', projectRole: 'Backend Engineer' },
+      { userId: 'u1', name: 'Paperino', avatar: 'https://picsum.photos/id/64/100/100', projectRole: 'Project Manager' },
+      { userId: 'u2', name: 'Pippo', avatar: 'https://picsum.photos/id/65/100/100', projectRole: 'Lead Designer' },
+      { userId: 'u3', name: 'Paperoga', avatar: 'https://picsum.photos/id/66/100/100', projectRole: 'Backend Engineer' },
     ]
   },
   {
     id: 'p2',
-    name: 'Marketing Campaign Q4',
-    description: 'Strategy and assets for end of year marketing.',
+    name: 'Marketing Campaign',
+    description: 'Strategy and assets for this year marketing.',
     status: 'active',
     members: [
-      { userId: 'u1', name: 'Alex Rivera', avatar: 'https://picsum.photos/id/64/100/100', projectRole: 'Marketing Lead' },
-      { userId: 'u4', name: 'Emma Watson', avatar: 'https://picsum.photos/id/67/100/100', projectRole: 'Copywriter' },
+      { userId: 'u1', name: 'Qui', avatar: 'https://picsum.photos/id/64/100/100', projectRole: 'Marketing Lead' },
+      { userId: 'u4', name: 'Quo', avatar: 'https://picsum.photos/id/67/100/100', projectRole: 'Copywriter' },
+      { userId: 'u4', name: 'Qua', avatar: 'https://picsum.photos/id/67/100/100', projectRole: 'Maronn'' },
     ]
   }
 ];
