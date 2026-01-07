@@ -9,6 +9,21 @@ export interface User {
   status: 'online' | 'offline' | 'away';
 }
 
+export interface ProjectMember {
+  userId: string;
+  name: string;
+  avatar: string;
+  projectRole: string;
+}
+
+export interface Project {
+  id: string;
+  name: string;
+  description: string;
+  members: ProjectMember[];
+  status: 'active' | 'completed' | 'on-hold';
+}
+
 export type ElementType = 'rect' | 'circle' | 'text';
 
 export interface CanvasElement {

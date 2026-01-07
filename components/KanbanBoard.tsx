@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import { Task } from '../types';
+import { Task, Project } from '../types';
 
 const INITIAL_TASKS: Task[] = [
   { id: 't1', title: 'Design Landing Page', description: 'Create high-fidelity mockups for the homepage.', status: 'todo', assignee: 'Alex', priority: 'high' },
@@ -9,7 +9,11 @@ const INITIAL_TASKS: Task[] = [
   { id: 't4', title: 'Mobile Responsiveness', description: 'Ensure the dashboard works on screens < 768px.', status: 'todo', assignee: 'Alex', priority: 'low' },
 ];
 
-const KanbanBoard: React.FC = () => {
+interface KanbanBoardProps {
+  project: Project;
+}
+
+const KanbanBoard: React.FC<KanbanBoardProps> = ({ project }) => {
   const [tasks, setTasks] = useState<Task[]>(INITIAL_TASKS);
 
   const columns = [
@@ -19,12 +23,50 @@ const KanbanBoard: React.FC = () => {
   ];
 
   return (
-    <div className="h-full flex flex-col animate-in fade-in duration-500">
-      <div className="flex items-center justify-between mb-8">
-        <h1 className="text-2xl font-bold text-slate-800">Project Alpha Roadmap</h1>
-        <button className="bg-indigo-600 text-white px-5 py-2 rounded-xl hover:bg-indigo-700 transition-all text-sm font-semibold shadow-md">
-          + New Task
-        </button>
+    <div className="h-full flex flex-col animate-in fade-in duration-500 gap-8">
+      {/* Project Header with Members */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div className="lg:col-span-2 bg-white p-8 rounded-2xl border border-slate-200 shadow-sm">
+          <div className="flex items-center justify-between mb-4">
+            <h1 className="text-2xl font-bold text-slate-800">{project.name}</h1>
+            <button className="bg-indigo-600 text-white px-5 py-2 rounded-xl hover:bg-indigo-700 transition-all text-sm font-semibold shadow-md">
+              + New Task
+            </button>
+          </div>
+          <p className="text-slate-500 text-sm mb-6">{project.description}</p>
+          
+          <div className="flex items-center gap-4">
+             <div className="flex items-center gap-2 text-xs font-bold text-slate-400 uppercase tracking-wider">
+               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
+               Due Dec 20, 2024
+             </div>
+             <div className="flex items-center gap-2 text-xs font-bold text-slate-400 uppercase tracking-wider">
+               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z" /></svg>
+               24 Comments
+             </div>
+          </div>
+        </div>
+
+        <div className="bg-white p-8 rounded-2xl border border-slate-200 shadow-sm overflow-hidden flex flex-col">
+          <h3 className="font-bold text-slate-800 text-sm mb-4 flex items-center justify-between">
+            Team Members
+            <span className="text-[10px] bg-slate-100 text-slate-500 px-2 py-0.5 rounded-full">{project.members.length}</span>
+          </h3>
+          <div className="flex-1 overflow-y-auto space-y-4 pr-2">
+            {project.members.map((member) => (
+              <div key={member.userId} className="flex items-center gap-3 p-2 hover:bg-slate-50 rounded-xl transition-all">
+                <img src={member.avatar} className="w-9 h-9 rounded-full ring-2 ring-indigo-50" alt={member.name} />
+                <div className="min-w-0">
+                  <p className="text-sm font-bold text-slate-800 truncate">{member.name}</p>
+                  <p className="text-[10px] text-indigo-600 font-medium truncate">{member.projectRole}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+          <button className="mt-4 w-full py-2 text-xs font-bold text-indigo-600 border border-indigo-50 rounded-lg hover:bg-indigo-50 transition-all">
+            Manage Access
+          </button>
+        </div>
       </div>
 
       <div className="flex-1 flex gap-6 overflow-x-auto pb-4">

@@ -5,7 +5,7 @@ import Sidebar from './components/Sidebar';
 import Header from './components/Header';
 import Dashboard from './components/Dashboard';
 import DocumentEditor from './components/DocumentEditor';
-import KanbanBoard from './components/KanbanBoard';
+import ProjectManagement from './components/ProjectManagement';
 import ChatRoom from './components/ChatRoom';
 import FileManager from './components/FileManager';
 import AIDrawer from './components/AIDrawer';
@@ -33,7 +33,7 @@ const App: React.FC = () => {
       case 'whiteboard':
         return <Whiteboard />;
       case 'projects':
-        return <KanbanBoard />;
+        return <ProjectManagement currentUser={MOCK_USER} />;
       case 'chat':
         return <ChatRoom currentUser={MOCK_USER} />;
       case 'files':
