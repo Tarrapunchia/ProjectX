@@ -1,5 +1,6 @@
 import React from 'react';
 import type { ProfileUser, CompletedProject, Friend } from './types';
+import './profilePage.css'
 
 const MOCK_USER: ProfileUser = {
 	id: '1',
@@ -23,9 +24,37 @@ const MOCK_FRIENDS: Friend[] = [
 
 const ProfilePage: React.FC = () => {
 	return (
-		<div className="space-y-6">
-			<h1 className="text-2xl font-bold text-slate-800">Pagina Profilo</h1>
-			<p>Ciao, {MOCK_USER.firstName}!</p>
+		<div className="profile-container">
+			<div className="profile-header">
+				<img src={MOCK_USER.avatar} alt="Foto profilo" className="profile-avatar"/>
+				<div className="profile-info">
+					<h1>{MOCK_USER.firstName} {MOCK_USER.lastName}</h1>
+					<p className="email">{MOCK_USER.email}</p>
+					<p className="description">{MOCK_USER.description}</p>
+				</div>
+			</div>
+			<div className="section">
+				<h2>Completed Projects</h2>
+				{MOCK_PROJECTS.map((project) => (
+					<div key={project.id} className="project-card">
+						<h3>{project.name}</h3>
+						<p>Role: {project.role}</p>
+						<p>Completed: {project.completedDate}</p>
+					</div>
+				))}
+			</div>
+			<div className="section">
+				<h2>Friends</h2>
+				<div className="friends-list">
+					{MOCK_FRIENDS.map((friend) => (
+						<div key={friend.id} className="friend-card">
+							<img src={friend.avatar} alt={friend.name} className="friend-avatar" />
+							<span>{friend.name}</span>
+							<span className={`friend-status ${friend.status}`}></span>
+						</div>
+					))}
+				</div>
+			</div>
 		</div>
 	);
 };

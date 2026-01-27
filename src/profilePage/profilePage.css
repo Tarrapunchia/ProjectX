@@ -1,0 +1,99 @@
+.profile-container {
+	max-width: 800px;
+	margin: 0 auto;
+	padding: 20px;
+	font-family: Arial, sans-serif;
+}
+
+.profile-header {
+	display: flex;
+	align-items: center;
+	gap: 20px;
+}
+
+.profile-avatar {
+	width: 150px;
+	height: 150px;
+	border-radius: 50%;
+}
+
+.profile-info h1 {
+	margin: 0;
+	font-size: 24px;
+}
+
+.profile-info .email {
+	color: #666;
+	margin: 5px 0;
+}
+
+.profile-info .description {
+	color: #888;
+	font-style: italic;
+}
+
+.section {
+	margin-top: 30px;
+}
+
+.section h2 {
+	border-bottom: 2px solid #eee;
+	padding-bottom: 10px;
+}
+
+.project-card {
+	background: #858585;
+	padding: 15px;
+	border-radius: 8px;
+	margin-bottom: 10px;
+}
+
+projext-card h3 {
+	margin: 0 0 5px 0;
+}
+
+project-card p {
+	margin: 3px 0;
+	color: #666;
+	font-size: 14px;
+}
+
+.friend-list {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 15px;
+}
+
+.friend-card {
+	display: flex;
+	align-items: center;
+	gap: 10px;
+	padding: 10px;
+	background: #858585;
+	border-radius: 8px;
+}
+
+.friend-avatar {
+	width: 50px;
+	height: 50px;
+	border-radius: 50%;
+}
+
+.friend-status {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  display: inline-block;
+}
+
+.friend-status.online {
+	background-color: #22c55e;
+}
+
+.friend-status.offline {
+	background-color: #9ca3af;
+}
+
+.friend-status.away {
+	background-color: #f59e0b;
+}
