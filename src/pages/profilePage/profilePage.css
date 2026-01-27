@@ -1,13 +1,18 @@
 .profile-container {
+	display: flex;
+	flex-direction: column;
 	max-width: 800px;
-	margin: 0 auto;
+	margin-right: auto;
+	margin-left: 0;
 	padding: 20px;
 	font-family: Arial, sans-serif;
+	border: 2px solid red;
 }
 
 .profile-header {
 	display: flex;
-	align-items: left;
+	justify-content: flex-start;
+	align-items: center;
 	gap: 20px;
 }
 
@@ -19,7 +24,7 @@
 
 .profile-info h1 {
 	margin: 0;
-	font-size: 24px;
+	font-size: 40px;
 }
 
 .profile-info .email {
