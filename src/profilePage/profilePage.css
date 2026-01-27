@@ -7,7 +7,7 @@
 
 .profile-header {
 	display: flex;
-	align-items: center;
+	align-items: left;
 	gap: 20px;
 }
 
@@ -71,6 +71,7 @@ project-card p {
 	padding: 10px;
 	background: #858585;
 	border-radius: 8px;
+	margin-bottom: 1px;
 }
 
 .friend-avatar {
@@ -79,21 +80,14 @@ project-card p {
 	border-radius: 50%;
 }
 
-.friend-status {
-  width: 10px;
-  height: 10px;
-  border-radius: 50%;
-  display: inline-block;
+.friend-card.online .friend-avatar {
+	border: 2px solid #22c55e;
 }
 
-.friend-status.online {
-	background-color: #22c55e;
+.friend-card.offline .friend-avatar {
+	border: 2px solid #9ca3af;
 }
 
-.friend-status.offline {
-	background-color: #9ca3af;
-}
-
-.friend-status.away {
-	background-color: #f59e0b;
+.friend-card.away .friend-avatar {
+	border: 2px solid #f59e0b;
 }

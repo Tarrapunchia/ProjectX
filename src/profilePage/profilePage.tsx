@@ -47,10 +47,9 @@ const ProfilePage: React.FC = () => {
 				<h2>Friends</h2>
 				<div className="friends-list">
 					{MOCK_FRIENDS.map((friend) => (
-						<div key={friend.id} className="friend-card">
+						<div key={friend.id} className={`friend-card ${friend.status}`}>
 							<img src={friend.avatar} alt={friend.name} className="friend-avatar" />
 							<span>{friend.name}</span>
-							<span className={`friend-status ${friend.status}`}></span>
 						</div>
 					))}
 				</div>
