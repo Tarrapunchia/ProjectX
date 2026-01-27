@@ -1,8 +1,0 @@
-{
-  "name": "SyncSpace Collaborative Workspace",
-  "description": "A high-performance real-time collaborative platform featuring document editing, project management boards, team chat, and file sharing, integrated with Gemini AI for intelligent workflows.",
-  "requestFramePermissions": [
-    "camera",
-    "microphone"
-  ]
-}
