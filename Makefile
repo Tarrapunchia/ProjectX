@@ -20,6 +20,5 @@ export USAGE_BODY
 all:
 	@npm i
 	@chmod -x init.sh
-	@./init.sh
 	@echo $$LAUNCH_BODY
 	@echo $$USAGE_BODY
