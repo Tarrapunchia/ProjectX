@@ -7,11 +7,11 @@ interface SidebarProps {
 function Sidebar({ setActivePage }: SidebarProps) {
 	return (
 		<aside className="sidebar">
-			<button>Project X</button>
+			<button className="logo">Project X</button>
 			<nav>
 				<button onClick={() => setActivePage('dashboard')}>Dashboard</button>
 				<button onClick={() => setActivePage('documents')}>Documents</button>
-				<button onClick={() => setActivePage('projects')}>Projects</button>
+				<button onClick={() => setActivePage('tasks')}>Tasks</button>
 				<button onClick={() => setActivePage('chat')}>Team Chat</button>
 				<button onClick={() => setActivePage('files')}>File Library</button>
 			</nav>

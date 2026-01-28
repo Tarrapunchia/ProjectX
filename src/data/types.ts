@@ -11,9 +11,12 @@ export interface ProfileUser {
 }
 
 // User's completed projects type
-export interface CompletedProject {
+export interface Projects {
 	id: string;
+	leader: string;
 	name: string;
+	startDate: string;
+	completed: boolean;
 	completedDate: string;
 	role: string;
 }

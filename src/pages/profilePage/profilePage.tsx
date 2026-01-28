@@ -20,10 +20,12 @@ const ProfilePage: React.FC = () => {
 				<h2>Projects</h2>
 				<div className="project-list">
 					{MOCK_PROJECTS.map((project) => (
-						<div key={project.id} className="project-card">
+						<div key={project.id} className={`project-card ${project.completed ? 'completed' : 'in-progress'}`}>
 							<h3>{project.name}</h3>
+							<p>Leader: {project.leader}</p>
 							<p>Role: {project.role}</p>
-							<p>Completed: {project.completedDate}</p>
+							<p>Started: {project.startDate}</p>
+							{project.completed && <p>Completed: {project.completedDate}</p>}
 						</div>
 					))}
 				</div>

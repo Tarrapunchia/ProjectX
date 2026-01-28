@@ -62,18 +62,23 @@
 	background: #8e8d8d37;
 	padding: 15px;
 	border-radius: 8px;
-	width: 200px;
+	width: 300px;
 }
 
 .project-card h3 {
 	margin-top: 5px;
 	text-align: center;
+	width: 100%;
 }
 
 .project-card p {
 	margin: 3px 0;
 	color: #ffffff;
-	font-size: 14px;
+	font-size: 16px;
+}
+
+.project-card.completed {
+	border: 1px solid #4caf50;
 }
 
 .friend-list {

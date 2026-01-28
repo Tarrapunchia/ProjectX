@@ -1,14 +1,22 @@
 import './header.css';
 import { MOCK_USER } from '../data/mockData';
+import type { Projects } from '../data/types';
+import { FiRepeat } from 'react-icons/fi';
 
 interface HeaderProps {
 	setActivePage: (page: string) => void;
+	selectedProject: Projects | null;
 }
 
-function Header({ setActivePage }: HeaderProps) {
+function Header({ setActivePage, selectedProject }: HeaderProps) {
 	return (
 		<header className="header">
-			<h1>WIP</h1>
+			<span onClick={() => setActivePage('projects')} className="icon">
+				<FiRepeat/>
+			</span>
+			<h1>
+				{selectedProject ? selectedProject.name : 'Dashboard'}
+			</h1>
 			<button onClick={() => setActivePage('profile')}>
 				<img src={MOCK_USER.avatar} alt="Foto profilo" className="header-avatar"/>
 			</button>

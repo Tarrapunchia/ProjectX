@@ -1,0 +1,42 @@
+.projects-container {
+	padding: 20px;
+}
+
+.projects-container h2 {
+	width: 100%;
+}
+
+.projects-container .in-progress,
+.completed{
+	display: flex;
+	flex-wrap: wrap;
+	gap: 5px;
+}
+
+.projects-container .project-card {
+	background: #8e8d8d37;
+	padding: 15px;
+	border-radius: 8px;
+	width: 300px;
+}
+
+.projects-container .project-card:hover{
+	background: #8e8d8d93;
+}
+
+.projects-container .project-card.completed {
+	border: 1px solid #4caf50;
+}
+
+.projects-container .project-card h3 {
+	margin-top: 5px;
+	text-align: center;
+	width: 100%;
+}
+
+.projects-container .project-card p {
+	margin: 3px 0;
+	color: #ffffff;
+	font-size: 16px;
+	width: 100%;
+}
