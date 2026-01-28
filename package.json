@@ -6,12 +6,9 @@
   "scripts": {
     "build:ts": "tsc -p tsconfig.json",
     "build:ts:watch": "tsc -p tsconfig.json -w",
-    "build:css": "tailwindcss -i ./src/public/globals.css -o ./dist/public/styles.css --minify",
-    "build:css:watch": "tailwindcss -i ./src/public/globals.css -o ./dist/public/styles.css --watch",
     "build": "npm run build:ts && npm run build:css",
     "start": "node dist/server.js",
     "dev": "nodemon --watch src --ext ts --exec \"npm run build:ts && node dist/server.js\"",
-    "buildev": "npm run build && cp src/public/index.html dist/public && nodemon dist/server.js",
     "clean": "rm -rf dist/* && rm -rf node_modules && rm package-lock.json"
   },
   "keywords": [],
