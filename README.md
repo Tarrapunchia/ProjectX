@@ -16,6 +16,6 @@ Launching ```init.sh``` will generate the db and launch backend with ```nodemon`
  - ```clean```: rm -rf content of dist folder && rm package-lock.json && rm node_modules -> clean the folder for push
 
 ## Pages
-***(for a more detailed look at the SPA pages, check the routes const array in src/public/main.ts)***
+***(TODO: pulire il main, ci sono ancora un botto di routes che non uso piu' e che si usavano prima per gestire direttamente il frontend, non guardarlo proprio)***
 
 For the ```API```: check the swagger at ```\docs```
