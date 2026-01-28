@@ -1,0 +1,152 @@
+// schema.prisma
+// PER CHI LEGGE:
+//    le relazioni sembrano un bordello ma in realta' il concetto e' semplice
+//      In Prisma una relazione è composta da:
+//        1) relation fields (campi “oggetto/array”)
+//          - es: organization Organization oppure members User[]
+//          - non esistono “nel DB” come colonne: Prisma li usa per navigare.
+//        2) scalar FK fields (le colonne reali nel DB)
+//          - es: organizationId Int
+//          - e questo è ciò che sta nel database.
+//        3) l’attributo @relation(...) dove si dice a Prisma:
+//          - quali campi sono FK (fields: [...])
+//          - a quali colonne puntano (references: [...])
+//          - (opzionale) il nome della relazione quando c’è ambiguità
+
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id           Int      @id @default(autoincrement())
+  name         String
+  surname      String
+  email        String   @unique
+  phone        String
+  city         String?
+  address      String?
+  cap          String?
+  state        String?
+  jobQualifier String
+
+  hashedPw     String?          // queste tre sono mutualmente opzionali: se si fa reg con google non serve pw e viceversa
+  googleId     String?
+  googleSecret String?
+
+  // Organizations
+  ownedOrganizations  Organization[] @relation("OrgOwner")
+  memberships         OrganizationMember[]
+  projectParticipants ProjectParticipant[]
+
+  // Friendships (self relation via table)
+  friendshipsSent     Friendship[] @relation("FriendshipSender")
+  friendshipsReceived Friendship[] @relation("FriendshipReceiver")
+
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  isLoggedIn   Boolean  @default(false)
+}
+
+model Organization {
+  id      Int    @id @default(autoincrement())
+  name    String
+  email   String @unique
+  phone   String
+  city    String?
+  address String?
+  cap     String?
+  state   String?
+
+  // owner (User 1 -> N Organization)
+  ownerId Int
+  owner   User @relation("OrgOwner", fields: [ownerId], references: [id])
+
+  // members (N <-> N via join?)
+  members OrganizationMember[]
+
+  // projects (1 -> N)
+  projects Project[]
+}
+
+model OrganizationMember { // TABELLA PONTE
+  organizationId Int
+  userId         Int
+
+  organization Organization @relation(fields: [organizationId], references: [id])
+  user         User         @relation(fields: [userId], references: [id])
+
+  // opzionale: ruoli dentro org, data iscrizione, ecc.
+  createdAt DateTime @default(now())
+
+  @@id([organizationId, userId]) // impedisce doppioni
+}
+
+model Project {
+  id             Int    @id @default(autoincrement())
+  name           String
+
+  organizationId Int
+  organization   Organization @relation(fields: [organizationId], references: [id])
+
+  participants   ProjectParticipant[]
+}
+
+model ProjectParticipant {  // TABELLA PONTE
+  projectId Int
+  userId    Int
+  roleId    Int
+
+  project Project @relation(fields: [projectId], references: [id])
+  user    User    @relation(fields: [userId], references: [id])
+  role    Role    @relation(fields: [roleId], references: [id])
+
+  createdAt DateTime @default(now())
+
+  @@id([projectId, userId]) // un utente compare una volta per progetto
+}
+
+model Role {
+  id            Int    @id @default(autoincrement())
+  name          String @unique
+
+  // 1-1 con Permission
+  permissionsId Int    @unique
+  permissions   Permission @relation(fields: [permissionsId], references: [id])
+
+  participants  ProjectParticipant[]
+}
+
+model Permission {
+  id          Int     @id @default(autoincrement())
+  bOwner      Boolean @default(false)               // god mode
+  bCreateTask Boolean @default(false)
+  // permessi da vedere. poi si decidono
+
+  role        Role? // lo vuole per la relazione, si puo' anche non usare
+}
+
+model Friendship {
+  senderId   Int
+  receiverId Int
+
+  sender   User @relation("FriendshipSender", fields: [senderId], references: [id])
+  receiver User @relation("FriendshipReceiver", fields: [receiverId], references: [id])
+
+  status    FriendshipStatus @default(PENDING)
+  createdAt DateTime         @default(now())
+
+  @@id([senderId, receiverId])
+  @@index([receiverId])
+}
+
+enum FriendshipStatus {
+  PENDING
+  ACCEPTED
+  BLOCKED
+}
