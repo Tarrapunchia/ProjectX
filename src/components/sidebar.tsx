@@ -1,17 +1,21 @@
 import './sidebar.css';
 
-function Sidebar() {
+interface SidebarProps {
+	setActivePage: (page: string) => void;
+}
+
+function Sidebar({ setActivePage }: SidebarProps) {
 	return (
 		<aside className="sidebar">
 			<button>Project X</button>
 			<nav>
-				<button>Dashboard</button>
-				<button>Documents</button>
-				<button>Projects</button>
-				<button>Team Chat</button>
-				<button>File Library</button>
+				<button onClick={() => setActivePage('dashboard')}>Dashboard</button>
+				<button onClick={() => setActivePage('documents')}>Documents</button>
+				<button onClick={() => setActivePage('projects')}>Projects</button>
+				<button onClick={() => setActivePage('chat')}>Team Chat</button>
+				<button onClick={() => setActivePage('files')}>File Library</button>
 			</nav>
-			<button className="settings">Settings</button>
+			<button className="settings" onClick={() => setActivePage('settings')}>Settings</button>
 		</aside>
 	);
 }

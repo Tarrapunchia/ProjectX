@@ -9,8 +9,8 @@
 	min-height: 100vh;
 }
 
-main-content {
+.main-content {
 	grid-area: main;
 	padding: 20px;
-	background-color: #fff;
+	overflow-y: auto;
 }

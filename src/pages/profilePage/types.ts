@@ -5,6 +5,7 @@ export interface ProfileUser {
 	firstName: string;
 	lastName: string;
 	email: string;
+	phoneNumber: string;
 	avatar: string;
 	description: string;
 }
