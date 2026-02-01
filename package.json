@@ -6,7 +6,7 @@
   "scripts": {
     "build:ts": "tsc -p tsconfig.json",
     "build:ts:watch": "tsc -p tsconfig.json -w",
-    "build": "npm run build:ts && npm run build:css",
+    "build": "npm run build:ts",
     "start": "node dist/server.js",
     "dev": "nodemon --watch src --ext ts --exec \"npm run build:ts && node dist/server.js\"",
     "clean": "rm -rf dist/* && rm -rf node_modules && rm package-lock.json"
