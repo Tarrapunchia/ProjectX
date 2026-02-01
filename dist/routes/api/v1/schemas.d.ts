@@ -4,6 +4,8 @@ export declare const userSchemas: {
     getUserProfile: Schema;
     getUserFriends: Schema;
     createUser: Schema;
+    login: Schema;
+    logout: Schema;
     seed: Schema;
 };
 export {};

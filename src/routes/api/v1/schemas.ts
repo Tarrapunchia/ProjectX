@@ -215,6 +215,67 @@ const createUser: Schema = {
     },
 };
 
+const login: Schema = {
+  description: 'Login user with email and password',
+  tags: ['users'],
+  body: {
+    type: 'object',
+    properties: {
+      email: { type: 'string', format: 'email' },
+      password: { type: 'string' },
+    },
+    required: ['email', 'password'],
+  },
+  response: {
+    200: {
+      type: 'object',
+      properties: {
+        success: { type: 'boolean' },
+        user: {
+          type: 'object',
+          properties: {
+            id: { type: 'number' },
+            name: { type: 'string' },
+            surname: { type: 'string' },
+            email: { type: 'string', format: 'email' },
+          },
+          required: ['id', 'name', 'surname', 'email'],
+        },
+      },
+      required: ['success', 'user'],
+    },
+    400: {
+      type: 'object',
+      properties: { error: { type: 'string' } },
+      required: ['error'],
+    },
+    401: {
+      type: 'object',
+      properties: { error: { type: 'string' } },
+      required: ['error'],
+    },
+  },
+}
+
+const logout: Schema = {
+    description: 'Log the current user out using the id stored in the jwt http only session token.',
+    tags: ['users'],
+    response : {
+        200: {
+            type: 'object',
+            properties: { success: {type: 'string'} },
+            required: ['success']
+        },
+        400: {
+            type: 'object',
+            properties: { error: {type: 'string'} },
+            required: ['error']
+        }
+    }
+
+    }
+
+
 const seed: Schema = {
     description: 'Seeds the database for testing',
     tags: ['debug'],
@@ -263,5 +324,7 @@ export const userSchemas = {
     getUserProfile: getUserProfile,
     getUserFriends: getUserFriends,
     createUser: createUser,
+    login: login,
+    logout: logout,
     seed: seed,
 };

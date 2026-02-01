@@ -1,5 +1,6 @@
 import fastify, { type FastifyInstance, type FastifyPluginAsync, type FastifyReply, type FastifyRequest } from 'fastify';
 import { userSchemas } from './schemas.js';
+import { setAuthCookie } from '../../../helpers/cookies.js';
 
 
 const Users: FastifyPluginAsync = async (fastify: FastifyInstance, opts) => {
@@ -12,7 +13,7 @@ const Users: FastifyPluginAsync = async (fastify: FastifyInstance, opts) => {
         Params: { id: string }
         }>(
         '/:id/profile',
-        { schema: userSchemas.getUserProfile }, // se vuoi validare anche i campi extra, serve uno schema nuovo
+        { schema: userSchemas.getUserProfile },
         async (req, reply) => {
             const id = Number(req.params.id)
             if (Number.isNaN(id)) {
@@ -146,9 +147,6 @@ const Users: FastifyPluginAsync = async (fastify: FastifyInstance, opts) => {
         }
     )
 
-    
-    
-    
     // // POST /api/v1/users/addUser
     fastify.post<{
         Body: {
@@ -231,8 +229,107 @@ const Users: FastifyPluginAsync = async (fastify: FastifyInstance, opts) => {
         }
     )
 
-    
-    // DEBUG SEED - GET /api/users/seed
+    // POST /api/v1/users/login
+    fastify.post<{
+    Body: { email: string; password: string }
+    }>(
+    '/login',
+    {
+        config: {
+        rateLimit: {
+            max: 5,
+            timeWindow: '15 minutes',
+        },
+        },
+        schema: userSchemas.login,
+    },
+    async (req, reply) => {
+        const { email, password } = req.body
+
+        // check base
+        if (!email || !password) {
+            reply.code(400)
+            return { error: 'Email and password are mandatory!' }
+        }
+
+        // prendo user
+        const user = await fastify.prisma.user.findUnique({
+            where: { email },
+        })
+
+        if (!user) {
+            reply.code(401)
+            return { error: 'Invalid credentials' }
+        }
+
+        // verifica password
+        // POI CAMBIARE PER BCRYPT
+        if (!user.hashedPw || user.hashedPw !== password) {
+            reply.code(401)
+            return { error: 'Invalid credentials' }
+        }
+
+        // marco logged-in
+        await fastify.prisma.user.update({
+            where: { id: user.id },
+            data: { isLoggedIn: true },
+        })
+
+        // // JWT payload MEGLIO FARLO HTTP ONLY
+        // const token = fastify.jwt.sign(
+        //     {
+        //         userId: user.id,
+        //         email: user.email,
+        //         name: user.name,
+        //         surname: user.surname,
+        //     },
+        //     { expiresIn: '24h' }
+        // )
+
+        // HTTP ONLY
+        const token = fastify.jwt.sign({ userId: user.id }, { expiresIn: '24h' })
+        setAuthCookie(reply, token)
+
+        return reply.send({
+        success: true,
+        user: { id: user.id, name: user.name, surname: user.surname, email: user.email },
+        })
+    }
+    )
+
+    // POST /api/v1/users/logout
+
+    fastify.post('/logout',
+        { schema: userSchemas.logout },
+        async (request, reply) => {
+        const token = request.cookies?.session
+        let userId: number | null = null
+
+        if (token) {
+            try {
+                const payload = fastify.jwt.verify<{ userId: number }>(token)
+                userId = payload.userId
+            } catch {
+            // token scaduto/invalid: logout comunque? boh, penso di si
+                reply.code(400)
+                reply.send({ error: 'Invalid token' })
+            }
+        }
+
+        reply.clearCookie('session', { path: '/' })
+
+        if (userId) {
+            await fastify.prisma.user.update({
+                where: { id: userId },
+                data: { isLoggedIn: false },
+            })
+        }
+
+        return reply.send({ success: true })
+    })
+
+
+    // DEBUG SEED - POST /api/users/seed
     fastify.post<{
     Querystring: {
         users?: string

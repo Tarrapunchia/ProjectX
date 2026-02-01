@@ -4,6 +4,7 @@
 3. [Working with Routes](#working-with-routes)
 4. [Working with Prisma for DB](#working-with-prisma-for-db)
 5. [Using GoogleOAuth](#using-googleoauth)
+6. [Using JWT tokens](#using-jwt-tokens)
 
 ## What is Fastify
 1. [Fastify Components](#fastifys-components)
@@ -1017,3 +1018,125 @@ export async function getGoogleTokens(code: string): Promise<GoogleTokensRespons
 export function decodeGoogleIdToken(idToken: string): GoogleIdTokenPayload {
   return jwtDecode<GoogleIdTokenPayload>(idToken);
 }
+```
+
+## Using JWT Tokens
+Using an *HTTP ONLY* token is usually the safest choice, expecially if you have a FE web.
+### What is an HttpOnly cookie and why it's better
+When an user logs in (pw or Google), the BE generates a JWT and puts it into a cookie
+```Set-Cookie: session=<JWT>; HttpOnly; Secure; SameSite=...```
+This has pro and cons
+*Pros*:
+- FE can't access the token via JS (it's not visible in document.cookie) -> harder to steal the token
+- Browser sends automatically the token in every request towards the BE
+*Cons*:
+- ```CORS``` have to be managed
+- Protection towards ```CSRF``` must be implemented (using the SameSite prop)
+
+Using it it's pretty straightforward:
+```bash
+npm i @fastify/cookie
+```
+And then register it
+```ts
+import cookie from '@fastify/cookie'
+
+await fastify.register(cookie, {
+//   secret: process.env.COOKIE_SECRET, // opt, if you need signed cookies
+})
+```
+The settings work this way
+```ts
+reply.setCookie('session', token, {
+  httpOnly: true, // JS cannot read it
+  secure: true,   // cookie works only with https, in dev should be false
+  sameSite: 'lax', // to lower CSRF
+  // sameSite: 'none', // if FE and BE are on different ports/addresses and therefore cross-site requests with cookies should be allowed. It requires secure: true
+  path: '/', // which routes it works on
+  maxAge: 60 * 60 * 24, // 1 giorno
+})
+```
+### CORS + cookies
+If the BE and the FE have different origins (for example FE http://localhost:5173 and BE http://localhost:3000), then to ensure that the cookies will be sent you should
+- **BACKEND**:
+    ```ts
+    import cors from '@fastify/cors'
+
+    await fastify.register(cors, {
+    origin: ['http://localhost:5173'],
+    credentials: true,
+    })
+    ```
+- **FRONTEND**
+    ```ts
+    // fetch
+    fetch('http://localhost:3000/api/v1/users/me', {
+        credentials: 'include'
+    })
+
+    // or axios
+    axios.get(url, { withCredentials: true })
+    ```
+
+### Authorization Flow
+**Login**:
+1) backend creates the JWT
+2) it puts the JWT in the cookie ```session```
+3) returns ```success: true``` but **NOT** the token in the JSON
+
+Then the protected routes can read the cookies and verify the jwt with
+```ts
+await request.jwtVerify()
+```
+For example, to get the userId stored in it
+```ts
+const payload = fastify.jwt.verify<{ userId: number }>(token)
+const userId = payload.userId
+```
+
+So, four our purpose, we can implement an helper fn to set up the cookie
+```ts
+function setAuthCookie(reply: any, token: string) {
+  const isProd = process.env.NODE_ENV === 'production'
+
+  reply.setCookie('session', token, {
+    httpOnly: true,
+    secure: isProd,                     // in dev: false
+    sameSite: isProd ? 'none' : 'lax', // if prod and cross-site -> none
+    path: '/',
+    maxAge: 60 * 60 * 24, // 1 day
+  })
+}
+```
+We need to save the userId into the token so we can easily log the user out using the id stored in it
+```ts
+// in /login
+...
+const token = fastify.jwt.sign({ userId: user.id }, { expiresIn: '24h' })
+setAuthCookie(reply, token)
+
+return reply.send({
+  success: true,
+  user: { id: user.id, name: user.name, surname: user.surname, email: user.email },
+})
+
+// in /logout
+...
+if (token) {
+    try {
+        const payload = fastify.jwt.verify<{ userId: number }>(token)
+        userId = payload.userId
+    } catch {
+    // token scaduto/invalid: logout comunque? boh, penso di si
+        reply.code(400)
+        reply.send({ error: 'Invalid token' })
+    }
+}
+
+reply.clearCookie('session', { path: '/' })
+...
+```
+(We will update the isLoggedIn field in the db accordingly).
+
+
+
