@@ -22,3 +22,7 @@ all:
 	@chmod -x init.sh
 	@echo $$LAUNCH_BODY
 	@echo $$USAGE_BODY
+
+fclean:
+	@rm -rf ./node_modules
+	@rm package-lock.json

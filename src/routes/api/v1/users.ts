@@ -2,22 +2,21 @@ import fastify, { type FastifyInstance, type FastifyPluginAsync, type FastifyRep
 import { userSchemas } from './schemas.js';
 import { setAuthCookie } from '../../../helpers/cookies.js';
 
-
 const Users: FastifyPluginAsync = async (fastify: FastifyInstance, opts) => {
     fastify.get('/', { schema: userSchemas.getAllUsers },  async (req, res) => {
         return fastify.prisma.user.findMany()
     })
 
-    // GET /api/users/:id/profile
+    // GET /api/v1/users/:id/profile
     fastify.get<{
         Params: { id: string }
         }>(
         '/:id/profile',
         { schema: userSchemas.getUserProfile },
-        async (req, reply) => {
+        async (req, res) => {
             const id = Number(req.params.id)
             if (Number.isNaN(id)) {
-            reply.code(400)
+            res.code(400)
             return { error: 'invalid id' }
             }
 
@@ -37,36 +36,36 @@ const Users: FastifyPluginAsync = async (fastify: FastifyInstance, opts) => {
             })
 
             if (!user) {
-            reply.code(404)
+            res.code(404)
             return { error: 'User not found' }
             }
 
-            // DTO pulito (così non mandi dentro tutto nudo/crudo)
+            // DTO pulito (così non mando dentro tutto nudo/crudo)
             return {
-            id: user.id,
-            name: user.name,
-            surname: user.surname,
-            email: user.email,
-            phone: user.phone,
-            city: user.city,
-            address: user.address,
-            cap: user.cap,
-            state: user.state,
-            jobQualifier: user.jobQualifier,
-            googleId: user.googleId,
-            googleSecret: user.googleSecret,
-            isLoggedIn: user.isLoggedIn,
-            createdAt: user.createdAt,
-            updatedAt: user.updatedAt,
+                id: user.id,
+                name: user.name,
+                surname: user.surname,
+                email: user.email,
+                phone: user.phone,
+                city: user.city,
+                address: user.address,
+                cap: user.cap,
+                state: user.state,
+                jobQualifier: user.jobQualifier,
+                googleId: user.googleId,
+                googleSecret: user.googleSecret,
+                isLoggedIn: user.isLoggedIn,
+                createdAt: user.createdAt,
+                updatedAt: user.updatedAt,
 
-            organizations: user.memberships.map((m) => ({
-                id: m.organization.id,
-                name: m.organization.name,
-                email: m.organization.email,
-                createdAt: m.createdAt,
+                organizations: user.memberships.map((m: any) => ({
+                    id: m.organization.id,
+                    name: m.organization.name,
+                    email: m.organization.email,
+                    createdAt: m.createdAt,
             })),
 
-            projects: user.projectParticipants.map((pp) => ({
+            projects: user.projectParticipants.map((pp: any) => ({
                 id: pp.project.id,
                 name: pp.project.name,
                 organizationId: pp.project.organizationId,
@@ -243,12 +242,12 @@ const Users: FastifyPluginAsync = async (fastify: FastifyInstance, opts) => {
         },
         schema: userSchemas.login,
     },
-    async (req, reply) => {
+    async (req, res) => {
         const { email, password } = req.body
 
         // check base
         if (!email || !password) {
-            reply.code(400)
+            res.code(400)
             return { error: 'Email and password are mandatory!' }
         }
 
@@ -258,18 +257,18 @@ const Users: FastifyPluginAsync = async (fastify: FastifyInstance, opts) => {
         })
 
         if (!user) {
-            reply.code(401)
+            res.code(401)
             return { error: 'Invalid credentials' }
         }
 
         // verifica password
-        // POI CAMBIARE PER BCRYPT
+        // TODO: POI CAMBIARE GESTIONE PASSWORD UTENTE CON BCRYPT (per hash pw)
         if (!user.hashedPw || user.hashedPw !== password) {
-            reply.code(401)
+            res.code(401)
             return { error: 'Invalid credentials' }
         }
 
-        // marco logged-in
+        // setto logged-in
         await fastify.prisma.user.update({
             where: { id: user.id },
             data: { isLoggedIn: true },
@@ -288,11 +287,13 @@ const Users: FastifyPluginAsync = async (fastify: FastifyInstance, opts) => {
 
         // HTTP ONLY
         const token = fastify.jwt.sign({ userId: user.id }, { expiresIn: '24h' })
-        setAuthCookie(reply, token)
+        setAuthCookie(res, token)
 
-        return reply.send({
-        success: true,
-        user: { id: user.id, name: user.name, surname: user.surname, email: user.email },
+        // TODO: LOGIN - INSERIRE GESTIONE WEBSOCKETS 
+
+        return res.send({
+            success: true,
+            user: { id: user.id, name: user.name, surname: user.surname, email: user.email },
         })
     }
     )
@@ -301,8 +302,8 @@ const Users: FastifyPluginAsync = async (fastify: FastifyInstance, opts) => {
 
     fastify.post('/logout',
         { schema: userSchemas.logout },
-        async (request, reply) => {
-        const token = request.cookies?.session
+        async (req, res) => {
+        const token = req.cookies?.session
         let userId: number | null = null
 
         if (token) {
@@ -311,12 +312,12 @@ const Users: FastifyPluginAsync = async (fastify: FastifyInstance, opts) => {
                 userId = payload.userId
             } catch {
             // token scaduto/invalid: logout comunque? boh, penso di si
-                reply.code(400)
-                reply.send({ error: 'Invalid token' })
+                res.code(400)
+                res.send({ error: 'Invalid token' })
             }
         }
 
-        reply.clearCookie('session', { path: '/' })
+        res.clearCookie('session', { path: '/' })
 
         if (userId) {
             await fastify.prisma.user.update({
@@ -325,10 +326,13 @@ const Users: FastifyPluginAsync = async (fastify: FastifyInstance, opts) => {
             })
         }
 
-        return reply.send({ success: true })
+        // TODO: LOGOUT - INSERIRE GESTIONE WEBSOCKETS 
+
+        return res.send({ success: true })
     })
 
 
+    /// FATTO DA CHATGPT EH, FIDIAMOCI?
     // DEBUG SEED - POST /api/users/seed
     fastify.post<{
     Querystring: {
@@ -337,7 +341,7 @@ const Users: FastifyPluginAsync = async (fastify: FastifyInstance, opts) => {
         projectsPerOrg?: string
         friendships?: string
     }
-    }>('/seed', { schema: userSchemas.seed }, async (req, reply) => {
+    }>('/seed', { schema: userSchemas.seed }, async (req, res) => {
         const prisma = fastify.prisma
 
         // ---- parametri opzionali ----
@@ -491,7 +495,7 @@ const Users: FastifyPluginAsync = async (fastify: FastifyInstance, opts) => {
                 where: { organizationId: p.organizationId },
                 select: { userId: true },
             })
-            const memberIds = orgMembers.map(m => m.userId)
+            const memberIds = orgMembers.map((m: any) => m.userId)
 
             const participantCount = randInt(2, Math.min(8, memberIds.length))
             const chosenIds = sampleUnique(memberIds, participantCount)
@@ -539,7 +543,7 @@ const Users: FastifyPluginAsync = async (fastify: FastifyInstance, opts) => {
             }
 
             // risposta
-            return reply.send({
+            return res.send({
             ok: true,
             created: {
                 users: users.length,
@@ -552,7 +556,7 @@ const Users: FastifyPluginAsync = async (fastify: FastifyInstance, opts) => {
             })
         } catch (err) {
             fastify.log.error(err)
-            return reply.code(500).send({ ok: false, error: 'seed failed' })
+            return res.code(500).send({ ok: false, error: 'seed failed' })
         }
     })
 }
