@@ -1,15 +1,15 @@
-import fastify, {} from 'fastify';
-import { userSchemas } from './schemas.js';
-import { setAuthCookie } from '../../../helpers/cookies.js';
+import {} from 'fastify';
+import { userSchemas } from './schemas/usersSchemas.js';
+import { setAuthCookie, getUserIdFromJWT } from '../../../helpers/cookies.js';
 const Users = async (fastify, opts) => {
     fastify.get('/', { schema: userSchemas.getAllUsers }, async (req, res) => {
         return fastify.prisma.user.findMany();
     });
-    // GET /api/users/:id/profile
-    fastify.get('/:id/profile', { schema: userSchemas.getUserProfile }, async (req, reply) => {
+    // GET /api/v1/users/:id/profile
+    fastify.get('/:id/profile', { schema: userSchemas.getUserProfile }, async (req, res) => {
         const id = Number(req.params.id);
         if (Number.isNaN(id)) {
-            reply.code(400);
+            res.code(400);
             return { error: 'invalid id' };
         }
         const user = await fastify.prisma.user.findUnique({
@@ -27,10 +27,10 @@ const Users = async (fastify, opts) => {
             },
         });
         if (!user) {
-            reply.code(404);
+            res.code(404);
             return { error: 'User not found' };
         }
-        // DTO pulito (così non mandi dentro tutto nudo/crudo)
+        // DTO pulito (così non mando dentro tutto nudo/crudo)
         return {
             id: user.id,
             name: user.name,
@@ -169,11 +169,11 @@ const Users = async (fastify, opts) => {
             },
         },
         schema: userSchemas.login,
-    }, async (req, reply) => {
+    }, async (req, res) => {
         const { email, password } = req.body;
         // check base
         if (!email || !password) {
-            reply.code(400);
+            res.code(400);
             return { error: 'Email and password are mandatory!' };
         }
         // prendo user
@@ -181,16 +181,16 @@ const Users = async (fastify, opts) => {
             where: { email },
         });
         if (!user) {
-            reply.code(401);
+            res.code(401);
             return { error: 'Invalid credentials' };
         }
         // verifica password
-        // POI CAMBIARE PER BCRYPT
+        // TODO: POI CAMBIARE GESTIONE PASSWORD UTENTE CON BCRYPT (per hash pw)
         if (!user.hashedPw || user.hashedPw !== password) {
-            reply.code(401);
+            res.code(401);
             return { error: 'Invalid credentials' };
         }
-        // marco logged-in
+        // setto logged-in
         await fastify.prisma.user.update({
             where: { id: user.id },
             data: { isLoggedIn: true },
@@ -207,39 +207,29 @@ const Users = async (fastify, opts) => {
         // )
         // HTTP ONLY
         const token = fastify.jwt.sign({ userId: user.id }, { expiresIn: '24h' });
-        setAuthCookie(reply, token);
-        return reply.send({
+        setAuthCookie(res, token);
+        // TODO: LOGIN - INSERIRE GESTIONE WEBSOCKETS 
+        return res.send({
             success: true,
             user: { id: user.id, name: user.name, surname: user.surname, email: user.email },
         });
     });
     // POST /api/v1/users/logout
-    fastify.post('/logout', { schema: userSchemas.logout }, async (request, reply) => {
-        var _a;
-        const token = (_a = request.cookies) === null || _a === void 0 ? void 0 : _a.session;
-        let userId = null;
-        if (token) {
-            try {
-                const payload = fastify.jwt.verify(token);
-                userId = payload.userId;
-            }
-            catch (_b) {
-                // token scaduto/invalid: logout comunque? boh, penso di si
-                reply.code(400);
-                reply.send({ error: 'Invalid token' });
-            }
-        }
-        reply.clearCookie('session', { path: '/' });
+    fastify.post('/logout', { schema: userSchemas.logout }, async (req, res) => {
+        let userId = getUserIdFromJWT(req, res, fastify);
+        res.clearCookie('session', { path: '/' });
         if (userId) {
             await fastify.prisma.user.update({
                 where: { id: userId },
                 data: { isLoggedIn: false },
             });
         }
-        return reply.send({ success: true });
+        // TODO: LOGOUT - INSERIRE GESTIONE WEBSOCKETS 
+        return res.send({ success: true });
     });
+    /// FATTO DA CHATGPT EH, FIDIAMOCI?
     // DEBUG SEED - POST /api/users/seed
-    fastify.post('/seed', { schema: userSchemas.seed }, async (req, reply) => {
+    fastify.post('/seed', { schema: userSchemas.seed }, async (req, res) => {
         var _a, _b, _c, _d;
         const prisma = fastify.prisma;
         // ---- parametri opzionali ----
@@ -378,7 +368,7 @@ const Users = async (fastify, opts) => {
                     where: { organizationId: p.organizationId },
                     select: { userId: true },
                 });
-                const memberIds = orgMembers.map(m => m.userId);
+                const memberIds = orgMembers.map((m) => m.userId);
                 const participantCount = randInt(2, Math.min(8, memberIds.length));
                 const chosenIds = sampleUnique(memberIds, participantCount);
                 for (const uid of chosenIds) {
@@ -424,7 +414,7 @@ const Users = async (fastify, opts) => {
                 }
             }
             // risposta
-            return reply.send({
+            return res.send({
                 ok: true,
                 created: {
                     users: users.length,
@@ -438,7 +428,7 @@ const Users = async (fastify, opts) => {
         }
         catch (err) {
             fastify.log.error(err);
-            return reply.code(500).send({ ok: false, error: 'seed failed' });
+            return res.code(500).send({ ok: false, error: 'seed failed' });
         }
     });
 };

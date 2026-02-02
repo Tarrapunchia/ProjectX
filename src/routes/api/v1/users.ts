@@ -1,6 +1,6 @@
-import fastify, { type FastifyInstance, type FastifyPluginAsync, type FastifyReply, type FastifyRequest } from 'fastify';
-import { userSchemas } from './schemas.js';
-import { setAuthCookie } from '../../../helpers/cookies.js';
+import { type FastifyInstance, type FastifyPluginAsync, type FastifyReply, type FastifyRequest } from 'fastify';
+import { userSchemas } from './schemas/usersSchemas.js';
+import { setAuthCookie, getUserIdFromJWT } from '../../../helpers/cookies.js';
 
 const Users: FastifyPluginAsync = async (fastify: FastifyInstance, opts) => {
     fastify.get('/', { schema: userSchemas.getAllUsers },  async (req, res) => {
@@ -303,19 +303,7 @@ const Users: FastifyPluginAsync = async (fastify: FastifyInstance, opts) => {
     fastify.post('/logout',
         { schema: userSchemas.logout },
         async (req, res) => {
-        const token = req.cookies?.session
-        let userId: number | null = null
-
-        if (token) {
-            try {
-                const payload = fastify.jwt.verify<{ userId: number }>(token)
-                userId = payload.userId
-            } catch {
-            // token scaduto/invalid: logout comunque? boh, penso di si
-                res.code(400)
-                res.send({ error: 'Invalid token' })
-            }
-        }
+        let userId = getUserIdFromJWT(req, res, fastify)
 
         res.clearCookie('session', { path: '/' })
 
