@@ -322,13 +322,11 @@ const Users: FastifyPluginAsync = async (fastify: FastifyInstance, opts) => {
 
     // // PUT /api/v1/users/modifyUserProfile
     // fastify.put('/modifyUserProfile',
-    //     // {},
+    //     // TODO: modifyUser - creare Schema
+    //     { schema : {} },
     //     async (req, res) => {
     //         let userId = getUserIdFromJWT(req, res, fastify)
     //         if (userId) {
-    //             // const user = await fastify.prisma.user.findUnique({
-    //             //     where: { id: userId }
-    //             // })
     //             const {
     //                 id,
     //                 name,
