@@ -320,6 +320,52 @@ const Users: FastifyPluginAsync = async (fastify: FastifyInstance, opts) => {
     })
 
 
+    // // PUT /api/v1/users/modifyUserProfile
+    // fastify.put('/modifyUserProfile',
+    //     // {},
+    //     async (req, res) => {
+    //         let userId = getUserIdFromJWT(req, res, fastify)
+    //         if (userId) {
+    //             // const user = await fastify.prisma.user.findUnique({
+    //             //     where: { id: userId }
+    //             // })
+    //             const {
+    //                 id,
+    //                 name,
+    //                 surname,
+    //                 email,
+    //                 phone,
+    //                 city,
+    //                 address,
+    //                 cap,
+    //                 state,
+    //                 jobQualifier,
+    //                 password
+    //             } = req.body
+
+    //             // TODO - HASH PASSWORD
+
+    //             const user = await fastify.prisma.user.update({
+    //                 where: { id: userId },
+    //                 data: {
+    //                     id: id,
+    //                     name: name,
+    //                     surname: surname,
+    //                     email: email,
+    //                     phone: phone,
+    //                     city: city,
+    //                     address: address,
+    //                     cap: cap,
+    //                     state: state,
+    //                     jobQualifier: jobQualifier,
+    //                     hashedPw: password
+    //                 }
+    //             })
+    //         }
+    //     }
+    // )
+
+
     /// FATTO DA CHATGPT EH, FIDIAMOCI?
     // DEBUG SEED - POST /api/users/seed
     fastify.post<{
