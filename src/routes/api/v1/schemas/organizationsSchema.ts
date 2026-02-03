@@ -1,4 +1,8 @@
 // src/schemas/userSchemas.ts
+
+import { userInfo } from "os";
+import { userSchemas } from "./usersSchemas.js";
+
 // import type { Schema } from 'fastify';
 type Schema = Record<string, any>
 
@@ -13,6 +17,18 @@ const orgResponse = {
     cap: { type: 'string', nullable: true },
     state: { type: 'string', nullable: true },
     ownerId: { type: 'number'}
+};
+
+const orgCreation = {
+    id: { type: 'number' },
+    name: { type: 'string' },
+    email: { type: 'string', format: 'email' },
+    phone: { type: 'string' },
+
+    city: { type: 'string', nullable: true },
+    address: { type: 'string', nullable: true },
+    cap: { type: 'string', nullable: true },
+    state: { type: 'string', nullable: true },
 };
 
 const getAllOrgsSchema: Schema = {
@@ -59,14 +75,45 @@ const getOrgProfile: Schema = {
     },
 }
 
+const getOrgMembers: Schema = {
+    description: 'Fetch the members of an Organization',
+    tags: ['organizations'],
+    params: {
+        type: 'object',
+        properties: {
+            id: { type: 'string', description: 'organization id' },
+        },
+        required: ['id'],
+    },
+    response: {
+        200: {
+            type: 'array',
+            items: {
+                type: 'object',
+                properties: userSchemas.userResponse,
+                required: ['id', 'name', 'surname', 'email', 'phone', 'jobQualifier', 'joinedAt'],
+            },
+        },
+        400: {
+            type: 'object',
+            properties: { error: { type: 'string' } },
+            required: ['error'],
+        },
+        404: {
+            type: 'object',
+            properties: { error: { type: 'string' } },
+            required: ['error'],
+        },
+    },
+}
 
 const createOrg: Schema = {
     description: 'Adds a new Organization and returns it on success',
     tags: ['organizations'],
     body: {
         type: 'object',
-        properties: orgResponse,
-        required: ['name', 'email', 'phone', 'ownerId'],
+        properties: orgCreation,
+        required: ['name', 'email', 'phone'],
     },
     response: {
         201: {
@@ -82,9 +129,38 @@ const createOrg: Schema = {
     },
 };
 
+const addMember: Schema = {
+    description: 'Adds a new user to the Organization and returns it on success',
+    tags: ['organizations'],
+    body: {
+        type: 'object',
+        properties: { userId: { type: 'number' } },
+        required: ['userId'],
+    },
+    response: {
+        201: {
+            type: 'object',
+            properties: {
+                success: { type: 'boolean' },
+                organizationId: { type: 'number' },
+                userId: { type: 'number' },
+                joinedAt: { type : 'string' }
+
+            },
+        },
+        400: {
+            type: 'object',
+            properties: { error: { type: 'string' } },
+            required: ['error'],
+        },
+    },
+};
+
 
 export const orgSchemas = {
     getAllOrgs: getAllOrgsSchema,
     getOrgProfile: getOrgProfile,
+    getOrgMembers: getOrgMembers,
     createOrg: createOrg,
+    addMember: addMember
 };

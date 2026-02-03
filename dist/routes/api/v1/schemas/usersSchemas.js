@@ -298,5 +298,6 @@ export const userSchemas = {
     login: login,
     logout: logout,
     seed: seed,
+    userResponse: userResponse
 };
 //# sourceMappingURL=usersSchemas.js.map
