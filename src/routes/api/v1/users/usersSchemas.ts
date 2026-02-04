@@ -75,9 +75,6 @@ const getUserProfile: Schema = {
 
             jobQualifier: { type: 'string' },
 
-            googleId: { type: 'string', nullable: true },
-            googleSecret: { type: 'string', nullable: true },
-
             isLoggedIn: { type: 'boolean' },
             createdAt: { type: 'string', format: 'date-time' },
             updatedAt: { type: 'string', format: 'date-time' },
@@ -215,46 +212,101 @@ const createUser: Schema = {
     },
 };
 
-const login: Schema = {
-  description: 'Login user with email and password',
-  tags: ['users'],
-  body: {
-    type: 'object',
-    properties: {
-      email: { type: 'string', format: 'email' },
-      password: { type: 'string' },
-    },
-    required: ['email', 'password'],
-  },
-  response: {
-    200: {
-      type: 'object',
-      properties: {
-        success: { type: 'boolean' },
-        user: {
-          type: 'object',
-          properties: {
-            id: { type: 'number' },
-            name: { type: 'string' },
-            surname: { type: 'string' },
-            email: { type: 'string', format: 'email' },
-          },
-          required: ['id', 'name', 'surname', 'email'],
+const modUser: Schema = {
+    description: 'Modify a User and returns it on success',
+    tags: ['users'],
+    body: {
+        type: 'object',
+        properties: {
+            name: { type: 'string', description: 'first name' },
+            surname: { type: 'string', description: 'last name' },
+            email: { type: 'string', format: 'email', description: 'email' },
+            phone: { type: 'string', description: 'phone number' },
+            jobQualifier: { type: 'string', description: 'job qualifier' },
+
+            city: { type: 'string', nullable: true },
+            address: { type: 'string', nullable: true },
+            cap: { type: 'string', nullable: true },
+            state: { type: 'string', nullable: true },
         },
-      },
-      required: ['success', 'user'],
     },
-    400: {
-      type: 'object',
-      properties: { error: { type: 'string' } },
-      required: ['error'],
+    response: {
+        201: {
+        type: 'object',
+        properties: userResponse,
+        required: ['id', 'name', 'surname', 'email', 'phone', 'jobQualifier', 'createdAt', 'updatedAt', 'isLoggedIn'],
+        },
+        400: {
+        type: 'object',
+        properties: { error: { type: 'string' } },
+        required: ['error'],
+        },
     },
-    401: {
-      type: 'object',
-      properties: { error: { type: 'string' } },
-      required: ['error'],
+};
+
+const modPassword: Schema = {
+    description: 'Modify an User password',
+    tags: ['users'],
+    body: {
+        type: 'object',
+        properties: {
+            password: { type: 'string', description: 'password' },
+        },
     },
-  },
+    response: {
+        201: {
+            type: 'object',
+            properties: { success: { type: 'boolean' } },
+            required: ['success'],
+        },
+        400: {
+            type: 'object',
+            properties: { error: { type: 'string' } },
+            required: ['error'],
+        },
+    },
+};
+
+const login: Schema = {
+    description: 'Login user with email and password',
+    tags: ['users'],
+    body: {
+        type: 'object',
+        properties: {
+        email: { type: 'string', format: 'email' },
+        password: { type: 'string' },
+        },
+        required: ['email', 'password'],
+    },
+    response: {
+        200: {
+        type: 'object',
+        properties: {
+            success: { type: 'boolean' },
+            user: {
+            type: 'object',
+            properties: {
+                id: { type: 'number' },
+                name: { type: 'string' },
+                surname: { type: 'string' },
+                email: { type: 'string', format: 'email' },
+            },
+            required: ['id', 'name', 'surname', 'email'],
+            },
+        },
+        required: ['success', 'user'],
+        },
+        400: {
+        type: 'object',
+        properties: { error: { type: 'string' } },
+        required: ['error'],
+        },
+        401: {
+        type: 'object',
+        properties: { error: { type: 'string' } },
+        required: ['error'],
+        },
+    },
 }
 
 const logout: Schema = {
@@ -324,6 +376,8 @@ export const userSchemas = {
     getUserProfile: getUserProfile,
     getUserFriends: getUserFriends,
     createUser: createUser,
+    modUser: modUser,
+    modPassword: modPassword,
     login: login,
     logout: logout,
     seed: seed,

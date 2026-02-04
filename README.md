@@ -37,7 +37,8 @@ Crossed are implemented, void are TODO
 - [x] **POST** add single user ✅
 - [x] **POST** user login ✅
 - [x] **POST** user logout ✅
-- [ ] **PUT** Modify user infos
+- [x] **PUT** Modify user infos ✅
+- [x] **PUT** Modify user password ✅
 - [ ] **DELETE** Delete a user profile
 
 ## Organizations

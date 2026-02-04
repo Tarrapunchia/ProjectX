@@ -1,9 +1,5 @@
-// src/schemas/userSchemas.ts
+import { userSchemas } from "../users/usersSchemas.js";
 
-import { userInfo } from "os";
-import { userSchemas } from "./usersSchemas.js";
-
-// import type { Schema } from 'fastify';
 type Schema = Record<string, any>
 
 const orgResponse = {
