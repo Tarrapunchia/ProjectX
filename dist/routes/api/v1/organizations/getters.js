@@ -6,8 +6,8 @@ const Getters = async (fastify, opts) => {
     fastify.get('/', { schema: orgSchemas.getAllOrgs }, async (req, res) => {
         return fastify.prisma.organization.findMany();
     });
-    // GET /api/v1/organizations/:id/profile
-    fastify.get('/:id/profile', { schema: orgSchemas.getOrgProfile }, async (req, res) => {
+    // GET /api/v1/organizations/:id/organization
+    fastify.get('/:id/organization', { schema: orgSchemas.getOrgProfile }, async (req, res) => {
         const id = Number(req.params.id);
         if (Number.isNaN(id)) {
             res.code(400);

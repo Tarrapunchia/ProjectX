@@ -4,6 +4,7 @@ export declare const orgSchemas: {
     getOrgProfile: Schema;
     getOrgMembers: Schema;
     createOrg: Schema;
+    modifyOrgInfos: Schema;
     addMember: Schema;
 };
 export {};

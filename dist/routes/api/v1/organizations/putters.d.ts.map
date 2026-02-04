@@ -1,1 +1,1 @@
-{"version":3,"file":"putters.d.ts","sourceRoot":"","sources":["../../../../../src/routes/api/v1/organizations/putters.ts"],"names":[],"mappings":"AAAA,OAAgB,EAAwB,KAAK,kBAAkB,EAAE,MAAM,SAAS,CAAC;AAGjF,QAAA,MAAM,OAAO,EAAE,kBAEd,CAAA;AAED,eAAe,OAAO,CAAA"}
+{"version":3,"file":"putters.d.ts","sourceRoot":"","sources":["../../../../../src/routes/api/v1/organizations/putters.ts"],"names":[],"mappings":"AAAA,OAAgB,EAAwB,KAAK,kBAAkB,EAAE,MAAM,SAAS,CAAC;AAIjF,QAAA,MAAM,OAAO,EAAE,kBA0Fd,CAAA;AAED,eAAe,OAAO,CAAA"}

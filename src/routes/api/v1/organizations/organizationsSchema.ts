@@ -125,6 +125,27 @@ const createOrg: Schema = {
     },
 };
 
+const modifyOrgInfos: Schema = {
+    description: 'Modify Organization infos and returns it on success',
+    tags: ['organizations'],
+    body: {
+        type: 'object',
+        properties: orgCreation,
+    },
+    response: {
+        201: {
+            type: 'object',
+            properties: orgResponse,
+            required: ['id', 'name', 'email', 'phone', 'city', 'address', 'cap', 'state', 'ownerId'],
+        },
+        400: {
+            type: 'object',
+            properties: { error: { type: 'string' } },
+            required: ['error'],
+        },
+    },
+};
+
 const addMember: Schema = {
     description: 'Adds a new user to the Organization and returns it on success',
     tags: ['organizations'],
@@ -158,5 +179,6 @@ export const orgSchemas = {
     getOrgProfile: getOrgProfile,
     getOrgMembers: getOrgMembers,
     createOrg: createOrg,
+    modifyOrgInfos: modifyOrgInfos,
     addMember: addMember
 };

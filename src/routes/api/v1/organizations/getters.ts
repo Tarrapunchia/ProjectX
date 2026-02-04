@@ -8,11 +8,11 @@ const Getters: FastifyPluginAsync = async (fastify: FastifyInstance, opts) => {
         return fastify.prisma.organization.findMany()
     })
 
-    // GET /api/v1/organizations/:id/profile
+    // GET /api/v1/organizations/:id/organization
     fastify.get<{
         Params: { id: string }
         }>(
-        '/:id/profile',
+        '/:id/organization',
         { schema: orgSchemas.getOrgProfile },
         async (req, res) => {
             const id = Number(req.params.id)

@@ -23,12 +23,12 @@ const Getters: FastifyPluginAsync = async (fastify: FastifyInstance, opts) => {
                 where: { id },
                 include: {
                     memberships: {
-                    include: { organization: true },
+                        include: { organization: true },
                     },
                     projectParticipants: {
-                    include: {
-                        project: true,
-                        role: true,
+                        include: {
+                            project: true,
+                            role: true,
                     },
                     },
                 },
