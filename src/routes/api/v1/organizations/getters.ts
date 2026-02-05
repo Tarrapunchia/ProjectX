@@ -21,7 +21,12 @@ const Getters: FastifyPluginAsync = async (fastify: FastifyInstance, opts) => {
             return { error: 'invalid id' }
             }
 
-            const org = await fastify.prisma.organization.findUnique({where: { id },})
+            const org = await fastify.prisma.organization.findUnique({
+                where: { id },
+                include: {
+                    projects: true
+                }
+            })
 
             if (!org) {
                 res.code(404)
@@ -37,7 +42,8 @@ const Getters: FastifyPluginAsync = async (fastify: FastifyInstance, opts) => {
                 address: org.address,
                 cap: org.cap,
                 state: org.state,
-                ownerId: org.ownerId
+                ownerId: org.ownerId,
+                projects: org.projects
             }
         }
     )

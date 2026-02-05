@@ -123,9 +123,14 @@ model Role {
 }
 
 model Permission {
-  id          Int     @id @default(autoincrement())
-  bOwner      Boolean @default(false)               // god mode
-  bCreateTask Boolean @default(false)
+  id              Int     @id @default(autoincrement())
+  bOwner          Boolean @default(false)               // god mode
+  bModPermissions Boolean @default(false)
+  bCreateTask     Boolean @default(false)
+  bEditTask       Boolean @default(false)
+  bCloseTask      Boolean @default(false)
+  bInvite         Boolean @default(false)
+  bRemoveUser     Boolean @default(false)
   // permessi da vedere. poi si decidono
 
   role        Role? // lo vuole per la relazione, si puo' anche non usare

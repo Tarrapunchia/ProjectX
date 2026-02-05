@@ -55,8 +55,7 @@ Crossed are implemented, void are TODO
 - [x] **GET** All Projects ✅
 - [x] **GET** Single Project by id ✅
 - [x] **GET** Single all the Projects of an organizations that contains given string in the name (returns all the org projects if the name string is null) ✅
-- [ ] **GET** Single Project's members (users) by id
-- [ ] **POST** add single Project
-- [ ] **POST** add a member to the Project
+- [x] **POST** add single Project
+- [ ] **POST** add a member to the given Project
 - [ ] **PUT** Modify Projects infos
 - [ ] **DELETE** Delete a Projects profile

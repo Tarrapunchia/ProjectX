@@ -1,1 +1,1 @@
-{"version":3,"file":"projectsSchema.d.ts","sourceRoot":"","sources":["../../../../../src/routes/api/v1/projects/projectsSchema.ts"],"names":[],"mappings":"AAAA,KAAK,MAAM,GAAG,MAAM,CAAC,MAAM,EAAE,GAAG,CAAC,CAAA;AAoGjC,eAAO,MAAM,cAAc;;;;CAK1B,CAAC"}
+{"version":3,"file":"projectsSchema.d.ts","sourceRoot":"","sources":["../../../../../src/routes/api/v1/projects/projectsSchema.ts"],"names":[],"mappings":"AAAA,KAAK,MAAM,GAAG,MAAM,CAAC,MAAM,EAAE,GAAG,CAAC,CAAA;AA8HjC,eAAO,MAAM,cAAc;;;;;CAM1B,CAAC"}

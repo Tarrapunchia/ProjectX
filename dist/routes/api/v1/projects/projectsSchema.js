@@ -87,10 +87,36 @@ const getOrgProjectsByNameSchema = {
         },
     },
 };
+const createProjectSchema = {
+    description: 'Creates a new project setting the creator as owner - god mode and returning the project, using a name and the org id as input',
+    tags: ['projects'],
+    body: {
+        type: 'object',
+        properties: { name: { type: 'string' }, orgId: { type: 'number' } },
+        required: ['name', 'orgId'],
+    },
+    response: {
+        201: {
+            type: 'object',
+            properties: {
+                id: { type: 'number' },
+                name: { type: 'string' },
+                organizationId: { type: 'number' }
+            },
+            required: ['id', 'name', 'organizationId'],
+        },
+        400: {
+            type: 'object',
+            properties: { error: { type: 'string' } },
+            required: ['error'],
+        },
+    },
+};
 export const projectSchemas = {
     getAllProjectsSchema: getAllProjectsSchema,
     getProjectByIdSchema: getProjectByIdSchema,
-    getOrgProjectsByNameSchema: getOrgProjectsByNameSchema
+    getOrgProjectsByNameSchema: getOrgProjectsByNameSchema,
+    createProjectSchema: createProjectSchema,
 };
 // const getOrgProfile: Schema = {
 //     description: 'Fetch an Organization profile',

@@ -8,7 +8,18 @@ const orgResponse = {
     address: { type: 'string', nullable: true },
     cap: { type: 'string', nullable: true },
     state: { type: 'string', nullable: true },
-    ownerId: { type: 'number' }
+    ownerId: { type: 'number' },
+    projects: {
+        type: 'array',
+        items: {
+            type: 'object',
+            properties: {
+                id: { type: 'number' },
+                name: { type: 'string' },
+                // organizationId: { type: 'number' }
+            }
+        }
+    }
 };
 const orgCreation = {
     id: { type: 'number' },

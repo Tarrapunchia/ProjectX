@@ -13,7 +13,12 @@ const Getters = async (fastify, opts) => {
             res.code(400);
             return { error: 'invalid id' };
         }
-        const org = await fastify.prisma.organization.findUnique({ where: { id }, });
+        const org = await fastify.prisma.organization.findUnique({
+            where: { id },
+            include: {
+                projects: true
+            }
+        });
         if (!org) {
             res.code(404);
             return { error: 'Organization not found' };
@@ -27,7 +32,8 @@ const Getters = async (fastify, opts) => {
             address: org.address,
             cap: org.cap,
             state: org.state,
-            ownerId: org.ownerId
+            ownerId: org.ownerId,
+            projects: org.projects
         };
     });
     // GET /api/v1/organizations/:id/members
