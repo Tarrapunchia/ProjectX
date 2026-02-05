@@ -73,6 +73,17 @@ const Posters: FastifyPluginAsync = async (fastify: FastifyInstance, opts) => {
                     },
                 })
 
+                // 4) se il creatore non e' anche l'owner della organizzazione, lo aggiungo
+                if (org.ownerId != ownerId) {
+                    await tx.projectParticipant.create({
+                        data: {
+                            projectId: project.id,
+                            userId: ownerId,
+                            roleId: ownerRole.id,
+                        },
+                    })
+                }
+
                 return project
             })
 
