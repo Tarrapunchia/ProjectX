@@ -36,6 +36,42 @@ const Getters = async (fastify, opts) => {
             projects: org.projects
         };
     });
+    // GET /api/v1/organizations/search?organizationName=foo
+    fastify.get('/search', { schema: orgSchemas.getOrgByName }, async (req, reply) => {
+        var _a;
+        const organizationName = ((_a = req.query.organizationName) !== null && _a !== void 0 ? _a : '').trim();
+        const organizations = await fastify.prisma.organization.findMany({
+            where: { name: { contains: organizationName } },
+            include: {
+                projects: {
+                    select: { id: true, name: true }
+                },
+                members: {
+                    include: {
+                        user: true
+                    }
+                }
+            },
+            orderBy: { name: 'asc' },
+        });
+        const result = organizations.map((o) => ({
+            id: o.id,
+            name: o.name,
+            projects: o.projects.map((p) => ({ id: p.id, name: p.name, })),
+            members: o.members.map((m) => ({
+                userId: m.userId,
+                joinedAt: m.createdAt,
+                user: {
+                    id: m.user.id,
+                    name: m.user.name,
+                    surname: m.user.surname,
+                    jobQualifier: m.user.jobQualifier,
+                    email: m.user.email,
+                }
+            }))
+        }));
+        return reply.send({ result });
+    });
     // GET /api/v1/organizations/:id/members
     // TODO: getOrgMembers - limitare la visibilita' agli iscritti all'org?
     fastify.get('/:id/members', { schema: orgSchemas.getOrgMembers }, async (req, res) => {

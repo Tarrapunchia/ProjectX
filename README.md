@@ -44,6 +44,7 @@ Crossed are implemented, void are TODO
 ## Organizations
 - [x] **GET** All organizations ✅
 - [x] **GET** Single organization by id ✅
+- [x] **GET** Filter organizations by name (if the name query param is empty -> all orgs) ✅
 - [x] **GET** Single organization's members (users) by id ✅
 - [x] **POST** add single organization ✅
 - [x] **POST** add a member to the organization ✅

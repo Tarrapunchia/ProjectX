@@ -54,14 +54,16 @@ const Posters = async (fastify, opts) => {
             res.code(400);
             return { error: 'invalid organization id' };
         }
-        const { userId } = req.body;
-        if (!userId || Number.isNaN(Number(userId))) {
+        const { email } = req.body;
+        if (!email) {
             res.code(400);
-            return { error: 'userId is required' };
+            return { error: 'email address is required' };
         }
         const actorId = getUserIdFromJWT(req, res, fastify);
-        if (!actorId)
-            return;
+        if (!actorId) {
+            res.code(400);
+            return { error: "You must be logged in to perform the action" };
+        }
         // org esiste?
         const org = await fastify.prisma.organization.findUnique({
             where: { id: organizationId },
@@ -78,8 +80,8 @@ const Posters = async (fastify, opts) => {
         }
         // user esiste?
         const user = await fastify.prisma.user.findUnique({
-            where: { id: userId },
-            select: { id: true },
+            where: { email: email },
+            select: { email: true, id: true },
         });
         if (!user) {
             res.code(404);
@@ -88,12 +90,12 @@ const Posters = async (fastify, opts) => {
         // crea membership (gestiscendo duplicati)
         try {
             const membership = await fastify.prisma.organizationMember.create({
-                data: { organizationId, userId },
+                data: { organizationId, userId: user.id },
             });
             return res.code(201).send({
                 success: true,
                 organizationId,
-                userId,
+                email,
                 joinedAt: membership.createdAt,
             });
         }

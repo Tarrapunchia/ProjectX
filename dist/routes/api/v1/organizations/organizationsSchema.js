@@ -16,7 +16,6 @@ const orgResponse = {
             properties: {
                 id: { type: 'number' },
                 name: { type: 'string' },
-                // organizationId: { type: 'number' }
             }
         }
     }
@@ -45,7 +44,7 @@ const getAllOrgsSchema = {
         },
     },
 };
-const getOrgProfile = {
+const getOrgProfileById = {
     description: 'Fetch an Organization profile',
     tags: ['organizations'],
     params: {
@@ -67,6 +66,73 @@ const getOrgProfile = {
             required: ['error'],
         },
         404: {
+            type: 'object',
+            properties: { error: { type: 'string' } },
+            required: ['error'],
+        },
+    },
+};
+const getOrgByName = {
+    description: 'Search organizations by name or part of it (or all orgs if the name is empty)',
+    tags: ['organizations'],
+    querystring: {
+        type: 'object',
+        properties: {
+            organizationName: { type: 'string' },
+        },
+    },
+    response: {
+        200: {
+            type: 'object',
+            properties: {
+                result: {
+                    type: 'array',
+                    items: {
+                        type: 'object',
+                        properties: {
+                            id: { type: 'number' },
+                            name: { type: 'string' },
+                            projects: {
+                                type: 'array',
+                                items: {
+                                    type: 'object',
+                                    properties: {
+                                        id: { type: 'number' },
+                                        name: { type: 'string' },
+                                    },
+                                    required: ['id', 'name'],
+                                },
+                            },
+                            members: {
+                                type: 'array',
+                                items: {
+                                    type: 'object',
+                                    properties: {
+                                        userId: { type: 'number' },
+                                        joinedAt: { type: 'string', format: 'date-time' },
+                                        user: {
+                                            type: 'object',
+                                            properties: {
+                                                id: { type: 'number' },
+                                                name: { type: 'string' },
+                                                surname: { type: 'string' },
+                                                jobQualifier: { type: 'string' },
+                                                email: { type: 'string', format: 'email' },
+                                            },
+                                            required: ['id', 'name', 'surname', 'jobQualifier', 'email'],
+                                        },
+                                    },
+                                    required: ['userId', 'joinedAt', 'user'],
+                                },
+                            },
+                        },
+                        required: ['id', 'name', 'projects', 'members'],
+                    },
+                },
+            },
+            required: ['result'],
+        },
+        400: {
             type: 'object',
             properties: { error: { type: 'string' } },
             required: ['error'],
@@ -150,8 +216,8 @@ const addMember = {
     tags: ['organizations'],
     body: {
         type: 'object',
-        properties: { userId: { type: 'number' } },
-        required: ['userId'],
+        properties: { email: { type: 'string', format: 'email' } },
+        required: ['email'],
     },
     response: {
         201: {
@@ -159,7 +225,7 @@ const addMember = {
             properties: {
                 success: { type: 'boolean' },
                 organizationId: { type: 'number' },
-                userId: { type: 'number' },
+                email: { type: 'string', format: 'email' },
                 joinedAt: { type: 'string' }
             },
         },
@@ -172,7 +238,8 @@ const addMember = {
 };
 export const orgSchemas = {
     getAllOrgs: getAllOrgsSchema,
-    getOrgProfile: getOrgProfile,
+    getOrgProfile: getOrgProfileById,
+    getOrgByName: getOrgByName,
     getOrgMembers: getOrgMembers,
     createOrg: createOrg,
     modifyOrgInfos: modifyOrgInfos,

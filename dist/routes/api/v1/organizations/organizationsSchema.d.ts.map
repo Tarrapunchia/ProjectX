@@ -1,1 +1,1 @@
-{"version":3,"file":"organizationsSchema.d.ts","sourceRoot":"","sources":["../../../../../src/routes/api/v1/organizations/organizationsSchema.ts"],"names":[],"mappings":"AAEA,KAAK,MAAM,GAAG,MAAM,CAAC,MAAM,EAAE,GAAG,CAAC,CAAA;AAyLjC,eAAO,MAAM,UAAU;;;;;;;CAOtB,CAAC"}
+{"version":3,"file":"organizationsSchema.d.ts","sourceRoot":"","sources":["../../../../../src/routes/api/v1/organizations/organizationsSchema.ts"],"names":[],"mappings":"AAEA,KAAK,MAAM,GAAG,MAAM,CAAC,MAAM,EAAE,GAAG,CAAC,CAAA;AA6PjC,eAAO,MAAM,UAAU;;;;;;;;CAQtB,CAAC"}
