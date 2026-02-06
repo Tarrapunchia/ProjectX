@@ -29,6 +29,10 @@ export class ConnectionManager {
 		return this.connections.get(id);
 	}
 
+	getAllConnection() {
+		return this.connections;
+	}
+
 	removeConnection(id: string) {
 		this.connections.delete(id);
 	}
