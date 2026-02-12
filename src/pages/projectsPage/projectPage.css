@@ -1,14 +1,16 @@
 .projectsPage {
 	display: flex;
-	gap: 20px 50px;
+	gap: 20px 1vw;
+	margin-left: 2vw;
 	flex-wrap: wrap;
-	justify-content: center;
+	justify-content: left;
 	align-items: flex-start;
-	position: relative;
+	/* position: relative; */
 }
 
 .category {
-	width: 450px;
+	min-width: 320px;
+	width: 19vw;
 	background: #8e8d8d37;
 	border-radius: 2px;
 }
@@ -92,11 +94,12 @@
 }
 
 .project-detail.expanding {
-	top: 8vh !important;
-	left: 15vw !important;
+	top: 10vh !important;
+	left: 16vw !important;
 	width: 83vw !important;
-	height: 87vh !important;
+	height: 85vh !important;
 	opacity: 1;
+	border: 1px solid #606060;
 }
 
 .project-detail h2 {

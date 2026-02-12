@@ -49,7 +49,7 @@ const ProjectsPage: React.FC<ProjectsPageProps> = ({ setActivePage, setSelectedP
 
 	return (
 		<div className="projectsPage">
-			<h1 style={{ width: '100%', marginLeft: '110px' }}>Projects</h1>
+			<h1 style={{ width: '100%', marginLeft: '2vw' }}>Projects</h1>
 			<div className="category">
 				<p onClick={() => toggleCategory('todo')} style={{ cursor: 'pointer' }}>
 					<span className="category-title">TO DO</span>
