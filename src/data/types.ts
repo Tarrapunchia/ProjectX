@@ -13,12 +13,15 @@ export interface ProfileUser {
 // User's completed projects type
 export interface Projects {
 	id: string;
-	leader: string;
+	owner: string;
 	name: string;
+	description: string;
 	startDate: string;
+	targetDate: string;
 	completed: boolean;
 	completedDate: string;
 	role: string;
+	status: string;
 }
 
 export interface Friend {
