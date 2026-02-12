@@ -46,6 +46,17 @@ export class RoomManager {
 		if (!client) return;
 		room.partecipants.delete(socketId);
 	};
+
+	getRoom(roomId: string): RoomInfo | undefined {
+		return this.rooms.get(roomId);
+	}
+
+	getRoomMembers(roomId: string): string[] {
+		const room = this.rooms.get(roomId);
+		if (!room)
+			return [];
+		return Array.from(room.partecipants.keys()); // .keys() ritorna le chiavi della map (arry dei socketId)
+	}
 }
 
 export const roomManager = new RoomManager();

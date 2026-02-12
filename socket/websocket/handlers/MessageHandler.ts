@@ -1,5 +1,10 @@
+import { ChatMessage } from "../types";
 // Riceve messaggio --> Parse JSON --> routing
 // Switch su type (come switch su PRIVMS, JOIN ecc...)
+
+export function handleMessage(socketId: string, message: ChatMessage) {
+	
+}
 
 // ======= ESEMPIO FLUSSO DI UN MESSAGGIO =======
 

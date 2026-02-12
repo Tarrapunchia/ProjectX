@@ -29,6 +29,15 @@ export class ConnectionManager {
 		return this.connections.get(id);
 	}
 
+	getSocketIdByUserId(userId: string): string | undefined {
+		for (const [socketId, client] of this.connections.entries()) {
+			if (client.userId === userId) {
+				return socketId;
+			}
+		}
+		return undefined;
+	}
+
 	getAllConnection() {
 		return this.connections;
 	}

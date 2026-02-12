@@ -15,21 +15,21 @@ export function broadcastToAll(message: any, excudeSocketId: string) {
 }
 
 export function broadcastToRoom(roomId: string, message: any, excludeSocketId?: string) {
-	// const members = roomManager.getRoomMembers(roomId);
+	const members = roomManager.getRoomMembers(roomId);
 
-	// members.forEach(socketId => {
-	// 	if (socketId != excludeSocketId) {
-	// 		const client = connectionManager.getConnection(socketId);
+	members.forEach(socketId => {
+		if (socketId != excludeSocketId) {
+			const client = connectionManager.getConnection(socketId);
 
-	// 		if (client && client.socket.readyState === WebSocket.OPEN) {
-	// 			const text = typeof message === 'string'
-	// 				? message
-	// 				: JSON.stringify(message);
+			if (client) { // && client.socket.readyState === WebSocket.OPEN
+				const text = typeof message === 'string'
+					? message
+					: JSON.stringify(message);
 
-	// 			client.socket.send(text);
-	// 		}
-	// 	}
-	// });
+				client.socket.send(text);
+			}
+		}
+	});
 }
 
 export function sendToSocket(socketId: string, message: any) {

@@ -3,6 +3,10 @@ import { WebSocket } from '@fastify/websocket';
 import { connectionManager } from './core/ConnectionManager';
 import { roomManager } from './core/RoomManager';
 import { broadcastToAll } from './core/Broadcaster';
+import { handlePresence } from './handlers/PresenceHandler';
+import { PresenceMessage } from './types';
+import { ChatMessage } from './types';
+import { handleMessage } from './handlers/MessageHandler';
 
 interface WebSocketQuery {
 	token?: string
@@ -41,8 +45,10 @@ export async function setupWebSocket(app: FastifyInstance) {
 						// decido quale handler chiamare
 						// da decidere che tipo di messaggi gestire
 						case 'chat_massage':
+							handleMessage(socketId, message as ChatMessage);
 							break;
-						case 'join_room': // notifiche a room ?
+						case 'presence':
+							handlePresence(socketId, message as PresenceMessage) // notifiche a room ?
 							break;
 					}
 				} catch (error) {
