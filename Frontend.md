@@ -12,6 +12,7 @@
 
 ### Pagina dei progetti
 
+* New/in progress/completed/stand by
 * Lista dei progetti ai quali sono iscritto
 * Progetti divisi per riquadri (?)
 * Barra progressione progetto
