@@ -12,6 +12,7 @@ import fastifyJwt from '@fastify/jwt';
 import rateLimit from '@fastify/rate-limit';
 import cookie from '@fastify/cookie';
 import cors from '@fastify/cors';
+import websocketPlugin from './plugins/websockets/websocket.js';
 // import AuthGoogle from './routes/google/auth.js'
 const PORT = 5000;
 const __filename = fileURLToPath(import.meta.url);
@@ -60,9 +61,6 @@ await server.register(swaggerUi, {
     staticCSP: true
     // transformSpecification, transformSpecificationClone… se servissero
 });
-await server.register(formBody);
-await server.register(prismaPlugin);
-await server.register(fastifyWebsocket);
 await server.register(fastifyJwt, {
     secret: "%pRojeCTx$"
 });
@@ -72,10 +70,21 @@ await server.register(rateLimit, {
 await server.register(cookie, {
 //   secret: process.env.COOKIE_SECRET, // opzionale, se si vuol usare signed cookies
 });
-// await fastify.register(cors, {			// per quando BE e FE non saranno su stessa porta
-//   origin: ['http://localhost:5173'],		// indirizzo FE
-//   credentials: true,
-// })
+// TODO - rivedere bene cors policy
+// per ora attivo per i test per il ws
+await server.register(cors, {
+    origin: [
+        'http://localhost:5000',
+        'http://127.0.0.1:5000', // indirizzo FE
+    ],
+    credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
+});
+await server.register(formBody);
+await server.register(prismaPlugin);
+await server.register(fastifyWebsocket);
+await server.register(websocketPlugin);
 // await server.register(AuthGoogle, { prefix: 'auth'})
 server.register(api, { prefix: 'api' });
 server.register(fastifyStatic, {

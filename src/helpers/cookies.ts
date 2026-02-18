@@ -15,15 +15,39 @@ function setAuthCookie(reply: any, token: string) {
 function getUserIdFromJWT(req: any, res: any, fastify: FastifyInstance) {
   const token = req.cookies?.session
   let userId: number | null = null
+  fastify.log.info("GETUSERJWT")
 
     if (token) {
         try {
             const payload = fastify.jwt.verify<{ userId: number }>(token)
             userId = payload.userId
+            fastify.log.info("GETUSERJWT - has token -> userId " + userId)
         } catch {
         // token scaduto/invalid: logout comunque? boh, penso di si
-            res.code(400)
-            res.send({ error: 'Invalid token' })
+            if (res) {
+              res.code(400)
+              res.send({ error: 'Invalid token' })
+            }
+            fastify.log.error('GETUSERJWT - problema su estrazuione')
+            return null
+        }
+    }
+    return userId
+}
+
+function wsGetUserIdFromJWT(req: any, fastify: FastifyInstance) {
+  const token = req.cookies?.session
+  let userId: number | null = null
+  fastify.log.info("GETUSERJWT")
+
+    if (token) {
+        try {
+            const payload = fastify.jwt.verify<{ userId: number }>(token)
+            userId = payload.userId
+            fastify.log.info("GETUSERJWT - has token -> userId " + userId)
+        } catch {
+        // token scaduto/invalid: logout comunque? boh, penso di si
+            fastify.log.error('GETUSERJWT - problema su estrazuione')
             return null
         }
     }
@@ -32,5 +56,6 @@ function getUserIdFromJWT(req: any, res: any, fastify: FastifyInstance) {
 
 export {
     setAuthCookie,
-    getUserIdFromJWT
+    getUserIdFromJWT,
+    wsGetUserIdFromJWT
 }

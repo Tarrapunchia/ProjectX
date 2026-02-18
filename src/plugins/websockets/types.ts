@@ -2,14 +2,14 @@
 // // Definizioni typescript ( come struct Client, struct Channel in C++ )
 
 // // ======== CONNECTIONS ========
-// export interface ClientInfo {
-// 	socketId: string;
-// 	socket: WebSocket;
-// 	userId: Number;
-// 	email?: string;
-// 	connectedAt: Date;
-// 	lastActivity: Date;
-// }
+export interface ClientInfo {
+	socketId: string;
+	socket: WebSocket;
+	userId: Number;
+	email?: string;
+	connectedAt: Date;
+	lastActivity: Date;
+}
 
 // // ========= ROOM ==========
 // export enum RoomRole {

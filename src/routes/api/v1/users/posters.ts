@@ -147,7 +147,6 @@ const Posters: FastifyPluginAsync = async (fastify: FastifyInstance, opts) => {
         setAuthCookie(res, token)
 
         // TODO: LOGIN - INSERIRE GESTIONE WEBSOCKETS 
-
         return res.send({
             success: true,
             user: { id: user.id, name: user.name, surname: user.surname, email: user.email },

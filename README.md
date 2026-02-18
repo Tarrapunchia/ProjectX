@@ -50,7 +50,7 @@ Crossed are implemented, void are TODO
 - [x] **POST** add a member to the organization ✅
 - [x] **PUT** Modify organizations infos ✅
 - [ ] **DELETE** Remove a member from the organization
-- [ ] **DELETE** Delete a organizations profile // Prima implemento la DELETE dei progetti
+- [ ] **DELETE** Delete an organization // Prima implemento la DELETE dei progetti
 
 ## Projects
 - [x] **GET** All Projects ✅
@@ -59,4 +59,6 @@ Crossed are implemented, void are TODO
 - [x] **POST** add single Project
 - [ ] **POST** add a member to the given Project
 - [ ] **PUT** Modify Projects infos
-- [ ] **DELETE** Delete a Projects profile
+- [ ] **DELETE** Remove a member from the project
+- [ ] **DELETE** Delete a Project
+

@@ -1,15 +1,6 @@
 // import { type WebSocket } from '@fastify/websocket';
 // // Definizioni typescript ( come struct Client, struct Channel in C++ )
 export {};
-// // ======== CONNECTIONS ========
-// export interface ClientInfo {
-// 	socketId: string;
-// 	socket: WebSocket;
-// 	userId: Number;
-// 	email?: string;
-// 	connectedAt: Date;
-// 	lastActivity: Date;
-// }
 // // ========= ROOM ==========
 // export enum RoomRole {
 // 	PROJECT_MANAGER = 'project-manager',
