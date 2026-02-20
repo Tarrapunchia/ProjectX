@@ -8,6 +8,7 @@ declare module 'fastify' {
         wsSendToUser: (userId: number, data: unknown) => number;
         wsBroadcast: (data: unknown) => number;
         wsDisconnectUser: (userId: number, code?: number, reason?: string) => number;
+        wsBroadcastExcept: (except: WebSocket, data: unknown) => number;
     }
 }
 declare const websocketPlugin: FastifyPluginAsync;

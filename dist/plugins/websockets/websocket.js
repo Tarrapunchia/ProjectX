@@ -39,6 +39,26 @@ const websocketPlugin = fp(async (server) => {
         }
         return sent;
     });
+    // il broadcast senza aggiornare anche chi lo invia
+    server.decorate('wsBroadcastExcept', (except, data) => {
+        const payload = JSON.stringify(data);
+        let sent = 0;
+        for (const set of server.wsClientsByUserId.values()) {
+            for (const client of set) {
+                if (client === except)
+                    continue;
+                const anyWs = client;
+                if (anyWs.readyState !== 1)
+                    continue;
+                try {
+                    client.send(payload);
+                    sent++;
+                }
+                catch (_a) { }
+            }
+        }
+        return sent;
+    });
     server.decorate('wsDisconnectUser', (userId, code = 1000, reason = 'bye') => {
         const set = server.wsClientsByUserId.get(userId);
         if (!set || set.size === 0)
@@ -101,19 +121,32 @@ const websocketPlugin = fp(async (server) => {
                 server.log.info({ userId, text }, 'WS non-JSON msg');
                 return;
             }
-            if ((msg === null || msg === void 0 ? void 0 : msg.type) == "broadcast") {
-                server.wsBroadcast({
-                    type: 'broadcast',
-                    fromUserId: userId,
-                    payload: (_a = msg.payload) !== null && _a !== void 0 ? _a : null
-                });
-            }
-            if ((msg === null || msg === void 0 ? void 0 : msg.type) == 'private') {
-                server.wsSendToUser(msg.toUserId, {
-                    type: 'private',
-                    fromUserId: userId,
-                    payload: (_b = msg.payload) !== null && _b !== void 0 ? _b : null
-                });
+            switch (msg === null || msg === void 0 ? void 0 : msg.type) {
+                case "broadcast":
+                    server.wsBroadcast({
+                        type: 'broadcast',
+                        fromUserId: userId,
+                        payload: (_a = msg.payload) !== null && _a !== void 0 ? _a : null
+                    });
+                    break;
+                case "private":
+                    server.wsSendToUser(msg.toUserId, {
+                        type: 'private',
+                        fromUserId: userId,
+                        payload: (_b = msg.payload) !== null && _b !== void 0 ? _b : null
+                    });
+                    break;
+                case "cursor:move":
+                    server.wsBroadcastExcept(ws, {
+                        type: 'cursor:move',
+                        userId,
+                        x: msg.x,
+                        y: msg.y,
+                        ts: Date.now()
+                    });
+                    break;
+                default:
+                    break;
             }
             server.log.info(`Received from the user ${userId} = ${text}`);
         });

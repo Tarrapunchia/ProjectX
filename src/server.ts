@@ -65,15 +65,6 @@ await server.register(swaggerUi, {
   // transformSpecification, transformSpecificationClone… se servissero
 })
 
-await server.register(fastifyJwt, {
-	secret: "%pRojeCTx$"
-});
-await server.register(rateLimit, {
-  global: false, // così lo usi per singola route
-})
-await server.register(cookie, {
-//   secret: process.env.COOKIE_SECRET, // opzionale, se si vuol usare signed cookies
-})
 // TODO - rivedere bene cors policy
 // per ora attivo per i test per il ws
 await server.register(cors, {			// per quando BE e FE non saranno su stessa porta
@@ -84,6 +75,15 @@ await server.register(cors, {			// per quando BE e FE non saranno su stessa port
 	credentials: true,
 	methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
 	allowedHeaders: ['Content-Type', 'Authorization'],
+})
+await server.register(fastifyJwt, {
+	secret: "%pRojeCTx$"
+});
+await server.register(rateLimit, {
+  global: false, // così lo usi per singola route
+})
+await server.register(cookie, {
+//   secret: process.env.COOKIE_SECRET, // opzionale, se si vuol usare signed cookies
 })
 
 await server.register(formBody)

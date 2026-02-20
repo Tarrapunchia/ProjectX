@@ -17,7 +17,8 @@ declare module 'fastify' {
         wsClientsByUserId: WsClientsByUserId
         wsSendToUser: (userId: number, data: unknown) => number
         wsBroadcast: (data: unknown) => number
-        wsDisconnectUser: (userId: number, code?: number, reason?: string) => number 
+        wsDisconnectUser: (userId: number, code?: number, reason?: string) => number
+        wsBroadcastExcept: (except: WebSocket, data: unknown) => number
     }
 }
 
@@ -57,6 +58,23 @@ const websocketPlugin: FastifyPluginAsync = fp(async (server) => {
                 if (safeSend(ws, payload)) sent++
             }
         }
+        return sent
+    })
+
+    // il broadcast senza aggiornare anche chi lo invia
+    server.decorate('wsBroadcastExcept', (except: WebSocket, data: unknown) => {
+        const payload = JSON.stringify(data)
+        let sent = 0
+
+        for (const set of server.wsClientsByUserId.values()) {
+            for (const client of set) {
+                if (client === except) continue
+                const anyWs = client as any
+                if (anyWs.readyState !== 1) continue
+                try { client.send(payload); sent++ } catch {}
+            }
+        }
+
         return sent
     })
 
@@ -120,23 +138,37 @@ const websocketPlugin: FastifyPluginAsync = fp(async (server) => {
                 server.log.info({ userId, text }, 'WS non-JSON msg')
                 return
             }
-
-            if (msg?.type == "broadcast") {
-                server.wsBroadcast({
-                    type: 'broadcast',
-                    fromUserId: userId,
-                    payload: msg.payload ?? null
-                })
-            }
-
-            if (msg?.type == 'private') {
-                server.wsSendToUser(
-                    msg.toUserId,
-                    {
-                        type: 'private',
+            switch (msg?.type) {
+                case "broadcast":
+                    server.wsBroadcast({
+                        type: 'broadcast',
                         fromUserId: userId,
                         payload: msg.payload ?? null
                     })
+                    break;
+                case "private":
+                    server.wsSendToUser(
+                        msg.toUserId,
+                        {
+                            type: 'private',
+                            fromUserId: userId,
+                            payload: msg.payload ?? null
+                        })
+                    break;
+                
+                case "cursor:move":
+                    server.wsBroadcastExcept(
+                        ws,
+                        {
+                            type: 'cursor:move',
+                            userId,
+                            x: msg.x,
+                            y: msg.y,
+                            ts: Date.now()
+                        })
+                    break;
+                default:
+                    break;
             }
 
             server.log.info(`Received from the user ${userId} = ${text}`)
