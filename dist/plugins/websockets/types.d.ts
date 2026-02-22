@@ -6,4 +6,12 @@ export interface ClientInfo {
     connectedAt: Date;
     lastActivity: Date;
 }
+export interface Message {
+    type: string;
+    fromUserId: number;
+    toUserId?: number;
+    toRoom?: string;
+    timestamp: Date;
+    payload: unknown;
+}
 //# sourceMappingURL=types.d.ts.map

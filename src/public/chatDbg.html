@@ -1,0 +1,246 @@
+<!doctype html>
+<html lang="it">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Chat Debug (WS)</title>
+  <style>
+    body { font-family: system-ui, Arial, sans-serif; margin: 24px; }
+    .row { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; }
+    input, textarea { padding: 8px 10px; }
+    input { min-width: 240px; }
+    textarea { width: min(760px, 95vw); height: 70px; resize: vertical; }
+    button { padding: 10px 14px; cursor: pointer; }
+    .muted { color: #666; font-size: 12px; }
+
+    #chat {
+      margin-top: 14px;
+      width: min(900px, 95vw);
+      height: 360px;
+      border: 1px solid #ddd;
+      border-radius: 10px;
+      padding: 10px;
+      overflow: auto;
+      background: #fafafa;
+      white-space: pre-wrap;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+      font-size: 13px;
+    }
+
+    .pill {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 999px;
+      background: #eee;
+      font-size: 12px;
+      margin-left: 6px;
+    }
+  </style>
+</head>
+<body>
+  <h1>Chat debug via WebSocket</h1>
+
+  <div class="row">
+    <input id="email" type="email" placeholder="email" value="user@example.com" />
+    <input id="password" type="password" placeholder="password" value="1234" />
+    <button id="btnLogin">Login</button>
+    <button id="btnWs">Apri WS</button>
+    <button id="btnClose" disabled>Chiudi WS</button>
+    <span id="status" class="pill">DISCONNECTED</span>
+  </div>
+
+  <div class="muted" style="margin-top:10px;">
+    API: <code id="apiInfo"></code> — WS: <code id="wsInfo"></code>
+  </div>
+
+  <hr style="margin: 14px 0;">
+
+  <div class="row">
+    <input id="destUserId" type="number" placeholder="ID utente destinatario (es. 42)" />
+  </div>
+
+  <div class="row" style="margin-top: 10px;">
+    <textarea id="message" placeholder="Scrivi un messaggio...">Ciao!</textarea>
+  </div>
+
+  <div class="row" style="margin-top: 10px;">
+    <button id="btnSend" disabled>Invia messaggio</button>
+    <button id="btnPing" disabled>Ping</button>
+    <span class="muted">Formato WS: <code>{"type":"chat:send","toUserId":42,"text":"..."}</code></span>
+  </div>
+
+  <div id="chat" aria-label="chat log"></div>
+
+  <script>
+    // ===== CONFIG (same-origin safe) =====
+    const API_BASE = window.location.origin;
+    const LOGIN_URL = API_BASE + "/api/v1/users/login";
+    const WS_URL =
+      (window.location.protocol === "https:" ? "wss://" : "ws://") +
+      window.location.host +
+      "/ws";
+
+    document.getElementById("apiInfo").textContent = LOGIN_URL;
+    document.getElementById("wsInfo").textContent = WS_URL;
+
+    // ===== UI helpers =====
+    const chatEl = document.getElementById("chat");
+    const statusEl = document.getElementById("status");
+
+    function ts(d = new Date()) {
+      const pad = (n) => String(n).padStart(2, "0");
+      return `${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;
+    }
+
+    function appendLine(line) {
+      chatEl.textContent += line + "\n";
+      chatEl.scrollTop = chatEl.scrollHeight;
+      console.log(line);
+    }
+
+    function setStatus(s) {
+      statusEl.textContent = s;
+    }
+
+    let ws = null;
+
+    // ===== LOGIN =====
+    document.getElementById("btnLogin").addEventListener("click", async () => {
+      const email = document.getElementById("email").value.trim();
+      const password = document.getElementById("password").value;
+
+      appendLine(`[${ts()}] → LOGIN ${email}`);
+
+      try {
+        const r = await fetch(LOGIN_URL, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          credentials: "include",
+          body: JSON.stringify({ email, password }),
+        });
+
+        const text = await r.text();
+        let data;
+        try { data = JSON.parse(text); } catch { data = text; }
+
+        appendLine(`[${ts()}] ← LOGIN status=${r.status} ${typeof data === "string" ? data : JSON.stringify(data)}`);
+
+        if (!r.ok) {
+          appendLine(`[${ts()}] ❌ Login fallito`);
+          return;
+        }
+
+        appendLine(`[${ts()}] ✅ Login ok (cookie HttpOnly impostato)`);
+      } catch (err) {
+        appendLine(`[${ts()}] ❌ Errore login: ${String(err)}`);
+      }
+    });
+
+    // ===== OPEN WS =====
+    document.getElementById("btnWs").addEventListener("click", () => {
+      if (ws && (ws.readyState === WebSocket.OPEN || ws.readyState === WebSocket.CONNECTING)) {
+        appendLine(`[${ts()}] WS già aperta/connecting`);
+        return;
+      }
+
+      appendLine(`[${ts()}] → Opening WS ${WS_URL}`);
+      ws = new WebSocket(WS_URL);
+
+      ws.onopen = () => {
+        setStatus("CONNECTED");
+        appendLine(`[${ts()}] ✅ WS open`);
+        document.getElementById("btnClose").disabled = false;
+        document.getElementById("btnSend").disabled = false;
+        document.getElementById("btnPing").disabled = false;
+      };
+
+      ws.onmessage = (e) => {
+        let msg;
+        try { msg = JSON.parse(e.data); } catch {
+          appendLine(`[${ts()}] ← WS (raw) ${e.data}`);
+          return;
+        }
+
+        // server handshake confirm
+        if (msg.type === "ws:connected") {
+          appendLine(`[${ts()}] ← ws:connected userId=${msg.userId}`);
+          return;
+        }
+
+        // chat message from server
+        if (msg.type === "chat:message") {
+          // { type, fromUserId, toUserId, text, ts }
+          const when = msg.ts ? ts(new Date(msg.ts)) : ts();
+          appendLine(`[${when}] ${msg.fromUserId} → ${msg.toUserId}: ${msg.text}`);
+          return;
+        }
+
+        if (msg.type === "pong") {
+          appendLine(`[${ts()}] ← pong`);
+          return;
+        }
+
+        appendLine(`[${ts()}] ← WS ${JSON.stringify(msg)}`);
+      };
+
+      ws.onclose = (e) => {
+        setStatus("DISCONNECTED");
+        appendLine(`[${ts()}] ✋ WS close code=${e.code} reason=${e.reason || "(none)"}`);
+        document.getElementById("btnClose").disabled = true;
+        document.getElementById("btnSend").disabled = true;
+        document.getElementById("btnPing").disabled = true;
+      };
+
+      ws.onerror = () => {
+        appendLine(`[${ts()}] ❌ WS error (vedi console)`);
+      };
+    });
+
+    document.getElementById("btnClose").addEventListener("click", () => {
+      if (!ws) return;
+      appendLine(`[${ts()}] → Closing WS`);
+      ws.close(1000, "client close");
+    });
+
+    // ===== SEND CHAT =====
+    document.getElementById("btnSend").addEventListener("click", () => {
+      if (!ws || ws.readyState !== WebSocket.OPEN) {
+        appendLine(`[${ts()}] WS non è aperta`);
+        return;
+      }
+
+      const toUserId = Number(document.getElementById("destUserId").value);
+      const text = document.getElementById("message").value;
+
+      if (!toUserId || !Number.isFinite(toUserId)) {
+        appendLine(`[${ts()}] ❌ Inserisci un destUserId valido`);
+        return;
+      }
+      if (!text || !text.trim()) {
+        appendLine(`[${ts()}] ❌ Messaggio vuoto`);
+        return;
+      }
+
+      const payload = { type: "chat:send", toUserId, text };
+      ws.send(JSON.stringify(payload));
+
+      // append local echo (così lo vedi subito)
+      appendLine(`[${ts()}] (me) → ${toUserId}: ${text}`);
+      document.getElementById("message").value = "";
+    });
+
+    document.getElementById("btnPing").addEventListener("click", () => {
+      if (!ws || ws.readyState !== WebSocket.OPEN) return;
+      ws.send("ping");
+      appendLine(`[${ts()}] → ping`);
+    });
+
+    // invio con Ctrl+Enter
+    document.getElementById("message").addEventListener("keydown", (e) => {
+      if (e.key === "Enter" && (e.ctrlKey || e.metaKey)) {
+        document.getElementById("btnSend").click();
+      }
+    });
+  </script>
+</body>
+</html>

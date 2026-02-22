@@ -11,10 +11,17 @@ import { getUserIdFromJWT, wsGetUserIdFromJWT } from '../../helpers/cookies.js'
 type WsClientSet = Set<WebSocket>
 type WsClientsByUserId = Map<number, WsClientSet>
 
+// decorators per le rooms
+type WsRoomId  = string
+type WsRoomMap  = Map<WsRoomId, WsClientSet>
+
+
 // Uso il module augmentation di TS per dare il tipo a server.ws: WebSocket
 declare module 'fastify' {
     interface FastifyInstance {
         wsClientsByUserId: WsClientsByUserId
+        wsRooms: WsRoomMap
+        wsRoomBroadcast: (roomId: string, data: unknown, except?: WebSocket) => number
         wsSendToUser: (userId: number, data: unknown) => number
         wsBroadcast: (data: unknown) => number
         wsDisconnectUser: (userId: number, code?: number, reason?: string) => number
@@ -23,6 +30,11 @@ declare module 'fastify' {
 }
 
 function safeSend(ws: WebSocket, payload: string) {
+    // constrollo se socket sono aperti
+    const anyWs = ws as any
+    if (anyWs.readyState !== 1) return false
+
+    // mando roba
     try {
         ws.send(payload)
         return true
@@ -34,6 +46,7 @@ function safeSend(ws: WebSocket, payload: string) {
 const websocketPlugin: FastifyPluginAsync = fp(async (server) => {
     // 1) stato condiviso
     server.decorate('wsClientsByUserId', new Map<number, WsClientSet>())
+    server.decorate('wsRooms', new Map<string, WsClientSet>())
 
     // 2) helpers
     server.decorate('wsSendToUser', (userId: number, data: unknown) => {
@@ -78,6 +91,22 @@ const websocketPlugin: FastifyPluginAsync = fp(async (server) => {
         return sent
     })
 
+    server.decorate('wsRoomBroadcast', (roomId: string, data: unknown, except?: WebSocket) => {
+        const set = server.wsRooms.get(roomId)
+        if (!set || set.size === 0) return 0
+
+        const payload = JSON.stringify(data)
+        let sent = 0
+
+        for (const client of set) {
+            if (except && client === except) continue
+            const anyWs = client as any
+            if (anyWs.readyState !== 1) continue
+            try { client.send(payload); sent++ } catch {}
+        }
+        return sent
+    })
+
     server.decorate('wsDisconnectUser', (userId: number, code = 1000, reason = 'bye') => {
         const set = server.wsClientsByUserId.get(userId)
         if (!set || set.size === 0) return 0
@@ -102,7 +131,7 @@ const websocketPlugin: FastifyPluginAsync = fp(async (server) => {
 
         const userId = wsGetUserIdFromJWT(req, server)
         if (!userId) {
-            ws.close(1008, 'No valid token - start.')
+            ws.close(1008, 'No valid token.')
             return
         }
 
@@ -121,6 +150,12 @@ const websocketPlugin: FastifyPluginAsync = fp(async (server) => {
                 curUsr.delete(ws)
                 if (curUsr.size == 0) {
                     server.wsClientsByUserId.delete(userId)
+                }
+            }
+            // rimuovi ws da tutte le rooms
+            for (const [roomId, roomSet] of server.wsRooms) {
+                if (roomSet.delete(ws) && roomSet.size === 0) {
+                    server.wsRooms.delete(roomId)
                 }
             }
             server.log.info({userId, code, reason: reason?.toString?.(), remainingWs: curUsr?.size ?? 0}, 'ws closed')
@@ -167,6 +202,105 @@ const websocketPlugin: FastifyPluginAsync = fp(async (server) => {
                             ts: Date.now()
                         })
                     break;
+                case 'chat:send':
+                    const toUserId = Number(msg.toUserId)
+                    const text = String(msg.text ?? '')
+
+                    if (!toUserId || !text.trim()) return
+
+                    server.wsSendToUser(toUserId, {
+                        type: 'chat:message',
+                        fromUserId: userId,
+                        toUserId,
+                        text,
+                        ts: Date.now(),
+                    })
+                    break;
+
+                // GESTIONE ROOMS
+                case 'room:join': {
+                    const roomId = String(msg.roomId)
+                    if (!roomId) {
+                        server.log.error('No roomId given')
+                        return
+                    }
+
+                    // aggiungo ai ws della room
+                    let set = server.wsRooms.get(roomId)
+                    if (!set) {
+                        set = new Set<WebSocket>()
+                        server.wsRooms.set(roomId, set)
+                    }
+                    set.add(ws)
+                    server.log.info({ userId, roomId, connectionsForRoom: set.size }, 'WS added to room')
+
+                    server.wsSendToUser(userId, {
+                        type: 'room:joined',
+                        roomId: roomId,
+                        userId: userId,
+                        ts: Date.now(),
+                    })
+                }
+                    break;
+                case 'room:leave': {
+                    const roomId = String(msg.roomId)
+                    if (!roomId) {
+                        server.log.error('No roomId given')
+                        return
+                    }
+                    const curRoom = server.wsRooms.get(roomId)
+                    if (curRoom) {
+                        curRoom.delete(ws)
+                        if (curRoom.size == 0) {
+                            server.wsRooms.delete(roomId)
+                        }
+                    }
+                    server.log.info({userId, roomId, reason: 'User exited room', remainingWs: curRoom?.size ?? 0}, 'ws deleted from room')
+                
+                }
+
+                    break;
+
+                case 'room:message':
+                    const roomId = String(msg.roomId ?? '').trim()
+                    if (!roomId) return
+
+                    // sicurezza: può scrivere solo se è dentro alla stanza
+                    const roomSet = server.wsRooms.get(roomId)
+                    if (!roomSet || !roomSet.has(ws)) {
+                        safeSend(ws, JSON.stringify({ type: 'error', error: 'NOT_IN_ROOM', roomId }))
+                        return
+                    }
+
+                    // broadcast agli altri della room
+                    server.wsRoomBroadcast(roomId, {
+                        type: 'room:message',
+                        roomId,
+                        fromUserId: userId,
+                        payload: msg.payload ?? null,
+                        ts: Date.now(),
+                    }, ws)
+
+                    break
+
+                // per notifiche
+                case 'notify':{
+                    const toUserId = Number(msg.toUserId)
+                    if (!toUserId) {
+                        server.log.error('No User Id given')
+                        return
+                        }
+                    server.wsSendToUser(toUserId,
+                        { type: 'notify', notification: String(msg.notification ?? ''), ts: Date.now() }
+                        )
+                    }
+                    break;
+                
+                // a tutti i connessi
+                case 'notifyAll':
+                    server.wsBroadcast({ type: 'notify', notification: String(msg.notification ?? ''), ts: Date.now() })
+                    break;
+
                 default:
                     break;
             }
@@ -192,3 +326,17 @@ export default websocketPlugin
 // 1006 // Abnormal closure (connessione persa)
 // 1008 // Policy violation (tipo token non valido)
 // 1011 // Internal error
+
+
+// in REACT si fa unmount del component quando cambio la route/chiudo la chat della room
+// useEffect(() => {
+//   // quando entri nella room
+//   ws.send(JSON.stringify({ type: "room:join", roomId }));
+
+//   return () => {
+//     // quando esci (route change/unmount)
+//     if (ws?.readyState === WebSocket.OPEN) {
+//       ws.send(JSON.stringify({ type: "room:leave", roomId }));
+//     }
+//   };
+// }, [roomId]);

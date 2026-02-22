@@ -42,3 +42,33 @@ export interface RoomInfo {
 	partecipants: Map<string, RoomPartecipants>,
 }
 
+// ===== MESSAGES =====
+export interface Message {
+	type: string;
+	action: string;
+	payload: any;
+	metadata: MessageMetadata;
+}
+
+export interface MessageMetadata {
+	messageId: string;
+	senderId: string;
+	senderUsername: string;
+	timestamp: number;
+	roomId?: string; // per chat room
+	targetUserId?: string; // per chat privata
+	documentId?: string;
+}
+
+// ======== CHAT MESSAGE =========
+export interface ChatMessage extends Message {
+	type: 'chat';
+	action: 'send' | /* 'edit' | */ 'delete';
+	payload: ChatPayload;
+}
+
+export interface ChatPayload {
+	text: string;
+	attachments?: string[] // path da filesystem, URL di file (per aggiungere file al messaggio)
+	replyToId?: string; // risposta a quel messaggio con ID 'sring'  
+}

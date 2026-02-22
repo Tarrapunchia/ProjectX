@@ -70,7 +70,6 @@ const Posters: FastifyPluginAsync = async (fastify: FastifyInstance, opts) => {
                         res.code(400)
                         return { error: 'Name already in use' }
                     }
-    
                     res.code(400)
                     return { error: 'Unable to create the organization' }
                 }

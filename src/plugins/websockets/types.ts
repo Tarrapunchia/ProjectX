@@ -11,6 +11,15 @@ export interface ClientInfo {
 	lastActivity: Date;
 }
 
+export interface Message {
+	type: string;
+	fromUserId: number;
+	toUserId?: number;
+	toRoom?: string;
+	timestamp: Date;
+	payload: unknown;
+}
+
 // // ========= ROOM ==========
 // export enum RoomRole {
 // 	PROJECT_MANAGER = 'project-manager',

@@ -39,11 +39,11 @@
   <script>
     // ==== CONFIG ====
     // Se servi questa pagina da Fastify su 127.0.0.1:5000, lasciali così.
-    const API_BASE = "http://127.0.0.1:5000";
+    const API_BASE = "http://localhost:5000";
     const LOGIN_URL = API_BASE + "/api/v1/users/login";
 
     // ws:// in dev. Se sei su https, usa wss://
-    const WS_URL = "ws://127.0.0.1:5000/ws";
+    const WS_URL = "ws://localhost:5000/ws";
 
     document.getElementById("apiBase").textContent = API_BASE;
     document.getElementById("wsUrl").textContent = WS_URL;
