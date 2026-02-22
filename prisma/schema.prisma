@@ -51,6 +51,13 @@ model User {
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
   isLoggedIn   Boolean  @default(false)
+
+  dmConversationsA DirectConversation[] @relation("DMUserA")
+  dmConversationsB DirectConversation[] @relation("DMUserB")
+  dmSent          DirectMessage[] @relation("DMSender")
+  dmReceived      DirectMessage[] @relation("DMReceiver")
+
+  roomMessages    RoomMessage[]
 }
 
 model Organization {
@@ -72,6 +79,8 @@ model Organization {
 
   // projects (1 -> N)
   projects Project[]
+
+  chatRooms ChatRoom[]
 }
 
 model OrganizationMember { // TABELLA PONTE
@@ -95,6 +104,7 @@ model Project {
   organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
 
   participants   ProjectParticipant[]
+  chatRooms ChatRoom[]
 }
 
 model ProjectParticipant {  // TABELLA PONTE

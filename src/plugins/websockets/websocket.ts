@@ -15,6 +15,19 @@ type WsClientsByUserId = Map<number, WsClientSet>
 type WsRoomId  = string
 type WsRoomMap  = Map<WsRoomId, WsClientSet>
 
+// helper
+function parseRoomKey(key: string): { type: 'ORG' | 'PROJECT', orgId: number | null, projectId: number | null } {
+    // org:12
+    const orgMatch = /^org:(\d+)$/.exec(key)
+    if (orgMatch) return { type: 'ORG', orgId: Number(orgMatch[1]), projectId: null }
+
+    // proj:12:5
+    const projMatch = /^proj:(\d+):(\d+)$/.exec(key)
+    if (projMatch) return { type: 'PROJECT', orgId: Number(projMatch[1]), projectId: Number(projMatch[2]) }
+
+    // fallback: room “generica”
+    return { type: 'ORG', orgId: null, projectId: null }
+}
 
 // Uso il module augmentation di TS per dare il tipo a server.ws: WebSocket
 declare module 'fastify' {
@@ -125,7 +138,7 @@ const websocketPlugin: FastifyPluginAsync = fp(async (server) => {
     })
 
     // 3) route WS
-    server.get('/ws', { websocket: true }, (connOrSocket: any, req) => {
+    server.get('/ws', { websocket: true }, async (connOrSocket: any, req) => {
         // compat: se è { socket } usa .socket, altrimenti è già il ws
         const ws: WebSocket = connOrSocket.socket ?? connOrSocket
 
@@ -161,7 +174,7 @@ const websocketPlugin: FastifyPluginAsync = fp(async (server) => {
             server.log.info({userId, code, reason: reason?.toString?.(), remainingWs: curUsr?.size ?? 0}, 'ws closed')
         })
 
-        ws.on('message', (raw: any) => {
+        ws.on('message', async (raw: any) => {
             // TEST
             const text = raw.toString()
             if (text === 'ping') { ws.send(JSON.stringify({ type: 'pong' })); return }
@@ -203,11 +216,42 @@ const websocketPlugin: FastifyPluginAsync = fp(async (server) => {
                         })
                     break;
                 case 'chat:send':
+                {
                     const toUserId = Number(msg.toUserId)
-                    const text = String(msg.text ?? '')
+                    const msgText = String(msg.text ?? '')
 
                     if (!toUserId || !text.trim()) return
 
+                    // normalizza coppia (senno' mi duplicava le conversazioni, a quanto pare)
+                    const a = Math.min(userId, toUserId)
+                    const b = Math.max(userId, toUserId)
+
+                    // upsert conversation
+                    const conv = await server.prisma.directConversation.upsert({
+                        where: { userAId_userBId: { userAId: a, userBId: b } },
+                        create: { userAId: a, userBId: b },
+                        update: {}, // updatedAt si aggiorna da solo se hai @updatedAt nel modello prisma (a quel che ho capito)
+                    })
+
+                    // 2) salva messaggio
+                    const saved = await server.prisma.directMessage.create({
+                        data: {
+                            conversationId: conv.id,
+                            senderId: userId,
+                            receiverId: toUserId,
+                            content: msgText,
+                        },
+                        select: {
+                            id: true,
+                            senderId: true,
+                            receiverId: true,
+                            content: true,
+                            createdAt: true,
+                            conversationId: true,
+                        }
+                    })
+
+                    // 3) alla fine rispondo a user
                     server.wsSendToUser(toUserId, {
                         type: 'chat:message',
                         fromUserId: userId,
@@ -215,6 +259,7 @@ const websocketPlugin: FastifyPluginAsync = fp(async (server) => {
                         text,
                         ts: Date.now(),
                     })
+                }
                     break;
 
                 // GESTIONE ROOMS
@@ -262,7 +307,8 @@ const websocketPlugin: FastifyPluginAsync = fp(async (server) => {
                     break;
 
                 case 'room:message':
-                    const roomId = String(msg.roomId ?? '').trim()
+                    const roomId = String(msg.roomId ?? '').trim() // sara' org:orgId oppure proj:orgId:projId
+                    const msgText = String(msg.payload.text ?? '')
                     if (!roomId) return
 
                     // sicurezza: può scrivere solo se è dentro alla stanza
@@ -272,11 +318,43 @@ const websocketPlugin: FastifyPluginAsync = fp(async (server) => {
                         return
                     }
 
+                    // es: "org:12" or "proj:12:5"
+                    const parsed = parseRoomKey(roomId)
+
+                    // 1) upsert ChatRoom
+                    const room = await server.prisma.chatRoom.upsert({
+                        where: { key: roomId },
+                        create: {
+                            key: roomId,
+                            type: parsed.type,
+                            orgId: parsed.orgId,
+                            projectId: parsed.projectId,
+                        },
+                        update: {}, // nulla
+                        select: { id: true, key: true }
+                    })
+
+                    // 2) salva messaggio
+                    const saved = await server.prisma.roomMessage.create({
+                        data: {
+                            roomId: room.id,
+                            senderId: userId,
+                            content: msgText,
+                        },
+                        select: {
+                            id: true,
+                            senderId: true,
+                            content: true,
+                            createdAt: true,
+                            roomId: true,
+                        }
+                    })
+
                     // broadcast agli altri della room
                     server.wsRoomBroadcast(roomId, {
                         type: 'room:message',
                         roomId,
-                        fromUserId: userId,
+                        // fromUserId: userId,
                         payload: msg.payload ?? null,
                         ts: Date.now(),
                     }, ws)

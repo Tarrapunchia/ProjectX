@@ -3,6 +3,19 @@ import {} from '@fastify/websocket';
 import fp from 'fastify-plugin';
 import fastify, {} from 'fastify';
 import { getUserIdFromJWT, wsGetUserIdFromJWT } from '../../helpers/cookies.js';
+// helper
+function parseRoomKey(key) {
+    // org:12
+    const orgMatch = /^org:(\d+)$/.exec(key);
+    if (orgMatch)
+        return { type: 'ORG', orgId: Number(orgMatch[1]), projectId: null };
+    // proj:12:5
+    const projMatch = /^proj:(\d+):(\d+)$/.exec(key);
+    if (projMatch)
+        return { type: 'PROJECT', orgId: Number(projMatch[1]), projectId: Number(projMatch[2]) };
+    // fallback: room “generica”
+    return { type: 'ORG', orgId: null, projectId: null };
+}
 function safeSend(ws, payload) {
     // constrollo se socket sono aperti
     const anyWs = ws;
@@ -137,8 +150,8 @@ const websocketPlugin = fp(async (server) => {
             }
             server.log.info({ userId, code, reason: (_a = reason === null || reason === void 0 ? void 0 : reason.toString) === null || _a === void 0 ? void 0 : _a.call(reason), remainingWs: (_b = curUsr === null || curUsr === void 0 ? void 0 : curUsr.size) !== null && _b !== void 0 ? _b : 0 }, 'ws closed');
         });
-        ws.on('message', (raw) => {
-            var _a, _b, _c, _d, _e, _f, _g, _h;
+        ws.on('message', async (raw) => {
+            var _a, _b, _c, _d, _e, _f, _g, _h, _j;
             // TEST
             const text = raw.toString();
             if (text === 'ping') {
@@ -149,7 +162,7 @@ const websocketPlugin = fp(async (server) => {
             try {
                 msg = JSON.parse(text);
             }
-            catch (_j) {
+            catch (_k) {
                 server.log.info({ userId, text }, 'WS non-JSON msg');
                 return;
             }
@@ -178,17 +191,46 @@ const websocketPlugin = fp(async (server) => {
                     });
                     break;
                 case 'chat:send':
-                    const toUserId = Number(msg.toUserId);
-                    const text = String((_c = msg.text) !== null && _c !== void 0 ? _c : '');
-                    if (!toUserId || !text.trim())
-                        return;
-                    server.wsSendToUser(toUserId, {
-                        type: 'chat:message',
-                        fromUserId: userId,
-                        toUserId,
-                        text,
-                        ts: Date.now(),
-                    });
+                    {
+                        const toUserId = Number(msg.toUserId);
+                        const msgText = String((_c = msg.text) !== null && _c !== void 0 ? _c : '');
+                        if (!toUserId || !text.trim())
+                            return;
+                        // normalizza coppia (senno' mi duplicava le conversazioni, a quanto pare)
+                        const a = Math.min(userId, toUserId);
+                        const b = Math.max(userId, toUserId);
+                        // upsert conversation
+                        const conv = await server.prisma.directConversation.upsert({
+                            where: { userAId_userBId: { userAId: a, userBId: b } },
+                            create: { userAId: a, userBId: b },
+                            update: {}, // updatedAt si aggiorna da solo se hai @updatedAt nel modello prisma (a quel che ho capito)
+                        });
+                        // 2) salva messaggio
+                        const saved = await server.prisma.directMessage.create({
+                            data: {
+                                conversationId: conv.id,
+                                senderId: userId,
+                                receiverId: toUserId,
+                                content: msgText,
+                            },
+                            select: {
+                                id: true,
+                                senderId: true,
+                                receiverId: true,
+                                content: true,
+                                createdAt: true,
+                                conversationId: true,
+                            }
+                        });
+                        // 3) alla fine rispondo a user
+                        server.wsSendToUser(toUserId, {
+                            type: 'chat:message',
+                            fromUserId: userId,
+                            toUserId,
+                            text,
+                            ts: Date.now(),
+                        });
+                    }
                     break;
                 // GESTIONE ROOMS
                 case 'room:join':
@@ -232,7 +274,8 @@ const websocketPlugin = fp(async (server) => {
                     }
                     break;
                 case 'room:message':
-                    const roomId = String((_e = msg.roomId) !== null && _e !== void 0 ? _e : '').trim();
+                    const roomId = String((_e = msg.roomId) !== null && _e !== void 0 ? _e : '').trim(); // sara' org:orgId oppure proj:orgId:projId
+                    const msgText = String((_f = msg.payload.text) !== null && _f !== void 0 ? _f : '');
                     if (!roomId)
                         return;
                     // sicurezza: può scrivere solo se è dentro alla stanza
@@ -241,12 +284,41 @@ const websocketPlugin = fp(async (server) => {
                         safeSend(ws, JSON.stringify({ type: 'error', error: 'NOT_IN_ROOM', roomId }));
                         return;
                     }
+                    // es: "org:12" or "proj:12:5"
+                    const parsed = parseRoomKey(roomId);
+                    // 1) upsert ChatRoom
+                    const room = await server.prisma.chatRoom.upsert({
+                        where: { key: roomId },
+                        create: {
+                            key: roomId,
+                            type: parsed.type,
+                            orgId: parsed.orgId,
+                            projectId: parsed.projectId,
+                        },
+                        update: {}, // nulla
+                        select: { id: true, key: true }
+                    });
+                    // 2) salva messaggio
+                    const saved = await server.prisma.roomMessage.create({
+                        data: {
+                            roomId: room.id,
+                            senderId: userId,
+                            content: msgText,
+                        },
+                        select: {
+                            id: true,
+                            senderId: true,
+                            content: true,
+                            createdAt: true,
+                            roomId: true,
+                        }
+                    });
                     // broadcast agli altri della room
                     server.wsRoomBroadcast(roomId, {
                         type: 'room:message',
                         roomId,
                         fromUserId: userId,
-                        payload: (_f = msg.payload) !== null && _f !== void 0 ? _f : null,
+                        payload: (_g = msg.payload) !== null && _g !== void 0 ? _g : null,
                         ts: Date.now(),
                     }, ws);
                     break;
@@ -258,12 +330,12 @@ const websocketPlugin = fp(async (server) => {
                             server.log.error('No User Id given');
                             return;
                         }
-                        server.wsSendToUser(toUserId, { type: 'notify', notification: String((_g = msg.notification) !== null && _g !== void 0 ? _g : ''), ts: Date.now() });
+                        server.wsSendToUser(toUserId, { type: 'notify', notification: String((_h = msg.notification) !== null && _h !== void 0 ? _h : ''), ts: Date.now() });
                     }
                     break;
                 // a tutti i connessi
                 case 'notifyAll':
-                    server.wsBroadcast({ type: 'notify', notification: String((_h = msg.notification) !== null && _h !== void 0 ? _h : ''), ts: Date.now() });
+                    server.wsBroadcast({ type: 'notify', notification: String((_j = msg.notification) !== null && _j !== void 0 ? _j : ''), ts: Date.now() });
                     break;
                 default:
                     break;
@@ -285,14 +357,14 @@ export default websocketPlugin;
 // 1008 // Policy violation (tipo token non valido)
 // 1011 // Internal error
 // in REACT si fa unmount del component quando cambio la route/chiudo la chat della room
-useEffect(() => {
-    // quando entri nella room
-    ws.send(JSON.stringify({ type: "room:join", roomId }));
-    return () => {
-        // quando esci (route change/unmount)
-        if ((ws === null || ws === void 0 ? void 0 : ws.readyState) === WebSocket.OPEN) {
-            ws.send(JSON.stringify({ type: "room:leave", roomId }));
-        }
-    };
-}, [roomId]);
+// useEffect(() => {
+//   // quando entri nella room
+//   ws.send(JSON.stringify({ type: "room:join", roomId }));
+//   return () => {
+//     // quando esci (route change/unmount)
+//     if (ws?.readyState === WebSocket.OPEN) {
+//       ws.send(JSON.stringify({ type: "room:leave", roomId }));
+//     }
+//   };
+// }, [roomId]);
 //# sourceMappingURL=websocket.js.map
