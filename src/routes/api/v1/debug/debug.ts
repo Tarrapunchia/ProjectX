@@ -63,6 +63,10 @@ const Debug: FastifyPluginAsync = async (fastify: FastifyInstance, opts) => {
             await prisma.role.deleteMany()
             await prisma.permission.deleteMany()
             await prisma.user.deleteMany()
+            await prisma.roomMessage.deleteMany()
+            await prisma.directMessage.deleteMany()
+            await prisma.chatRoom.deleteMany()
+            await prisma.directConversation.deleteMany()
 
             // 2) PERMISSIONS + ROLES (1:1)
             const roleDefs = [

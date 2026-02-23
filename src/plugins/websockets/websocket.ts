@@ -3,6 +3,7 @@ import {type WebSocket } from '@fastify/websocket'
 import fp from 'fastify-plugin'
 import fastify, { type FastifyInstance, type FastifyPluginAsync, type FastifyReply, type FastifyRequest } from 'fastify'
 import { getUserIdFromJWT, wsGetUserIdFromJWT } from '../../helpers/cookies.js'
+import Helpers from '../../helpers/auth.js'
 
 // integro il connection manager nel server, in modo che quando e' su viene stoccato al suo interno assieme
 // alle funzioni di utilita'
@@ -16,18 +17,18 @@ type WsRoomId  = string
 type WsRoomMap  = Map<WsRoomId, WsClientSet>
 
 // helper
-function parseRoomKey(key: string): { type: 'ORG' | 'PROJECT', orgId: number | null, projectId: number | null } {
-    // org:12
-    const orgMatch = /^org:(\d+)$/.exec(key)
-    if (orgMatch) return { type: 'ORG', orgId: Number(orgMatch[1]), projectId: null }
+// function parseRoomKey(key: string): { type: 'ORG' | 'PROJECT', orgId: number | null, projectId: number | null } {
+//     // org:12
+//     const orgMatch = /^org:(\d+)$/.exec(key)
+//     if (orgMatch) return { type: 'ORG', orgId: Number(orgMatch[1]), projectId: null }
 
-    // proj:12:5
-    const projMatch = /^proj:(\d+):(\d+)$/.exec(key)
-    if (projMatch) return { type: 'PROJECT', orgId: Number(projMatch[1]), projectId: Number(projMatch[2]) }
+//     // proj:12:5
+//     const projMatch = /^proj:(\d+):(\d+)$/.exec(key)
+//     if (projMatch) return { type: 'PROJECT', orgId: Number(projMatch[1]), projectId: Number(projMatch[2]) }
 
-    // fallback: room “generica”
-    return { type: 'ORG', orgId: null, projectId: null }
-}
+//     // fallback: room “generica”
+//     return { type: 'ORG', orgId: null, projectId: null }
+// }
 
 // Uso il module augmentation di TS per dare il tipo a server.ws: WebSocket
 declare module 'fastify' {
@@ -319,7 +320,7 @@ const websocketPlugin: FastifyPluginAsync = fp(async (server) => {
                     }
 
                     // es: "org:12" or "proj:12:5"
-                    const parsed = parseRoomKey(roomId)
+                    const parsed = Helpers.parseRoomKey(roomId)
 
                     // 1) upsert ChatRoom
                     const room = await server.prisma.chatRoom.upsert({

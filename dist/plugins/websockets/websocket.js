@@ -3,19 +3,7 @@ import {} from '@fastify/websocket';
 import fp from 'fastify-plugin';
 import fastify, {} from 'fastify';
 import { getUserIdFromJWT, wsGetUserIdFromJWT } from '../../helpers/cookies.js';
-// helper
-function parseRoomKey(key) {
-    // org:12
-    const orgMatch = /^org:(\d+)$/.exec(key);
-    if (orgMatch)
-        return { type: 'ORG', orgId: Number(orgMatch[1]), projectId: null };
-    // proj:12:5
-    const projMatch = /^proj:(\d+):(\d+)$/.exec(key);
-    if (projMatch)
-        return { type: 'PROJECT', orgId: Number(projMatch[1]), projectId: Number(projMatch[2]) };
-    // fallback: room “generica”
-    return { type: 'ORG', orgId: null, projectId: null };
-}
+import Helpers from '../../helpers/auth.js';
 function safeSend(ws, payload) {
     // constrollo se socket sono aperti
     const anyWs = ws;
@@ -116,7 +104,7 @@ const websocketPlugin = fp(async (server) => {
         return closed;
     });
     // 3) route WS
-    server.get('/ws', { websocket: true }, (connOrSocket, req) => {
+    server.get('/ws', { websocket: true }, async (connOrSocket, req) => {
         var _a;
         // compat: se è { socket } usa .socket, altrimenti è già il ws
         const ws = (_a = connOrSocket.socket) !== null && _a !== void 0 ? _a : connOrSocket;
@@ -285,7 +273,7 @@ const websocketPlugin = fp(async (server) => {
                         return;
                     }
                     // es: "org:12" or "proj:12:5"
-                    const parsed = parseRoomKey(roomId);
+                    const parsed = Helpers.parseRoomKey(roomId);
                     // 1) upsert ChatRoom
                     const room = await server.prisma.chatRoom.upsert({
                         where: { key: roomId },
@@ -317,7 +305,7 @@ const websocketPlugin = fp(async (server) => {
                     server.wsRoomBroadcast(roomId, {
                         type: 'room:message',
                         roomId,
-                        fromUserId: userId,
+                        // fromUserId: userId,
                         payload: (_g = msg.payload) !== null && _g !== void 0 ? _g : null,
                         ts: Date.now(),
                     }, ws);
