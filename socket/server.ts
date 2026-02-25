@@ -1,6 +1,7 @@
 import Fastify from 'fastify';
 import fastifyWebsocket from '@fastify/websocket';
 import fastifyJwt from '@fastify/jwt';
+import fastifyMultipart  from '@fastify/multipart';
 import { setupWebSocket } from './websocket'; // ?
 import { db } from './database/index';
 
@@ -18,6 +19,10 @@ declare module 'fastify' {
 	interface FastifyInstance {
 		db: typeof db;
 	}
+	interface FastifyRequest {
+		file: typeof import('@fastify/multipart').fastifyMultipart['file'];
+		files: typeof import ('@fastify/multipart').fastifyMultipart['files'];
+	}
 }
 
 // === INSTALLAZIONE PLUGIN ===
@@ -26,10 +31,17 @@ declare module 'fastify' {
 await app.register(fastifyWebsocket);
 // --> Ora websocket è disponibile
 
+await app.register(fastifyMultipart, {limits:{fileSize: 1000000}}); // massimo file da 1MB
+
 
 // Plugin JWT (JASON WEB TOKEN )
 await app.register(fastifyJwt, {
 	secret: "%pRojeCTx$"
+});
+
+// =========== UPLOAD ============
+app.post('/upload', async function (request, reply) {
+	const data = await request.file();
 });
 
 // =========== LOGIN (bozza) ===========
