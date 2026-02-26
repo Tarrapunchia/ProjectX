@@ -1,0 +1,80 @@
+.signUp-layout
+{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+	height: 100vh;
+    width: 100vw;
+}
+
+.SignUp-box
+{
+    min-width: 450px;
+    font-size: 18px;
+    background-color: #8e8d8d37;
+    padding: 30px;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+    height: auto;
+    width: auto;
+    display: flex;
+    align-items: center;
+    text-align: center;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.SignUp-box h1
+{
+    font-size: 30px;
+    margin-bottom: 20px;
+    color: white;
+}
+
+.divider
+{
+    font-size: 14px;
+    color: white;
+}
+
+.SignUp-box .input-field
+{
+    background-color: rgba(255, 255, 255, 0.87);
+    color: black;
+    padding: 14px;
+    margin-top: 8px;
+    font-size: 18px;
+    border: none;
+    border-radius: 5px;
+    width: 300px;
+    min-height: 50px;
+    transition: transform 0.2s ease;
+}
+
+.SignUp-box .input-field:focus
+{
+    transform: scale(1.05);
+}
+
+.SignUp-box button
+{
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+    text-align: center;
+    min-width: 130px;
+    margin-top: 50px;
+    padding: 10px 20px;
+    font-size: 24px;
+    border: none;
+    border-radius: 5px;
+    background: #8e8d8d37;
+    color: white;
+    cursor: pointer;
+    transition: transform 0.3s ease, background 0.3s ease;
+}
+
+.SignUp-box button:hover
+{
+	background: #8e8d8d93;
+    transform: scale(1.2);
+}
