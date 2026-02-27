@@ -186,6 +186,14 @@ const websocketPlugin = fp(async (server) => {
                         const msgText = String((_c = msg.text) !== null && _c !== void 0 ? _c : '');
                         if (!toUserId || !text.trim())
                             return;
+                        // controllo se il destinatario esiste
+                        const exist = await Helpers.userExist(toUserId, server);
+                        if (!exist) {
+                            return server.wsSendToUser(userId, {
+                                type: 'error',
+                                error: `User ${toUserId} does not exist.`
+                            });
+                        }
                         // normalizza coppia (senno' mi duplicava le conversazioni, a quanto pare)
                         const a = Math.min(userId, toUserId);
                         const b = Math.max(userId, toUserId);
@@ -233,14 +241,14 @@ const websocketPlugin = fp(async (server) => {
                         // check se posso accedere alla room
                         if (!Helpers.canAccessRoom(userId, roomId, server)) {
                             return server.wsSendToUser(userId, {
-                                type: 'room:access_denied',
+                                type: 'error',
                                 error: `User ${userId} has not the rights to open this chat.`
                             });
                         }
                         // check se la room esiste
                         if (await Helpers.roomExist(roomId, server) === false) {
                             return server.wsSendToUser(userId, {
-                                type: 'room:access_denied',
+                                type: 'error',
                                 error: `Room ${roomId} does not exist.`
                             });
                         }

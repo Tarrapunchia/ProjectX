@@ -11,6 +11,7 @@ declare const _default: {
     roomExist: (roomKey: string, fastify: FastifyInstance) => Promise<boolean>;
     orgExist: (orgId: number, fastify: FastifyInstance) => Promise<boolean>;
     projExist: (orgId: number, projId: number, fastify: FastifyInstance) => Promise<boolean>;
+    userExist: (userId: number, fastify: FastifyInstance) => Promise<boolean>;
 };
 export default _default;
 //# sourceMappingURL=auth.d.ts.map

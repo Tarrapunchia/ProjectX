@@ -81,6 +81,14 @@ const roomExist = async (roomKey: string, fastify: FastifyInstance): Promise<boo
     }
 }
 
+const userExist = async (userId: number, fastify: FastifyInstance) => {
+    return !!(
+        await fastify.prisma.user.findUnique({
+            where: {id: userId }
+        })
+    )
+}
+
 export default {
     parseRoomKey: parseRoomKey,
     canAccessRoom: canAccessRoom,
@@ -88,5 +96,6 @@ export default {
     isParticipant: isParticipant,
     roomExist: roomExist,
     orgExist: orgExist,
-    projExist: projExist
+    projExist: projExist,
+    userExist: userExist
 }

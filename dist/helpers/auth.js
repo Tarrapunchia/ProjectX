@@ -69,6 +69,11 @@ const roomExist = async (roomKey, fastify) => {
             break;
     }
 };
+const userExist = async (userId, fastify) => {
+    return !!(await fastify.prisma.user.findUnique({
+        where: { id: userId }
+    }));
+};
 export default {
     parseRoomKey: parseRoomKey,
     canAccessRoom: canAccessRoom,
@@ -76,6 +81,7 @@ export default {
     isParticipant: isParticipant,
     roomExist: roomExist,
     orgExist: orgExist,
-    projExist: projExist
+    projExist: projExist,
+    userExist: userExist
 };
 //# sourceMappingURL=auth.js.map

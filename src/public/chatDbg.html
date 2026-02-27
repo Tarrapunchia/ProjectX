@@ -175,6 +175,13 @@
           return;
         }
 
+        // errore
+        if (msg.type === "error") {
+          const when = msg.ts ? ts(new Date(msg.ts)) : ts();
+          appendLine(`❌ [${when}] ${msg.error}`);
+          return;
+        }
+
         if (msg.type === "pong") {
           appendLine(`[${ts()}] ← pong`);
           return;
