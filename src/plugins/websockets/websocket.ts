@@ -271,6 +271,22 @@ const websocketPlugin: FastifyPluginAsync = fp(async (server) => {
                         return
                     }
 
+                    // check se posso accedere alla room
+                    if (!Helpers.canAccessRoom(userId, roomId, server)) {
+                        return server.wsSendToUser(userId, {
+                            type: 'room:access_denied',
+                            error: `User ${userId} has not the rights to open this chat.`
+                        })
+                    }
+
+                    // check se la room esiste
+                    if (await Helpers.roomExist(roomId, server) === false) {
+                        return server.wsSendToUser(userId, {
+                            type: 'room:access_denied',
+                            error: `Room ${roomId} does not exist.`
+                        })
+                    }
+
                     // aggiungo ai ws della room
                     let set = server.wsRooms.get(roomId)
                     if (!set) {

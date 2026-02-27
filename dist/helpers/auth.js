@@ -23,6 +23,16 @@ const isParticipant = async (userId, projectId, fastify) => {
         select: { projectId: true },
     }));
 };
+const orgExist = async (orgId, fastify) => {
+    return !!(await fastify.prisma.organization.findUnique({
+        where: { id: orgId }
+    }));
+};
+const projExist = async (orgId, projId, fastify) => {
+    return !!(await fastify.prisma.project.findUnique({
+        where: { id: projId, organizationId: orgId }
+    }));
+};
 const canAccessRoom = async (userId, roomKey, fastify) => {
     const parsed = parseRoomKey(roomKey);
     switch (parsed.type) {
@@ -41,10 +51,31 @@ const canAccessRoom = async (userId, roomKey, fastify) => {
             break;
     }
 };
+const roomExist = async (roomKey, fastify) => {
+    const parsed = parseRoomKey(roomKey);
+    switch (parsed.type) {
+        case 'ORG':
+            if (Number.isNaN(parsed.orgId) || parsed.orgId === 0)
+                return false;
+            return orgExist(Number(parsed.orgId), fastify);
+            break;
+        case 'PROJECT':
+            if (Number.isNaN(parsed.projectId) || parsed.projectId === 0)
+                return false;
+            return projExist(Number(parsed.orgId), Number(parsed.projectId), fastify);
+            break;
+        default:
+            return false;
+            break;
+    }
+};
 export default {
     parseRoomKey: parseRoomKey,
     canAccessRoom: canAccessRoom,
     isMember: isMember,
-    isParticipant: isParticipant
+    isParticipant: isParticipant,
+    roomExist: roomExist,
+    orgExist: orgExist,
+    projExist: projExist
 };
 //# sourceMappingURL=auth.js.map

@@ -1,1 +1,1 @@
-{"version":3,"file":"getters.d.ts","sourceRoot":"","sources":["../../../../../src/routes/api/v1/messages/getters.ts"],"names":[],"mappings":"AAAA,OAAgB,EAAwB,KAAK,kBAAkB,EAAE,MAAM,SAAS,CAAC;AAKjF,QAAA,MAAM,OAAO,EAAE,kBAmHd,CAAA;AAID,eAAe,OAAO,CAAA"}
+{"version":3,"file":"getters.d.ts","sourceRoot":"","sources":["../../../../../src/routes/api/v1/messages/getters.ts"],"names":[],"mappings":"AAAA,OAAgB,EAAwB,KAAK,kBAAkB,EAAE,MAAM,SAAS,CAAC;AAKjF,QAAA,MAAM,OAAO,EAAE,kBAiHd,CAAA;AAID,eAAe,OAAO,CAAA"}

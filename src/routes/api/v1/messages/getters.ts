@@ -27,12 +27,10 @@ const Getters: FastifyPluginAsync = async (fastify: FastifyInstance, opts) => {
             })
         }
         if (!Helpers.canAccessRoom(userId, roomKey, fastify)) {
-            if (!userId) {
-                res.code(400)
-                return res.send({
-                    error: `User ${userId} has not the rights to read this history.`
-                })
-            } 
+            res.code(400)
+            return res.send({
+                error: `User ${userId} has not the rights to read this history.`
+            }) 
         }
 
         const room = await fastify.prisma.chatRoom.findUnique({
