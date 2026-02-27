@@ -31,7 +31,7 @@ declare module 'fastify' {
 await app.register(fastifyWebsocket);
 // --> Ora websocket è disponibile
 
-await app.register(fastifyMultipart, {limits:{fileSize: 1000000}}); // massimo file da 1MB
+await app.register(fastifyMultipart, {limits:{fileSize: 100000000}}); // massimo file da 100MB
 
 
 // Plugin JWT (JASON WEB TOKEN )
@@ -41,7 +41,14 @@ await app.register(fastifyJwt, {
 
 // =========== UPLOAD ============
 app.post('/upload', async function (request, reply) {
-	const data = await request.file();
+	const file = await request.file();
+	if (!file) {
+		return reply.code(400).send({ error: 'No file uploaded' });
+	}
+	if (file.file.truncated) {
+		return reply.code(400).send({error: 'File too large '});
+	}
+	// path.join()
 });
 
 // =========== LOGIN (bozza) ===========
