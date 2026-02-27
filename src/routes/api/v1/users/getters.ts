@@ -1,5 +1,6 @@
 import fastify, { type FastifyInstance, type FastifyPluginAsync } from "fastify";
 import { userSchemas } from "./usersSchemas.js";
+import { getUserIdFromJWT } from "../../../../helpers/cookies.js";
 
 const Getters: FastifyPluginAsync = async (fastify: FastifyInstance, opts) => {
     fastify.get('/', { schema: userSchemas.getAllUsers },  async (req, res) => {
@@ -74,6 +75,48 @@ const Getters: FastifyPluginAsync = async (fastify: FastifyInstance, opts) => {
         )
 
 
+        // GET /api/v1/users/search?username=foo
+        fastify.get<{
+            Querystring: { 'username': string; }
+        }>(
+        '/search',
+        { schema:  userSchemas.searchUsers },
+        async (req, reply) => {
+            const username = req.query.username ?? ''
+            const terms = username.split(/\s+/).filter(Boolean)
+
+            const userId = getUserIdFromJWT(req, reply, fastify)
+            if (!userId) {
+                reply.code(400)
+                return reply.send({
+                    error: 'You must log in in order to search the database',
+                })
+            }
+
+            const users = await fastify.prisma.user.findMany({
+                where: terms.length
+                ? {
+                    AND: terms.map((t) => ({
+                    OR: [
+                        { name: { contains: t } },
+                        { surname: { contains: t } },
+                        { email: { contains: t } },
+                    ],
+                    })),
+                } : {}
+            })
+    
+            const result = users?.map((u: any) => ({
+                id: u.id,
+                name: u.name,
+                surname: u.surname,
+                email: u.email,
+                jobQualifier: u.jobQualifier,
+                isLoggedIn: u.isLoggedIn
+            }))
+    
+            return reply.send(result)
+        })
 
         // GET /api/v1/users/:id/friends
         fastify.get<{

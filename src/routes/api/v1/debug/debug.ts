@@ -2,6 +2,143 @@ import fastify, { type FastifyInstance, type FastifyPluginAsync } from "fastify"
 import { userSchemas } from "../users/usersSchemas.js";
 
 const Debug: FastifyPluginAsync = async (fastify: FastifyInstance, opts) => {
+
+    fastify.post<{
+        Querystring: {
+            users?: string
+        }
+    }>(
+        '/addTestUsers',
+        { schema: {
+            description: 'Adds test users passed as QS separated by space (or a@a.a and b@b.b if empty) and assign them to test org \'42\' and test proj \'transcendence\'',
+            tags: ['debug'],
+            querystring: {
+                type: 'object',
+                properties: { users: { type: 'string' } }
+            },
+            response: {
+                200: {
+                    type: 'object',
+                    properties: {
+                        ok: { type: 'boolean' },
+                        created: {
+                            type: 'object',
+                            properties: {
+                                users: { type: 'number' },
+                                organization: { type: 'string' },
+                                project: { type: 'string' }
+                            }
+                        }
+                    }
+                }
+            }
+        }},
+        async (req, res) => {
+            const qs = req.query.users
+            const parsedQs = []
+            if (qs) {
+                const users = qs.split(" ")
+                fastify.log.info(users)
+                users.map(u => {
+                    parsedQs.push(u)
+                })
+            }
+
+            const prisma = fastify.prisma
+            const orgName = '42'
+            const projName = 'transcendence'
+
+            if (parsedQs.length === 0) {
+                parsedQs.push('a@a.a')
+                parsedQs.push('b@b.b')
+            }
+            const users = []
+            for (let i = 0; i < parsedQs.length; i++) {
+                if (parsedQs[i]) {
+                    const email = String(parsedQs[i])
+                    const u = await prisma.user.create({
+                        data: {
+                            name: email,
+                            surname: email,
+                            email: email,
+                            phone: email,
+                            city: email,
+                            address: email,
+                            cap: email,
+                            state: email,
+                            jobQualifier: email,
+                            hashedPw: email,
+                            googleId: email,
+                            googleSecret: email,
+                            isLoggedIn: false,
+                            },
+                    })
+                    users.push(u)
+                }   
+            }
+
+            const org = await prisma.organization.create({
+                data: {
+                    name: orgName,
+                    email: `42@42.it`,
+                    phone: '',
+                    city: 'Florence',
+                    address: 'Via del Tiratoio 1',
+                    cap: '',
+                    state: 'IT',
+                    ownerId: users[0]?.id ?? 0,
+                }
+            })
+
+            await prisma.organizationMember.create({
+                data: { organizationId: org.id, userId: org.ownerId },
+            })
+            
+            for (const u of users) {
+                try {
+                    if (u.id === org.ownerId) continue
+                    await prisma.organizationMember.create({
+                        data: { organizationId: org.id, userId: u.id },
+                    })
+                } catch {
+                // ignora duplicati (owner già inserito, ecc.)
+                }
+            }
+
+            const p = await prisma.project.create({
+                data: {
+                    name: projName,
+                    organizationId: org.id,
+                },
+            })
+
+            for (const u of users) {
+                const role = 'MEMBER'
+                try {
+                await prisma.projectParticipant.create({
+                    data: {
+                        projectId: p.id,
+                        userId: u.id,
+                        roleId: 2,
+                    },
+                })
+                } catch {
+                // in teoria non serve (@@id([projectId,userId]) evita doppioni)
+                }
+            }
+
+            return res.send({
+                ok: true,
+                created: {
+                    users: users.length,
+                    organization: orgName,
+                    project: projName,
+                }
+            })
+            // const u = await prisma.user.create()
+        }
+    )
+
 /// FATTO DA CHATGPT EH, FIDIAMOCI?
     // DEBUG SEED - POST /api/users/seed
     fastify.post<{

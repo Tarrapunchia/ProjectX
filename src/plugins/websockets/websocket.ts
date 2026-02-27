@@ -205,17 +205,17 @@ const websocketPlugin: FastifyPluginAsync = fp(async (server) => {
                         })
                     break;
                 
-                case "cursor:move":
-                    server.wsBroadcastExcept(
-                        ws,
-                        {
-                            type: 'cursor:move',
-                            userId,
-                            x: msg.x,
-                            y: msg.y,
-                            ts: Date.now()
-                        })
-                    break;
+                // case "cursor:move":
+                //     server.wsBroadcastExcept(
+                //         ws,
+                //         {
+                //             type: 'cursor:move',
+                //             userId,
+                //             x: msg.x,
+                //             y: msg.y,
+                //             ts: Date.now()
+                //         })
+                //     break;
                 case 'chat:send':
                 {
                     const toUserId = Number(msg.toUserId)
@@ -286,6 +286,7 @@ const websocketPlugin: FastifyPluginAsync = fp(async (server) => {
                         userId: userId,
                         ts: Date.now(),
                     })
+                    // a sto punto, con il room:joined, il client fara' la get di tutti i messaggi della chat
                 }
                     break;
                 case 'room:leave': {
@@ -355,7 +356,7 @@ const websocketPlugin: FastifyPluginAsync = fp(async (server) => {
                     server.wsRoomBroadcast(roomId, {
                         type: 'room:message',
                         roomId,
-                        // fromUserId: userId,
+                        fromUserId: userId,
                         payload: msg.payload ?? null,
                         ts: Date.now(),
                     }, ws)

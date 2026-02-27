@@ -1,6 +1,7 @@
 type Schema = Record<string, any>;
 export declare const userSchemas: {
     getAllUsers: Schema;
+    searchUsers: Schema;
     getUserProfile: Schema;
     getUserFriends: Schema;
     createUser: Schema;

@@ -47,7 +47,7 @@ const Getters: FastifyPluginAsync = async (fastify: FastifyInstance, opts) => {
             }
         })
 
-        const result = room?.messages.map((m) => ({
+        const result = room?.messages.map((m: any) => ({
             id: m.id,
             senderId: m.senderId,
             senderMail: m.sender.email,

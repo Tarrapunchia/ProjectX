@@ -36,6 +36,27 @@ const getAllUsersSchema = {
         },
     },
 };
+const searchUsers = {
+    description: 'Search for users by name, surname or email',
+    querystring: {
+        type: 'object',
+        properties: {
+            username: { type: 'string', description: 'User\'s identifier (required)' },
+        },
+        required: ['username'],
+    },
+    tags: ['users'],
+    response: {
+        200: {
+            type: 'array',
+            items: {
+                type: 'object',
+                properties: userResponse,
+                required: ['id', 'name', 'surname', 'email', 'jobQualifier', 'isLoggedIn'],
+            },
+        },
+    },
+};
 const getUserProfile = {
     description: 'Fetch a user profile (user + organizations + projects)',
     tags: ['users'],
@@ -342,6 +363,7 @@ const seed = {
 };
 export const userSchemas = {
     getAllUsers: getAllUsersSchema,
+    searchUsers: searchUsers,
     getUserProfile: getUserProfile,
     getUserFriends: getUserFriends,
     createUser: createUser,
