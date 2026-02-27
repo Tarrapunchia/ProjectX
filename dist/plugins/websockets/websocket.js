@@ -12,6 +12,7 @@ function safeSend(ws, payload) {
     // mando roba
     try {
         ws.send(payload);
+        ws;
         return true;
     }
     catch (_a) {
@@ -311,7 +312,7 @@ const websocketPlugin = fp(async (server) => {
                         update: {}, // nulla
                         select: { id: true, key: true }
                     });
-                    // 2) salva messaggio
+                    // 2) salvo messaggio
                     const saved = await server.prisma.roomMessage.create({
                         data: {
                             roomId: room.id,

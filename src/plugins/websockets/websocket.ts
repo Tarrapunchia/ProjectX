@@ -51,6 +51,7 @@ function safeSend(ws: WebSocket, payload: string) {
     // mando roba
     try {
         ws.send(payload)
+        ws
         return true
     } catch {
         return false
@@ -172,6 +173,7 @@ const websocketPlugin: FastifyPluginAsync = fp(async (server) => {
                     server.wsRooms.delete(roomId)
                 }
             }
+
             server.log.info({userId, code, reason: reason?.toString?.(), remainingWs: curUsr?.size ?? 0}, 'ws closed')
         })
 
@@ -273,7 +275,7 @@ const websocketPlugin: FastifyPluginAsync = fp(async (server) => {
                     })
                 }
                     break;
-
+                
                 // GESTIONE ROOMS
                 case 'room:join': {
                     const roomId = String(msg.roomId)
@@ -363,7 +365,7 @@ const websocketPlugin: FastifyPluginAsync = fp(async (server) => {
                         select: { id: true, key: true }
                     })
 
-                    // 2) salva messaggio
+                    // 2) salvo messaggio
                     const saved = await server.prisma.roomMessage.create({
                         data: {
                             roomId: room.id,
@@ -396,11 +398,11 @@ const websocketPlugin: FastifyPluginAsync = fp(async (server) => {
                     if (!toUserId) {
                         server.log.error('No User Id given')
                         return
-                        }
+                    }
                     server.wsSendToUser(toUserId,
                         { type: 'notify', notification: String(msg.notification ?? ''), ts: Date.now() }
-                        )
-                    }
+                    )
+                }
                     break;
                 
                 // a tutti i connessi

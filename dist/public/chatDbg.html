@@ -86,6 +86,21 @@
     // ===== UI helpers =====
     const chatEl = document.getElementById("chat");
     const statusEl = document.getElementById("status");
+// GET /api/v1/users/:id/profile
+    async function getUsername(userId) {
+      try {
+        const res = await fetch(API_BASE + `/api/v1/users/${userId}/profile`, {
+          method: "GET",
+          headers: { "Content-Type": "application/json" },
+          credentials: "include",
+        })
+        const user = await res.json();
+        console.log('USER' + user.name)
+        return (`${user.name.charAt(0)}${user.surname}`)
+      } catch (error) {
+        console.log(error)        
+      }
+    }
 
     function ts(d = new Date()) {
       const pad = (n) => String(n).padStart(2, "0");
@@ -108,6 +123,7 @@
     document.getElementById("btnLogin").addEventListener("click", async () => {
       const email = document.getElementById("email").value.trim();
       const password = document.getElementById("password").value;
+      let   username = ''
 
       appendLine(`[${ts()}] → LOGIN ${email}`);
 
@@ -154,7 +170,7 @@
         document.getElementById("btnPing").disabled = false;
       };
 
-      ws.onmessage = (e) => {
+      ws.onmessage = async (e) => {
         let msg;
         try { msg = JSON.parse(e.data); } catch {
           appendLine(`[${ts()}] ← WS (raw) ${e.data}`);
@@ -164,21 +180,32 @@
         // server handshake confirm
         if (msg.type === "ws:connected") {
           appendLine(`[${ts()}] ← ws:connected userId=${msg.userId}`);
+          // username = await getUsername(msg.userId)
           return;
         }
 
         // chat message from server
+        const nameCache = new Map();
+
+        async function getUsernameCached(userId) {
+          if (nameCache.has(userId)) return nameCache.get(userId);
+          const name = await getUsername(userId);
+          nameCache.set(userId, name || `User#${userId}`);
+          return nameCache.get(userId);
+        }
+
         if (msg.type === "chat:message") {
-          // { type, fromUserId, toUserId, text, ts }
           const when = msg.ts ? ts(new Date(msg.ts)) : ts();
-          appendLine(`[${when}] ${msg.fromUserId} → ${msg.toUserId}: ${msg.text}`);
+          const fromName = await getUsernameCached(msg.fromUserId);
+          const toName   = await getUsernameCached(msg.toUserId);
+          appendLine(`[${when}] ${fromName} → ${toName}: ${msg.text}`);
           return;
         }
 
         // errore
         if (msg.type === "error") {
           const when = msg.ts ? ts(new Date(msg.ts)) : ts();
-          appendLine(`❌ [${when}] ${msg.error}`);
+          appendLine(`[${when}] ❌ ${msg.error}`);
           return;
         }
 
