@@ -28,6 +28,8 @@ export const MOCK_PROJECTS: Projects[] = [
 	{ id: '15', owner: 'Paolo', name: 'Minishell', description: 'description test', startDate:'2025-05-04', targetDate: '2026-12-10', completed: true, completedDate: '2025-10-15', role: 'Input check and parsing', status: 'done' },
 	{ id: '16', owner: 'Paolo', name: 'Minishell', description: 'description test', startDate:'2025-05-04', targetDate: '2026-12-10', completed: true, completedDate: '2025-10-15', role: 'Input check and parsing', status: 'done' },
 	{ id: '17', owner: 'Paolo', name: 'Minishell', description: 'description test', startDate:'2025-05-04', targetDate: '2026-12-10', completed: true, completedDate: '2025-10-15', role: 'Input check and parsing', status: 'done' },
+	{ id: '18', owner: 'Paolo', name: 'Minishell', description: 'description test', startDate:'2025-05-04', targetDate: '2026-12-10', completed: true, completedDate: '2025-10-15', role: 'Input check and parsing', status: 'done' },
+	{ id: '19', owner: 'Paolo', name: 'Minishell', description: 'description test', startDate:'2025-05-04', targetDate: '2026-12-10', completed: true, completedDate: '2025-10-15', role: 'Input check and parsing', status: 'done' },
 ];
 
 export const MOCK_FRIENDS: Friend[] = [
