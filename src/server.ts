@@ -71,6 +71,7 @@ await server.register(cors, {			// per quando BE e FE non saranno su stessa port
 	origin: [
 		'http://localhost:5000',
 		'http://127.0.0.1:5000',			// indirizzo FE
+		'http://localhost:5173',			// indirizzo FE
 	],
 	credentials: true,
 	methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],

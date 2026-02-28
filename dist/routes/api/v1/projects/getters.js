@@ -69,6 +69,27 @@ const Getters = async (fastify, opts) => {
         res.code(200);
         return res.send(result);
     });
+    // // GET /api/v1/projects/room/:id
+    fastify.get('/room/:id', { schema: projectSchemas.getProjectRoom }, async (req, res) => {
+        const id = Number(req.params.id);
+        if (Number.isNaN(id)) {
+            res.code(400);
+            return { error: 'invalid id' };
+        }
+        const project = await fastify.prisma.project.findUnique({
+            where: { id },
+            include: { organization: { select: { id: true } } },
+        });
+        if (!project) {
+            res.code(404);
+            return { error: 'Project not found' };
+        }
+        const result = {
+            roomId: `proj:${project.organizationId}:${project.id}`
+        };
+        res.code(200);
+        return res.send(result);
+    });
     // GET /api/v1/projects/search?organizationId=1&name=foo
     fastify.get('/search', { schema: projectSchemas.getOrgProjectsByNameSchema }, async (req, reply) => {
         var _a;

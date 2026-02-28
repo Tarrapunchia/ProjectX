@@ -55,6 +55,18 @@ const getProjectByIdSchema = {
         200: projResponse,
     },
 };
+const getProjectRoom = {
+    description: 'Get the room id for the given project',
+    tags: ['projects'],
+    response: {
+        200: {
+            type: 'object',
+            properties: {
+                roomId: { type: 'string' },
+            }
+        },
+    },
+};
 const getOrgProjectsByNameSchema = {
     description: 'Search projects by organizationId and optional name substring. Leaving the name empty returns all the projects of an Organization.',
     tags: ['projects'],
@@ -115,6 +127,7 @@ const createProjectSchema = {
 export const projectSchemas = {
     getAllProjectsSchema: getAllProjectsSchema,
     getProjectByIdSchema: getProjectByIdSchema,
+    getProjectRoom: getProjectRoom,
     getOrgProjectsByNameSchema: getOrgProjectsByNameSchema,
     createProjectSchema: createProjectSchema,
 };
