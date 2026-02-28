@@ -4,6 +4,11 @@ import fastifyJwt from '@fastify/jwt';
 import fastifyMultipart  from '@fastify/multipart';
 import { setupWebSocket } from './websocket'; // ?
 import { db } from './database/index';
+import fs from 'fs'; // fs è il modulo File System di Node.js (serve per leggere, scrivere, creare, cancellare file e cartelle)
+import pump from 'pump';  // pump è un pacchetto npm che collega due o piu strem e gestisce automaticamente gli errori (per trasferire i dati dal file ricevuto (strem) al file sul disco (strem di scrittura))
+import path from 'path'; // path è il modulo di Node.js per gestire e manipolare i percorsi dei file ('path.join' unisce piu parti di un percorso in modo sicuro, indipendentemente dal sistema operativo)
+
+
 
 const app = Fastify({
 	logger: true,  // logger automatici
@@ -46,9 +51,10 @@ app.post('/upload', async function (request, reply) {
 		return reply.code(400).send({ error: 'No file uploaded' });
 	}
 	if (file.file.truncated) {
-		return reply.code(400).send({error: 'File too large '});
+		return reply.code(400).send({ error: 'File too large' });
 	}
-	// path.join()
+	const upload_path = path.join('socket', '..', 'uploads', file.filename); // per ora finisce in /uploads
+	await pump(file.file, fs.createWriteStream(upload_path));
 });
 
 // =========== LOGIN (bozza) ===========
