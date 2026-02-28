@@ -60,22 +60,20 @@ const ProjectsPage: React.FC<ProjectsPageProps> = ({ setActivePage, setSelectedP
 						{expandedCategories['todo'] ? <FiChevronUp /> : <FiChevronDown />}
 					</span>
 				</p>
-				<div className={`cards-container ${expandedCategories['todo'] ? '' : 'collapsed'}`}>
-					<div className="cards-inner">
-						{MOCK_PROJECTS
-							.filter((project) => project.status === 'todo')
-							.map((project) => (
-								<div 
-									key={project.id} 
-									className="project-card"
-									onClick={(e) => handleCardClick(project, e)}
-								>
-									<h3>{project.name}</h3>
-									<p className="project-description">{project.description}</p>
-								</div>
-							))
-						}
-					</div>
+				<div className={`cards-container ${expandedCategories['todo'] ? 'expanded' : 'collapsed'}`}>
+					{MOCK_PROJECTS
+						.filter((project) => project.status === 'todo')
+						.map((project) => (
+							<div 
+								key={project.id} 
+								className="project-card"
+								onClick={(e) => handleCardClick(project, e)}
+							>
+								<h3>{project.name}</h3>
+								<p className="project-description">{project.description}</p>
+							</div>
+						))
+					}
 				</div>
 			</div>
 			<div className="category">
@@ -88,22 +86,20 @@ const ProjectsPage: React.FC<ProjectsPageProps> = ({ setActivePage, setSelectedP
 						{expandedCategories['in-progress'] ? <FiChevronUp /> : <FiChevronDown />}
 					</span>
 				</p>
-				<div className={`cards-container ${expandedCategories['in-progress'] ? '' : 'collapsed'}`}>
-					<div className="cards-inner">
-						{MOCK_PROJECTS
-							.filter((project) => project.status === 'in-progress')
-							.map((project) => (
-								<div
-									key={project.id}
-									className="project-card"
-									onClick={(e) => handleCardClick(project, e)}
-								>
-									<h3>{project.name}</h3>
-									<p className="project-description">{project.description}</p>
-								</div>
-							))
-						}
-					</div>
+				<div className={`cards-container ${expandedCategories['in-progress'] ? 'expanded' : 'collapsed'}`}>
+					{MOCK_PROJECTS
+						.filter((project) => project.status === 'in-progress')
+						.map((project) => (
+							<div
+								key={project.id}
+								className="project-card"
+								onClick={(e) => handleCardClick(project, e)}
+							>
+								<h3>{project.name}</h3>
+								<p className="project-description">{project.description}</p>
+							</div>
+						))
+					}
 				</div>
 			</div>
 			<div className="category">
@@ -116,22 +112,20 @@ const ProjectsPage: React.FC<ProjectsPageProps> = ({ setActivePage, setSelectedP
 						{expandedCategories['review'] ? <FiChevronUp /> : <FiChevronDown />}
 					</span>
 				</p>
-				<div className={`cards-container ${expandedCategories['review'] ? '' : 'collapsed'}`}>
-					<div className="cards-inner">
-						{MOCK_PROJECTS
-							.filter((project) => project.status === 'review')
-							.map((project) => (
-								<div
-									key={project.id}
-									className="project-card"
-									onClick={(e) => handleCardClick(project, e)}
-								>
-									<h3>{project.name}</h3>
-									<p className="project-description">{project.description}</p>
-								</div>
-							))
-						}
-					</div>
+				<div className={`cards-container ${expandedCategories['review'] ? 'expanded' : 'collapsed'}`}>
+					{MOCK_PROJECTS
+						.filter((project) => project.status === 'review')
+						.map((project) => (
+							<div
+								key={project.id}
+								className="project-card"
+								onClick={(e) => handleCardClick(project, e)}
+							>
+								<h3>{project.name}</h3>
+								<p className="project-description">{project.description}</p>
+							</div>
+						))
+					}
 				</div>
 			</div>
 			<div className="category">
@@ -144,22 +138,20 @@ const ProjectsPage: React.FC<ProjectsPageProps> = ({ setActivePage, setSelectedP
 						{expandedCategories['done'] ? <FiChevronUp /> : <FiChevronDown />}
 					</span>
 				</p>
-				<div className={`cards-container ${expandedCategories['done'] ? '' : 'collapsed'}`}>
-					<div className="cards-inner">
-						{MOCK_PROJECTS
-							.filter((project) => project.status === 'done')
-							.map((project) => (
-								<div
-									key={project.id}
-									className="project-card"
-									onClick={(e) => handleCardClick(project, e)}
-								>
-									<h3>{project.name}</h3>
-									<p className="project-description">{project.description}</p>
-								</div>
-							))
-						}
-					</div>
+				<div className={`cards-container ${expandedCategories['done'] ? 'expanded' : 'collapsed'}`}>
+					{MOCK_PROJECTS
+						.filter((project) => project.status === 'done')
+						.map((project) => (
+							<div
+								key={project.id}
+								className="project-card"
+								onClick={(e) => handleCardClick(project, e)}
+							>
+								<h3>{project.name}</h3>
+								<p className="project-description">{project.description}</p>
+							</div>
+						))
+					}
 				</div>
 			</div>
 			{selectedCard && (

@@ -5,6 +5,7 @@ import Sidebar from '../../components/sidebar';
 import Footer from '../../components/footer';
 import ProfilePage from '../profilePage/profilePage';
 import ProjectsPage from '../projectsPage/projectsPage';
+import ChatPage from '../chatRoomPage/chatRoomPage';
 import type { Projects } from '../../data/types';
 
 function dashBoard() {
@@ -21,7 +22,7 @@ function dashBoard() {
                 { activePage === 'documents' && <p>Documents (WIP)</p> }
                 { activePage === 'tasks' && <p>Tasks (WIP)</p>}
                 { activePage === 'projects' && <ProjectsPage setActivePage={setActivePage} setSelectedProject={setSelectedProject}/> }
-                { activePage === 'chat' && <p>Chat (WIP)</p> }
+                { activePage === 'chat' && <ChatPage selectedProject={selectedProject}/> }
                 { activePage === 'files' && <p>Files (WIP)</p> }
                 { activePage === 'settings' && <p>Settings (WIP)</p> }
                 { activePage === 'profile' && <ProfilePage /> }
