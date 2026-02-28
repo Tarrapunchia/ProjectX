@@ -50,7 +50,7 @@ const chat: React.FC<chatProps> = ({ selectedProject }) => {
         <>
             ROOM ID {roomId}
             {chatHistory.map(m => {
-                return (`${m.id} - ${m.content}`)
+                return (<p>`[{m.timestamp}]({m.senderMail}) - {m.content}`</p>)
             })}
         </>
     );

@@ -3,8 +3,8 @@ import type { Projects } from "../data/types";
 const getRoomId = async (serverUrl: string, project: Projects)
 : Promise<string> => {
         const res = await fetch(
-            // `${serverUrl}/api/v1/projects/room/${project.id}`,
-            `${serverUrl}/api/v1/projects/room/19`,
+            `${serverUrl}/api/v1/projects/room/${project.id}`,
+            // `${serverUrl}/api/v1/projects/room/19`,
             {
                 credentials: "include",
                 headers: { Accept: "application/json" },

@@ -12,8 +12,37 @@ declare global {
 function login() 
 {
     const googleDiv = useRef<HTMLDivElement>(null);
+    const emailRef = useRef<HTMLInputElement>(null);
+    const pwRef = useRef<HTMLInputElement>(null);
     const navigate = useNavigate();
-    function handleLogin() { navigate("/dashboard"); }
+    // function handleLogin() { navigate("/dashboard"); }
+    async function handleLogin() {
+        const LOGIN_URL = 'http://localhost:5000/api/v1/users/login'
+        const DASHBOARD = '/dashboard'
+        let res: any
+        try {
+            const email = emailRef.current?.value
+            const password = pwRef.current?.value
+
+            const login = await fetch(LOGIN_URL, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            credentials: "include",
+            body: JSON.stringify({ email, password }),
+            });
+            if (!login.ok) {
+                alert('Invalid Credentials')
+                return
+            }
+            console.log(login)
+            res = await login.json()
+        } catch (error) {
+            console.log(error)
+        }
+        alert('Valid Credentials')
+        // chiamata per WS
+        navigate(DASHBOARD)
+     }
     function handleSignUp() { navigate("/SignUp"); }
 
     useEffect(() => 
@@ -50,8 +79,8 @@ function login()
                 <h1>Login to your account!</h1>
                 <div ref={googleDiv}></div>
                 <span className="divider" > OR </span>
-                <input type="text" placeholder="E-mail" className='input-field email-field'/>
-                <input type="text" placeholder="Password" className='input-field'/>
+                <input ref={emailRef} type="text" placeholder="E-mail" className='input-field email-field'/><br></br>
+                <input ref={pwRef} type="text" placeholder="Password" className='input-field'/>
                 <span className="password-forgotten" onClick={handleSignUp}> Password forgotten? </span>
                 <button onClick={handleLogin}>Login</button>
             </div>
