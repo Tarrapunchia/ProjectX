@@ -166,20 +166,26 @@ const ProjectsPage: React.FC<ProjectsPageProps> = ({ setActivePage, setSelectedP
 						} : undefined}
 						onClick={(e) => e.stopPropagation()}
 					>
-						<h2>{selectedCard.name}</h2>
-						<p>Owner: {selectedCard.owner}</p>
-						<p>Description: {selectedCard.description}</p>
-						<p>Role: {selectedCard.role}</p>
-						<p>Started: {selectedCard.startDate}</p>
-						<p>Target: {selectedCard.targetDate}</p>
-						<p>Status: {selectedCard.status}</p>
-						<button onClick={() => {
-							setSelectedProject(selectedCard);
-							setActivePage('dashboard');
-							handleClose();
-						}}>
-							Set Active Project</button>
-						<button onClick={handleClose}>Close</button>
+						<div className="project-info">
+							<div className="title-owner-row">
+								<h2>{selectedCard.name}</h2>
+								<p className="owner-info">{selectedCard.owner}</p>
+							</div>
+							<div className="description-row">Description: {selectedCard.description}</div>
+							<p>Role: {selectedCard.role}</p>
+							<div>Started: {selectedCard.startDate}</div>
+							<p>Target: {selectedCard.targetDate}</p>
+							<p>Status: {selectedCard.status}</p>
+							<div className="overlay-btn">
+								<button onClick={() => {
+									setSelectedProject(selectedCard);
+									setActivePage('dashboard');
+									handleClose();
+								}}>
+									Set Active Project</button>
+								<button onClick={handleClose}>Close</button>
+							</div>
+						</div>
 					</div>
 				</div>
 			)}

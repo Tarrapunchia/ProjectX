@@ -1,3 +1,11 @@
+/*	Variabili per i colori */
+:root {
+	--bg-color: #242424;
+	--category-bg-color: #8e8d8d37;
+	--overlay-bg-color: #1a1a1a;
+	--overlay-border-color: #606060;
+}
+
 .projectsPage {
 	display: flex;
 	gap: 20px 1vw;
@@ -5,13 +13,13 @@
 	flex-wrap: wrap;
 	justify-content: left;
 	align-items: flex-start;
-	/* position: relative; */
+	background-color: var(--bg-color);
 }
 
 .category {
 	min-width: 320px;
 	width: 19vw;
-	background: #8e8d8d37;
+	background: var(--category-bg-color);
 	border-radius: 2px;
 }
 
@@ -52,7 +60,7 @@
 }
 
 .project-card {
-	background: #242424;
+	background: var(--bg-color);
 	height: 250px;
 	width: 98%;
 	margin-left: 1%;
@@ -84,8 +92,10 @@
 }
 
 .project-detail {
+	display: grid;
+	grid-template-columns: 2fr 1fr;
 	position: fixed;
-	background: #1a1a1a;
+	background: var(--overlay-bg-color);
 	padding: 30px;
 	border-radius: 8px;
 	transition: all 0.4s ease;
@@ -99,16 +109,42 @@
 	width: 83vw !important;
 	height: 85vh !important;
 	opacity: 1;
-	border: 1px solid #606060;
+	border: 1px solid var(--overlay-border-color);
+}
+
+.project-info {
+	display: flex;
+	flex-wrap: wrap;
+	align-content: flex-start;
+	border-right: 1px solid var(--overlay-border-color);
+}
+
+.title-owner-row {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	width: 100%;
 }
 
 .project-detail h2 {
-	margin-bottom: 20px;
+	font-size: 50px;
+	margin: 0;
 }
 
-.project-detail p {
-	margin: 8px 0;
-	font-size: 16px;
+.owner-info {
+	display: -webkit-box;
+	-webkit-line-clamp: 1;
+	-webkit-box-orient: vertical;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	min-width: 200px;
+	max-width: 350px;
+	margin-right: 20px;
+	margin-left: auto;
+	background-color: rgb(172, 134, 0);
+	text-align: center;
+	border-radius: 5px;
+	font-size: 20px;
 }
 
 .project-detail button {
@@ -120,4 +156,18 @@
 	color: white;
 	border-radius: 4px;
 	margin-right: 50px;
+}
+
+.description-row {
+	width: 100%;
+	min-height: 100px;
+	max-height: 200px;
+	margin-top: 30px;
+	margin-left: 10px;
+	font-size: 20px;
+	font-weight: 200;
+}
+
+.overlay-btn {
+	
 }

@@ -11,7 +11,7 @@ export const MOCK_USER: ProfileUser = {
 }
 
 export const MOCK_PROJECTS: Projects[] = [
-	{ id: '1', owner: 'Piero', name: 'Trascendence', description: 'description test', startDate: '2025-08-15', targetDate: '2026-12-10', completed: false, completedDate: 'TBD', role: 'Frontend Dev', status: 'todo' },
+	{ id: '1', owner: 'Space Travel Partner Name Too Long Test', name: 'Trascendence', description: 'description test', startDate: '2025-08-15', targetDate: '2026-12-10', completed: false, completedDate: 'TBD', role: 'Frontend Dev', status: 'todo' },
 	{ id: '2', owner: 'Piero', name: 'Trascendence', description: 'If the description length is more than two line the text gets cutted off and three points are shown instead This is some hidden text', startDate: '2025-08-15', targetDate: '2026-12-10', completed: false, completedDate: 'TBD', role: 'Frontend Dev', status: 'in-progress' },
 	{ id: '3', owner: 'Piero', name: 'Trascendence', description: 'description test', startDate: '2025-08-15', targetDate: '2026-12-10', completed: false, completedDate: 'TBD', role: 'Frontend Dev', status: 'in-progress' },
 	{ id: '4', owner: 'Piero', name: 'Trascendence', description: 'description test', startDate: '2025-08-15', targetDate: '2026-12-10', completed: false, completedDate: 'TBD', role: 'Frontend Dev', status: 'todo' },
