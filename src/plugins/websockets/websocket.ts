@@ -16,20 +16,6 @@ type WsClientsByUserId = Map<number, WsClientSet>
 type WsRoomId  = string
 type WsRoomMap  = Map<WsRoomId, WsClientSet>
 
-// helper
-// function parseRoomKey(key: string): { type: 'ORG' | 'PROJECT', orgId: number | null, projectId: number | null } {
-//     // org:12
-//     const orgMatch = /^org:(\d+)$/.exec(key)
-//     if (orgMatch) return { type: 'ORG', orgId: Number(orgMatch[1]), projectId: null }
-
-//     // proj:12:5
-//     const projMatch = /^proj:(\d+):(\d+)$/.exec(key)
-//     if (projMatch) return { type: 'PROJECT', orgId: Number(projMatch[1]), projectId: Number(projMatch[2]) }
-
-//     // fallback: room “generica”
-//     return { type: 'ORG', orgId: null, projectId: null }
-// }
-
 // Uso il module augmentation di TS per dare il tipo a server.ws: WebSocket
 declare module 'fastify' {
     interface FastifyInstance {
