@@ -81,8 +81,12 @@ await server.register(swaggerUi, {
 await server.register(cors, {			// per quando BE e FE non saranno su stessa porta
 	origin: [
 		'https://localhost:5000',
-		'https://127.0.0.1:5000',			// indirizzo FE
-		'https://localhost:5173',			// indirizzo FE
+		'https://127.0.0.1:5000',			
+		
+		'http://localhost:5173', // tutto FE
+		'http://127.0.0.1:5173',
+		'https://localhost:5173',
+		'https://127.0.0.1:5173',
 	],
 	credentials: true,
 	methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],

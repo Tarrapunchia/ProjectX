@@ -101,7 +101,6 @@ const Posters: FastifyPluginAsync = async (fastify: FastifyInstance, opts) => {
     },
     async (req, res) => {
         const { email, password } = req.body
-
         // check base
         if (!email || !password) {
             res.code(400)

@@ -109,6 +109,8 @@ const Debug: FastifyPluginAsync = async (fastify: FastifyInstance, opts) => {
                 data: {
                     name: projName,
                     organizationId: org.id,
+                    status: "ACTIVE",
+                    description: "Final Project"
                 },
             })
 
@@ -294,6 +296,8 @@ const Debug: FastifyPluginAsync = async (fastify: FastifyInstance, opts) => {
                 data: {
                     name: `Project ${org.id}.${i}`,
                     organizationId: org.id,
+                    status: "TODO",
+                    description: `Project ${org.id}.${i}`
                 },
                 })
                 projects.push(p)

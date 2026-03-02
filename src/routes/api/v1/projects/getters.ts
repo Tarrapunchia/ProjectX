@@ -24,6 +24,8 @@ const Getters: FastifyPluginAsync = async (fastify: FastifyInstance, opts) => {
             id: p.id,
             name: p.name,
             organization: p.organization,
+            status: p.status,
+            description: p.description ?? '',
             participants: p.participants.map((pp) => ({
                 user: pp.user,
                 role: pp.role.name,

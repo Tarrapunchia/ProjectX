@@ -36,6 +36,8 @@ const projResponse = {
         id: { type: 'number' },
         name: { type: 'string' },
         organization: orgMini,
+        status: { type: 'string' },
+        description: { type: 'string' },
         participants: {
             type: 'array',
             items: participant,
@@ -114,8 +116,13 @@ const createProjectSchema: Schema = {
     tags: ['projects'],
     body: {
         type: 'object',
-        properties: { name: { type: 'string'}, orgId: { type: 'number' }},
-        required: ['name', 'orgId'],
+        properties: {
+            name: { type: 'string'},
+            orgId: { type: 'number' },
+            status: { type: 'string' },
+            description: { type: 'string' },
+        },
+        required: ['name', 'orgId', 'status'],
     },
     response: {
         201: {

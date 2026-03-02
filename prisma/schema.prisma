@@ -61,14 +61,15 @@ model User {
 }
 
 model Organization {
-  id      Int    @id @default(autoincrement())
-  name    String @unique
-  email   String 
-  phone   String
-  city    String?
-  address String?
-  cap     String?
-  state   String?
+  id          Int    @id @default(autoincrement())
+  name        String @unique
+  email       String 
+  phone       String
+  city        String?
+  address     String?
+  cap         String?
+  state       String?
+  description String?
 
   // owner (User 1 -> N Organization)
   ownerId Int
@@ -96,6 +97,13 @@ model OrganizationMember { // TABELLA PONTE
   @@id([organizationId, userId]) // impedisce doppioni
 }
 
+enum Status {
+  TODO
+  ACTIVE
+  REVIEW
+  CLOSED
+}
+
 model Project {
   id             Int    @id @default(autoincrement())
   name           String
@@ -103,8 +111,11 @@ model Project {
   organizationId Int
   organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
 
+  status         Status
+  description    String?
+
   participants   ProjectParticipant[]
-  chatRooms ChatRoom[]
+  chatRooms      ChatRoom[]
 }
 
 model ProjectParticipant {  // TABELLA PONTE
@@ -119,6 +130,12 @@ model ProjectParticipant {  // TABELLA PONTE
   createdAt DateTime @default(now())
 
   @@id([projectId, userId]) // un utente compare una volta per progetto
+}
+
+enum RoleName {
+  OWNER
+  EDITOR
+  VIEWER
 }
 
 model Role {

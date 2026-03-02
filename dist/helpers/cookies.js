@@ -8,7 +8,7 @@ function setAuthCookie(reply, token) {
     //     maxAge: 60 * 60 * 24, // 1 giorno,
     //   })
     // https
-    reply.setCookie('token', token, {
+    reply.setCookie('session', token, {
         path: '/',
         httpOnly: true,
         secure: true,

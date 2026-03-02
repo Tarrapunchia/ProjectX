@@ -5,7 +5,7 @@ import { projectSchemas } from "./projectsSchema.js";
 const Posters: FastifyPluginAsync = async (fastify: FastifyInstance, opts) => {
     // // POST /api/v1/organizations/addProject
     fastify.post<{
-    Body: { name: string; orgId: number }
+    Body: { name: string; orgId: number, status: 'TODO' | 'ACTIVE' | 'REVIEW' | 'CLOSED', description?: 'string' }
     }>(
     '/addProject',
     { schema: projectSchemas.createProjectSchema },
@@ -16,7 +16,7 @@ const Posters: FastifyPluginAsync = async (fastify: FastifyInstance, opts) => {
             return { error: 'You must be logged in in order to create a Project' }
         }
 
-        const { name, orgId } = req.body
+        const { name, orgId, status, description } = req.body
 
         if (!name || !orgId) {
             res.code(400)
@@ -49,6 +49,8 @@ const Posters: FastifyPluginAsync = async (fastify: FastifyInstance, opts) => {
                     data: {
                         name,
                         organizationId: orgId,
+                        status: status,
+                        description: description ?? ''
                     },
                 })
 

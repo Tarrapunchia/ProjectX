@@ -9,7 +9,7 @@ const Posters = async (fastify, opts) => {
             res.code(401);
             return { error: 'You must be logged in in order to create a Project' };
         }
-        const { name, orgId } = req.body;
+        const { name, orgId, status, description } = req.body;
         if (!name || !orgId) {
             res.code(400);
             return { error: 'All fields are required' };
@@ -38,6 +38,8 @@ const Posters = async (fastify, opts) => {
                     data: {
                         name,
                         organizationId: orgId,
+                        status: status,
+                        description: description !== null && description !== void 0 ? description : ''
                     },
                 });
                 // 2) trova o crea il ruolo OWNER (in questo caso, upsert fa update or insert)

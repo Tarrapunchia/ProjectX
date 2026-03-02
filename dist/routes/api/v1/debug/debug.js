@@ -97,6 +97,8 @@ const Debug = async (fastify, opts) => {
             data: {
                 name: projName,
                 organizationId: org.id,
+                status: "ACTIVE",
+                description: "Final Project"
             },
         });
         for (const u of users) {
@@ -258,6 +260,8 @@ const Debug = async (fastify, opts) => {
                         data: {
                             name: `Project ${org.id}.${i}`,
                             organizationId: org.id,
+                            status: "TODO",
+                            description: `Project ${org.id}.${i}`
                         },
                     });
                     projects.push(p);

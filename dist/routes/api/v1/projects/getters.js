@@ -18,16 +18,21 @@ const Getters = async (fastify, opts) => {
             },
             orderBy: { id: 'asc' }
         });
-        const result = projects.map((p) => ({
-            id: p.id,
-            name: p.name,
-            organization: p.organization,
-            participants: p.participants.map((pp) => ({
-                user: pp.user,
-                role: pp.role.name,
-                joinedAt: pp.createdAt,
-            })),
-        }));
+        const result = projects.map((p) => {
+            var _a;
+            return ({
+                id: p.id,
+                name: p.name,
+                organization: p.organization,
+                status: p.status,
+                description: (_a = p.description) !== null && _a !== void 0 ? _a : '',
+                participants: p.participants.map((pp) => ({
+                    user: pp.user,
+                    role: pp.role.name,
+                    joinedAt: pp.createdAt,
+                })),
+            });
+        });
         res.code(200);
         return res.send(result);
     });

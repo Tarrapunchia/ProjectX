@@ -12,7 +12,7 @@ function setAuthCookie(reply: any, token: string) {
 //   })
 
     // https
-    reply.setCookie('token', token, {
+    reply.setCookie('session', token, {
         path: '/',
         httpOnly: true,
         secure: true,
