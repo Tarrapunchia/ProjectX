@@ -12,11 +12,18 @@ import fastifyJwt from '@fastify/jwt';
 import rateLimit from '@fastify/rate-limit';
 import cookie from '@fastify/cookie';
 import cors from '@fastify/cors';
+import fs from 'fs';
 import websocketPlugin from './plugins/websockets/websocket.js';
 // import AuthGoogle from './routes/google/auth.js'
 const PORT = 5000;
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
+// per TLS (metto certs in ./certs, per ora generati con mkcert, forse conviene
+// fare reverse proxy da nginx e poi lasciare fastify normale?)
+const httpsOptions = {
+    key: fs.readFileSync(path.join(__dirname, 'certs', 'localhost-key.pem')),
+    cert: fs.readFileSync(path.join(__dirname, 'certs', 'localhost.pem')),
+};
 const server = fastify({
     logger: {
         transport: {
@@ -28,6 +35,8 @@ const server = fastify({
     },
     ignoreTrailingSlash: true,
     caseSensitive: false,
+    // per https
+    https: httpsOptions
 });
 const start = () => {
     server.listen({ port: PORT, host: '0.0.0.0' }, (err, address) => {
@@ -46,9 +55,9 @@ await server.register(swagger, {
             version: '1.0.0'
         },
         // when dockerized
-        // servers: [
-        //   { url: `localhost:${PORT}`, description: 'dev' }
-        // ]
+        servers: [
+            { url: `https://localhost:${PORT}`, description: 'dev https' }
+        ]
     }
 });
 // @fastify/swagger-ui → espone la UI
@@ -65,9 +74,9 @@ await server.register(swaggerUi, {
 // per ora attivo per i test per il ws
 await server.register(cors, {
     origin: [
-        'http://localhost:5000',
-        'http://127.0.0.1:5000', // indirizzo FE
-        'http://localhost:5173', // indirizzo FE
+        'https://localhost:5000',
+        'https://127.0.0.1:5000', // indirizzo FE
+        'https://localhost:5173', // indirizzo FE
     ],
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
