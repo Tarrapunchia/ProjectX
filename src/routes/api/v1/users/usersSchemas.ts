@@ -70,18 +70,8 @@ const searchUsers: Schema = {
     },
 };
 
-const getUserProfile: Schema = {
-    description: 'Fetch a user profile (user + organizations + projects)',
-    tags: ['users'],
-    params: {
-        type: 'object',
-        properties: {
-        id: { type: 'string', description: 'user id' },
-        },
-        required: ['id'],
-    },
-    response: {
-        200: {
+const userProfileResponse = {
+    200: {
         type: 'object',
         properties: {
             id: { type: 'number' },
@@ -122,8 +112,12 @@ const getUserProfile: Schema = {
                 properties: {
                 id: { type: 'number' },
                 name: { type: 'string' },
+                description: { type: 'string' },
+                status: { type: 'string' },
                 organizationId: { type: 'number' },
                 role: { type: 'string' },
+                createdAt: { type: 'string', format: 'date-time' },
+                closedAt: { type: 'string', format: 'date-time' },
                 joinedAt: { type: 'string', format: 'date-time' }, // ProjectParticipant.createdAt
                 },
                 required: ['id', 'name', 'organizationId', 'role', 'joinedAt'],
@@ -154,7 +148,25 @@ const getUserProfile: Schema = {
         properties: { error: { type: 'string' } },
         required: ['error'],
         },
+    }
+
+const getUserProfile: Schema = {
+    description: 'Fetch a user profile (user + organizations + projects)',
+    tags: ['users'],
+    params: {
+        type: 'object',
+        properties: {
+        id: { type: 'string', description: 'user id' },
+        },
+        required: ['id'],
     },
+    response: userProfileResponse
+}
+
+const getActiveUserProfile: Schema = {
+    description: 'Fetch the profile of the currently connected user (get id from JWT)',
+    tags: ['users'],
+    response: userProfileResponse
 }
 
 
@@ -397,6 +409,7 @@ export const userSchemas = {
     getAllUsers: getAllUsersSchema,
     searchUsers: searchUsers,
     getUserProfile: getUserProfile,
+    getActiveUserProfile: getActiveUserProfile,
     getUserFriends: getUserFriends,
     createUser: createUser,
     modUser: modUser,

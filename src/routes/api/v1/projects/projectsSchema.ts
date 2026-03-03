@@ -42,8 +42,10 @@ const projResponse = {
             type: 'array',
             items: participant,
         },
+        createdAt: { type: 'string', format: 'date-time'},
+        closedAt: { type: 'string', format: 'date-time'}
     },
-    required: ['id', 'name', 'organization', 'participants'],
+    required: ['id', 'name', 'organization', 'participants', 'status', 'description'],
 }
 
 const getAllProjectsSchema: Schema = {

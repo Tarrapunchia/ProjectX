@@ -3,6 +3,7 @@ export declare const userSchemas: {
     getAllUsers: Schema;
     searchUsers: Schema;
     getUserProfile: Schema;
+    getActiveUserProfile: Schema;
     getUserFriends: Schema;
     createUser: Schema;
     modUser: Schema;

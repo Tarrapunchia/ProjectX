@@ -57,6 +57,80 @@ const searchUsers = {
         },
     },
 };
+const userProfileResponse = {
+    200: {
+        type: 'object',
+        properties: {
+            id: { type: 'number' },
+            name: { type: 'string' },
+            surname: { type: 'string' },
+            email: { type: 'string', format: 'email' },
+            phone: { type: 'string' },
+            city: { type: 'string', nullable: true },
+            address: { type: 'string', nullable: true },
+            cap: { type: 'string', nullable: true },
+            state: { type: 'string', nullable: true },
+            jobQualifier: { type: 'string' },
+            isLoggedIn: { type: 'boolean' },
+            createdAt: { type: 'string', format: 'date-time' },
+            updatedAt: { type: 'string', format: 'date-time' },
+            organizations: {
+                type: 'array',
+                items: {
+                    type: 'object',
+                    properties: {
+                        id: { type: 'number' },
+                        name: { type: 'string' },
+                        email: { type: 'string', format: 'email' },
+                        createdAt: { type: 'string', format: 'date-time' }, // OrganizationMember.createdAt
+                    },
+                    required: ['id', 'name', 'email', 'createdAt'],
+                },
+            },
+            projects: {
+                type: 'array',
+                items: {
+                    type: 'object',
+                    properties: {
+                        id: { type: 'number' },
+                        name: { type: 'string' },
+                        description: { type: 'string' },
+                        status: { type: 'string' },
+                        organizationId: { type: 'number' },
+                        role: { type: 'string' },
+                        createdAt: { type: 'string', format: 'date-time' },
+                        closedAt: { type: 'string', format: 'date-time' },
+                        joinedAt: { type: 'string', format: 'date-time' }, // ProjectParticipant.createdAt
+                    },
+                    required: ['id', 'name', 'organizationId', 'role', 'joinedAt'],
+                },
+            },
+        },
+        required: [
+            'id',
+            'name',
+            'surname',
+            'email',
+            'phone',
+            'jobQualifier',
+            'isLoggedIn',
+            'createdAt',
+            'updatedAt',
+            'organizations',
+            'projects',
+        ],
+    },
+    400: {
+        type: 'object',
+        properties: { error: { type: 'string' } },
+        required: ['error'],
+    },
+    404: {
+        type: 'object',
+        properties: { error: { type: 'string' } },
+        required: ['error'],
+    },
+};
 const getUserProfile = {
     description: 'Fetch a user profile (user + organizations + projects)',
     tags: ['users'],
@@ -67,76 +141,12 @@ const getUserProfile = {
         },
         required: ['id'],
     },
-    response: {
-        200: {
-            type: 'object',
-            properties: {
-                id: { type: 'number' },
-                name: { type: 'string' },
-                surname: { type: 'string' },
-                email: { type: 'string', format: 'email' },
-                phone: { type: 'string' },
-                city: { type: 'string', nullable: true },
-                address: { type: 'string', nullable: true },
-                cap: { type: 'string', nullable: true },
-                state: { type: 'string', nullable: true },
-                jobQualifier: { type: 'string' },
-                isLoggedIn: { type: 'boolean' },
-                createdAt: { type: 'string', format: 'date-time' },
-                updatedAt: { type: 'string', format: 'date-time' },
-                organizations: {
-                    type: 'array',
-                    items: {
-                        type: 'object',
-                        properties: {
-                            id: { type: 'number' },
-                            name: { type: 'string' },
-                            email: { type: 'string', format: 'email' },
-                            createdAt: { type: 'string', format: 'date-time' }, // OrganizationMember.createdAt
-                        },
-                        required: ['id', 'name', 'email', 'createdAt'],
-                    },
-                },
-                projects: {
-                    type: 'array',
-                    items: {
-                        type: 'object',
-                        properties: {
-                            id: { type: 'number' },
-                            name: { type: 'string' },
-                            organizationId: { type: 'number' },
-                            role: { type: 'string' },
-                            joinedAt: { type: 'string', format: 'date-time' }, // ProjectParticipant.createdAt
-                        },
-                        required: ['id', 'name', 'organizationId', 'role', 'joinedAt'],
-                    },
-                },
-            },
-            required: [
-                'id',
-                'name',
-                'surname',
-                'email',
-                'phone',
-                'jobQualifier',
-                'isLoggedIn',
-                'createdAt',
-                'updatedAt',
-                'organizations',
-                'projects',
-            ],
-        },
-        400: {
-            type: 'object',
-            properties: { error: { type: 'string' } },
-            required: ['error'],
-        },
-        404: {
-            type: 'object',
-            properties: { error: { type: 'string' } },
-            required: ['error'],
-        },
-    },
+    response: userProfileResponse
+};
+const getActiveUserProfile = {
+    description: 'Fetch the profile of the currently connected user (get id from JWT)',
+    tags: ['users'],
+    response: userProfileResponse
 };
 const getUserFriends = {
     description: `Fetch all user's friends`,
@@ -365,6 +375,7 @@ export const userSchemas = {
     getAllUsers: getAllUsersSchema,
     searchUsers: searchUsers,
     getUserProfile: getUserProfile,
+    getActiveUserProfile: getActiveUserProfile,
     getUserFriends: getUserFriends,
     createUser: createUser,
     modUser: modUser,

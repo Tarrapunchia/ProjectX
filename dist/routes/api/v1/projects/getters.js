@@ -19,7 +19,7 @@ const Getters = async (fastify, opts) => {
             orderBy: { id: 'asc' }
         });
         const result = projects.map((p) => {
-            var _a;
+            var _a, _b;
             return ({
                 id: p.id,
                 name: p.name,
@@ -31,6 +31,8 @@ const Getters = async (fastify, opts) => {
                     role: pp.role.name,
                     joinedAt: pp.createdAt,
                 })),
+                createdAt: p.createdAt,
+                closedAt: (_b = p.closedAt) !== null && _b !== void 0 ? _b : null
             });
         });
         res.code(200);
@@ -38,6 +40,7 @@ const Getters = async (fastify, opts) => {
     });
     // // GET /api/v1/projects/:id
     fastify.get('/:id', { schema: projectSchemas.getProjectByIdSchema }, async (req, res) => {
+        var _a, _b;
         const id = Number(req.params.id);
         if (Number.isNaN(id)) {
             res.code(400);
@@ -70,10 +73,59 @@ const Getters = async (fastify, opts) => {
                 role: pp.role.name,
                 joinedAt: pp.createdAt,
             })),
+            status: project.status,
+            description: (_a = project.description) !== null && _a !== void 0 ? _a : '',
+            createdAt: project.createdAt,
+            closedAt: (_b = project.closedAt) !== null && _b !== void 0 ? _b : null
         };
         res.code(200);
         return res.send(result);
     });
+    // // // GET /api/v1/projects/summary/:id
+    // fastify.get<{
+    //     Params: { id: string }
+    //     }>(
+    //     '/summary/:id',
+    //     { schema: projectSchemas.getProjectByIdSchema }, 
+    //     async (req, res) => {
+    //     const id = Number(req.params.id)
+    //     if (Number.isNaN(id)) {
+    //         res.code(400)
+    //         return { error: 'invalid id' }
+    //     }
+    //     const project = await fastify.prisma.project.findUnique({
+    //         where: { id },
+    //         include: {
+    //             organization : { select: { id: true, name: true }},
+    //             participants: {
+    //                 include: {
+    //                     user: {
+    //                         select: { id: true, name: true, surname: true, email: true },
+    //                     },
+    //                     role: { select: { id: true, name: true }},
+    //                 },
+    //             },
+    //         },
+    //     })
+    //     if (!project) {
+    //         res.code(404)
+    //         return { error: 'Project not found' }
+    //     }
+    //     const result = {
+    //         id: project.id,
+    //         name: project.name,
+    //         status: project.status,
+    //         description: project.description ?? '',
+    //         organization: project.organization,
+    //         participants: project.participants.map((pp) => ({
+    //             user: pp.user,
+    //             role: pp.role.name,
+    //             joinedAt: pp.createdAt,
+    //         })),
+    //     }
+    //     res.code(200)
+    //     return res.send(result)
+    // })
     // // GET /api/v1/projects/room/:id
     fastify.get('/room/:id', { schema: projectSchemas.getProjectRoom }, async (req, res) => {
         const id = Number(req.params.id);
@@ -96,6 +148,7 @@ const Getters = async (fastify, opts) => {
         return res.send(result);
     });
     // GET /api/v1/projects/search?organizationId=1&name=foo
+    // TODO aggiungere check su pox ricerca?
     fastify.get('/search', { schema: projectSchemas.getOrgProjectsByNameSchema }, async (req, reply) => {
         var _a;
         const organizationId = Number(req.query.organizationId);
@@ -120,17 +173,24 @@ const Getters = async (fastify, opts) => {
             },
             orderBy: { name: 'asc' },
         });
-        const result = projects.map((p) => ({
-            id: p.id,
-            name: p.name,
-            organizationId: p.organizationId,
-            organization: p.organization,
-            participants: p.participants.map((pp) => ({
-                user: pp.user,
-                role: pp.role.name,
-                joinedAt: pp.createdAt,
-            })),
-        }));
+        const result = projects.map((p) => {
+            var _a;
+            return ({
+                id: p.id,
+                name: p.name,
+                status: p.status,
+                description: p.description,
+                organizationId: p.organizationId,
+                organization: p.organization,
+                participants: p.participants.map((pp) => ({
+                    user: pp.user,
+                    role: pp.role.name,
+                    joinedAt: pp.createdAt,
+                })),
+                createdAt: p.createdAt,
+                closedAt: (_a = p.closedAt) !== null && _a !== void 0 ? _a : null
+            });
+        });
         return reply.send({
             organizationId,
             query: name || null,

@@ -16,6 +16,10 @@ const orgResponse = {
             properties: {
                 id: { type: 'number' },
                 name: { type: 'string' },
+                status: { type: 'string' },
+                description: { type: 'string' },
+                createdAt: { type: 'string', format: 'date-time' },
+                closedAt: { type: 'string', format: 'date-time' },
             }
         }
     }

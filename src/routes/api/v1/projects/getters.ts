@@ -31,6 +31,8 @@ const Getters: FastifyPluginAsync = async (fastify: FastifyInstance, opts) => {
                 role: pp.role.name,
                 joinedAt: pp.createdAt,
             })),
+            createdAt: p.createdAt,
+            closedAt: p.closedAt ?? null
         }))
 
         res.code(200)
@@ -80,11 +82,65 @@ const Getters: FastifyPluginAsync = async (fastify: FastifyInstance, opts) => {
                 role: pp.role.name,
                 joinedAt: pp.createdAt,
             })),
+            status: project.status,
+            description: project.description ?? '',
+            createdAt: project.createdAt,
+            closedAt: project.closedAt ?? null
         }
 
         res.code(200)
         return res.send(result)
     })
+
+    // // // GET /api/v1/projects/summary/:id
+    // fastify.get<{
+    //     Params: { id: string }
+    //     }>(
+    //     '/summary/:id',
+    //     { schema: projectSchemas.getProjectByIdSchema }, 
+    //     async (req, res) => {
+    //     const id = Number(req.params.id)
+
+    //     if (Number.isNaN(id)) {
+    //         res.code(400)
+    //         return { error: 'invalid id' }
+    //     }
+    //     const project = await fastify.prisma.project.findUnique({
+    //         where: { id },
+    //         include: {
+    //             organization : { select: { id: true, name: true }},
+    //             participants: {
+    //                 include: {
+    //                     user: {
+    //                         select: { id: true, name: true, surname: true, email: true },
+    //                     },
+    //                     role: { select: { id: true, name: true }},
+    //                 },
+    //             },
+    //         },
+    //     })
+
+    //     if (!project) {
+    //         res.code(404)
+    //         return { error: 'Project not found' }
+    //     }
+
+    //     const result = {
+    //         id: project.id,
+    //         name: project.name,
+    //         status: project.status,
+    //         description: project.description ?? '',
+    //         organization: project.organization,
+    //         participants: project.participants.map((pp) => ({
+    //             user: pp.user,
+    //             role: pp.role.name,
+    //             joinedAt: pp.createdAt,
+    //         })),
+    //     }
+
+    //     res.code(200)
+    //     return res.send(result)
+    // })
 
     // // GET /api/v1/projects/room/:id
     fastify.get<{
@@ -118,6 +174,7 @@ const Getters: FastifyPluginAsync = async (fastify: FastifyInstance, opts) => {
     })
 
     // GET /api/v1/projects/search?organizationId=1&name=foo
+    // TODO aggiungere check su pox ricerca?
     fastify.get<{
     Querystring: { organizationId: string; name?: string }
     }>(
@@ -153,6 +210,8 @@ const Getters: FastifyPluginAsync = async (fastify: FastifyInstance, opts) => {
         const result = projects.map((p) => ({
             id: p.id,
             name: p.name,
+            status: p.status,
+            description: p.description,
             organizationId: p.organizationId,
             organization: p.organization,
             participants: p.participants.map((pp) => ({
@@ -160,6 +219,8 @@ const Getters: FastifyPluginAsync = async (fastify: FastifyInstance, opts) => {
             role: pp.role.name,
             joinedAt: pp.createdAt,
             })),
+            createdAt: p.createdAt,
+            closedAt: p.closedAt ?? null
         }))
 
         return reply.send({
