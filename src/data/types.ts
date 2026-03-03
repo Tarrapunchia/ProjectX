@@ -1,4 +1,3 @@
-
 // User data type
 export interface ProfileUser {
 	id: string;
@@ -8,6 +7,47 @@ export interface ProfileUser {
 	phoneNumber: string;
 	avatar: string;
 	description: string;
+}
+
+type userOrg = {
+    id: string,
+    name: string,
+    email: string,
+    memberAt: Date
+}
+
+type userProj = {
+    id: string,
+    name: string,
+    orgId: string,
+    role: string,
+    joinedAt: Date,
+	status: 'ACTIVE' | 'COMPLETED' | 'REVIEW' | 'TODO',
+	description: string,
+	createdAt: Date,
+	closedAt: Date | null
+}
+
+export type userInfos = {
+    id: string,
+    name: string,
+    surname: string,
+    email: string,
+    phone: string,
+
+    city: string,
+    address: string,
+    cap: string,
+    state: string,
+
+    jobQualifier: string,
+
+    isLoggedIn: boolean,
+    createdAt: Date,
+    updatedAt: Date,
+
+    organizations: userOrg[]
+    projects: userProj[]
 }
 
 // User's completed projects type
@@ -28,6 +68,19 @@ export type ProjectInfo = {
 	description: string,
 	createdAt: Date,
 	closedAt: Date | null
+}
+
+export type Organization = {
+	id: string,
+	name: string,
+	email: string,
+	phone: string,
+	city: string,
+	address: string,
+	cap: string,
+	state: string,
+	ownerId: string,
+	projects: ProjectInfo[]
 }
 
 export interface Friend {

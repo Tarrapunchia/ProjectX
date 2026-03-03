@@ -1,12 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import { MOCK_PROJECTS } from "../../data/mockData";
 import "./projectPage.css";
-import type { Projects } from '../../data/types';
+import type { Projects, Organization } from '../../data/types';
 import { FiChevronDown, FiChevronUp } from 'react-icons/fi';
 // import helpers from './helpers';
 
-// per ora forzo orgId = 1
-const orgId = 1
+// per ora forzo orgId = 2
+const orgId = 2
 
 const BE_HOSTNAME = 'https://localhost:5000'
 type ProjectInfo = {
@@ -16,19 +16,6 @@ type ProjectInfo = {
 	description: string,
 	createdAt: Date,
 	closedAt: Date | null
-}
-
-type Organization = {
-	id: string,
-	name: string,
-	email: string,
-	phone: string,
-	city: string,
-	address: string,
-	cap: string,
-	state: string,
-	ownerId: string,
-	projects: ProjectInfo[]
 }
 
 interface ProjectsPageProps {

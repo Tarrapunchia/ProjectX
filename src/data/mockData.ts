@@ -1,16 +1,36 @@
-import type { ProfileUser, Projects, Friend, ProjectInfo } from './types';
+import type { ProfileUser, Projects, Friend, ProjectInfo, userInfos } from './types';
 
-export const MOCK_USER: ProfileUser = {
+// export const MOCK_USER: ProfileUser = {
+// 	id: '1',
+// 	firstName: 'Manuel',
+// 	lastName: 'Chiaramello',
+// 	email: 'mchiaram@42firenze.com',
+// 	phoneNumber: '3312543322',
+// 	avatar: 'https://picsum.photos/id/64/150/150',
+// 	description: 'WiP',
+// }
+
+export const AVATAR = 'https://picsum.photos/id/64/150/150'
+
+export const MOCK_USER: userInfos = {
 	id: '1',
-	firstName: 'Manuel',
-	lastName: 'Chiaramello',
+	name: 'Manuel',
+	surname: 'Chiaramello',
 	email: 'mchiaram@42firenze.com',
-	phoneNumber: '3312543322',
-	avatar: 'https://picsum.photos/id/64/150/150',
-	description: 'WiP',
+	phone: '3312543322',
+	city: 'Florence',
+	cap: '',
+	state: 'Italy',
+	address: 'Via del Tiratoio 1',
+	jobQualifier: 'Developer',
+	isLoggedIn: true,
+	createdAt: new Date,
+	updatedAt: new Date,
+	organizations: [
+
+	],
+	projects: []
 }
-
-
 
 // export const MOCK_PROJECTS: Projects[] = [
 // 	{ id: '1', owner: 'Space Travel Partner Name Too Long Test', name: 'Trascendence', description: 'description test', startDate: '2025-08-15', targetDate: '2026-12-10', completed: false, completedDate: 'TBD', role: 'Frontend Dev', status: 'todo' },

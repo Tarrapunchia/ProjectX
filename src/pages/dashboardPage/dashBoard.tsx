@@ -7,11 +7,11 @@ import ProfilePage from '../profilePage/profilePage';
 import ProjectsPage from '../projectsPage/projectsPage';
 import ChatPage from '../chatRoomPage/chatRoomPage';
 import type { ProjectInfo } from '../../data/types';
+import { useLocation, useNavigate } from "react-router-dom";
 
 function dashBoard() {
     const [activePage, setActivePage] = useState('projects');
     const [selectedProject, setSelectedProject] = useState<ProjectInfo | null>(null)
-;
     
     return (
         <div className="app-layout">
@@ -21,6 +21,7 @@ function dashBoard() {
                 { activePage === 'dashboard' && <p>Dashboard (WIP)</p> }
                 { activePage === 'documents' && <p>Documents (WIP)</p> }
                 { activePage === 'tasks' && <p>Tasks (WIP)</p>}
+                {/* { activePage === 'organization' && <ProjectsPage setActivePage={setActivePage} setSelectedProject={setSelectedProject}/> } */}
                 { activePage === 'projects' && <ProjectsPage setActivePage={setActivePage} setSelectedProject={setSelectedProject}/> }
                 { activePage === 'chat' && <ChatPage selectedProject={selectedProject}/> }
                 { activePage === 'files' && <p>Files (WIP)</p> }

@@ -1,5 +1,5 @@
 import './header.css';
-import { MOCK_USER } from '../data/mockData';
+import { MOCK_USER, AVATAR } from '../data/mockData';
 import type { ProjectInfo } from '../data/types';
 import { FiRepeat } from 'react-icons/fi';
 
@@ -18,7 +18,8 @@ function Header({ setActivePage, selectedProject }: HeaderProps) {
 				{selectedProject ? selectedProject.name : 'Dashboard'}
 			</h1>
 			<button onClick={() => setActivePage('profile')}>
-				<img src={MOCK_USER.avatar} alt="Foto profilo" className="header-avatar"/>
+				{/* <img src={MOCK_USER.avatar} alt="Foto profilo" className="header-avatar"/> */}
+				<img src={AVATAR} alt="Foto profilo" className="header-avatar"/>
 			</button>
 		</header>
 	);
