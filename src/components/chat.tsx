@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import './chat.css';
-import type { Projects } from '../data/types';
+import type { ProjectInfo } from '../data/types';
 import Connections from './connection'
 
 type Message = {
@@ -12,12 +12,12 @@ type Message = {
 }
 
 interface chatProps {
-    selectedProject: Projects | null
+    selectedProject: ProjectInfo | null
 }
 
 const chat: React.FC<chatProps> = ({ selectedProject }) => {
     
-    const [serverUrl, setServerUrl] = React.useState('http://localhost:5000') // backend:5000
+    const [serverUrl, setServerUrl] = React.useState('https://localhost:5000') // backend:5000
     const [chatHistory, setChatHistory] = React.useState<Array<Message>>([]);
     const [roomId, setRoomId] = React.useState<string>('');
 

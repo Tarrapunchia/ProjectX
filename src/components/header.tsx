@@ -1,11 +1,11 @@
 import './header.css';
 import { MOCK_USER } from '../data/mockData';
-import type { Projects } from '../data/types';
+import type { ProjectInfo } from '../data/types';
 import { FiRepeat } from 'react-icons/fi';
 
 interface HeaderProps {
 	setActivePage: (page: string) => void;
-	selectedProject: Projects | null;
+	selectedProject: ProjectInfo | null;
 }
 
 function Header({ setActivePage, selectedProject }: HeaderProps) {

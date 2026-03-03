@@ -17,7 +17,7 @@ function login()
     const navigate = useNavigate();
     // function handleLogin() { navigate("/dashboard"); }
     async function handleLogin() {
-        const LOGIN_URL = 'http://localhost:5000/api/v1/users/login'
+        const LOGIN_URL = 'https://localhost:5000/api/v1/users/login'
         const DASHBOARD = '/dashboard'
         let res: any
         try {
@@ -25,10 +25,10 @@ function login()
             const password = pwRef.current?.value
 
             const login = await fetch(LOGIN_URL, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            credentials: "include",
-            body: JSON.stringify({ email, password }),
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                credentials: "include",
+                body: JSON.stringify({ email, password }),
             });
             if (!login.ok) {
                 alert('Invalid Credentials')
@@ -38,6 +38,8 @@ function login()
             res = await login.json()
         } catch (error) {
             console.log(error)
+            alert('Failed to fetch')
+            return
         }
         alert('Valid Credentials')
         // chiamata per WS

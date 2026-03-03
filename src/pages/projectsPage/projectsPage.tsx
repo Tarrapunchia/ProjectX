@@ -1,35 +1,93 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { MOCK_PROJECTS } from "../../data/mockData";
 import "./projectPage.css";
 import type { Projects } from '../../data/types';
 import { FiChevronDown, FiChevronUp } from 'react-icons/fi';
+// import helpers from './helpers';
+
+// per ora forzo orgId = 1
+const orgId = 1
+
+const BE_HOSTNAME = 'https://localhost:5000'
+type ProjectInfo = {
+	id: string,
+	name: string,
+	status: 'ACTIVE' | 'COMPLETED' | 'REVIEW' | 'TODO',
+	description: string,
+	createdAt: Date,
+	closedAt: Date | null
+}
+
+type Organization = {
+	id: string,
+	name: string,
+	email: string,
+	phone: string,
+	city: string,
+	address: string,
+	cap: string,
+	state: string,
+	ownerId: string,
+	projects: ProjectInfo[]
+}
 
 interface ProjectsPageProps {
 	setActivePage: (page: string) => void;
-	setSelectedProject: (project: Projects) => void;
+	setSelectedProject: (project: ProjectInfo) => void;
 }
+
 
 const ProjectsPage: React.FC<ProjectsPageProps> = ({ setActivePage, setSelectedProject }) => {
 
 	const [expandedCategories, setExpandedCategories] = React.useState<Record<string, boolean>>({
-		todo: true,
-		'in-progress': true,
-		review: true,
-		done: true,
+		TODO: false,
+		ACTIVE: false,
+		REVIEW: false,
+		COMPLETED: false,
 	});
+
+	const [orgInfo, setOrgInfo] = React.useState<Organization>()
+	const [orgFetched, setOrgFetched] = React.useState<boolean>(false)
 	
-	const toggleCategory = (category: string) => {
+	const toggleCategory = (category: ProjectInfo['status']) => {
 		setExpandedCategories(prev => ({
 			...prev,
 			[category]: !prev[category],
 		}));
 	};
 
-	const [selectedCard, setSelectedCard] = React.useState<Projects | null>(null);
+	// per ora forzo orgId = 1
+	useEffect(() => {
+		(async () => {
+			try {
+				const res = await fetch(
+					`${BE_HOSTNAME}/api/v1/organizations/${orgId}/organization`, {
+						method: 'GET',
+						headers: { "Content-Type": "application/json" },
+						credentials: "include",
+					}
+				)
+				if (res.ok) {
+					const org = await res.json()
+					setOrgInfo(org)
+				}
+				setOrgFetched(true)
+			} catch (error) {
+				console.log(`Error in fetching org ${orgId} infos`)
+			}
+		})()
+		return () => {  };
+	}, []);
+
+	let projList: ProjectInfo[]
+	if (orgFetched) { projList = orgInfo?.projects ?? [] }
+	else { projList = MOCK_PROJECTS}
+
+	const [selectedCard, setSelectedCard] = React.useState<ProjectInfo | null>(null);
 	const [isExpanding, setIsExpanding] = React.useState(false);
 	const [cardPosition, setCardPosition] = React.useState({ top: 0, left: 0, width: 0, height: 0 });
 
-	const handleCardClick = (project: Projects, e: React.MouseEvent<HTMLDivElement>) => {
+	const handleCardClick = (project: ProjectInfo, e: React.MouseEvent<HTMLDivElement>) => {
 		const cardRect = e.currentTarget.getBoundingClientRect();
 		setCardPosition({
 			top: cardRect.top,
@@ -51,18 +109,18 @@ const ProjectsPage: React.FC<ProjectsPageProps> = ({ setActivePage, setSelectedP
 		<div className="projectsPage">
 			<h1 style={{ width: '100%', marginLeft: '2vw' }}>Projects</h1>
 			<div className="category">
-				<p onClick={() => toggleCategory('todo')} style={{ cursor: 'pointer' }}>
+				<p onClick={() => toggleCategory('TODO')} style={{ cursor: 'pointer' }}>
 					<span className="category-title">TO DO</span>
 					<span className="category-count">
-						({MOCK_PROJECTS.filter((project) => project.status === 'todo').length})
+						({projList.filter((project) => project.status === 'TODO').length})
 					</span>
 					<span className="expandable-arrow">
-						{expandedCategories['todo'] ? <FiChevronUp /> : <FiChevronDown />}
+						{expandedCategories['TODO'] ? <FiChevronUp /> : <FiChevronDown />}
 					</span>
 				</p>
-				<div className={`cards-container ${expandedCategories['todo'] ? 'expanded' : 'collapsed'}`}>
-					{MOCK_PROJECTS
-						.filter((project) => project.status === 'todo')
+				<div className={`cards-container ${expandedCategories['TODO'] ? 'expanded' : 'collapsed'}`}>
+					{projList
+						.filter((project) => project.status === 'TODO')
 						.map((project) => (
 							<div 
 								key={project.id} 
@@ -77,18 +135,18 @@ const ProjectsPage: React.FC<ProjectsPageProps> = ({ setActivePage, setSelectedP
 				</div>
 			</div>
 			<div className="category">
-				<p onClick={() => toggleCategory('in-progress')} style={{ cursor: 'pointer' }}>
+				<p onClick={() => toggleCategory('ACTIVE')} style={{ cursor: 'pointer' }}>
 					<span className="category-title">IN PROGRESS</span>
 					<span className="category-count">
-						({MOCK_PROJECTS.filter((project) => project.status === 'in-progress').length})
+						({projList.filter((project) => project.status === 'ACTIVE').length})
 					</span>
 					<span className="expandable-arrow">
-						{expandedCategories['in-progress'] ? <FiChevronUp /> : <FiChevronDown />}
+						{expandedCategories['ACTIVE'] ? <FiChevronUp /> : <FiChevronDown />}
 					</span>
 				</p>
-				<div className={`cards-container ${expandedCategories['in-progress'] ? 'expanded' : 'collapsed'}`}>
-					{MOCK_PROJECTS
-						.filter((project) => project.status === 'in-progress')
+				<div className={`cards-container ${expandedCategories['ACTIVE'] ? 'expanded' : 'collapsed'}`}>
+					{projList
+						.filter((project) => project.status === 'ACTIVE')
 						.map((project) => (
 							<div
 								key={project.id}
@@ -103,18 +161,18 @@ const ProjectsPage: React.FC<ProjectsPageProps> = ({ setActivePage, setSelectedP
 				</div>
 			</div>
 			<div className="category">
-				<p onClick={() => toggleCategory('review')} style={{ cursor: 'pointer' }}>
+				<p onClick={() => toggleCategory('REVIEW')} style={{ cursor: 'pointer' }}>
 					<span className="category-title">CODE REVIEW</span>
 					<span className="category-count">
-						({MOCK_PROJECTS.filter((project) => project.status === 'review').length})
+						({projList.filter((project) => project.status === 'REVIEW').length})
 					</span>
 					<span className="expandable-arrow">
-						{expandedCategories['review'] ? <FiChevronUp /> : <FiChevronDown />}
+						{expandedCategories['REVIEW'] ? <FiChevronUp /> : <FiChevronDown />}
 					</span>
 				</p>
-				<div className={`cards-container ${expandedCategories['review'] ? 'expanded' : 'collapsed'}`}>
-					{MOCK_PROJECTS
-						.filter((project) => project.status === 'review')
+				<div className={`cards-container ${expandedCategories['REVIEW'] ? 'expanded' : 'collapsed'}`}>
+					{projList
+						.filter((project) => project.status === 'REVIEW')
 						.map((project) => (
 							<div
 								key={project.id}
@@ -129,18 +187,18 @@ const ProjectsPage: React.FC<ProjectsPageProps> = ({ setActivePage, setSelectedP
 				</div>
 			</div>
 			<div className="category">
-				<p onClick={() => toggleCategory('done')} style={{ cursor: 'pointer' }}>
+				<p onClick={() => toggleCategory('COMPLETED')} style={{ cursor: 'pointer' }}>
 					<span className="category-title">DONE</span>
 					<span className="category-count">
-						({MOCK_PROJECTS.filter((project) => project.status === 'done').length})
+						({projList.filter((project) => project.status === 'COMPLETED').length})
 					</span>
 					<span className="expandable-arrow">
-						{expandedCategories['done'] ? <FiChevronUp /> : <FiChevronDown />}
+						{expandedCategories['DONE'] ? <FiChevronUp /> : <FiChevronDown />}
 					</span>
 				</p>
-				<div className={`cards-container ${expandedCategories['done'] ? 'expanded' : 'collapsed'}`}>
-					{MOCK_PROJECTS
-						.filter((project) => project.status === 'done')
+				<div className={`cards-container ${expandedCategories['DONE'] ? 'expanded' : 'collapsed'}`}>
+					{projList
+						.filter((project) => project.status === 'COMPLETED')
 						.map((project) => (
 							<div
 								key={project.id}
@@ -169,12 +227,11 @@ const ProjectsPage: React.FC<ProjectsPageProps> = ({ setActivePage, setSelectedP
 						<div className="project-info">
 							<div className="title-owner-row">
 								<h2>{selectedCard.name}</h2>
-								<p className="owner-info">{selectedCard.owner}</p>
+								<p className="owner-info">{orgInfo?.name ?? 'Err'}</p>
 							</div>
 							<div className="description-row">Description: {selectedCard.description}</div>
-							<p>Role: {selectedCard.role}</p>
-							<div>Started: {selectedCard.startDate}</div>
-							<p>Target: {selectedCard.targetDate}</p>
+							<div>Started: {String(selectedCard.createdAt)}</div>
+							(selectedCard.completedAt)? <div>Started: {String(selectedCard.closedAt)}</div>: ''
 							<p>Status: {selectedCard.status}</p>
 							<div className="overlay-btn">
 								<button onClick={() => {

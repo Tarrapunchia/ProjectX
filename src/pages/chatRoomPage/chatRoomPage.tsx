@@ -1,8 +1,8 @@
 import chat from "../../components/chat"
-import type { Projects } from "../../data/types"
+import type { ProjectInfo } from "../../data/types"
 
 interface ChatPageProps {
-    selectedProject: Projects | null
+    selectedProject: ProjectInfo | null
 }
 
 const ChatPage: React.FC<ChatPageProps> = ({ selectedProject }) => {

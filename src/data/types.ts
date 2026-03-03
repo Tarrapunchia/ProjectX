@@ -16,12 +16,18 @@ export interface Projects {
 	owner: string;
 	name: string;
 	description: string;
-	startDate: string;
-	targetDate: string;
-	completed: boolean;
-	completedDate: string;
-	role: string;
+	createdAt: string;
+	completedAt: string;
 	status: string;
+}
+
+export type ProjectInfo = {
+	id: string,
+	name: string,
+	status: 'ACTIVE' | 'COMPLETED' | 'REVIEW' | 'TODO',
+	description: string,
+	createdAt: Date,
+	closedAt: Date | null
 }
 
 export interface Friend {

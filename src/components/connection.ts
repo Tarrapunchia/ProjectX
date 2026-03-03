@@ -1,6 +1,6 @@
-import type { Projects } from "../data/types";
+import type { ProjectInfo } from "../data/types";
 
-const getRoomId = async (serverUrl: string, project: Projects)
+const getRoomId = async (serverUrl: string, project: ProjectInfo)
 : Promise<string> => {
         const res = await fetch(
             `${serverUrl}/api/v1/projects/room/${project.id}`,

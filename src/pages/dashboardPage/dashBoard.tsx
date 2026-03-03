@@ -6,11 +6,11 @@ import Footer from '../../components/footer';
 import ProfilePage from '../profilePage/profilePage';
 import ProjectsPage from '../projectsPage/projectsPage';
 import ChatPage from '../chatRoomPage/chatRoomPage';
-import type { Projects } from '../../data/types';
+import type { ProjectInfo } from '../../data/types';
 
 function dashBoard() {
     const [activePage, setActivePage] = useState('projects');
-    const [selectedProject, setSelectedProject] = useState<Projects | null>(null)
+    const [selectedProject, setSelectedProject] = useState<ProjectInfo | null>(null)
 ;
     
     return (
