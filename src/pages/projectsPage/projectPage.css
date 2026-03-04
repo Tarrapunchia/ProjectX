@@ -45,17 +45,22 @@
 }
 
 .cards-container {
+	display: grid;
+	grid-template-rows: 0fr;
+	transition: grid-template-rows 0.4s ease, opacity 0.3s ease;
+}
+
+.cards-container > .cards-inner {
 	overflow: hidden;
-	transition: max-height 0.4s ease, opacity 0.3s ease;
 }
 
 .cards-container.expanded {
-	max-height: 2000px;
+	grid-template-rows: 1fr;
 	opacity: 1;
 }
 
 .cards-container.collapsed {
-	max-height: 0;
+	grid-template-rows: 0fr;
 	opacity: 0;
 }
 

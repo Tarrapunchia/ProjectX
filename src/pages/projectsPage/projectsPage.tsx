@@ -106,19 +106,21 @@ const ProjectsPage: React.FC<ProjectsPageProps> = ({ setActivePage, setSelectedP
 					</span>
 				</p>
 				<div className={`cards-container ${expandedCategories['TODO'] ? 'expanded' : 'collapsed'}`}>
-					{projList
-						.filter((project) => project.status === 'TODO')
-						.map((project) => (
-							<div 
-								key={project.id} 
-								className="project-card"
-								onClick={(e) => handleCardClick(project, e)}
-							>
-								<h3>{project.name}</h3>
-								<p className="project-description">{project.description}</p>
-							</div>
-						))
-					}
+					<div className="cards-inner">
+						{projList
+							.filter((project) => project.status === 'TODO')
+							.map((project) => (
+								<div 
+									key={project.id} 
+									className="project-card"
+									onClick={(e) => handleCardClick(project, e)}
+								>
+									<h3>{project.name}</h3>
+									<p className="project-description">{project.description}</p>
+								</div>
+							))
+						}
+					</div>
 				</div>
 			</div>
 			<div className="category">
@@ -132,19 +134,21 @@ const ProjectsPage: React.FC<ProjectsPageProps> = ({ setActivePage, setSelectedP
 					</span>
 				</p>
 				<div className={`cards-container ${expandedCategories['ACTIVE'] ? 'expanded' : 'collapsed'}`}>
-					{projList
-						.filter((project) => project.status === 'ACTIVE')
-						.map((project) => (
-							<div
-								key={project.id}
-								className="project-card"
-								onClick={(e) => handleCardClick(project, e)}
-							>
-								<h3>{project.name}</h3>
-								<p className="project-description">{project.description}</p>
-							</div>
-						))
-					}
+					<div className="cards-inner">
+						{projList
+							.filter((project) => project.status === 'ACTIVE')
+							.map((project) => (
+								<div
+									key={project.id}
+									className="project-card"
+									onClick={(e) => handleCardClick(project, e)}
+								>
+									<h3>{project.name}</h3>
+									<p className="project-description">{project.description}</p>
+								</div>
+							))
+						}
+					</div>
 				</div>
 			</div>
 			<div className="category">
@@ -158,19 +162,21 @@ const ProjectsPage: React.FC<ProjectsPageProps> = ({ setActivePage, setSelectedP
 					</span>
 				</p>
 				<div className={`cards-container ${expandedCategories['REVIEW'] ? 'expanded' : 'collapsed'}`}>
-					{projList
-						.filter((project) => project.status === 'REVIEW')
-						.map((project) => (
-							<div
-								key={project.id}
-								className="project-card"
-								onClick={(e) => handleCardClick(project, e)}
-							>
-								<h3>{project.name}</h3>
-								<p className="project-description">{project.description}</p>
-							</div>
-						))
-					}
+					<div className="cards-inner">
+						{projList
+							.filter((project) => project.status === 'REVIEW')
+							.map((project) => (
+								<div
+									key={project.id}
+									className="project-card"
+									onClick={(e) => handleCardClick(project, e)}
+								>
+									<h3>{project.name}</h3>
+									<p className="project-description">{project.description}</p>
+								</div>
+							))
+						}
+					</div>
 				</div>
 			</div>
 			<div className="category">
@@ -184,19 +190,21 @@ const ProjectsPage: React.FC<ProjectsPageProps> = ({ setActivePage, setSelectedP
 					</span>
 				</p>
 				<div className={`cards-container ${expandedCategories['DONE'] ? 'expanded' : 'collapsed'}`}>
-					{projList
-						.filter((project) => project.status === 'COMPLETED')
-						.map((project) => (
-							<div
-								key={project.id}
-								className="project-card"
-								onClick={(e) => handleCardClick(project, e)}
-							>
-								<h3>{project.name}</h3>
-								<p className="project-description">{project.description}</p>
-							</div>
-						))
-					}
+					<div className="cards-inner">
+						{projList
+							.filter((project) => project.status === 'COMPLETED')
+							.map((project) => (
+								<div
+									key={project.id}
+									className="project-card"
+									onClick={(e) => handleCardClick(project, e)}
+								>
+									<h3>{project.name}</h3>
+									<p className="project-description">{project.description}</p>
+								</div>
+							))
+						}
+					</div>
 				</div>
 			</div>
 			{selectedCard && (
