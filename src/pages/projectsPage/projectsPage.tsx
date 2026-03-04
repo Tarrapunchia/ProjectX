@@ -232,12 +232,22 @@ const ProjectsPage: React.FC<ProjectsPageProps> = ({ setActivePage, setSelectedP
 									Per dichiarare varibili utilizziamo una funzione anonima () => {...} che viene invocata
 									immediatamente alla fine con ()*/}
 								{(() => {
+									// calcolo per le tasks presenti, completate e percentuale di completamento
 									const tasks = MOCK_TASKS.filter((t) => t.projectId === selectedCard.id);
 									const completed = tasks.filter((t) => t.status === 'COMPLETED').length;
 									const percent = tasks.length > 0 ? Math.round((completed / tasks.length) * 100) : 0;
+
+									// calcolo della data odierna e distanza dalla deadline
+									// MODIFICARE: utilizzo temporaneamente closeAt perche' non ho la data di deadline
+									const start = new Date(selectedCard.createdAt).getTime();
+									const now = Date.now();
+									const end = selectedCard.closedAt ? new Date(selectedCard.closedAt).getTime() : now;
+									const timePercent = end > start? Math.min(Math.round(((now - start) / (end - start)) * 100), 100) : 0;
+									
 									return (
 										<div className="progress-bar-container">
 											<div className="progress-bar-fill" style={{ width: `${percent}%` }}></div>
+											<div className="progress-time-marker" style={{ left: `${timePercent}%`}}></div>
 											<span className="progress-bar-label">{completed}/{tasks.length} ({percent}%)</span>
 										</div>
 									);

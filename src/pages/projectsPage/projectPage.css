@@ -186,7 +186,7 @@
 	border-radius: 12px;
 	margin-top: 20px;
 	position: relative;
-	overflow: hidden;
+	overflow: visible;
 }
 
 .progress-bar-fill {
@@ -194,6 +194,17 @@
 	background: rgb(172, 134, 0);
 	border-radius: 12px;
 	transition: width 0.5s ease;
+}
+
+.progress-time-marker {
+	position: absolute;
+	top: -20%;
+	height: 140%;
+	width: 2px;
+	background: red;
+	border-radius: 1px;
+	z-index: 1;
+	transform: translateX(-50%, -50%);
 }
 
 .progress-bar-label {

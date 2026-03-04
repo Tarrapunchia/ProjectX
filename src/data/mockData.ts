@@ -44,7 +44,7 @@ export const MOCK_TASKS: ProjectTasks[] = [
 	{id: '3-2', projectId: '3', name: 'task2', status: 'COMPLETED', description: 'task description', createdAt: new Date('2025-08-15'), dueDate: new Date('2025-10-15'), closedAt: null},
 	{id: '3-3', projectId: '3', name: 'task3', status: 'ACTIVE', description: 'task description', createdAt: new Date('2025-08-15'), dueDate: new Date('2025-10-15'), closedAt: null},
 	{id: '3-4', projectId: '3', name: 'task4', status: 'ACTIVE', description: 'task description', createdAt: new Date('2025-08-15'), dueDate: new Date('2025-10-15'), closedAt: null},
-	{id: '4-0', projectId: '4', name: 'task4', status: 'ACTIVE', description: 'task description', createdAt: new Date('2025-08-15'), dueDate: new Date('2025-10-15'), closedAt: null},
+	{id: '4-0', projectId: '4', name: 'task4', status: 'COMPLETED', description: 'task description', createdAt: new Date('2025-08-15'), dueDate: new Date('2025-10-15'), closedAt: null},
 ];
 
 export const MOCK_FRIENDS: Friend[] = [
