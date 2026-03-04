@@ -225,8 +225,9 @@ const ProjectsPage: React.FC<ProjectsPageProps> = ({ setActivePage, setSelectedP
 								<p className="owner-info">{orgInfo?.name ?? 'Err'}</p>
 							</div>
 							<div className="description-row">Description: {selectedCard.description}</div>
-							<div>Started: {String(selectedCard.createdAt)}</div>
-							(selectedCard.completedAt)? <div>Started: {String(selectedCard.closedAt)}</div>: ''
+							<div>Started: {new Date(selectedCard.createdAt).toLocaleDateString('it-IT')}</div>
+							{selectedCard.closedAt
+								? <div>Completed: {new Date(selectedCard.closedAt).toLocaleDateString('it-IT')}</div> : ''}
 							<p>Status: {selectedCard.status}</p>
 							<div className="overlay-btn">
 								<button onClick={() => {
