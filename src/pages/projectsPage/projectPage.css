@@ -4,6 +4,7 @@
 	--category-bg-color: #8e8d8d37;
 	--overlay-bg-color: #1a1a1a;
 	--overlay-border-color: #606060;
+	--owner-color: rgb(172, 134, 0);
 }
 
 .projectsPage {
@@ -146,7 +147,7 @@
 	max-width: 350px;
 	margin-right: 20px;
 	margin-left: auto;
-	background-color: rgb(172, 134, 0);
+	background-color: var(--owner-color);
 	text-align: center;
 	border-radius: 5px;
 	font-size: 20px;
@@ -191,7 +192,7 @@
 
 .progress-bar-fill {
 	height: 100%;
-	background: rgb(172, 134, 0);
+	background: var(--owner-color);
 	border-radius: 12px;
 	transition: width 0.5s ease;
 }
@@ -201,7 +202,7 @@
 	top: -20%;
 	height: 140%;
 	width: 2px;
-	background: red;
+	background: rgba(255, 0, 0, 0.616);
 	border-radius: 1px;
 	z-index: 1;
 	transform: translateX(-50%, -50%);
