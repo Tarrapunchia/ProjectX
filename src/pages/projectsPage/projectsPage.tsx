@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { MOCK_PROJECTS } from "../../data/mockData";
+import { MOCK_PROJECTS, MOCK_TASKS } from "../../data/mockData";
 import "./projectPage.css";
 import type { Projects, Organization } from '../../data/types';
 import { FiChevronDown, FiChevronUp } from 'react-icons/fi';
@@ -238,6 +238,23 @@ const ProjectsPage: React.FC<ProjectsPageProps> = ({ setActivePage, setSelectedP
 									Set Active Project</button>
 								<button onClick={handleClose}>Close</button>
 							</div>
+						</div>
+						<div className="tasks-info">
+							<h3>Tasks</h3>
+							{MOCK_TASKS
+								.filter((task) => task.projectId === selectedCard.id)
+								.map((task) => (
+									<div key={task.id} className="task-card">
+										<h4>{task.name}</h4>
+										<p>{task.description}</p>
+										<p>Status: {task.status}</p>
+										<p>Due: {task.dueDate
+											? new Date(task.dueDate).toLocaleDateString('it-IT')
+											: 'N/A'}
+										</p>
+									</div>
+								))
+							}
 						</div>
 					</div>
 				</div>

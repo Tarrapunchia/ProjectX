@@ -70,6 +70,17 @@ export type ProjectInfo = {
 	closedAt: Date | null
 }
 
+export type ProjectTasks = {
+	id: string,
+	projectId: string,
+	name: string,
+	status: 'ACTIVE' | 'COMPLETED' | 'REVIEW' | 'TODO',
+	description: string,
+	createdAt: Date,
+	dueDate: Date | null,
+	closedAt: Date | null,
+}
+
 export type Organization = {
 	id: string,
 	name: string,
