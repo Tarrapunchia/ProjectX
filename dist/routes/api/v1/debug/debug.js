@@ -162,15 +162,14 @@ const Debug = async (fastify, opts) => {
     /// FATTO DA CHATGPT EH, FIDIAMOCI?
     // DEBUG SEED - POST /api/users/seed
     // POST /api/v1/users/seed
-    fastify.post('/seed', { schema: userSchemas.seed }, async (req, res) => {
-        var _a, _b, _c, _d;
+    fastify.post('/seed', { schema: userSchemas.seed }, async (req, reply) => {
+        var _a, _b, _c, _d, _e;
         const prisma = fastify.prisma;
-        // ---- parametri opzionali ----
         const USERS_N = Math.max(1, Number((_a = req.query.users) !== null && _a !== void 0 ? _a : 25));
         const ORGS_N = Math.max(1, Number((_b = req.query.orgs) !== null && _b !== void 0 ? _b : 6));
         const PROJECTS_PER_ORG = Math.max(1, Number((_c = req.query.projectsPerOrg) !== null && _c !== void 0 ? _c : 3));
-        const FRIENDSHIPS_N = Math.max(0, Number((_d = req.query.friendships) !== null && _d !== void 0 ? _d : 60));
-        // ---- helpers random ----
+        const TASKS_PER_PROJECT = Math.max(0, Number((_d = req.query.tasksPerProject) !== null && _d !== void 0 ? _d : 4));
+        const FRIENDSHIPS_N = Math.max(0, Number((_e = req.query.friendships) !== null && _e !== void 0 ? _e : 60));
         const randInt = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
         function pick(arr) {
             if (arr.length === 0)
@@ -188,24 +187,29 @@ const Debug = async (fastify, opts) => {
             }
             return out;
         }
+        function maybeNull(value, p = 0.5) {
+            return Math.random() < p ? value : null;
+        }
         const randomEmail = (i) => `user${i}_${randInt(1000, 9999)}@test.local`;
         const randomPhone = () => `3${randInt(20, 99)}${randInt(1000000, 9999999)}`;
         const firstNames = ['Luca', 'Marco', 'Giulia', 'Anna', 'Paolo', 'Sara', 'Franco', 'Elisa', 'Davide', 'Marta'];
         const lastNames = ['Rossi', 'Bianchi', 'Verdi', 'Romano', 'Gallo', 'Costa', 'Fontana', 'Conti', 'Greco', 'Marino'];
         const cities = ['Roma', 'Milano', 'Torino', 'Bologna', 'Firenze', 'Napoli'];
         const jobQuals = ['Dev', 'PM', 'Designer', 'QA', 'Ops'];
-        const friendshipStatuses = [FriendshipStatus.PENDING, FriendshipStatus.ACCEPTED, FriendshipStatus.BLOCKED];
-        // helper per evitare undefined con exactOptionalPropertyTypes
-        function maybeNull(value, p = 0.5) {
-            return Math.random() < p ? value : null;
-        }
+        const friendshipStatuses = [
+            FriendshipStatus.PENDING,
+            FriendshipStatus.ACCEPTED,
+            FriendshipStatus.BLOCKED,
+        ];
         try {
-            // 1) PULIZIA (ordine: prima tabelle “figlie”, poi padri)
+            // 1) CLEANUP (children -> parents)
             await prisma.roomMessage.deleteMany();
             await prisma.directMessage.deleteMany();
             await prisma.chatRoom.deleteMany();
             await prisma.directConversation.deleteMany();
             await prisma.friendship.deleteMany();
+            await prisma.taskParticipant.deleteMany();
+            await prisma.task.deleteMany();
             await prisma.projectParticipant.deleteMany();
             await prisma.project.deleteMany();
             await prisma.organizationMember.deleteMany();
@@ -213,7 +217,7 @@ const Debug = async (fastify, opts) => {
             await prisma.role.deleteMany();
             await prisma.permission.deleteMany();
             await prisma.user.deleteMany();
-            // 2) PERMISSIONS + ROLES (1:1) — crea solo se non esistono
+            // 2) ROLES + PERMISSIONS (1:1)
             const roleDefs = [
                 {
                     name: RoleName.OWNER,
@@ -254,17 +258,9 @@ const Debug = async (fastify, opts) => {
             ];
             const roles = [];
             for (const def of roleDefs) {
-                const existing = await prisma.role.findUnique({ where: { name: def.name } });
-                if (existing) {
-                    roles.push({ id: existing.id, name: existing.name });
-                    continue;
-                }
                 const perm = await prisma.permission.create({ data: def.perm });
                 const role = await prisma.role.create({
-                    data: {
-                        name: def.name,
-                        permissionsId: perm.id,
-                    },
+                    data: { name: def.name, permissionsId: perm.id },
                 });
                 roles.push({ id: role.id, name: role.name });
             }
@@ -307,7 +303,7 @@ const Debug = async (fastify, opts) => {
                         surname: fu.surname,
                         email: fu.email,
                         phone: randomPhone(),
-                        city: 'Firenze',
+                        city: 'Florence',
                         address: 'Via del Tiratoio 1',
                         cap: '50100',
                         state: 'IT',
@@ -322,7 +318,7 @@ const Debug = async (fastify, opts) => {
             }
             const fabio = fixedUsers[0];
             users.push(...fixedUsers);
-            // 4) ORGANIZATIONS random (con owner)
+            // 4) ORGANIZATIONS random
             const orgs = [];
             for (let i = 1; i <= ORGS_N; i++) {
                 const owner = pick(users);
@@ -340,7 +336,6 @@ const Debug = async (fastify, opts) => {
                     },
                 });
                 orgs.push(org);
-                // owner come membro
                 await prisma.organizationMember.create({
                     data: { organizationId: org.id, userId: owner.id },
                 });
@@ -360,15 +355,14 @@ const Debug = async (fastify, opts) => {
                 },
             });
             orgs.push(org42);
-            // tutti membri della 42
+            // members of 42
             for (const u of fixedUsers) {
                 await prisma.organizationMember.create({
                     data: { organizationId: org42.id, userId: u.id },
                 });
             }
-            // 5) MEMBERSHIPS extra (random orgs)
+            // 5) extra memberships for random orgs (skip 42)
             for (const org of orgs) {
-                // evita di aggiungere random anche alla 42 (se vuoi solo i 4)
                 if (org.name === '42')
                     continue;
                 const howMany = randInt(5, Math.min(12, users.length));
@@ -379,15 +373,12 @@ const Debug = async (fastify, opts) => {
                             data: { organizationId: org.id, userId: u.id },
                         });
                     }
-                    catch (_e) {
-                        // ignora duplicati
-                    }
+                    catch (_f) { }
                 }
             }
-            // 6) PROJECTS random
+            // 6) PROJECTS random + Transcendence in 42
             const projects = [];
             for (const org of orgs) {
-                // per la 42, project speciale lo facciamo dopo
                 if (org.name === '42')
                     continue;
                 for (let i = 1; i <= PROJECTS_PER_ORG; i++) {
@@ -402,7 +393,6 @@ const Debug = async (fastify, opts) => {
                     projects.push(p);
                 }
             }
-            // 6b) PROJECT special "Transcendence" in 42
             const transcendence = await prisma.project.create({
                 data: {
                     name: 'Transcendence',
@@ -412,9 +402,8 @@ const Debug = async (fastify, opts) => {
                 },
             });
             projects.push(transcendence);
-            // 7) PROJECT PARTICIPANTS random
+            // 7) PROJECT PARTICIPANTS random (skip transcendence)
             for (const p of projects) {
-                // speciale per transcendence: vogliamo SOLO i 4 fixed in role EDITOR
                 if (p.id === transcendence.id)
                     continue;
                 const orgMembers = await prisma.organizationMember.findMany({
@@ -428,29 +417,53 @@ const Debug = async (fastify, opts) => {
                     const role = pick(roles);
                     try {
                         await prisma.projectParticipant.create({
-                            data: {
-                                projectId: p.id,
-                                userId: uid,
-                                roleId: role.id,
-                            },
+                            data: { projectId: p.id, userId: uid, roleId: role.id },
                         });
                     }
-                    catch (_f) {
-                        // ignora collisioni/duplicati
+                    catch (_g) { }
+                }
+            }
+            // 7b) Transcendence participants: 4 fixed as EDITOR ("admin")
+            for (const u of fixedUsers) {
+                await prisma.projectParticipant.create({
+                    data: { projectId: transcendence.id, userId: u.id, roleId: roleEditor.id },
+                });
+            }
+            // 8) TASKS + TASK PARTICIPANTS
+            const tasks = [];
+            const statusPool = [Status.TODO, Status.ACTIVE, Status.REVIEW, Status.CLOSED];
+            for (const p of projects) {
+                for (let i = 1; i <= TASKS_PER_PROJECT; i++) {
+                    const t = await prisma.task.create({
+                        data: {
+                            name: `Task ${p.id}.${i}`,
+                            projectId: p.id,
+                            status: pick(statusPool),
+                            description: maybeNull(`Task ${p.id}.${i} description`, 0.7),
+                        },
+                    });
+                    tasks.push(t);
+                    // assegnatari task: subset dei partecipanti progetto
+                    const pparts = await prisma.projectParticipant.findMany({
+                        where: { projectId: p.id },
+                        select: { userId: true },
+                    });
+                    const pUserIds = pparts.map(pp => pp.userId);
+                    if (pUserIds.length === 0)
+                        continue;
+                    const assigneesCount = randInt(1, Math.min(3, pUserIds.length));
+                    const chosen = sampleUnique(pUserIds, assigneesCount);
+                    for (const uid of chosen) {
+                        try {
+                            await prisma.taskParticipant.create({
+                                data: { taskId: t.id, userId: uid },
+                            });
+                        }
+                        catch (_h) { }
                     }
                 }
             }
-            // 7b) PARTICIPANTS special per Transcendence: tutti e 4 fixed come "admin" -> RoleName.EDITOR
-            for (const u of fixedUsers) {
-                await prisma.projectParticipant.create({
-                    data: {
-                        projectId: transcendence.id,
-                        userId: u.id,
-                        roleId: roleEditor.id,
-                    },
-                });
-            }
-            // 8) FRIENDSHIPS random (solo tra users random+fixed)
+            // 9) FRIENDSHIPS random
             const used = new Set();
             let created = 0;
             while (created < FRIENDSHIPS_N) {
@@ -467,32 +480,33 @@ const Debug = async (fastify, opts) => {
                         data: {
                             senderId: a,
                             receiverId: b,
-                            status: pick([...friendshipStatuses]),
+                            status: pick(friendshipStatuses),
                         },
                     });
                     created++;
                 }
-                catch (_g) {
-                    // ignora
-                }
+                catch (_j) { }
             }
-            return res.send({
+            return reply.send({
                 ok: true,
                 created: {
                     users: users.length,
                     organizations: orgs.length,
                     projects: projects.length,
+                    tasks: tasks.length,
                     roles: roles.length,
                     friendships: FRIENDSHIPS_N,
+                },
+                special: {
                     org42Id: org42.id,
                     transcendenceId: transcendence.id,
                 },
-                hint: 'Puoi cambiare i numeri con ?users=..&orgs=..&projectsPerOrg=..&friendships=..',
+                hint: 'QS: ?users=..&orgs=..&projectsPerOrg=..&tasksPerProject=..&friendships=..',
             });
         }
         catch (err) {
             fastify.log.error(err);
-            return res.code(500).send({ ok: false, error: 'seed failed' });
+            return reply.code(500).send({ ok: false, error: 'seed failed' });
         }
     });
 };

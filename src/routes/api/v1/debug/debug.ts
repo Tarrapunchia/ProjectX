@@ -178,23 +178,24 @@ const Debug: FastifyPluginAsync = async (fastify: FastifyInstance, opts) => {
     // DEBUG SEED - POST /api/users/seed
 
     // POST /api/v1/users/seed
+
     fastify.post<{
     Querystring: {
         users?: string
         orgs?: string
         projectsPerOrg?: string
+        tasksPerProject?: string
         friendships?: string
     }
-    }>('/seed', { schema: userSchemas.seed }, async (req, res) => {
+    }>('/seed', { schema: userSchemas.seed }, async (req, reply) => {
     const prisma = fastify.prisma
 
-    // ---- parametri opzionali ----
     const USERS_N = Math.max(1, Number(req.query.users ?? 25))
     const ORGS_N = Math.max(1, Number(req.query.orgs ?? 6))
     const PROJECTS_PER_ORG = Math.max(1, Number(req.query.projectsPerOrg ?? 3))
+    const TASKS_PER_PROJECT = Math.max(0, Number(req.query.tasksPerProject ?? 4))
     const FRIENDSHIPS_N = Math.max(0, Number(req.query.friendships ?? 60))
 
-    // ---- helpers random ----
     const randInt = (min: number, max: number) =>
         Math.floor(Math.random() * (max - min + 1)) + min
 
@@ -215,6 +216,10 @@ const Debug: FastifyPluginAsync = async (fastify: FastifyInstance, opts) => {
         return out
     }
 
+    function maybeNull<T>(value: T, p = 0.5): T | null {
+        return Math.random() < p ? value : null
+    }
+
     const randomEmail = (i: number) => `user${i}_${randInt(1000, 9999)}@test.local`
     const randomPhone = () => `3${randInt(20, 99)}${randInt(1000000, 9999999)}`
 
@@ -223,31 +228,36 @@ const Debug: FastifyPluginAsync = async (fastify: FastifyInstance, opts) => {
     const cities     = ['Roma', 'Milano', 'Torino', 'Bologna', 'Firenze', 'Napoli']
     const jobQuals   = ['Dev', 'PM', 'Designer', 'QA', 'Ops']
 
-    const friendshipStatuses = [FriendshipStatus.PENDING, FriendshipStatus.ACCEPTED, FriendshipStatus.BLOCKED] as const
-
-    // helper per evitare undefined con exactOptionalPropertyTypes
-    function maybeNull<T>(value: T, p = 0.5): T | null {
-        return Math.random() < p ? value : null
-    }
+    const friendshipStatuses = [
+        FriendshipStatus.PENDING,
+        FriendshipStatus.ACCEPTED,
+        FriendshipStatus.BLOCKED,
+    ] as const
 
     try {
-        // 1) PULIZIA (ordine: prima tabelle “figlie”, poi padri)
+        // 1) CLEANUP (children -> parents)
         await prisma.roomMessage.deleteMany()
         await prisma.directMessage.deleteMany()
         await prisma.chatRoom.deleteMany()
         await prisma.directConversation.deleteMany()
 
         await prisma.friendship.deleteMany()
+
+        await prisma.taskParticipant.deleteMany()
+        await prisma.task.deleteMany()
+
         await prisma.projectParticipant.deleteMany()
         await prisma.project.deleteMany()
+
         await prisma.organizationMember.deleteMany()
         await prisma.organization.deleteMany()
 
         await prisma.role.deleteMany()
         await prisma.permission.deleteMany()
+
         await prisma.user.deleteMany()
 
-        // 2) PERMISSIONS + ROLES (1:1) — crea solo se non esistono
+        // 2) ROLES + PERMISSIONS (1:1)
         const roleDefs = [
         {
             name: RoleName.OWNER,
@@ -289,23 +299,14 @@ const Debug: FastifyPluginAsync = async (fastify: FastifyInstance, opts) => {
 
         const roles: Array<{ id: number; name: RoleName }> = []
         for (const def of roleDefs) {
-        const existing = await prisma.role.findUnique({ where: { name: def.name } })
-        if (existing) {
-            roles.push({ id: existing.id, name: existing.name })
-            continue
-        }
-
         const perm = await prisma.permission.create({ data: def.perm })
         const role = await prisma.role.create({
-            data: {
-            name: def.name,
-            permissionsId: perm.id,
-            },
+            data: { name: def.name, permissionsId: perm.id },
         })
         roles.push({ id: role.id, name: role.name })
         }
 
-        const roleOwner = roles.find(r => r.name === RoleName.OWNER)!
+        const roleOwner  = roles.find(r => r.name === RoleName.OWNER)!
         const roleEditor = roles.find(r => r.name === RoleName.EDITOR)!
 
         // 3) USERS random
@@ -326,7 +327,6 @@ const Debug: FastifyPluginAsync = async (fastify: FastifyInstance, opts) => {
             hashedPw: maybeNull(`hash_${randInt(100000, 999999)}`, 0.8),
             googleId: maybeNull(`google_${randInt(100000, 999999)}`, 0.3),
             googleSecret: maybeNull(`secret_${randInt(100000, 999999)}`, 0.3),
-
             isLoggedIn: false,
             },
         })
@@ -349,7 +349,7 @@ const Debug: FastifyPluginAsync = async (fastify: FastifyInstance, opts) => {
             surname: fu.surname,
             email: fu.email,
             phone: randomPhone(),
-            city: 'Firenze',
+            city: 'Florence',
             address: 'Via del Tiratoio 1',
             cap: '50100',
             state: 'IT',
@@ -362,11 +362,10 @@ const Debug: FastifyPluginAsync = async (fastify: FastifyInstance, opts) => {
         })
         fixedUsers.push(u)
         }
-
         const fabio = fixedUsers[0]
         users.push(...fixedUsers)
 
-        // 4) ORGANIZATIONS random (con owner)
+        // 4) ORGANIZATIONS random
         const orgs: any[] = []
         for (let i = 1; i <= ORGS_N; i++) {
         const owner = pick(users)
@@ -384,8 +383,6 @@ const Debug: FastifyPluginAsync = async (fastify: FastifyInstance, opts) => {
             },
         })
         orgs.push(org)
-
-        // owner come membro
         await prisma.organizationMember.create({
             data: { organizationId: org.id, userId: owner.id },
         })
@@ -407,18 +404,16 @@ const Debug: FastifyPluginAsync = async (fastify: FastifyInstance, opts) => {
         })
         orgs.push(org42)
 
-        // tutti membri della 42
+        // members of 42
         for (const u of fixedUsers) {
         await prisma.organizationMember.create({
             data: { organizationId: org42.id, userId: u.id },
         })
         }
 
-        // 5) MEMBERSHIPS extra (random orgs)
+        // 5) extra memberships for random orgs (skip 42)
         for (const org of orgs) {
-        // evita di aggiungere random anche alla 42 (se vuoi solo i 4)
         if (org.name === '42') continue
-
         const howMany = randInt(5, Math.min(12, users.length))
         const pickedUsers = sampleUnique(users, howMany)
         for (const u of pickedUsers) {
@@ -426,18 +421,14 @@ const Debug: FastifyPluginAsync = async (fastify: FastifyInstance, opts) => {
             await prisma.organizationMember.create({
                 data: { organizationId: org.id, userId: u.id },
             })
-            } catch {
-            // ignora duplicati
-            }
+            } catch {}
         }
         }
 
-        // 6) PROJECTS random
+        // 6) PROJECTS random + Transcendence in 42
         const projects: any[] = []
         for (const org of orgs) {
-        // per la 42, project speciale lo facciamo dopo
         if (org.name === '42') continue
-
         for (let i = 1; i <= PROJECTS_PER_ORG; i++) {
             const p = await prisma.project.create({
             data: {
@@ -451,7 +442,6 @@ const Debug: FastifyPluginAsync = async (fastify: FastifyInstance, opts) => {
         }
         }
 
-        // 6b) PROJECT special "Transcendence" in 42
         const transcendence = await prisma.project.create({
         data: {
             name: 'Transcendence',
@@ -462,9 +452,8 @@ const Debug: FastifyPluginAsync = async (fastify: FastifyInstance, opts) => {
         })
         projects.push(transcendence)
 
-        // 7) PROJECT PARTICIPANTS random
+        // 7) PROJECT PARTICIPANTS random (skip transcendence)
         for (const p of projects) {
-        // speciale per transcendence: vogliamo SOLO i 4 fixed in role EDITOR
         if (p.id === transcendence.id) continue
 
         const orgMembers = await prisma.organizationMember.findMany({
@@ -480,37 +469,63 @@ const Debug: FastifyPluginAsync = async (fastify: FastifyInstance, opts) => {
             const role = pick(roles)
             try {
             await prisma.projectParticipant.create({
-                data: {
-                projectId: p.id,
-                userId: uid,
-                roleId: role.id,
-                },
+                data: { projectId: p.id, userId: uid, roleId: role.id },
             })
-            } catch {
-            // ignora collisioni/duplicati
+            } catch {}
+        }
+        }
+
+        // 7b) Transcendence participants: 4 fixed as EDITOR ("admin")
+        for (const u of fixedUsers) {
+        await prisma.projectParticipant.create({
+            data: { projectId: transcendence.id, userId: u.id, roleId: roleEditor.id },
+        })
+        }
+
+        // 8) TASKS + TASK PARTICIPANTS
+        const tasks: any[] = []
+        const statusPool = [Status.TODO, Status.ACTIVE, Status.REVIEW, Status.CLOSED] as const
+
+        for (const p of projects) {
+        for (let i = 1; i <= TASKS_PER_PROJECT; i++) {
+            const t = await prisma.task.create({
+            data: {
+                name: `Task ${p.id}.${i}`,
+                projectId: p.id,
+                status: pick(statusPool),
+                description: maybeNull(`Task ${p.id}.${i} description`, 0.7),
+            },
+            })
+            tasks.push(t)
+
+            // assegnatari task: subset dei partecipanti progetto
+            const pparts = await prisma.projectParticipant.findMany({
+            where: { projectId: p.id },
+            select: { userId: true },
+            })
+            const pUserIds = pparts.map(pp => pp.userId)
+            if (pUserIds.length === 0) continue
+
+            const assigneesCount = randInt(1, Math.min(3, pUserIds.length))
+            const chosen = sampleUnique(pUserIds, assigneesCount)
+
+            for (const uid of chosen) {
+            try {
+                await prisma.taskParticipant.create({
+                data: { taskId: t.id, userId: uid },
+                })
+            } catch {}
             }
         }
         }
 
-        // 7b) PARTICIPANTS special per Transcendence: tutti e 4 fixed come "admin" -> RoleName.EDITOR
-        for (const u of fixedUsers) {
-        await prisma.projectParticipant.create({
-            data: {
-            projectId: transcendence.id,
-            userId: u.id,
-            roleId: roleEditor.id,
-            },
-        })
-        }
-
-        // 8) FRIENDSHIPS random (solo tra users random+fixed)
+        // 9) FRIENDSHIPS random
         const used = new Set<string>()
         let created = 0
         while (created < FRIENDSHIPS_N) {
         const a = pick(users).id
         const b = pick(users).id
         if (a === b) continue
-
         const key = `${a}:${b}`
         if (used.has(key)) continue
         used.add(key)
@@ -520,31 +535,32 @@ const Debug: FastifyPluginAsync = async (fastify: FastifyInstance, opts) => {
             data: {
                 senderId: a,
                 receiverId: b,
-                status: pick([...friendshipStatuses]),
+                status: pick(friendshipStatuses),
             },
             })
             created++
-        } catch {
-            // ignora
-        }
+        } catch {}
         }
 
-        return res.send({
+        return reply.send({
         ok: true,
         created: {
             users: users.length,
             organizations: orgs.length,
             projects: projects.length,
+            tasks: tasks.length,
             roles: roles.length,
             friendships: FRIENDSHIPS_N,
+        },
+        special: {
             org42Id: org42.id,
             transcendenceId: transcendence.id,
         },
-        hint: 'Puoi cambiare i numeri con ?users=..&orgs=..&projectsPerOrg=..&friendships=..',
+        hint: 'QS: ?users=..&orgs=..&projectsPerOrg=..&tasksPerProject=..&friendships=..',
         })
     } catch (err) {
         fastify.log.error(err)
-        return res.code(500).send({ ok: false, error: 'seed failed' })
+        return reply.code(500).send({ ok: false, error: 'seed failed' })
     }
     })
 }
