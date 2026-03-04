@@ -225,10 +225,29 @@ const ProjectsPage: React.FC<ProjectsPageProps> = ({ setActivePage, setSelectedP
 								<p className="owner-info">{orgInfo?.name ?? 'Err'}</p>
 							</div>
 							<div className="description-row">Description: {selectedCard.description}</div>
-							<div>Started: {new Date(selectedCard.createdAt).toLocaleDateString('it-IT')}</div>
-							{selectedCard.closedAt
-								? <div>Completed: {new Date(selectedCard.closedAt).toLocaleDateString('it-IT')}</div> : ''}
-							<p>Status: {selectedCard.status}</p>
+							{/* <p>Status: {selectedCard.status}</p> */}
+							<div className="progress-container">
+								{/* IIFE (Immediately Invoked Function Expression)
+									in JSX si possono mettere solo espressioni dentro {} e non statement (const x = ...)
+									Per dichiarare varibili utilizziamo una funzione anonima () => {...} che viene invocata
+									immediatamente alla fine con ()*/}
+								{(() => {
+									const tasks = MOCK_TASKS.filter((t) => t.projectId === selectedCard.id);
+									const completed = tasks.filter((t) => t.status === 'COMPLETED').length;
+									const percent = tasks.length > 0 ? Math.round((completed / tasks.length) * 100) : 0;
+									return (
+										<div className="progress-bar-container">
+											<div className="progress-bar-fill" style={{ width: `${percent}%` }}></div>
+											<span className="progress-bar-label">{completed}/{tasks.length} ({percent}%)</span>
+										</div>
+									);
+								})()}
+								<div className="progress-dates">
+									<span className="project-start-date">{new Date(selectedCard.createdAt).toLocaleDateString('it-IT')}</span>
+									{selectedCard.closedAt
+										? <span className="project-due-term">{new Date(selectedCard.closedAt).toLocaleDateString('it-IT')}</span> : ''}
+								</div>
+							</div>
 							<div className="overlay-btn">
 								<button onClick={() => {
 									setSelectedProject(selectedCard);
