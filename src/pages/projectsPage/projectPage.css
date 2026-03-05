@@ -99,7 +99,7 @@
 
 .project-detail {
 	display: grid;
-	grid-template-columns: 2fr 1fr;
+	grid-template-columns: 3fr 1fr;
 	position: fixed;
 	background: var(--overlay-bg-color);
 	padding: 30px;
@@ -120,9 +120,10 @@
 
 .project-info {
 	display: flex;
-	flex-wrap: wrap;
+	flex-direction: column;
 	align-content: flex-start;
 	border-right: 1px solid var(--overlay-border-color);
+	height: 100%;
 }
 
 .title-owner-row {
@@ -153,21 +154,16 @@
 	font-size: 20px;
 }
 
-.project-detail button {
-	margin-top: 20px;
-	padding: 8px 20px;
-	cursor: pointer;
-	border: 1px solid white;
-	background: transparent;
-	color: white;
-	border-radius: 4px;
-	margin-right: 50px;
-}
 
 .description-row {
-	width: 100%;
-	min-height: 100px;
-	max-height: 200px;
+	display: -webkit-box;
+	-webkit-line-clamp: 20;
+	-webkit-box-orient: vertical;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	overflow-wrap: break-word;
+	word-break: break-all;
+	width: 98%;
 	margin-top: 30px;
 	margin-left: 10px;
 	font-size: 20px;
@@ -177,7 +173,7 @@
 .progress-container {
 	width: 90%;
 	padding: 0 10px;
-	margin: 20px auto 0 auto;
+	margin: auto auto 100px auto;
 }
 
 .progress-bar-container {
@@ -227,7 +223,21 @@
 }
 
 .overlay-btn {
-	
+	display: flex;
+	justify-content: space-between;
+	margin-bottom: 5px;
+	width: 100%;
+}
+
+.project-detail button {
+	margin-top: 20px;
+	padding: 8px 20px;
+	cursor: pointer;
+	border: 1px solid white;
+	background: transparent;
+	color: white;
+	border-radius: 4px;
+	margin-right: 50px;
 }
 
 .tasks-info {
@@ -240,6 +250,9 @@
 }
 
 .task-card {
+	display: flex;
+	flex-direction: column;
+	gap: 10px;
 	background: var(--bg-color);
 	height: 250px;
 	width: 95%;
@@ -247,4 +260,14 @@
 	margin: 0 0 10px auto;
 	border: 1px solid var(--overlay-border-color);
 	flex-shrink: 0;
+}
+
+.task-card > h3 {
+	font-size: 25px;
+	margin-bottom: 10px;
+	width: 100%;
+}
+
+.task-card > p {
+	margin: 0;
 }
