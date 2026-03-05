@@ -1,1 +1,0 @@
-// Come fare send() a tutti i membri di un canale

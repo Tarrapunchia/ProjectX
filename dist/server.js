@@ -14,7 +14,7 @@ import cookie from '@fastify/cookie';
 import cors from '@fastify/cors';
 import fs from 'fs';
 import websocketPlugin from './plugins/websockets/websocket.js';
-// import AuthGoogle from './routes/google/auth.js'
+import AuthGoogle from './routes/google/auth.js';
 const PORT = 5000;
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -98,7 +98,7 @@ await server.register(formBody);
 await server.register(prismaPlugin);
 await server.register(fastifyWebsocket);
 await server.register(websocketPlugin);
-// await server.register(AuthGoogle, { prefix: 'auth'})
+await server.register(AuthGoogle, { prefix: 'auth' });
 server.register(api, { prefix: 'api' });
 server.register(fastifyStatic, {
     root: path.join(__dirname, 'public'),

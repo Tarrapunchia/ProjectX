@@ -16,8 +16,37 @@ export async function getGoogleTokens(code) {
     });
     return data;
 }
-// Decodifica l'ID token (JWT) e torna il payload (sub, email, name, ecc.)
-export function decodeGoogleIdToken(idToken) {
-    return jwtDecode(idToken);
+export async function getGoogleUserInfo(accessToken) {
+    const { data } = await axios.get('https://openidconnect.googleapis.com/v1/userinfo', { headers: { Authorization: `Bearer ${accessToken}` } });
+    return data;
 }
+// Decodifica l'ID token e lo valida e torna il payload (sub, email, name, ecc.)
+export async function verifyGoogleIdTokenWithTokenInfo(idToken) {
+    const { data } = await axios.get("https://oauth2.googleapis.com/tokeninfo", { params: { id_token: idToken } });
+    // controlli MINIMI (importantissimi)
+    if (data.aud !== process.env.GOOGLE_CLIENT_ID) {
+        throw new Error("Invalid audience (aud)");
+    }
+    // Issuer validi: accounts.google.com o https://accounts.google.com
+    if (data.iss !== "accounts.google.com" && data.iss !== "https://accounts.google.com") {
+        throw new Error("Invalid issuer (iss)");
+    }
+    const expMs = Number(data.exp) * 1000;
+    if (!Number.isFinite(expMs) || Date.now() > expMs) {
+        throw new Error("Token expired");
+    }
+    return {
+        sub: data.sub,
+        email: data.email,
+        email_verified: data.email_verified === "true",
+        name: data.name,
+        given_name: data.given_name,
+        family_name: data.family_name,
+        picture: data.picture,
+    };
+}
+// // Decodifica l'ID token (JWT) e torna il payload (sub, email, name, ecc.)
+// export function decodeGoogleIdToken(idToken: string): GoogleIdTokenPayload {
+//   return jwtDecode<GoogleIdTokenPayload>(idToken);
+// }
 //# sourceMappingURL=googleOAuth.js.map
