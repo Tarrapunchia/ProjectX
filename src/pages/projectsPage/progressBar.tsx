@@ -1,4 +1,4 @@
-import { MOCK_TASKS } from '../../data/mockData'
+import { MOCK_TASKS } from '../../data/mockData';
 
 interface ProgressBarProps {
 	projectId: string;

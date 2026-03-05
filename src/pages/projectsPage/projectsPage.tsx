@@ -1,8 +1,8 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
 import { MOCK_PROJECTS, MOCK_TASKS } from "../../data/mockData";
 import "./projectPage.css";
-import type { Projects, Organization } from '../../data/types';
-import { FiChevronDown, FiChevronUp } from 'react-icons/fi';
+import type { Organization, ProjectInfo } from '../../data/types';
+import Category from './category';
 import ProgressBar from './progressBar';
 // import helpers from './helpers';
 
@@ -10,20 +10,11 @@ import ProgressBar from './progressBar';
 const orgId = 2
 
 const BE_HOSTNAME = 'https://localhost:5000'
-type ProjectInfo = {
-	id: string,
-	name: string,
-	status: 'ACTIVE' | 'COMPLETED' | 'REVIEW' | 'TODO',
-	description: string,
-	createdAt: Date,
-	closedAt: Date | null
-}
 
 interface ProjectsPageProps {
 	setActivePage: (page: string) => void;
 	setSelectedProject: (project: ProjectInfo) => void;
 }
-
 
 const ProjectsPage: React.FC<ProjectsPageProps> = ({ setActivePage, setSelectedProject }) => {
 
@@ -96,122 +87,26 @@ const ProjectsPage: React.FC<ProjectsPageProps> = ({ setActivePage, setSelectedP
 	return (
 		<div className="projectsPage">
 			<h1 style={{ width: '100%', marginLeft: '2vw' }}>Projects</h1>
-			<div className="category">
-				<p onClick={() => toggleCategory('TODO')} style={{ cursor: 'pointer' }}>
-					<span className="category-title">TO DO</span>
-					<span className="category-count">
-						({projList.filter((project) => project.status === 'TODO').length})
-					</span>
-					<span className="expandable-arrow">
-						{expandedCategories['TODO'] ? <FiChevronUp /> : <FiChevronDown />}
-					</span>
-				</p>
-				<div className={`cards-container ${expandedCategories['TODO'] ? 'expanded' : 'collapsed'}`}>
-					<div className="cards-inner">
-						{projList
-							.filter((project) => project.status === 'TODO')
-							.map((project) => (
-								<div 
-									key={project.id} 
-									className="project-card"
-									onClick={(e) => handleCardClick(project, e)}
-								>
-									<h3>{project.name}</h3>
-									<p className="project-description">{project.description}</p>
-									<ProgressBar projectId={project.id} createdAt={project.createdAt} closedAt={project.closedAt} />
-								</div>
-							))
-						}
-					</div>
-				</div>
-			</div>
-			<div className="category">
-				<p onClick={() => toggleCategory('ACTIVE')} style={{ cursor: 'pointer' }}>
-					<span className="category-title">IN PROGRESS</span>
-					<span className="category-count">
-						({projList.filter((project) => project.status === 'ACTIVE').length})
-					</span>
-					<span className="expandable-arrow">
-						{expandedCategories['ACTIVE'] ? <FiChevronUp /> : <FiChevronDown />}
-					</span>
-				</p>
-				<div className={`cards-container ${expandedCategories['ACTIVE'] ? 'expanded' : 'collapsed'}`}>
-					<div className="cards-inner">
-						{projList
-							.filter((project) => project.status === 'ACTIVE')
-							.map((project) => (
-								<div
-									key={project.id}
-									className="project-card"
-									onClick={(e) => handleCardClick(project, e)}
-								>
-									<h3>{project.name}</h3>
-									<p className="project-description">{project.description}</p>
-									<ProgressBar projectId={project.id} createdAt={project.createdAt} closedAt={project.closedAt} />
-								</div>
-							))
-						}
-					</div>
-				</div>
-			</div>
-			<div className="category">
-				<p onClick={() => toggleCategory('REVIEW')} style={{ cursor: 'pointer' }}>
-					<span className="category-title">CODE REVIEW</span>
-					<span className="category-count">
-						({projList.filter((project) => project.status === 'REVIEW').length})
-					</span>
-					<span className="expandable-arrow">
-						{expandedCategories['REVIEW'] ? <FiChevronUp /> : <FiChevronDown />}
-					</span>
-				</p>
-				<div className={`cards-container ${expandedCategories['REVIEW'] ? 'expanded' : 'collapsed'}`}>
-					<div className="cards-inner">
-						{projList
-							.filter((project) => project.status === 'REVIEW')
-							.map((project) => (
-								<div
-									key={project.id}
-									className="project-card"
-									onClick={(e) => handleCardClick(project, e)}
-								>
-									<h3>{project.name}</h3>
-									<p className="project-description">{project.description}</p>
-									<ProgressBar projectId={project.id} createdAt={project.createdAt} closedAt={project.closedAt} />
-								</div>
-							))
-						}
-					</div>
-				</div>
-			</div>
-			<div className="category">
-				<p onClick={() => toggleCategory('COMPLETED')} style={{ cursor: 'pointer' }}>
-					<span className="category-title">DONE</span>
-					<span className="category-count">
-						({projList.filter((project) => project.status === 'COMPLETED').length})
-					</span>
-					<span className="expandable-arrow">
-						{expandedCategories['DONE'] ? <FiChevronUp /> : <FiChevronDown />}
-					</span>
-				</p>
-				<div className={`cards-container ${expandedCategories['DONE'] ? 'expanded' : 'collapsed'}`}>
-					<div className="cards-inner">
-						{projList
-							.filter((project) => project.status === 'COMPLETED')
-							.map((project) => (
-								<div
-									key={project.id}
-									className="project-card"
-									onClick={(e) => handleCardClick(project, e)}
-								>
-									<h3>{project.name}</h3>
-									<p className="project-description">{project.description}</p>
-									<ProgressBar projectId={project.id} createdAt={project.createdAt} closedAt={project.closedAt} />
-								</div>
-							))
-						}
-					</div>
-				</div>
-			</div>
+			<Category label="TO DO" status="TODO" projList={projList}
+				isExpanded={expandedCategories['TODO']}
+				onToggle={() => toggleCategory('TODO')}
+				onCardClick={handleCardClick}
+			/>
+			<Category label="IN PROGRESS" status="ACTIVE" projList={projList}
+				isExpanded={expandedCategories['ACTIVE']}
+				onToggle={() => toggleCategory('ACTIVE')}
+				onCardClick={handleCardClick}
+			/>
+			<Category label="CODE REVIEW" status="REVIEW" projList={projList}
+				isExpanded={expandedCategories['REVIEW']}
+				onToggle={() => toggleCategory('REVIEW')}
+				onCardClick={handleCardClick}
+			/>
+			<Category label="DONE" status="COMPLETED" projList={projList}
+				isExpanded={expandedCategories['COMPLETED']}
+				onToggle={() => toggleCategory('COMPLETED')}
+				onCardClick={handleCardClick}
+			/>
 			{selectedCard && (
 				<div className="project-detail-overlay" onClick={handleClose}>
 					<div
