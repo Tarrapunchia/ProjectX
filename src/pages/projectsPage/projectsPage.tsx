@@ -241,13 +241,15 @@ const ProjectsPage: React.FC<ProjectsPageProps> = ({ setActivePage, setSelectedP
 									// MODIFICARE: utilizzo temporaneamente closeAt perche' non ho la data di deadline
 									const start = new Date(selectedCard.createdAt).getTime();
 									const now = Date.now();
-									const end = selectedCard.closedAt ? new Date(selectedCard.closedAt).getTime() : now;
-									const timePercent = end > start? Math.min(Math.round(((now - start) / (end - start)) * 100), 100) : 0;
+									const end = selectedCard.closedAt ? new Date(selectedCard.closedAt).getTime() : 0;
+									const timePercent = end > start ? Math.min(Math.round(((now - start) / (end - start)) * 100), 100) : 0;
 									
 									return (
 										<div className="progress-bar-container">
 											<div className="progress-bar-fill" style={{ width: `${percent}%` }}></div>
-											<div className="progress-time-marker" style={{ left: `${timePercent}%`}}></div>
+											{timePercent > 0 && (
+												<div className="progress-time-marker" style={{ left: `${timePercent}%`}}></div>
+											)}
 											<span className="progress-bar-label">{completed}/{tasks.length} ({percent}%)</span>
 										</div>
 									);
