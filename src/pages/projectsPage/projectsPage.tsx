@@ -3,6 +3,7 @@ import { MOCK_PROJECTS, MOCK_TASKS } from "../../data/mockData";
 import "./projectPage.css";
 import type { Projects, Organization } from '../../data/types';
 import { FiChevronDown, FiChevronUp } from 'react-icons/fi';
+import ProgressBar from './progressBar';
 // import helpers from './helpers';
 
 // per ora forzo orgId = 2
@@ -117,19 +118,7 @@ const ProjectsPage: React.FC<ProjectsPageProps> = ({ setActivePage, setSelectedP
 								>
 									<h3>{project.name}</h3>
 									<p className="project-description">{project.description}</p>
-									<div className="progress-container">
-										{(() => {
-											const tasks = MOCK_TASKS.filter((t) => t.projectId === project.id);
-											const completed = tasks.filter((t) => t.status === 'COMPLETED').length;
-											const percent = tasks.length > 0 ? Math.round((completed / tasks.length) * 100) : 0;
-											return (
-												<div className="progress-bar-container">
-													<div className="progress-bar-fill" style={{ width: `${percent}%` }}></div>
-													<span className="progress-bar-label">({percent}%)</span>
-												</div>
-											);
-										})()}
-									</div>
+									<ProgressBar projectId={project.id} createdAt={project.createdAt} closedAt={project.closedAt} />
 								</div>
 							))
 						}
@@ -158,6 +147,7 @@ const ProjectsPage: React.FC<ProjectsPageProps> = ({ setActivePage, setSelectedP
 								>
 									<h3>{project.name}</h3>
 									<p className="project-description">{project.description}</p>
+									<ProgressBar projectId={project.id} createdAt={project.createdAt} closedAt={project.closedAt} />
 								</div>
 							))
 						}
@@ -186,6 +176,7 @@ const ProjectsPage: React.FC<ProjectsPageProps> = ({ setActivePage, setSelectedP
 								>
 									<h3>{project.name}</h3>
 									<p className="project-description">{project.description}</p>
+									<ProgressBar projectId={project.id} createdAt={project.createdAt} closedAt={project.closedAt} />
 								</div>
 							))
 						}
@@ -214,40 +205,7 @@ const ProjectsPage: React.FC<ProjectsPageProps> = ({ setActivePage, setSelectedP
 								>
 									<h3>{project.name}</h3>
 									<p className="project-description">{project.description}</p>
-									<div className="progress-container">
-										{/* IIFE (Immediately Invoked Function Expression)
-											in JSX si possono mettere solo espressioni dentro {} e non statement (const x = ...)
-											Per dichiarare varibili utilizziamo una funzione anonima () => {...} che viene invocata
-											immediatamente alla fine con ()*/}
-										{(() => {
-											// calcolo per le tasks presenti, completate e percentuale di completamento
-											const tasks = MOCK_TASKS.filter((t) => t.projectId === project.id);
-											const completed = tasks.filter((t) => t.status === 'COMPLETED').length;
-											const percent = tasks.length > 0 ? Math.round((completed / tasks.length) * 100) : 0;
-
-											// calcolo della data odierna e distanza dalla deadline
-											// MODIFICARE: utilizzo temporaneamente closeAt perche' non ho la data di deadline
-											const start = new Date(project.createdAt).getTime();
-											const now = Date.now();
-											const end = project.closedAt ? new Date(project.closedAt).getTime() : 0;
-											const timePercent = end > start ? Math.min(Math.round(((now - start) / (end - start)) * 100), 100) : 0;
-											
-											return (
-												<div className="progress-bar-container">
-													<div className="progress-bar-fill" style={{ width: `${percent}%` }}></div>
-													{timePercent > 0 && (
-														<div className="progress-time-marker" style={{ left: `${timePercent}%`}}></div>
-													)}
-													<span className="progress-bar-label">{completed}/{tasks.length} ({percent}%)</span>
-												</div>
-											);
-										})()}
-										<div className="progress-dates">
-											<span className="project-start-date">{new Date(project.createdAt).toLocaleDateString('it-IT')}</span>
-											{project.closedAt
-												? <span className="project-due-term">{new Date(project.closedAt).toLocaleDateString('it-IT')}</span> : ''}
-										</div>
-									</div>
+									<ProgressBar projectId={project.id} createdAt={project.createdAt} closedAt={project.closedAt} />
 								</div>
 							))
 						}
@@ -273,40 +231,12 @@ const ProjectsPage: React.FC<ProjectsPageProps> = ({ setActivePage, setSelectedP
 							</div>
 							<div className="description-row">Description: {selectedCard.description}</div>
 							{/* <p>Status: {selectedCard.status}</p> */}
-							<div className="progress-container">
-								{/* IIFE (Immediately Invoked Function Expression)
-									in JSX si possono mettere solo espressioni dentro {} e non statement (const x = ...)
-									Per dichiarare varibili utilizziamo una funzione anonima () => {...} che viene invocata
-									immediatamente alla fine con ()*/}
-								{(() => {
-									// calcolo per le tasks presenti, completate e percentuale di completamento
-									const tasks = MOCK_TASKS.filter((t) => t.projectId === selectedCard.id);
-									const completed = tasks.filter((t) => t.status === 'COMPLETED').length;
-									const percent = tasks.length > 0 ? Math.round((completed / tasks.length) * 100) : 0;
-
-									// calcolo della data odierna e distanza dalla deadline
-									// MODIFICARE: utilizzo temporaneamente closeAt perche' non ho la data di deadline
-									const start = new Date(selectedCard.createdAt).getTime();
-									const now = Date.now();
-									const end = selectedCard.closedAt ? new Date(selectedCard.closedAt).getTime() : 0;
-									const timePercent = end > start ? Math.min(Math.round(((now - start) / (end - start)) * 100), 100) : 0;
-									
-									return (
-										<div className="progress-bar-container">
-											<div className="progress-bar-fill" style={{ width: `${percent}%` }}></div>
-											{timePercent > 0 && (
-												<div className="progress-time-marker" style={{ left: `${timePercent}%`}}></div>
-											)}
-											<span className="progress-bar-label">{completed}/{tasks.length} ({percent}%)</span>
-										</div>
-									);
-								})()}
-								<div className="progress-dates">
-									<span className="project-start-date">{new Date(selectedCard.createdAt).toLocaleDateString('it-IT')}</span>
-									{selectedCard.closedAt
-										? <span className="project-due-term">{new Date(selectedCard.closedAt).toLocaleDateString('it-IT')}</span> : ''}
-								</div>
-							</div>
+							<ProgressBar 
+								projectId={selectedCard.id}
+								createdAt={selectedCard.createdAt}
+								closedAt={selectedCard.closedAt}
+								showDetails
+							/>
 							<div className="overlay-btn">
 								<button onClick={() => {
 									setSelectedProject(selectedCard);
