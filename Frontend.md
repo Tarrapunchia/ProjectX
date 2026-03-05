@@ -24,6 +24,8 @@
 
 
 
+
+
 ### Pagina del progetto
 
 * Dashboard
@@ -32,6 +34,14 @@
 * File download/upload
 
 
+* OVERLAY PROGETTO
+- Specifiche tecniche
+- prerequisiti (best practices, tools)
+- referente progetto
+
+* CREAZIONE PROGETTO
+- modifiche del testo (font-size, colori, ...)
+- immagini(?)
 
 
 
