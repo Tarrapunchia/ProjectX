@@ -23,11 +23,30 @@
     gap: 20px;
 }
 
+.text-muted
+{
+	font-size: 14px;
+    color: white;
+}
+
 .password-forgotten
 {
     font-size: 14px;
     color: white;
     cursor: pointer;
+}
+
+.Sign-Up
+{
+	margin-left: 8px;
+    font-size: 12px;
+    color: white;
+    cursor: pointer;
+}
+
+.Sign-Up:hover
+{
+	text-decoration: underline;
 }
 
 .password-forgotten:hover
@@ -54,7 +73,7 @@
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
     text-align: center;
     min-width: 130px;
-    margin-top: 60px;
+    margin-top: 5px;
     padding: 10px 20px;
     font-size: 24px;
     border: none;
@@ -73,6 +92,7 @@
 
 .login-box .input-field
 {
+	margin-top: 5px;
     background-color: white;
     color: black;
     padding: 10px;

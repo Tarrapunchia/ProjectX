@@ -81,9 +81,13 @@ function login()
                 <h1>Login to your account!</h1>
                 <div ref={googleDiv}></div>
                 <span className="divider" > OR </span>
-                <input ref={emailRef} type="text" placeholder="E-mail" className='input-field email-field'/><br></br>
-                <input ref={pwRef} type="text" placeholder="Password" className='input-field'/>
-                <span className="password-forgotten" onClick={handleSignUp}> Password forgotten? </span>
+                <input ref={emailRef} type="text" placeholder="E-mail" className='input-field email-field'/>
+                <input ref={pwRef} type="password" placeholder="Password" className='input-field'/>
+                <span className="password-forgotten"> Password forgotten? </span>
+				<div>
+					<span className='text-muted'>Not a member yet? </span>
+					<span className='Sign-Up' onClick={handleSignUp}> Sign-Up! </span>
+				</div>
                 <button onClick={handleLogin}>Login</button>
             </div>
         </div>
