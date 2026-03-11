@@ -105,6 +105,16 @@ const userProfileResponse = {
                     required: ['id', 'name', 'organizationId', 'role', 'joinedAt'],
                 },
             },
+            tasks: {
+                type: 'array',
+                properties: {
+                    id: { type: 'string' },
+                    name: { type: 'string' },
+                    projectName: { type: 'string' },
+                    status: { type: 'string' },
+                    description: { type: 'string' }
+                }
+            }
         },
         required: [
             'id',
@@ -118,6 +128,7 @@ const userProfileResponse = {
             'updatedAt',
             'organizations',
             'projects',
+            'tasks'
         ],
     },
     400: {

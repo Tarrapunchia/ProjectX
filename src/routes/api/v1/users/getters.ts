@@ -79,9 +79,7 @@ const Getters: FastifyPluginAsync = async (fastify: FastifyInstance, opts) => {
         )
 
         // GET /api/v1/users/activeUser
-        fastify.get<{
-            Params: { id: string }
-            }>(
+        fastify.get(
             '/activeUser',
             { schema: userSchemas.getActiveUserProfile },
             async (req, res) => {
@@ -90,65 +88,158 @@ const Getters: FastifyPluginAsync = async (fastify: FastifyInstance, opts) => {
                     res.code(400)
                     return { error: 'User not connected' }
                 }
-
-                const user = await fastify.prisma.user.findUnique({
-                where: { id },
-                include: {
-                    memberships: {
-                        include: { organization: true },
-                    },
-                    projectParticipants: {
+                try {
+                    
+                    const transaction = await fastify.prisma.$transaction(async (tx) => {
+                        const user = await tx.user.findUnique({
+                        where: { id },
                         include: {
-                            project: true,
-                            role: true,
+                            memberships: {
+                                include: { organization: true },
+                            },
+                            projectParticipants: {
+                                include: {
+                                    project: true,
+                                    role: true,
+                            },
+                            },
+                        },
+                        })
+        
+                        if (!user) {
+                            res.code(404)
+                            return { error: 'User not found' }
+                        }
+    
+                    const tasks = await tx.taskParticipant.findMany({
+                    where: { userId: id },
+                    include: {
+                        task: {
+                        include: {
+                            project: { select: { name: true } },
+                        },
+                        },
                     },
-                    },
-                },
-                })
+                    })
+                            
+                        // DTO pulito (così non mando dentro tutto nudo/crudo)
+                        return {
+                            id: user.id,
+                            name: user.name,
+                            surname: user.surname,
+                            email: user.email,
+                            phone: user.phone,
+                            city: user.city,
+                            address: user.address,
+                            cap: user.cap,
+                            state: user.state,
+                            jobQualifier: user.jobQualifier,
+                            isLoggedIn: user.isLoggedIn,
+                            createdAt: user.createdAt,
+                            updatedAt: user.updatedAt,
+                            organizations: user.memberships.map((m: any) => ({
+                            id: m.organization.id,
+                            name: m.organization.name,
+                            email: m.organization.email,
+                            createdAt: m.createdAt,
+                    })),
 
-                if (!user) {
-                    res.code(404)
-                    return { error: 'User not found' }
+                        projects: user.projectParticipants.map((pp: any) => ({
+                            id: pp.project.id,
+                            name: pp.project.name,
+                            description: pp.project.description,
+                            status: pp.project.status,
+                            createdAt: pp.project.createdAt,
+                            closedAt: pp.project.closedAt ?? '',
+                            organizationId: pp.project.organizationId,
+                            role: pp.role.name,
+                            joinedAt: pp.createdAt,
+                        })),
+                        tasks: tasks.map((t: any) => ({
+                            id: t.task.id,
+                            name: t.task.name,
+                            projectName: t.task.project.name,
+                            status: t.task.status,
+                            description: t.task.description
+                        }))
+                        }})
+                    return res.send(transaction)
+                } catch (error) {
+                    return res.code(400)
+                    return res.send({ error: error})
                 }
+        })
 
-                // DTO pulito (così non mando dentro tutto nudo/crudo)
-                return {
-                    id: user.id,
-                    name: user.name,
-                    surname: user.surname,
-                    email: user.email,
-                    phone: user.phone,
-                    city: user.city,
-                    address: user.address,
-                    cap: user.cap,
-                    state: user.state,
-                    jobQualifier: user.jobQualifier,
-                    isLoggedIn: user.isLoggedIn,
-                    createdAt: user.createdAt,
-                    updatedAt: user.updatedAt,
+        // // GET /api/v1/users/:id/tasks
+        // fastify.get<{
+        //     Params: { id: string }
+        //     }>(
+        //     '/activeUser',
+        //     { schema: userSchemas.getActiveUserProfile },
+        //     async (req, res) => {
+        //         const id = getUserIdFromJWT(req, res, fastify)
+        //         if (Number.isNaN(id) || !id) {
+        //             res.code(400)
+        //             return { error: 'User not connected' }
+        //         }
 
-                    organizations: user.memberships.map((m: any) => ({
-                        id: m.organization.id,
-                        name: m.organization.name,
-                        email: m.organization.email,
-                        createdAt: m.createdAt,
-                })),
+        //         const user = await fastify.prisma.user.findUnique({
+        //         where: { id },
+        //         include: {
+        //             memberships: {
+        //                 include: { organization: true },
+        //             },
+        //             projectParticipants: {
+        //                 include: {
+        //                     project: true,
+        //                     role: true,
+        //             },
+        //             },
+        //         },
+        //         })
 
-                projects: user.projectParticipants.map((pp: any) => ({
-                    id: pp.project.id,
-                    name: pp.project.name,
-                    description: pp.project.description,
-                    status: pp.project.status,
-                    createdAt: pp.project.createdAt,
-                    closedAt: pp.project.closedAt ?? '',
-                    organizationId: pp.project.organizationId,
-                    role: pp.role.name,
-                    joinedAt: pp.createdAt,
-                })),
-                }
-            }
-        )
+        //         if (!user) {
+        //             res.code(404)
+        //             return { error: 'User not found' }
+        //         }
 
+        //         // DTO pulito (così non mando dentro tutto nudo/crudo)
+        //         return {
+        //             id: user.id,
+        //             name: user.name,
+        //             surname: user.surname,
+        //             email: user.email,
+        //             phone: user.phone,
+        //             city: user.city,
+        //             address: user.address,
+        //             cap: user.cap,
+        //             state: user.state,
+        //             jobQualifier: user.jobQualifier,
+        //             isLoggedIn: user.isLoggedIn,
+        //             createdAt: user.createdAt,
+        //             updatedAt: user.updatedAt,
+
+        //             organizations: user.memberships.map((m: any) => ({
+        //                 id: m.organization.id,
+        //                 name: m.organization.name,
+        //                 email: m.organization.email,
+        //                 createdAt: m.createdAt,
+        //         })),
+
+        //         projects: user.projectParticipants.map((pp: any) => ({
+        //             id: pp.project.id,
+        //             name: pp.project.name,
+        //             description: pp.project.description,
+        //             status: pp.project.status,
+        //             createdAt: pp.project.createdAt,
+        //             closedAt: pp.project.closedAt ?? '',
+        //             organizationId: pp.project.organizationId,
+        //             role: pp.role.name,
+        //             joinedAt: pp.createdAt,
+        //         })),
+        //         }
+        //     }
+        // )
 
         // GET /api/v1/users/search?username=foo
         fastify.get<{
