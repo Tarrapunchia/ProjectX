@@ -1,7 +1,59 @@
-// import fastify, { type FastifyInstance, type FastifyPluginAsync } from "fastify";
-// import { getUserIdFromJWT } from "../../../../helpers/cookies.js";
-// import { orgSchemas } from "./organizationsSchema.js";
-export {};
+import fastify, {} from "fastify";
+import { getUserIdFromJWT } from "../../../../helpers/cookies.js";
+import { taskSchemas } from "./tasksSchema.js";
+const Deleters = async (fastify, opts) => {
+    // DELETE /api/v1/tasks/:id/remove
+    fastify.delete('/:id/remove', { schema: taskSchemas.deleteTaskSchema }, async (req, res) => {
+        try {
+            const userId = getUserIdFromJWT(req, res, fastify);
+            if (!userId) {
+                res.code(401);
+                return { error: 'You must be logged in in order to delete a Task' };
+            }
+            const taskId = Number(req.params.id);
+            if (Number.isNaN(taskId)) {
+                res.code(400);
+                return { error: 'invalid task id' };
+            }
+            // const transaction = await fastify.prisma.$transaction(async (tx) => {
+            const task = await fastify.prisma.task.findUnique({
+                where: { id: taskId },
+                select: { projectId: true }
+            });
+            if (!task) {
+                res.code(404);
+                return ({ error: 'Task not found' });
+            }
+            // verifico di avere i permessi
+            const membership = await fastify.prisma.projectParticipant.findUnique({
+                where: {
+                    projectId_userId: { projectId: task.projectId, userId: userId },
+                },
+                include: {
+                    role: { select: { name: true } }, // RoleName enum
+                },
+            });
+            if (!membership) {
+                res.code(403);
+                return { error: 'You are not a participant of this project' };
+            }
+            if (membership.role.name !== 'OWNER') {
+                res.code(403);
+                return { error: 'Insufficient permissions (OWNER required)' };
+            }
+            // tutto ok a sto punto, cancello la task
+            const remove = await fastify.prisma.task.delete({
+                where: { id: taskId }
+            });
+            res.code(200);
+            return { success: true };
+        }
+        catch (error) {
+            res.code(400);
+            return ({ error: error });
+        }
+    });
+};
 // const Deleters: FastifyPluginAsync = async (fastify: FastifyInstance, opts) => {
 //         // POST /api/v1/organizations/:id/removeMember
 //         fastify.post<{
@@ -72,5 +124,5 @@ export {};
 //         }
 //     )
 // }
-// export default Deleters
+export default Deleters;
 //# sourceMappingURL=deleters.js.map

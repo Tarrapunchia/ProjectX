@@ -32,7 +32,66 @@ const getProjTasksSchema: Schema = {
     },
 }
 
+const createTaskchema: Schema = {
+    description: 'Creates a new task setting the creator as paticipant and returning the task, using a name and the projId id as input',
+    tags: ['tasks'],
+    body: {
+        type: 'object',
+        properties: {
+            name: { type: 'string'},
+            projId: { type: 'number' },
+            status: { type: 'string' },
+            description: { type: 'string' },
+        },
+        required: ['name', 'projId', 'status'],
+    },
+    response: {
+        201: {
+            type: 'object',
+            properties: {
+                id: { type: 'number' },
+                name: { type: 'string' },
+                projectId: { type: 'number' },
+                status: { type: 'string' },
+            },
+            required: ['id', 'name', 'projectId', 'status'],
+        },
+        400: {
+            type: 'object',
+            properties: { error: { type: 'string' } },
+            required: ['error'],
+        },
+    },
+}
+
+const deleteTaskSchema: Schema = {
+    description: 'Deletes a task using the taskId as parameter, it checks if the user has permission',
+    tags: ['tasks'],
+    response: {
+        201: {
+            type: 'object',
+            properties: {
+                success: { type: 'boolean' }
+            },
+            required: ['success'],
+        },
+        400: {
+            type: 'object',
+            properties: { error: { type: 'string' } },
+            required: ['error'],
+        },
+        403: {
+            type: 'object',
+            properties: { error: { type: 'string' } },
+            required: ['error'],
+        },
+    },
+}
+
 export const taskSchemas = {
-    getProjTasksSchema: getProjTasksSchema
+    getProjTasksSchema: getProjTasksSchema,
+    createTaskchema: createTaskchema,
+    deleteTaskSchema: deleteTaskSchema
+
 
 };

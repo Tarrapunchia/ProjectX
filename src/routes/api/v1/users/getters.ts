@@ -165,81 +165,10 @@ const Getters: FastifyPluginAsync = async (fastify: FastifyInstance, opts) => {
                         }})
                     return res.send(transaction)
                 } catch (error) {
-                    return res.code(400)
+                    res.code(400)
                     return res.send({ error: error})
                 }
         })
-
-        // // GET /api/v1/users/:id/tasks
-        // fastify.get<{
-        //     Params: { id: string }
-        //     }>(
-        //     '/activeUser',
-        //     { schema: userSchemas.getActiveUserProfile },
-        //     async (req, res) => {
-        //         const id = getUserIdFromJWT(req, res, fastify)
-        //         if (Number.isNaN(id) || !id) {
-        //             res.code(400)
-        //             return { error: 'User not connected' }
-        //         }
-
-        //         const user = await fastify.prisma.user.findUnique({
-        //         where: { id },
-        //         include: {
-        //             memberships: {
-        //                 include: { organization: true },
-        //             },
-        //             projectParticipants: {
-        //                 include: {
-        //                     project: true,
-        //                     role: true,
-        //             },
-        //             },
-        //         },
-        //         })
-
-        //         if (!user) {
-        //             res.code(404)
-        //             return { error: 'User not found' }
-        //         }
-
-        //         // DTO pulito (così non mando dentro tutto nudo/crudo)
-        //         return {
-        //             id: user.id,
-        //             name: user.name,
-        //             surname: user.surname,
-        //             email: user.email,
-        //             phone: user.phone,
-        //             city: user.city,
-        //             address: user.address,
-        //             cap: user.cap,
-        //             state: user.state,
-        //             jobQualifier: user.jobQualifier,
-        //             isLoggedIn: user.isLoggedIn,
-        //             createdAt: user.createdAt,
-        //             updatedAt: user.updatedAt,
-
-        //             organizations: user.memberships.map((m: any) => ({
-        //                 id: m.organization.id,
-        //                 name: m.organization.name,
-        //                 email: m.organization.email,
-        //                 createdAt: m.createdAt,
-        //         })),
-
-        //         projects: user.projectParticipants.map((pp: any) => ({
-        //             id: pp.project.id,
-        //             name: pp.project.name,
-        //             description: pp.project.description,
-        //             status: pp.project.status,
-        //             createdAt: pp.project.createdAt,
-        //             closedAt: pp.project.closedAt ?? '',
-        //             organizationId: pp.project.organizationId,
-        //             role: pp.role.name,
-        //             joinedAt: pp.createdAt,
-        //         })),
-        //         }
-        //     }
-        // )
 
         // GET /api/v1/users/search?username=foo
         fastify.get<{

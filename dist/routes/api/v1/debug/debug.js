@@ -426,7 +426,7 @@ const Debug = async (fastify, opts) => {
             // 7b) Transcendence participants: 4 fixed as EDITOR ("admin")
             for (const u of fixedUsers) {
                 await prisma.projectParticipant.create({
-                    data: { projectId: transcendence.id, userId: u.id, roleId: roleEditor.id },
+                    data: { projectId: transcendence.id, userId: u.id, roleId: roleOwner.id },
                 });
             }
             // 8) TASKS + TASK PARTICIPANTS

@@ -2,7 +2,7 @@
 
 if [ ! -f ./prisma/dev.db ]; then
     echo "Initializing database"
-    npx prisma init --datasource-provider sqlite
+    # npx prisma init --datasource-provider sqlite
     npx prisma migrate dev --name init
     npx prisma generate
 else
