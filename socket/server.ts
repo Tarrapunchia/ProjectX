@@ -53,7 +53,7 @@ await app.register(fastifyJwt, {
 
 // 	================ UPLOAD =================
 app.post('/upload', async function (request, reply) {
-	const { clientId, projectId, organizationId } = request.body as {clientId: string, projectId: string, organizationId: string };
+	const { clientId, projectId, organizationId } = request.body as {clientId: string, projectId?: string, organizationId: string };
 	const file = await request.file();
 	const allowedTypes = ['image/png', 'application/pdf']; // piu tipi ? tutti ??
 	if (!file) {
@@ -67,7 +67,9 @@ app.post('/upload', async function (request, reply) {
 	}
 	// Sanitizza filename (solo caratteri sicuri)
 	const safeFilename = file.filename.replace(/[^a-zA-Z0-9._-]/g, '_');
-	const orgDir = path.join('uploads', organizationId, projectId);
+	const orgDir = projectId
+		? path.join('uploads', organizationId, projectId)
+		: path.join('uploads', organizationId);
 	if (!fs.existsSync(orgDir))
 		fs.mkdirSync(orgDir, { recursive: true });
 	const client = await app.db.clients.findById(clientId);
@@ -88,8 +90,10 @@ app.post('/upload', async function (request, reply) {
 });
 
 // ===== RICHIESTA FILE =====
-app.get<{ Params: { organizationId: string, projectId: string, filename: string, clientId: string } }>('/files/:filename', async (request, reply) => {
-	const filePath = path.join('uploads', request.params.organizationId, request.params.projectId, request.params.filename);
+app.get<{ Params: { organizationId: string, projectId?: string, filename: string, clientId: string } }>('/files/:filename', async (request, reply) => {
+	const filePath = request.params.projectId
+		? path.join('uploads', request.params.organizationId, request.params.projectId, request.params.filename)
+		: path.join('uploads', request.params.organizationId, request.params.filename);
 	const client = await app.db.clients.findById((request.params.clientId));
 	if (!client || client.role !== 'project manager') {
 		return reply.code(403).send({ error: 'You are not authorized '});
@@ -102,9 +106,11 @@ app.get<{ Params: { organizationId: string, projectId: string, filename: string,
 });
 
 // ===== LISTA FILE =====
-app.get<{ Params: { organizationId: string, projectId: string, clientId: string } }>('/files/:organizationId/:projectId', async (request, reply) => {
+app.get<{ Params: { organizationId: string, projectId?: string, clientId: string } }>('/files/:organizationId/:projectId', async (request, reply) => {
 	const { organizationId, projectId, clientId } = request.params;
-	const dirPath = path.join('uploads', organizationId, projectId);
+	const dirPath = projectId
+		? path.join('uploads', organizationId, projectId)
+		: path.join('uploads', organizationId);
 	const client = await app.db.clients.findById(clientId);
 	if (!client || client.role !== 'project manager') {
 		return reply.code(403).send({ error: 'You are not authorized '});
@@ -117,8 +123,10 @@ app.get<{ Params: { organizationId: string, projectId: string, clientId: string 
 });
 
 // ====== DELETE FILE ======
-app.delete<{ Params: { organizationId: string, projectId: string, filename: string, clientId: string } }>('/files/:filename', async (request, reply) => {
-	const filePath = path.join('uploads', request.params.organizationId, request.params.projectId, request.params.filename);
+app.delete<{ Params: { organizationId: string, projectId?: string, filename: string, clientId: string } }>('/files/:filename', async (request, reply) => {
+	const filePath = request.params.projectId
+		? path.join('uploads', request.params.organizationId, request.params.projectId, request.params.filename)
+		: path.join('uploads', request.params.organizationId, request.params.filename);
 	const client = await app.db.clients.findById((request.params.clientId));
 	if (!client || client.role !== 'project manager') {
 		return reply.code(403).send({ error: 'You are not authorized '});
