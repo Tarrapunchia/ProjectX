@@ -62,19 +62,19 @@ const Debug: FastifyPluginAsync = async (fastify: FastifyInstance, opts) => {
                 const created = await fastify.prisma.$transaction(async (tx) => {
                 // 1) PERMISSIONS + ROLES (1:1)
                 const roleDefs = [
-                    { name: RoleName.OWNER,  perm: { bOwner: true,  bCreateTask: true } },
-                    { name: RoleName.EDITOR,  perm: { bOwner: false, bCreateTask: true } },
-                    { name: RoleName.VIEWER, perm: { bOwner: false, bCreateTask: false } },
+                    { name: RoleName.OWNER },
+                    { name: RoleName.EDITOR },
+                    { name: RoleName.VIEWER },
                 ]
 
                 for (const def of roleDefs) {
                     const existing = await tx.role.findUnique({ where: { name: def.name } })
                     if (existing) continue
-                    const perm = await tx.permission.create({ data: def.perm })
+                    // const perm = await tx.permission.create({ data: def.perm })
                     const role = await tx.role.create({
                         data: {
                         name: def.name,
-                        permissionsId: perm.id,
+                        // permissionsId: perm.id,
                         },
                     })
                 }
@@ -253,7 +253,7 @@ const Debug: FastifyPluginAsync = async (fastify: FastifyInstance, opts) => {
         await prisma.organization.deleteMany()
 
         await prisma.role.deleteMany()
-        await prisma.permission.deleteMany()
+        // await prisma.permission.deleteMany()
 
         await prisma.user.deleteMany()
 
@@ -261,47 +261,51 @@ const Debug: FastifyPluginAsync = async (fastify: FastifyInstance, opts) => {
         const roleDefs = [
         {
             name: RoleName.OWNER,
-            perm: {
-            bOwner: true,
-            bModPermissions: true,
-            bCreateTask: true,
-            bEditTask: true,
-            bCloseTask: true,
-            bInvite: true,
-            bRemoveUser: true,
-            },
+            // perm: {
+            // bOwner: true,
+            // bModPermissions: true,
+            // bCreateTask: true,
+            // bEditTask: true,
+            // bCloseTask: true,
+            // bInvite: true,
+            // bRemoveUser: true,
+            // },
         },
         {
             name: RoleName.EDITOR,
-            perm: {
-            bOwner: false,
-            bModPermissions: false,
-            bCreateTask: true,
-            bEditTask: true,
-            bCloseTask: true,
-            bInvite: true,
-            bRemoveUser: false,
-            },
+            // perm: {
+            // bOwner: false,
+            // bModPermissions: false,
+            // bCreateTask: true,
+            // bEditTask: true,
+            // bCloseTask: true,
+            // bInvite: true,
+            // bRemoveUser: false,
+            // },
         },
         {
             name: RoleName.VIEWER,
-            perm: {
-            bOwner: false,
-            bModPermissions: false,
-            bCreateTask: false,
-            bEditTask: false,
-            bCloseTask: false,
-            bInvite: false,
-            bRemoveUser: false,
-            },
+            // perm: {
+            // bOwner: false,
+            // bModPermissions: false,
+            // bCreateTask: false,
+            // bEditTask: false,
+            // bCloseTask: false,
+            // bInvite: false,
+            // bRemoveUser: false,
+            // },
         },
+        {
+            name: RoleName.SUPERVISOR
+        }
         ] as const
 
         const roles: Array<{ id: number; name: RoleName }> = []
         for (const def of roleDefs) {
-        const perm = await prisma.permission.create({ data: def.perm })
+        // const perm = await prisma.permission.create({ data: def.perm })
         const role = await prisma.role.create({
-            data: { name: def.name, permissionsId: perm.id },
+            data: { name: def.name },
+            // data: { name: def.name, permissionsId: perm.id },
         })
         roles.push({ id: role.id, name: role.name })
         }
@@ -335,10 +339,10 @@ const Debug: FastifyPluginAsync = async (fastify: FastifyInstance, opts) => {
 
         // 3b) USERS fixed (42)
         const fixedUsersData = [
-        { name: 'fabio',  surname: 'zucconi',     email: 'fzucconi@student.42campus.com' },
-        { name: 'manuel', surname: 'chiaramello', email: 'mchiaram@42firenze.com' },
-        { name: 'giulia', surname: 'vigano',      email: 'gvigano@42firenze.com' },
-        { name: 'ansi',   surname: 'osmenaj',     email: 'aosmenaj@42firenze.com' },
+        { name: 'fabio',  surname: 'zucconi',     email: 'fzucconi@student.42firenze.it' },
+        { name: 'manuel', surname: 'chiaramello', email: 'mchiaram@student.42firenze.it' },
+        { name: 'giulia', surname: 'vigano',      email: 'gvigano@student.42firenze.it' },
+        { name: 'ansi',   surname: 'osmenaj',     email: 'aosmenaj@student.42firenze.it' },
         ] as const
 
         const fixedUsers: any[] = []

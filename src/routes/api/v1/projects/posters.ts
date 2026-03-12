@@ -54,17 +54,24 @@ const Posters: FastifyPluginAsync = async (fastify: FastifyInstance, opts) => {
                     },
                 })
 
+                // // 2) trova o crea il ruolo OWNER (in questo caso, upsert fa update or insert)
+                // const ownerRole = await tx.role.upsert({
+                //     where: { name: 'OWNER' },
+                //     update: {},
+                //     create: {
+                //         name: 'OWNER',
+                //         permissions: {
+                //             create: { bOwner: true },
+                //         },
+                //     },
+                // })
+
                 // 2) trova o crea il ruolo OWNER (in questo caso, upsert fa update or insert)
-                const ownerRole = await tx.role.upsert({
+                const ownerRole = await tx.role.findUnique({
                     where: { name: 'OWNER' },
-                    update: {},
-                    create: {
-                        name: 'OWNER',
-                        permissions: {
-                            create: { bOwner: true },
-                        },
-                    },
                 })
+
+                if (!ownerRole) throw ('error')
 
                 // 3) aggiunge il creatore come participant OWNER
                 await tx.projectParticipant.create({

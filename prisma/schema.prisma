@@ -105,6 +105,14 @@ enum Status {
   CLOSED
 }
 
+enum Priority {
+  NONE
+  LOW
+  MEDIUM
+  HIGH
+  CRITICAL
+}
+
 model Task {
   id             Int    @id @default(autoincrement())
   name           String @unique
@@ -116,6 +124,7 @@ model Task {
   description    String?
 
   participants   TaskParticipant[]
+  priority       Priority @default(NONE)
   // chatRooms      ChatRoom[]
 
   createdAt      DateTime @default(now())
@@ -171,32 +180,33 @@ enum RoleName {
   OWNER
   EDITOR
   VIEWER
+  SUPERVISOR
 }
 
 model Role {
   id            Int    @id @default(autoincrement())
   name          RoleName @unique
 
-  // 1-1 con Permission
-  permissionsId Int    @unique
-  permissions   Permission @relation(fields: [permissionsId], references: [id])
+  // // 1-1 con Permission
+  // permissionsId Int    @unique
+  // permissions   Permission @relation(fields: [permissionsId], references: [id])
 
   participants  ProjectParticipant[]
 }
 
-model Permission {
-  id              Int     @id @default(autoincrement())
-  bOwner          Boolean @default(false)               // god mode
-  bModPermissions Boolean @default(false)
-  bCreateTask     Boolean @default(false)
-  bEditTask       Boolean @default(false)
-  bCloseTask      Boolean @default(false)
-  bInvite         Boolean @default(false)
-  bRemoveUser     Boolean @default(false)
-  // permessi da vedere. poi si decidono
+// model Permission {
+//   id              Int     @id @default(autoincrement())
+//   bOwner          Boolean @default(false)               // god mode
+//   bModPermissions Boolean @default(false)
+//   bCreateTask     Boolean @default(false)
+//   bEditTask       Boolean @default(false)
+//   bCloseTask      Boolean @default(false)
+//   bInvite         Boolean @default(false)
+//   bRemoveUser     Boolean @default(false)
+//   // permessi da vedere. poi si decidono
 
-  role        Role? // lo vuole per la relazione, si puo' anche non usare
-}
+//   role        Role? // lo vuole per la relazione, si puo' anche non usare
+// }
 
 // messaggi room
 model ChatRoom {

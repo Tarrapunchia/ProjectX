@@ -36,7 +36,7 @@ const server = fastify({
     ignoreTrailingSlash: true,
     caseSensitive: false,
     // per https
-    https: httpsOptions
+    // https: httpsOptions
 });
 const start = () => {
     server.listen({ port: PORT, host: '0.0.0.0' }, (err, address) => {
@@ -56,7 +56,8 @@ await server.register(swagger, {
         },
         // when dockerized
         servers: [
-            { url: `https://localhost:${PORT}`, description: 'dev https' }
+            { url: `http://localhost:${PORT}`, description: 'dev http' }
+            //   { url: `https://localhost:${PORT}`, description: 'dev https' }
         ]
     }
 });
@@ -67,7 +68,16 @@ await server.register(swaggerUi, {
         docExpansion: 'list',
         deepLinking: false
     },
-    staticCSP: true
+    staticCSP: true,
+    transformStaticCSP: (header) => {
+        // aggiungi 'unsafe-inline' per gli style di swagger
+        // e consenti fetch verso la tua API
+        return header
+            .replace("style-src 'self' http:", "style-src 'self' http: 'unsafe-inline'")
+            //   .replace("style-src 'self' https:", "style-src 'self' https: 'unsafe-inline'")
+            .replace("default-src 'self'", "default-src 'self'; connect-src 'self' http://localhost:5000 http://127.0.0.1:5000");
+        //       .replace("default-src 'self'", "default-src 'self'; connect-src 'self' https://localhost:5000 https://127.0.0.1:5000")
+    },
     // transformSpecification, transformSpecificationClone… se servissero
 });
 // TODO - rivedere bene cors policy
@@ -76,6 +86,8 @@ await server.register(cors, {
     origin: [
         'https://localhost:5000',
         'https://127.0.0.1:5000',
+        'http://localhost:5000',
+        'http://127.0.0.1:5000',
         'http://localhost:5173', // tutto FE
         'http://127.0.0.1:5173',
         'https://localhost:5173',
