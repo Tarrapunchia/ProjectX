@@ -1,9 +1,10 @@
 import React, { useEffect } from 'react';
 import { MOCK_PROJECTS, MOCK_TASKS } from "../../data/mockData";
 import "./projectPage.css";
-import type { Organization, ProjectInfo } from '../../data/types';
+import type { Organization, ProjectInfo, ProjectTasks } from '../../data/types';
 import Category from './category';
 import ProgressBar from './progressBar';
+import TaskCard from './taskCard';
 // import helpers from './helpers';
 
 // per ora forzo orgId = 2
@@ -61,6 +62,9 @@ const ProjectsPage: React.FC<ProjectsPageProps> = ({ setActivePage, setSelectedP
 	let projList: ProjectInfo[]
 	if (orgFetched) { projList = orgInfo?.projects ?? [] }
 	else { projList = MOCK_PROJECTS}
+
+	let taskList: ProjectTasks[]
+	taskList = MOCK_TASKS
 
 	const [selectedCard, setSelectedCard] = React.useState<ProjectInfo | null>(null);
 	const [isExpanding, setIsExpanding] = React.useState(false);
@@ -125,7 +129,6 @@ const ProjectsPage: React.FC<ProjectsPageProps> = ({ setActivePage, setSelectedP
 								<p className="owner-info">{orgInfo?.name ?? 'Err'}</p>
 							</div>
 							<div className="description-row">Description: {selectedCard.description}</div>
-							{/* <p>Status: {selectedCard.status}</p> */}
 							<ProgressBar 
 								projectId={selectedCard.id}
 								createdAt={selectedCard.createdAt}
@@ -142,24 +145,7 @@ const ProjectsPage: React.FC<ProjectsPageProps> = ({ setActivePage, setSelectedP
 								<button onClick={handleClose}>Close</button>
 							</div>
 						</div>
-						<div className="tasks-info">
-							<h3>Tasks</h3>
-							{MOCK_TASKS
-								.filter((task) => task.projectId === selectedCard.id)
-								.map((task) => (
-									<div key={task.id} className="task-card">
-										<h3>{task.name}</h3>
-										<p>{task.description}</p>
-										<p>Created At: {new Date(task.createdAt).toLocaleDateString('it-IT')}</p>
-										<p>Due: {task.dueDate
-											? new Date(task.dueDate).toLocaleDateString('it-IT')
-											: 'N/A'}
-										</p>
-										<p>Status: {task.status}</p>
-									</div>
-								))
-							}
-						</div>
+						<TaskCard projectID={selectedCard.id} taskList={taskList} />
 					</div>
 				</div>
 			)}

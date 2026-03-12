@@ -21,7 +21,7 @@ export default function ProgressBar({ projectId, createdAt, closedAt, showDetail
 		<div className="progress-container">
 			<div className="progress-bar-container">
 				<div className="progress-bar-fill" style={{ width: `${percent}%` }}></div>
-				{showDetails && timePercent > 0 && (
+				{timePercent > 0 && (
 					<div className="progress-time-marker" style={{ left: `${timePercent}%` }}></div>
 				)}
 				<span className="progress-bar-label">

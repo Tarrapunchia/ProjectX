@@ -76,6 +76,7 @@ export type ProjectTasks = {
 	name: string,
 	status: 'ACTIVE' | 'COMPLETED' | 'REVIEW' | 'TODO',
 	description: string,
+	priority: 'NONE' | 'LOW' | 'MEDIUM' | 'HIGH' | 'CRITICAL',
 	createdAt: Date,
 	dueDate: Date | null,
 	closedAt: Date | null,
