@@ -16,5 +16,28 @@
         <li><a href="/chatNuda.html">Chat "nuda" (il messaggio si deve mandare raw)</a></li>
         <li><a href="/wsREADME.html">Readme del ws</a></li>
     </ul>
+  <h1>Test upload multipart/form-data</h1>
+
+  <form id="uploadForm">
+    <label for="apiUrl">API URL</label>
+    <input id="apiUrl" value="http://localhost:5000/api/v1/upload" />
+    <div class="hint">Cambia il path se la tua route ha un prefix diverso.</div>
+
+    <div class="row">
+      <div>
+        <label for="organizationId">organizationId</label>
+        <input id="organizationId" placeholder="es. 42" required />
+      </div>
+      <div>
+        <label for="projectId">projectId (opzionale)</label>
+        <input id="projectId" placeholder="es. 7" />
+      </div>
+    </div>
+
+    <label for="fileInput">File</label>
+    <input id="fileInput" type="file" required />
+
+    <button type="submit">Upload</button>
+  </form>
 </body>
 </html>

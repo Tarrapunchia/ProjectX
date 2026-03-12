@@ -1,3 +1,4 @@
+import { Priority } from "@prisma/client";
 const getProjTasksSchema = {
     description: 'Get a single project with participants',
     tags: ['tasks'],
@@ -39,8 +40,9 @@ const createTaskchema = {
             projId: { type: 'number' },
             status: { type: 'string' },
             description: { type: 'string' },
+            priority: { type: 'string' },
         },
-        required: ['name', 'projId', 'status'],
+        required: ['name', 'projId'],
     },
     response: {
         201: {
@@ -50,8 +52,9 @@ const createTaskchema = {
                 name: { type: 'string' },
                 projectId: { type: 'number' },
                 status: { type: 'string' },
+                priority: { type: 'string' },
             },
-            required: ['id', 'name', 'projectId', 'status'],
+            required: ['id', 'name', 'projectId', 'status', 'priority'],
         },
         400: {
             type: 'object',

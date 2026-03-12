@@ -71,6 +71,7 @@ const Getters = async (fastify, opts) => {
     fastify.get('/activeUser', { schema: userSchemas.getActiveUserProfile }, async (req, res) => {
         const id = getUserIdFromJWT(req, res, fastify);
         if (Number.isNaN(id) || !id) {
+            fastify.log.error("AAAAAAAAAAAAAAAAA" + id);
             res.code(400);
             return { error: 'User not connected' };
         }

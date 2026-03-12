@@ -15,6 +15,7 @@ import cors from '@fastify/cors';
 import fs from 'fs';
 import websocketPlugin from './plugins/websockets/websocket.js';
 import AuthGoogle from './routes/google/auth.js';
+import fastifyMultipart from '@fastify/multipart';
 const PORT = 5000;
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -38,6 +39,12 @@ const server = fastify({
     // per https
     // https: httpsOptions
 });
+// declare module 'fastify' {
+// 	interface FastifyRequest {
+// 		file: typeof import('@fastify/multipart').fastifyMultipart['file'];
+// 		files: typeof import ('@fastify/multipart').fastifyMultipart['files'];
+// 	}
+// }
 const start = () => {
     server.listen({ port: PORT, host: '0.0.0.0' }, (err, address) => {
         if (err) {
@@ -68,16 +75,16 @@ await server.register(swaggerUi, {
         docExpansion: 'list',
         deepLinking: false
     },
-    staticCSP: true,
-    transformStaticCSP: (header) => {
-        // aggiungi 'unsafe-inline' per gli style di swagger
-        // e consenti fetch verso la tua API
-        return header
-            .replace("style-src 'self' http:", "style-src 'self' http: 'unsafe-inline'")
-            //   .replace("style-src 'self' https:", "style-src 'self' https: 'unsafe-inline'")
-            .replace("default-src 'self'", "default-src 'self'; connect-src 'self' http://localhost:5000 http://127.0.0.1:5000");
-        //       .replace("default-src 'self'", "default-src 'self'; connect-src 'self' https://localhost:5000 https://127.0.0.1:5000")
-    },
+    // staticCSP: true,
+    // 	transformStaticCSP: (header) => {
+    //     // aggiungi 'unsafe-inline' per gli style di swagger
+    //     // e consenti fetch verso la tua API
+    //     return header
+    //       .replace("style-src 'self' http:", "style-src 'self' http: 'unsafe-inline'")
+    //     //   .replace("style-src 'self' https:", "style-src 'self' https: 'unsafe-inline'")
+    //       .replace("default-src 'self'", "default-src 'self'; connect-src 'self' http://localhost:5000 http://127.0.0.1:5000")
+    // //       .replace("default-src 'self'", "default-src 'self'; connect-src 'self' https://localhost:5000 https://127.0.0.1:5000")
+    //   },
     // transformSpecification, transformSpecificationClone… se servissero
 });
 // TODO - rivedere bene cors policy
@@ -111,6 +118,7 @@ await server.register(prismaPlugin);
 await server.register(fastifyWebsocket);
 await server.register(websocketPlugin);
 await server.register(AuthGoogle, { prefix: 'auth' });
+await server.register(fastifyMultipart, { limits: { fileSize: 100000000 } }); // massimo file da 100MB
 server.register(api, { prefix: 'api' });
 server.register(fastifyStatic, {
     root: path.join(__dirname, 'public'),

@@ -179,8 +179,8 @@ model ProjectParticipant {  // TABELLA PONTE
 enum RoleName {
   OWNER
   EDITOR
-  VIEWER
   SUPERVISOR
+  VIEWER
 }
 
 model Role {

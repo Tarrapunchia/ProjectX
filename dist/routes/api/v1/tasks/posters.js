@@ -1,6 +1,7 @@
 import fastify, {} from "fastify";
 import { getUserIdFromJWT } from "../../../../helpers/cookies.js";
 import { taskSchemas } from "./tasksSchema.js";
+import {} from "../../../../helpers/types.js";
 const Posters = async (fastify, opts) => {
     // // POST /api/v1/tasks/addTask
     fastify.post('/addTask', { schema: taskSchemas.createTaskchema }, async (req, res) => {
@@ -9,7 +10,7 @@ const Posters = async (fastify, opts) => {
             res.code(401);
             return { error: 'You must be logged in in order to create a Task' };
         }
-        const { name, projId, status, description } = req.body;
+        const { name, projId, status, description, priority } = req.body;
         if (!name || !projId) {
             res.code(400);
             return { error: 'All fields are required' };
@@ -46,8 +47,9 @@ const Posters = async (fastify, opts) => {
                     data: {
                         name,
                         projectId: projId,
-                        status: status,
-                        description: description !== null && description !== void 0 ? description : ''
+                        status: status !== null && status !== void 0 ? status : 'TODO',
+                        description: description !== null && description !== void 0 ? description : '',
+                        priority: priority !== null && priority !== void 0 ? priority : 'NONE'
                     },
                 });
                 // 3) aggiunge il creatore come participant OWNER

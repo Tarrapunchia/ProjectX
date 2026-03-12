@@ -1,3 +1,5 @@
+import { Priority } from "@prisma/client";
+
 type Schema = Record<string, any>
 
 const getProjTasksSchema: Schema = {
@@ -42,8 +44,9 @@ const createTaskchema: Schema = {
             projId: { type: 'number' },
             status: { type: 'string' },
             description: { type: 'string' },
+            priority: { type: 'string' },
         },
-        required: ['name', 'projId', 'status'],
+        required: ['name', 'projId'],
     },
     response: {
         201: {
@@ -53,8 +56,9 @@ const createTaskchema: Schema = {
                 name: { type: 'string' },
                 projectId: { type: 'number' },
                 status: { type: 'string' },
+                priority: { type: 'string' },
             },
-            required: ['id', 'name', 'projectId', 'status'],
+            required: ['id', 'name', 'projectId', 'status', 'priority'],
         },
         400: {
             type: 'object',

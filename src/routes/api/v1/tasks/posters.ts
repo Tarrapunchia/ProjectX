@@ -1,11 +1,12 @@
 import fastify, { type FastifyInstance, type FastifyPluginAsync } from "fastify";
 import { getUserIdFromJWT } from "../../../../helpers/cookies.js";
 import { taskSchemas } from "./tasksSchema.js";
+import { type status, type priority } from "../../../../helpers/types.js";
 
 const Posters: FastifyPluginAsync = async (fastify: FastifyInstance, opts) => {
     // // POST /api/v1/tasks/addTask
     fastify.post<{
-    Body: { name: string; projId: number, status: 'TODO' | 'ACTIVE' | 'REVIEW' | 'CLOSED', description?: 'string' }
+    Body: { name: string; projId: number, status: status, description?: 'string', priority?: priority }
     }>(
     '/addTask',
     { schema: taskSchemas.createTaskchema },
@@ -16,7 +17,7 @@ const Posters: FastifyPluginAsync = async (fastify: FastifyInstance, opts) => {
             return { error: 'You must be logged in in order to create a Task' }
         }
 
-        const { name, projId, status, description } = req.body
+        const { name, projId, status, description, priority } = req.body
 
         if (!name || !projId) {
             res.code(400)
@@ -59,8 +60,9 @@ const Posters: FastifyPluginAsync = async (fastify: FastifyInstance, opts) => {
                     data: {
                         name,
                         projectId: projId,
-                        status: status,
-                        description: description ?? ''
+                        status: status ?? 'TODO',
+                        description: description ?? '',
+                        priority: priority ?? 'NONE'
                     },
                 })
 
