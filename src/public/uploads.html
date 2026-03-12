@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+      <h1>Test upload multipart/form-data</h1>
+
+  <form id="uploadForm">
+    <label for="apiUrl">API URL</label>
+    <input id="apiUrl" value="http://localhost:5000/api/upload" />
+    <div class="hint">Cambia il path se la tua route ha un prefix diverso.</div>
+
+    <div class="row">
+      <div>
+        <label for="organizationId">organizationId</label>
+        <input id="organizationId" placeholder="es. 42" required />
+      </div>
+      <div>
+        <label for="projectId">projectId (opzionale)</label>
+        <input id="projectId" placeholder="es. 7" />
+      </div>
+    </div>
+
+    <label for="fileInput">File</label>
+    <input id="fileInput" type="file" required />
+
+    <button type="submit">Upload</button>
+  </form>
+
+  <h3>Risposta</h3>
+  <pre id="out">—</pre>
+
+  <script>
+    const form = document.getElementById('uploadForm');
+    const out = document.getElementById('out');
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      out.textContent = 'Uploading...';
+
+      const apiUrl = document.getElementById('apiUrl').value.trim();
+      const organizationId = document.getElementById('organizationId').value.trim();
+      const projectId = document.getElementById('projectId').value.trim();
+      const fileInput = document.getElementById('fileInput');
+
+      if (!organizationId) {
+        out.textContent = 'organizationId è obbligatorio';
+        return;
+      }
+      if (!fileInput.files || fileInput.files.length === 0) {
+        out.textContent = 'Seleziona un file';
+        return;
+      }
+
+      const fd = new FormData();
+      fd.append('organizationId', organizationId);
+      if (projectId) fd.append('projectId', projectId);
+      fd.append('file', fileInput.files[0]);
+
+      try {
+        const resp = await fetch('https://localhost:5000/api/uploads', {
+          method: 'POST',
+          body: fd,
+          credentials: 'include', // importante se usi cookie HttpOnly "session"
+        });
+
+        const text = await resp.text();
+        // prova a parse JSON se possibile
+        try {
+          const json = JSON.parse(text);
+          out.textContent = `HTTP ${resp.status}\n` + JSON.stringify(json, null, 2);
+        } catch {
+          out.textContent = `HTTP ${resp.status}\n` + text;
+        }
+      } catch (err) {
+        out.textContent = String(err);
+      }
+    });
+  </script>
+</body>
+</html>
