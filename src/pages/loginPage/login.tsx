@@ -16,7 +16,8 @@ function login()
     const pwRef = useRef<HTMLInputElement>(null);
     const navigate = useNavigate();
     // function handleLogin() { navigate("/dashboard"); }
-    async function handleLogin() {
+    async function handleLogin() 
+	{
         const LOGIN_URL = 'https://localhost:5000/api/v1/users/login'
         const DASHBOARD = '/dashboard'
         let res: any
@@ -44,42 +45,20 @@ function login()
         alert('Valid Credentials')
         // chiamata per WS
         navigate(DASHBOARD)
-     }
+    }
+
+	function handleGoogleLogin()
+	{
+		window.location.href = "https://localhost:5000/auth/google";
+	}
+
     function handleSignUp() { navigate("/SignUp"); }
-
-    useEffect(() => 
-    {
-        const script = document.createElement("script");
-        script.src = "https://accounts.google.com/gsi/client";
-        script.async = true;
-        script.defer = true;
-
-        script.onload = () => 
-        {
-            if (window.google && googleDiv.current) 
-            {
-                window.google.accounts.id.initialize({
-                    client_id: "IL_TUO_CLIENT_ID",
-                    callback: (response: any) => {
-                        console.log("Google response:", response);
-                        navigate("/dashboard");
-                    }
-                });
-
-                window.google.accounts.id.renderButton(
-                    googleDiv.current,
-                    { theme: "outline", size: "large", width: 300 }
-                );
-            }
-        };
-        document.body.appendChild(script);
-    }, []);
 
     return (
         <div className="login-layout">
             <div className="login-box">
                 <h1>Login to your account!</h1>
-                <div ref={googleDiv}></div>
+                <button onClick={handleGoogleLogin}>Accedi con Google</button>
                 <span className="divider" > OR </span>
                 <input ref={emailRef} type="text" placeholder="E-mail" className='input-field email-field'/>
                 <input ref={pwRef} type="password" placeholder="Password" className='input-field'/>
