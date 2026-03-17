@@ -9,7 +9,11 @@ import { pipeline } from 'stream';
 import { promisify } from 'util';
 import path from 'path';
 import fs from 'fs';
+import { fastify } from 'fastify';
 import { getUserIdFromJWT } from '../../helpers/cookies.js';
+import { error } from 'console';
+import { isRegExp } from 'util/types';
+import { asyncWrapProviders } from 'async_hooks';
 const pump = promisify(pipeline);
 const Upload = async (fastify) => {
     fastify.post('/', async (request, reply) => {

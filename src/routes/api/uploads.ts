@@ -2,8 +2,11 @@ import { pipeline } from 'stream'
 import { promisify } from 'util'
 import path from 'path'
 import fs from 'fs'
-import type { FastifyInstance, FastifyPluginAsync } from 'fastify'
+import { fastify, type FastifyInstance, type FastifyPluginAsync } from 'fastify'
 import { getUserIdFromJWT } from '../../helpers/cookies.js'
+import { error } from 'console'
+import { isRegExp } from 'util/types'
+import { asyncWrapProviders } from 'async_hooks'
 
 const pump = promisify(pipeline)
 
@@ -83,5 +86,6 @@ const Upload: FastifyPluginAsync = async (fastify: FastifyInstance) => {
     }
   })
 }
+
 
 export default Upload
