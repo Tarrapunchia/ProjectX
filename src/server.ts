@@ -24,12 +24,18 @@ const __dirname = path.dirname(__filename)
 // per TLS (metto certs in ./certs, per ora generati con mkcert, forse conviene
 // fare reverse proxy da nginx e poi lasciare fastify normale?)
 const httpsOptions = {
-	key: fs.readFileSync(path.join(__dirname, 'certs', 'localhost-key.pem')),
-  	cert: fs.readFileSync(path.join(__dirname, 'certs', 'localhost.pem')),
+	// key: fs.readFileSync(path.join(__dirname, 'certs', 'localhost-key.pem')),
+  	// cert: fs.readFileSync(path.join(__dirname, 'certs', 'localhost.pem')),
+	key: fs.readFileSync(path.join('certs', 'localhost-key.pem')),
+  	cert: fs.readFileSync(path.join('certs', 'localhost.pem')),
 }
 
+const isProd = process.env.NODE_ENV === 'production';
+
 const server = fastify({
-	logger: {
+	logger: isProd
+	? true
+	: {
 		transport: {
 			target: 'pino-pretty',
 			options: {

@@ -17,11 +17,16 @@ Then you can test the endpoints (the db is empty otherwise)
 endef
 export USAGE_BODY
 
-all:
+dev:
 	@npm i
 	@chmod -x init.sh
 	@echo $$LAUNCH_BODY
 	@echo $$USAGE_BODY
+
+docker:
+	./init_certs.sh
+	docker build -t backend:latest .
+	docker run --name backend -p 5000:5000 backend:latest
 
 fclean:
 	@rm -rf ./node_modules

@@ -8,7 +8,7 @@
     "build:ts:watch": "tsc -p tsconfig.json -w",
     "build": "npm run build:ts",
     "start": "node dist/server.js",
-    "dev": "nodemon --watch src --ext ts --exec \"mkdir -p dist/certs && cp ./certs/* dist/certs && npm run build:ts && cp src/public/* dist/public/ && node dist/server.js\"",
+    "dev": "nodemon --watch src --ext ts --exec \"npm run build:ts && cp src/public/* dist/public/ && node dist/server.js\"",
     "clean": "rm -rf dist/* && rm -rf node_modules && rm package-lock.json"
   },
   "keywords": [],
