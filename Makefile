@@ -30,4 +30,7 @@ docker:
 
 fclean:
 	@rm -rf ./node_modules
+	@rm -rf ./certs
 	@rm package-lock.json
+	@docker stop backend
+	@docker rm backend
