@@ -35,7 +35,7 @@ model User {
   state        String?
   jobQualifier String
 
-  avatar       Bytes
+  // avatar       Bytes
 
   hashedPw     String?          // queste tre sono mutualmente opzionali: se si fa reg con google non serve pw e viceversa
   googleId     String?
