@@ -115,7 +115,11 @@ await server.register(fastifyWebsocket);
 await server.register(websocketPlugin);
 
 await server.register(AuthGoogle, { prefix: 'auth'})
-await server.register(fastifyMultipart, {limits:{fileSize: 100000000}}); // massimo file da 100MB
+await server.register(fastifyMultipart, {  
+	limits: {
+		fileSize: 100 * 1024 * 1024, // 100 MB
+		files: 1,
+  },}); // massimo file da 100MB
 server.register(api, { prefix: 'api'})
 server.register(fastifyStatic, {
 	root: path.join(__dirname, 'public'),

@@ -61,7 +61,7 @@
       fd.append('file', fileInput.files[0]);
 
       try {
-        const resp = await fetch('https://localhost:5000/api/uploads', {
+        const resp = await fetch('https://localhost:5000/api/v1/files/', {
           method: 'POST',
           body: fd,
           credentials: 'include', // importante se usi cookie HttpOnly "session"

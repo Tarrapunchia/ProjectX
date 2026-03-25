@@ -4,9 +4,9 @@ import Upload from "./uploads.js";
 import Delete from "./deletes.js"
 
 const Api: FastifyPluginAsync = async (fastify: FastifyInstance, opts) => {
-    fastify.register(V1, { prefix: 'v1'}),
-    fastify.register(Upload, {prefix: 'uploads'})
-	fastify.register(Delete)
+    fastify.register(V1, { prefix: 'v1'})
+    // fastify.register(Upload, {prefix: 'uploads'})
+	// fastify.register(Delete)
 }
 
 export default Api

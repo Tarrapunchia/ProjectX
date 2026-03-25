@@ -1,0 +1,6 @@
+UserBenchmarks: Game 99%, Desk 112%, Work 100%
+CPU: Intel Core i7-13620H - 110.5%
+GPU: Nvidia RTX 4050 (Laptop) - 85.2%
+SSD: Nvme SAMSUNG MZVL81T0HELB-00BTW 1TB - 332.6%
+RAM: Micron MTC4C10163S1SC56BD1 2x8GB - 139.9%
+MBD: MSI MS-15K1
