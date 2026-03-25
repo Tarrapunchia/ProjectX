@@ -25,11 +25,11 @@ export default function Category({ label, status, projList, isExpanded, onToggle
 				</span>
 			</p>
 			<div className={`cards-container ${isExpanded ? 'expanded' : 'collapsed' }`}>
-				<div className="cards-inner">
+				<div className="overflow-hidden">
 					{filtered.map((project) => (
 						<div key={project.id} className="flex flex-col bg-bg-color h-[250px] w-[98%] mx-auto mb-[6px] rounded-[2px]" onClick={(e) => onCardClick(project, e)}>
-							<h3>{project.name}</h3>
-							<p className="project-description">{project.description}</p>
+							<h3 className="text-[25px]">{project.name}</h3>
+							<p className="line-clamp-2 break-words font-light">{project.description}</p>
 							<ProgressBar projectId={project.id} createdAt={project.createdAt} closedAt={project.closedAt} />
 						</div>
 					))}
