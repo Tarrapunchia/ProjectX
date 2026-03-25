@@ -36,6 +36,9 @@ const Delete: FastifyPluginAsync = async (fastify: FastifyInstance) => {
 	}
 	try {
 		await fs.promises.unlink(filePath)
+		const dirPath = path.join("uploads", organizationId)
+		const dir = await fs.promises.readdir(dirPath)
+		if (dir.length === 0) await fs.promises.rmdir(dirPath)
 		return reply.code(200).send({ success: true })
 	} catch (err) {
 		fastify.log.error(err)
@@ -85,6 +88,14 @@ const Delete: FastifyPluginAsync = async (fastify: FastifyInstance) => {
 	}
 	try {
 		await fs.promises.unlink(filePath)
+		const dirPath = path.join("uploads", organizationId, projectId)
+		const dir = await fs.promises.readdir(dirPath)
+		if (dir.length === 0){
+			await fs.promises.rmdir(dirPath)
+			const orgPath = path.join("uploads", organizationId)
+			const org = await fs.promises.readdir(orgPath)
+			if (org.length === 0) await fs.promises.rmdir(orgPath)
+		}
 		return reply.code(200).send({ success: true })
 	} catch (err) {
 		fastify.log.error(err)
