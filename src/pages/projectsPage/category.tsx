@@ -16,18 +16,18 @@ export default function Category({ label, status, projList, isExpanded, onToggle
 	const filtered = projList.filter((p) => p.status === status);
 
 	return (
-		<div className="category">
-			<p onClick={onToggle} style={{ cursor: 'pointer' }}>
-				<span className="category-title">{label}</span>
-				<span className="category-count">({filtered.length})</span>
-				<span className="expandable-arrow">
+		<div className="min-w-[320px] w-[19vw] bg-category-bg-color rounded-[2px]">
+			<p onClick={onToggle} className="flex items-center cursor-pointer min-h-[40px]">
+				<span className="inline-block ml-[1.5%] font-medium">{label}</span>
+				<span className="ml-[5px] font-extralight">({filtered.length})</span>
+				<span className="ml-auto mr-[10px]">
 					{isExpanded ? <FiChevronUp /> : <FiChevronDown />}
 				</span>
 			</p>
 			<div className={`cards-container ${isExpanded ? 'expanded' : 'collapsed' }`}>
 				<div className="cards-inner">
 					{filtered.map((project) => (
-						<div key={project.id} className="project-card" onClick={(e) => onCardClick(project, e)}>
+						<div key={project.id} className="flex flex-col bg-bg-color h-[250px] w-[98%] mx-auto mb-[6px] rounded-[2px]" onClick={(e) => onCardClick(project, e)}>
 							<h3>{project.name}</h3>
 							<p className="project-description">{project.description}</p>
 							<ProgressBar projectId={project.id} createdAt={project.createdAt} closedAt={project.closedAt} />

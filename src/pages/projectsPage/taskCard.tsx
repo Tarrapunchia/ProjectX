@@ -26,11 +26,13 @@ export default function TaskCard ({ projectID, taskList } : TaskCardProps) {
 				return (
 				<div key={task.id} className="task-card">
 					<h3>{task.name}</h3>
-					<p>{task.description}</p>
+					<div className="task-description">{task.description}</div>
 					<div className="task-progress-container">
 						<div className="task-progress-fill" style={{ width: `${progress}%` }} />
-						<p>Created At: {new Date(task.createdAt).toLocaleDateString('it-IT')}</p>
-						<p>Due: {task.dueDate
+					</div>
+					<div className="task-dates">
+						<p>{new Date(task.createdAt).toLocaleDateString('it-IT')}</p>
+						<p>{task.dueDate
 							? new Date(task.dueDate).toLocaleDateString('it-IT')
 							: 'N/A'}
 						</p>
