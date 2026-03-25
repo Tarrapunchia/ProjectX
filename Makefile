@@ -26,7 +26,12 @@ dev:
 docker:
 	./init_certs.sh
 	docker build -t backend:latest .
-	docker run --name backend -p 5000:5000 backend:latest
+	docker run HTTPS=true --name backend -p 5000:5000 backend:latest
+
+docker-dev:
+	./init_certs.sh
+	docker build -t backend:latest .
+	docker run --name backend -p 5000:5000 backend:latest 
 
 fclean:
 	@rm -rf ./node_modules

@@ -31,6 +31,7 @@ const httpsOptions = {
 }
 
 const isProd = process.env.NODE_ENV === 'production';
+const SSL = process.env.HTTPS
 
 const server = fastify({
 	logger: isProd
@@ -47,7 +48,7 @@ const server = fastify({
 	caseSensitive: false,
 
 	// per https
-	https: httpsOptions
+	https: (SSL)? httpsOptions: null
 })
 
 const start = () => {
@@ -58,6 +59,8 @@ const start = () => {
 	)
 }
 
+let url = (SSL)? `https://localhost:${PORT}`: `http://localhost:${PORT}`
+
 await server.register(swagger, {
 	openapi: {
 		info: {
@@ -67,7 +70,7 @@ await server.register(swagger, {
 		},
 		// when dockerized
 		servers: [
-		  { url: `https://localhost:${PORT}`, description: 'dev https' }
+		  { url: url, description: 'dev https' }
 		]
 	}
 })
