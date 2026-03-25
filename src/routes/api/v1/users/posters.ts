@@ -1,6 +1,7 @@
 import fastify, { type FastifyInstance, type FastifyPluginAsync } from "fastify";
 import { userSchemas } from "./usersSchemas.js";
 import { getUserIdFromJWT, setAuthCookie } from "../../../../helpers/cookies.js";
+import { genSaltSync, hashSync, compareSync } from "bcrypt-ts";
 
 const Posters: FastifyPluginAsync = async (fastify: FastifyInstance, opts) => {
     // // POST /api/v1/users/addUser
@@ -48,7 +49,8 @@ const Posters: FastifyPluginAsync = async (fastify: FastifyInstance, opts) => {
             }
 
             // Hash password (placeholder)
-            const hashedPw = password
+            const salt = genSaltSync(10)
+            const hashedPw = hashSync(password, salt)
 
             try {
             const user = await fastify.prisma.user.create({
@@ -118,8 +120,7 @@ const Posters: FastifyPluginAsync = async (fastify: FastifyInstance, opts) => {
         }
 
         // verifica password
-        // TODO: POI CAMBIARE GESTIONE PASSWORD UTENTE CON BCRYPT (per hash pw)
-        if (!user.hashedPw || user.hashedPw !== password) {
+        if (!user.hashedPw || !compareSync(password, String(user.hashedPw))) {
             res.code(401)
             return { error: 'Invalid credentials' }
         }

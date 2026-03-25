@@ -1,10 +1,10 @@
 import { fastify, type FastifyInstance, type FastifyPluginAsync } from 'fastify'
 import path from 'path'
 import fs from 'fs'
-import { getUserIdFromJWT } from '../../helpers/cookies.js'
+import { getUserIdFromJWT } from '../../../../helpers/cookies.js'
 
 const Delete: FastifyPluginAsync = async (fastify: FastifyInstance) => {
-	fastify.delete('/files/:organizationId/:filename', async (request, reply) => {
+	fastify.delete('/:organizationId/:filename', async (request, reply) => {
 	const { organizationId, filename } = request.params as { organizationId: string, filename: string}
 	const filePath = path.join('uploads', organizationId, filename)
 	const userId = getUserIdFromJWT(request, reply, fastify)
@@ -46,7 +46,7 @@ const Delete: FastifyPluginAsync = async (fastify: FastifyInstance) => {
 	}
   })
 
-  fastify.delete('/files/:organizationId/:projectId/:filename', async (request, reply) => {
+  fastify.delete('/:organizationId/:projectId/:filename', async (request, reply) => {
 	const { organizationId, projectId, filename } = request.params as { organizationId: string, projectId: string, filename: string};
 	const filePath = path.join('uploads', organizationId, projectId, filename)
 	const userId = getUserIdFromJWT(request, reply, fastify)

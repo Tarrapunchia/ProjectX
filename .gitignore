@@ -3,6 +3,8 @@ node_modules
 /prisma/migrations/
 /prisma/dev.db
 package-lock.json
+dist
+certs
 # Keep environment variables out of version control
 # .env
 

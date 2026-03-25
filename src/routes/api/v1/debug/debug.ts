@@ -1,6 +1,7 @@
 import fastify, { type FastifyInstance, type FastifyPluginAsync } from "fastify";
 import { userSchemas } from "../users/usersSchemas.js";
 import { RoleName, Status, FriendshipStatus } from "@prisma/client";
+import { genSaltSync, hashSync } from "bcrypt-ts";
 
 const Debug: FastifyPluginAsync = async (fastify: FastifyInstance, opts) => {
 
@@ -312,6 +313,9 @@ const Debug: FastifyPluginAsync = async (fastify: FastifyInstance, opts) => {
         // 3) USERS random
         const users: any[] = []
         for (let i = 1; i <= USERS_N; i++) {
+        const password = `hash_${randInt(100000, 999999)}`
+        const salt = genSaltSync(10);
+        const hashedPw = hashSync(password, salt);
         const u = await prisma.user.create({
             data: {
             name: pick(firstNames),
@@ -323,8 +327,7 @@ const Debug: FastifyPluginAsync = async (fastify: FastifyInstance, opts) => {
             cap: maybeNull(String(randInt(10000, 99999)), 0.6),
             state: maybeNull('IT', 0.6),
             jobQualifier: pick(jobQuals),
-
-            hashedPw: maybeNull(`hash_${randInt(100000, 999999)}`, 0.8),
+            hashedPw: hashedPw,
             googleId: maybeNull(`google_${randInt(100000, 999999)}`, 0.3),
             googleSecret: maybeNull(`secret_${randInt(100000, 999999)}`, 0.3),
             isLoggedIn: false,
@@ -343,6 +346,8 @@ const Debug: FastifyPluginAsync = async (fastify: FastifyInstance, opts) => {
 
         const fixedUsers: any[] = []
         for (const fu of fixedUsersData) {
+        const salt = genSaltSync(10)
+        const hashedPw = hashSync("1234", salt)
         const u = await prisma.user.create({
             data: {
             name: fu.name,
@@ -354,7 +359,7 @@ const Debug: FastifyPluginAsync = async (fastify: FastifyInstance, opts) => {
             cap: '50100',
             state: 'IT',
             jobQualifier: 'developer',
-            hashedPw: '1234',
+            hashedPw: hashedPw,
             googleId: null,
             googleSecret: null,
             isLoggedIn: false,
