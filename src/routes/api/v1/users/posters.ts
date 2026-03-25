@@ -131,17 +131,6 @@ const Posters: FastifyPluginAsync = async (fastify: FastifyInstance, opts) => {
             data: { isLoggedIn: true },
         })
 
-        // // JWT payload MEGLIO FARLO HTTP ONLY
-        // const token = fastify.jwt.sign(
-        //     {
-        //         userId: user.id,
-        //         email: user.email,
-        //         name: user.name,
-        //         surname: user.surname,
-        //     },
-        //     { expiresIn: '24h' }
-        // )
-
         // HTTP ONLY
         const token = fastify.jwt.sign({ userId: user.id }, { expiresIn: '24h' })
         setAuthCookie(res, token)
