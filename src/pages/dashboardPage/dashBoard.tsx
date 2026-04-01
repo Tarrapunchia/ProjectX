@@ -6,6 +6,7 @@ import Footer from '../../components/footer';
 import ProfilePage from '../profilePage/profilePage';
 import ProjectsPage from '../projectsPage/projectsPage';
 import ChatPage from '../chatRoomPage/chatRoomPage';
+import Dashboard from '../dashboardProfile/dashboardProfile'
 import type { ProjectInfo } from '../../data/types';
 import { useLocation, useNavigate } from "react-router-dom";
 
@@ -18,10 +19,11 @@ function dashBoard() {
             <Header setActivePage={setActivePage} selectedProject={selectedProject}/>
             <Sidebar setActivePage={setActivePage} />
             <main className="main-content">
-                { activePage === 'dashboard' && <p>Dashboard (WIP)</p> }
+                { activePage === 'dashboard' && <Dashboard /> }
                 { activePage === 'documents' && <p>Documents (WIP)</p> }
                 { activePage === 'tasks' && <p>Tasks (WIP)</p>}
                 {/* { activePage === 'organization' && <ProjectsPage setActivePage={setActivePage} setSelectedProject={setSelectedProject}/> } */}
+
                 { activePage === 'projects' && <ProjectsPage setActivePage={setActivePage} setSelectedProject={setSelectedProject}/> }
                 { activePage === 'chat' && <ChatPage selectedProject={selectedProject}/> }
                 { activePage === 'files' && <p>Files (WIP)</p> }

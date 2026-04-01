@@ -60,3 +60,11 @@
 ## Chat
 
 * chat a "pallini"
+
+// to do: dashboard alla jira
+
+. calendario: deadline task (colore unico, con finestra al hover), eventi (meeting, codereview) in alto a sinistra
+
+. grafico a torta sulla priorità delle task in basso a sinistra
+
+. tutte le nitifiche elencate tutto a destra
