@@ -107,6 +107,14 @@ enum Status {
   CLOSED
 }
 
+enum Priority {
+  NONE
+  LOW
+  MEDIUM
+  HIGH
+  CRITICAL
+}
+
 model Task {
   id             Int    @id @default(autoincrement())
   name           String @unique
@@ -115,12 +123,14 @@ model Task {
   project        Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
 
   status         Status
+  priority       Priority @default(NONE)
   description    String?
 
   participants   TaskParticipant[]
   // chatRooms      ChatRoom[]
 
   createdAt      DateTime @default(now())
+  dueDate        DateTime?
   closedAt       DateTime?
 }
 

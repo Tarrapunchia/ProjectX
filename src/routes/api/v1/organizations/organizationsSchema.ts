@@ -29,6 +29,50 @@ const orgResponse = {
     }
 };
 
+const singleOrgResponse = {
+    id: { type: 'number' },
+    name: { type: 'string' },
+    email: { type: 'string', format: 'email' },
+    phone: { type: 'string' },
+
+    city: { type: 'string', nullable: true },
+    address: { type: 'string', nullable: true },
+    cap: { type: 'string', nullable: true },
+    state: { type: 'string', nullable: true },
+    ownerId: { type: 'number'},
+    projects: {
+        type: 'array',
+        items: {
+            type: 'object',
+            properties: {
+                id: { type: 'number' },
+                name: { type: 'string' },
+                status: { type: 'string' },
+                description: { type: 'string', nullable: true },
+                createdAt: { type: 'string', format: 'date-time' },
+                closedAt: { type: 'string', format: 'date-time' },
+                tasks: {
+                    type: 'array',
+                    items: {
+                        type: 'object',
+                        properties: {
+                            id: { type: 'number' },
+                            projectId: { type: 'number' },
+                            name: { type: 'string' },
+                            status: { type: 'string' },
+                            priority: { type: 'string' },
+                            dueDate: { type: 'string', format: 'date-time'},
+                            createdAt: { type: 'string', format: 'date-time'},
+                            closedAt: { type: 'string', format: 'date-time'},
+                            description: { type: 'string', nullable: true },
+                        }
+                    }
+                }
+            }
+        }
+    }
+};
+
 const orgCreation = {
     id: { type: 'number' },
     name: { type: 'string' },
@@ -50,7 +94,7 @@ const getAllOrgsSchema: Schema = {
             items: {
                 type: 'object',
                 properties: orgResponse,
-                required: ['id', 'name', 'email', 'phone', 'city', 'address', 'cap', 'state', 'ownerId'],
+                required: ['id', 'name', 'email', 'phone', 'ownerId'],
             },
         },
     },
@@ -69,7 +113,7 @@ const getOrgProfileById: Schema = {
     response: {
         200: {
             type: 'object',
-            properties: orgResponse,
+            properties: singleOrgResponse,
             required: ['id', 'name', 'email', 'phone', 'city', 'address', 'cap', 'state', 'ownerId'],
         },
         400: {

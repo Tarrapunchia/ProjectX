@@ -17,14 +17,18 @@ const Getters: FastifyPluginAsync = async (fastify: FastifyInstance, opts) => {
         async (req, res) => {
             const id = Number(req.params.id)
             if (Number.isNaN(id)) {
-            res.code(400)
-            return { error: 'invalid id' }
+                res.code(400)
+                return { error: 'invalid id' }
             }
 
             const org = await fastify.prisma.organization.findUnique({
                 where: { id },
                 include: {
-                    projects: true
+                    projects: {
+                        include: {
+                            tasks: true
+                        }
+                    }
                 }
             })
 
@@ -33,7 +37,7 @@ const Getters: FastifyPluginAsync = async (fastify: FastifyInstance, opts) => {
                 return { error: 'Organization not found' }
             }
 
-            return {
+            const result = {
                 id: org.id,
                 name: org.name,
                 email: org.email,
@@ -43,8 +47,27 @@ const Getters: FastifyPluginAsync = async (fastify: FastifyInstance, opts) => {
                 cap: org.cap,
                 state: org.state,
                 ownerId: org.ownerId,
-                projects: org.projects
+                projects: org.projects.map((p) => ({
+                    id: p.id,
+                    name: p.name,
+                    status: p.status,
+                    description: p.description,
+                    createdAt: p.createdAt,
+                    closedAt: p.closedAt,
+                    tasks: p.tasks.map((t) => ({
+                        id: t.id,
+                        projectId: p.id,
+                        name: t.name,
+                        status: t.status,
+                        priority: t.priority,
+                        dueDate: t.dueDate,
+                        createdAt: t.createdAt,
+                        closedAt: t.closedAt,
+                        description: t.description,
+                    }))
+                }))
             }
+            return result
         }
     )
 
