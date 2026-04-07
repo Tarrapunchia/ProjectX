@@ -23,13 +23,13 @@ const Getters: FastifyPluginAsync = async (fastify: FastifyInstance, opts) => {
             fastify.prisma.friendship.findMany({
                 where: { senderId: userId, status: status },
                 include: {
-                receiver: { select: { id: true, name: true, surname: true, email: true, jobQualifier: true } },
+                receiver: { select: { id: true, name: true, surname: true, email: true, jobQualifier: true, isLoggedIn: true, avatarUrl: true } },
                 },
             }),
             fastify.prisma.friendship.findMany({
                 where: { receiverId: userId, status: status },
                 include: {
-                sender: { select: { id: true, name: true, surname: true, email: true, jobQualifier: true } },
+                sender: { select: { id: true, name: true, surname: true, email: true, jobQualifier: true, isLoggedIn: true, avatarUrl: true } },
                 },
             }),
             ])

@@ -35,6 +35,8 @@ model User {
   state        String?
   jobQualifier String
 
+  avatarUrl    String   @default("/avatar/default.png")
+
   // avatar       Bytes
 
   hashedPw     String?          // queste tre sono mutualmente opzionali: se si fa reg con google non serve pw e viceversa

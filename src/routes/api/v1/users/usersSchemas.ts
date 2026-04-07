@@ -24,6 +24,8 @@ const userResponse = {
 
     createdAt: { type: 'string', format: 'date-time' },
     updatedAt: { type: 'string', format: 'date-time' },
+
+    avatar: { type: 'string' }
     };
 
     const friend = {
@@ -90,6 +92,7 @@ const userProfileResponse = {
             isLoggedIn: { type: 'boolean' },
             createdAt: { type: 'string', format: 'date-time' },
             updatedAt: { type: 'string', format: 'date-time' },
+            avatar: { type: 'string' },
 
             organizations: {
             type: 'array',
@@ -147,7 +150,8 @@ const userProfileResponse = {
             'updatedAt',
             'organizations',
             'projects',
-            'tasks'
+            'tasks',
+            'avatar'
         ],
         },
         400: {
@@ -381,7 +385,7 @@ const getUserProjects: Schema = {
       items: {
         type: 'object',
         properties: {
-          roleId: { type: 'number' }, // era string ❌
+          roleId: { type: 'number' },
           project: {
             type: 'object',
             properties: {

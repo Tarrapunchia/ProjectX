@@ -55,6 +55,7 @@ const Getters: FastifyPluginAsync = async (fastify: FastifyInstance, opts) => {
                     isLoggedIn: user.isLoggedIn,
                     createdAt: user.createdAt,
                     updatedAt: user.updatedAt,
+                    avatar: user.avatarUrl,
 
                     organizations: user.memberships.map((m: any) => ({
                         id: m.organization.id,
@@ -137,6 +138,7 @@ const Getters: FastifyPluginAsync = async (fastify: FastifyInstance, opts) => {
                             isLoggedIn: user.isLoggedIn,
                             createdAt: user.createdAt,
                             updatedAt: user.updatedAt,
+                            avatar: user.avatarUrl,
                             organizations: user.memberships.map((m: any) => ({
                             id: m.organization.id,
                             name: m.organization.name,
@@ -164,6 +166,62 @@ const Getters: FastifyPluginAsync = async (fastify: FastifyInstance, opts) => {
                         }))
                         }})
                     return res.send(transaction)
+                } catch (error) {
+                    res.code(400)
+                    return res.send({ error: error})
+                }
+        })
+
+        // GET /api/v1/users/activeUserAvatar
+        fastify.get(
+            '/activeUserAvatar',
+            { schema: {
+                description: 'Fetch a user\'s avatar url',
+                tags: ['users'],
+                response: {
+                    200: {
+                        type: 'object',
+                        properties: {
+                            email: { type: 'string', format: 'email' },
+                            avatar: { type: 'string' }
+                        },
+                        required: ['email', 'avatar'],
+                    },
+                    404: {
+                        type: 'object',
+                        properties: {
+                            error: { type: 'string' },
+                        },
+                        required: ['error'],
+                    },
+                    400: {
+                        type: 'object',
+                        properties: {
+                            error: { type: 'string' },
+                        },
+                        required: ['error'],
+                    }
+                }
+            } },
+            async (req, res) => {
+                const id = getUserIdFromJWT(req, res, fastify)
+                if (Number.isNaN(id) || !id) {
+                    res.code(400)
+                    return { error: 'User not connected' }
+                }
+                try {
+                    const user = await fastify.prisma.user.findUnique({
+                        where: { id },
+                        select: { email: true, avatarUrl: true }
+                    })
+                    if (!user) {
+                        res.code(404)
+                        return { error: 'User not found' }
+                    }
+                    return {
+                        email: user.email,
+                        avatar: user.avatarUrl
+                    }
                 } catch (error) {
                     res.code(400)
                     return res.send({ error: error})
@@ -207,7 +265,8 @@ const Getters: FastifyPluginAsync = async (fastify: FastifyInstance, opts) => {
                 surname: u.surname,
                 email: u.email,
                 jobQualifier: u.jobQualifier,
-                isLoggedIn: u.isLoggedIn
+                isLoggedIn: u.isLoggedIn,
+                avatar: u.avatarUrl
             }))
     
             return reply.send(result)
