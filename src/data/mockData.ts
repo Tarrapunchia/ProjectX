@@ -1,3 +1,4 @@
+import consts from './consts';
 import type { ProfileUser, Projects, Friend, ProjectInfo, ProjectTasks, userInfos, FriendList } from './types';
 
 export const AVATAR = 'https://picsum.photos/id/64/150/150'
@@ -13,6 +14,7 @@ export const MOCK_USER: userInfos = {
 	state: 'Italy',
 	address: 'Via del Tiratoio 1',
 	jobQualifier: 'Developer',
+	avatar: `https://picsum.photos/id/64/150/150`,
 	isLoggedIn: true,
 	createdAt: new Date,
 	updatedAt: new Date,
@@ -47,11 +49,11 @@ export const MOCK_TASKS: ProjectTasks[] = [
 	{id: '4-0', projectId: '4', name: 'task4', status: 'COMPLETED', description: 'task description', createdAt: new Date('2025-08-15'), priority: "HIGH", dueDate: new Date('2026-7-15'), closedAt: null},
 ];
 
-// export const MOCK_FRIENDS: Friend[] = [
-// 	{ id: '1', name: 'Osme', surname: 'Fantozzi', email: 'mail@mail.mail', avatar: 'https://picsum.photos/id/65/50/50', isLoggedIn: true },
-// 	{ id: '2', name: 'Fabio', surname: 'Fantozzi', email: 'mail@mail.mail', avatar: 'https://picsum.photos/id/66/50/50', isLoggedIn: false },
-// 	{ id: '3', name: 'Giulia', surname: 'Fantozzi', email: 'mail@mail.mail', avatar: 'https://picsum.photos/id/67/50/50', isLoggedIn: true },
-// ];
+export const MOCK_FRIENDSS: Friend[] = [
+	{ id: '1', name: 'Osme', surname: 'Fantozzi', email: 'mail@mail.mail', avatar: 'https://picsum.photos/id/65/50/50', isLoggedIn: true },
+	{ id: '2', name: 'Fabio', surname: 'Fantozzi', email: 'mail@mail.mail', avatar: 'https://picsum.photos/id/66/50/50', isLoggedIn: false },
+	{ id: '3', name: 'Giulia', surname: 'Fantozzi', email: 'mail@mail.mail', avatar: 'https://picsum.photos/id/67/50/50', isLoggedIn: true },
+];
 
 export const MOCK_FRIENDS: FriendList = {
 	count: 3,

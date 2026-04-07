@@ -14,6 +14,8 @@ const getUserInfos = async ()
         )
         if (res.ok) {
             const user = await res.json()
+            console.log(user)
+
             return {success: true, usr: user}
         }
     } catch (error) {
@@ -41,8 +43,10 @@ const getUserFriends = async ()
                 name: f.name,
                 surname: f.surname,
                 email: f.email,
-                job: f.jobQualifier 
+                job: f.jobQualifier,
+                avatar: f.avatarUrl
             }))
+            
             return {success: true, friends: {
                 count: data.count,
                 friends: friends

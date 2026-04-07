@@ -41,12 +41,11 @@ export type userInfos = {
     state: string,
 
     jobQualifier: string,
+	avatar: string,
 
     isLoggedIn: boolean,
     createdAt: Date,
     updatedAt: Date,
-
-	friends: []
 
     organizations: userOrg[]
     projects: userProj[]

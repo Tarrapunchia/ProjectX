@@ -3,6 +3,7 @@ import { MOCK_USER, MOCK_PROJECTS, MOCK_FRIENDS, AVATAR } from '../../data/mockD
 import './profilePage.css'
 import Helpers from './helpers';
 import { type userInfos, type FriendList } from '../../data/types';
+import CONSTS from '../../data/consts';
 
 const ProfilePage: React.FC = () => {
 	const [userInfo, setUserInfo] = useState<userInfos>(MOCK_USER)
@@ -15,11 +16,12 @@ const ProfilePage: React.FC = () => {
 			if (data.success) {
 				setUserInfo(data.usr)
 				setInfoFetched(true)
+				console.log(userInfo.avatar)
 			}
 			const friends = await Helpers.getUserFriends();
 			if (friends.success) {
 				setFriendsInfo(friends.friends)
-				setInfoFetched(true)
+				// setInfoFetched(true)
 			}
 		})()
 		return () => {};
@@ -27,7 +29,7 @@ const ProfilePage: React.FC = () => {
 	return (
 		<div className="profile-container">
 			<div className="profile-header">
-				<img src={AVATAR} alt="Foto profilo" className="profile-avatar"/>
+				<img src={infoFetched ? `${CONSTS.BE+userInfo.avatar}` : AVATAR} alt="Foto profilo" className="profile-avatar"/>
 				<div className="profile-info">
 					<h1>{userInfo?.name} {userInfo?.surname}</h1>
 					<div className="profile-details">
@@ -73,7 +75,7 @@ const ProfilePage: React.FC = () => {
 					))}
 					{infoFetched && friendsInfo.friends.map((friend) => (
 						<div key={friend.id} className={`friend-card ${friend.isLoggedIn ? 'online': 'offline'}`}>
-							<img src={'https://picsum.photos/id/65/50/50'} alt={friend.name} className="friend-avatar" />
+							<img src={`${CONSTS.BE + friend.avatar}`} alt={friend.name} className="friend-avatar" />
 							<span>{friend.name}</span>
 						</div>
 					))}
