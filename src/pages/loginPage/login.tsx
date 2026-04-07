@@ -1,6 +1,7 @@
 import './login.css';
 import { useNavigate } from "react-router-dom";
 import { useRef, useState } from "react";
+import consts from '../../data/consts';
 
 declare global {
   interface Window {
@@ -18,7 +19,8 @@ function login()
     async function handleLogin() 
 	{
         setError(null)
-        const LOGIN_URL = 'https://silver-rotary-phone-g44xxv559r7r2x4q-5000.app.github.dev/api/v1/users/login'
+        // const LOGIN_URL = 'https://silver-rotary-phone-g44xxv559r7r2x4q-5000.app.github.dev/api/v1/users/login'
+        const LOGIN_URL = `${consts.BE}/api/v1/users/login`
         const DASHBOARD = '/dashboard'
         let res: any
         try {

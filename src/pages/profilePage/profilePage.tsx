@@ -2,16 +2,24 @@ import React, { useEffect, useState } from 'react';
 import { MOCK_USER, MOCK_PROJECTS, MOCK_FRIENDS, AVATAR } from '../../data/mockData';
 import './profilePage.css'
 import Helpers from './helpers';
-import { type userInfos } from '../../data/types';
+import { type userInfos, type FriendList } from '../../data/types';
 
 const ProfilePage: React.FC = () => {
 	const [userInfo, setUserInfo] = useState<userInfos>(MOCK_USER)
+	const [friendsInfo, setFriendsInfo] = useState<FriendList>(MOCK_FRIENDS)
+	const [infoFetched, setInfoFetched] = useState<boolean>(false)
 
 	useEffect(() => {
 		(async () => {
 			const data = await Helpers.getUserInfos()
 			if (data.success) {
 				setUserInfo(data.usr)
+				setInfoFetched(true)
+			}
+			const friends = await Helpers.getUserFriends();
+			if (friends.success) {
+				setFriendsInfo(friends.friends)
+				setInfoFetched(true)
 			}
 		})()
 		return () => {};
@@ -32,7 +40,7 @@ const ProfilePage: React.FC = () => {
 			<div className="section">
 				<h2>Projects</h2>
 				<div className="project-list">
-					{/* {MOCK_PROJECTS.map((project) => (
+					{!infoFetched && MOCK_PROJECTS.map((project) => (
 						<div key={project.id} className={`project-card ${(project.status === 'COMPLETED') ? 'completed' : 'in-progress'}`}>
 							<h3>{project.name}</h3>
 							<p>Role: {project.description}</p>
@@ -40,8 +48,8 @@ const ProfilePage: React.FC = () => {
 							<p>Status: {project.status}</p>
 							{project.status === 'COMPLETED' && <p>Completed: {project.closedAt?.toUTCString()}</p>}
 						</div>
-					))} */}
-					{userInfo.projects.map((project) => (
+					))}
+					{infoFetched && userInfo.projects.map((project) => (
 						<div key={project.id} className={`project-card ${(project.status === 'COMPLETED') ? 'completed' : 'in-progress'}`}>
 							<h3>{project.name}</h3>
 							<h4>Description: {project.description}</h4>
@@ -57,9 +65,15 @@ const ProfilePage: React.FC = () => {
 			<div className="section">
 				<h2>Friends</h2>
 				<div className="friends-list">
-					{MOCK_FRIENDS.map((friend) => (
-						<div key={friend.id} className={`friend-card ${friend.status}`}>
+					{!infoFetched && MOCK_FRIENDS.friends.map((friend) => (
+						<div key={friend.id} className={`friend-card ${friend.isLoggedIn ? 'online': 'offline'}`}>
 							<img src={friend.avatar} alt={friend.name} className="friend-avatar" />
+							<span>{friend.name}</span>
+						</div>
+					))}
+					{infoFetched && friendsInfo.friends.map((friend) => (
+						<div key={friend.id} className={`friend-card ${friend.isLoggedIn ? 'online': 'offline'}`}>
+							<img src={'https://picsum.photos/id/65/50/50'} alt={friend.name} className="friend-avatar" />
 							<span>{friend.name}</span>
 						</div>
 					))}

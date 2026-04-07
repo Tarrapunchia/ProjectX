@@ -46,6 +46,8 @@ export type userInfos = {
     createdAt: Date,
     updatedAt: Date,
 
+	friends: []
+
     organizations: userOrg[]
     projects: userProj[]
 }
@@ -102,8 +104,15 @@ export type Participation = {
 }
 
 export interface Friend {
-	id: string;
-	name: string;
-	avatar: string;
-	status: 'online' | 'offline' | 'away';
+	id: string,
+	name: string,
+	surname: string,
+	email: string,
+	isLoggedIn: boolean,
+	avatar: string
+}
+
+export interface FriendList {
+	count: number,
+	friends: Friend[]
 }
