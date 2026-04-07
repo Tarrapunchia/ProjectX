@@ -67,7 +67,8 @@ export type ProjectInfo = {
 	status: 'ACTIVE' | 'COMPLETED' | 'REVIEW' | 'TODO',
 	description: string,
 	createdAt: Date,
-	closedAt: Date | null
+	closedAt: Date | null,
+	tasks: ProjectTasks[]
 }
 
 export type ProjectTasks = {
@@ -93,6 +94,11 @@ export type Organization = {
 	state: string,
 	ownerId: string,
 	projects: ProjectInfo[]
+}
+
+export type Participation = {
+	roleId: string,
+	project: ProjectInfo
 }
 
 export interface Friend {

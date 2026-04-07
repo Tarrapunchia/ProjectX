@@ -1,16 +1,13 @@
 import React, { useEffect } from 'react';
 import { MOCK_PROJECTS, MOCK_TASKS } from "../../data/mockData";
 import "./projectPage.css";
-import type { Organization, ProjectInfo, ProjectTasks } from '../../data/types';
+import type { Organization, Participation, ProjectInfo, ProjectTasks } from '../../data/types';
 import Category from './category';
 import ProgressBar from './progressBar';
 import TaskCard from './taskCard';
 // import helpers from './helpers';
 
-// per ora forzo orgId = 2
-const orgId = 2
-
-const BE_HOSTNAME = 'https://localhost:5000'
+const BE_HOSTNAME = 'http://localhost:5000'
 
 interface ProjectsPageProps {
 	setActivePage: (page: string) => void;
@@ -26,8 +23,8 @@ const ProjectsPage: React.FC<ProjectsPageProps> = ({ setActivePage, setSelectedP
 		COMPLETED: false,
 	});
 
-	const [orgInfo, setOrgInfo] = React.useState<Organization>()
-	const [orgFetched, setOrgFetched] = React.useState<boolean>(false)
+	const [Participations, setParticipations] = React.useState<Participation[]>()
+	const [ParticipationFetched, setParticipationFetched] = React.useState<boolean>(false)
 	
 	const toggleCategory = (category: ProjectInfo['status']) => {
 		setExpandedCategories(prev => ({
@@ -41,30 +38,36 @@ const ProjectsPage: React.FC<ProjectsPageProps> = ({ setActivePage, setSelectedP
 		(async () => {
 			try {
 				const res = await fetch(
-					`${BE_HOSTNAME}/api/v1/organizations/${orgId}/organization`, {
+					`${BE_HOSTNAME}/api/v1/users/activeUsersProjects`, {
 						method: 'GET',
 						headers: { "Content-Type": "application/json" },
 						credentials: "include",
 					}
 				)
 				if (res.ok) {
-					const org = await res.json()
-					setOrgInfo(org)
+					const parts: Participation[] = await res.json()
+					const mapped = parts.map((p) => p)
+					setParticipations(mapped)
 				}
-				setOrgFetched(true)
+				setParticipationFetched(true)
 			} catch (error) {
-				console.log(`Error in fetching org ${orgId} infos`)
+				console.log(`Error in fetching user infos: ${error}`)
 			}
 		})()
 		return () => {  };
 	}, []);
 
 	let projList: ProjectInfo[]
-	if (orgFetched) { projList = orgInfo?.projects ?? [] }
-	else { projList = MOCK_PROJECTS}
-
 	let taskList: ProjectTasks[]
-	taskList = MOCK_TASKS
+	if (ParticipationFetched) { 
+		projList = Participations?.map((p) => p.project) ?? []
+		taskList = []
+	}
+	else {
+		projList = MOCK_PROJECTS
+		taskList = MOCK_TASKS
+	}
+
 
 	const [selectedCard, setSelectedCard] = React.useState<ProjectInfo | null>(null);
 	const [isExpanding, setIsExpanding] = React.useState(false);
@@ -126,7 +129,7 @@ const ProjectsPage: React.FC<ProjectsPageProps> = ({ setActivePage, setSelectedP
 						<div className="project-info">
 							<div className="title-owner-row">
 								<h2>{selectedCard.name}</h2>
-								<p className="owner-info">{orgInfo?.name ?? 'Err'}</p>
+								<p className="owner-info">{'Owner Infos'}</p>
 							</div>
 							<div className="description-row">Description: {selectedCard.description}</div>
 							<ProgressBar 
@@ -145,7 +148,7 @@ const ProjectsPage: React.FC<ProjectsPageProps> = ({ setActivePage, setSelectedP
 								<button onClick={handleClose}>Close</button>
 							</div>
 						</div>
-						<TaskCard projectID={selectedCard.id} taskList={taskList} />
+						<TaskCard projectID={selectedCard.id} taskList={selectedCard.tasks ?? taskList} />
 					</div>
 				</div>
 			)}
