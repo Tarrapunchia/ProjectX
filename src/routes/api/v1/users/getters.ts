@@ -281,72 +281,56 @@ const Getters: FastifyPluginAsync = async (fastify: FastifyInstance, opts) => {
             }
         )
 
-        // // GET /api/v1/users/activeUserProjects
-        // fastify.get(
-        //     '/activeUsersProjects',
-        //     { schema: userSchemas.getProjects },
-        //     async (req, res) => {
-        //         const userId = getUserIdFromJWT(req, res, fastify)
-        //         if (!userId) {
-        //             res.code(400)
-        //             return { error: 'not connected' }
-        //         }
+        // GET /api/v1/users/activeUserProjects
+        fastify.get(
+            '/activeUsersProjects',
+            { schema: userSchemas.getProjects },
+            async (req, res) => {
+                const userId = getUserIdFromJWT(req, res, fastify)
+                if (!userId) {
+                    res.code(400)
+                    return { error: 'not connected' }
+                }
     
-        //         const rows = await fastify.prisma.projectParticipant.findMany({
-        //             where: { userId },
-        //             include: {
-        //                 project: {
-        //                 include: {
-        //                     organization: {
-        //                         include: {
-        //                             projects: {
-        //                                 include: {
-        //                                     tasks: true
-        //                                 }
-        //                             }
-        //                         }
-        //                     },
-        //                 },
-        //                 },
-        //                 role: { select: { name: true } }, // RoleName enum
-        //             },
-        //             orderBy: { createdAt: 'desc' },
-        //         })
+                const rows = await fastify.prisma.projectParticipant.findMany({
+                    where: { userId },
+                    include: {
+                        project: {
+                            include: {
+                                tasks: true
+                            },
+                        },
+                        role: { select: { name: true } }, // RoleName enum
+                    },
+                    orderBy: { createdAt: 'desc' },
+                })
     
     
-        //         const result = rows.map((o) => {
-        //             id: id.id,
-        //             name: id.name,
-        //             email: id.email,
-        //             phone: id.phone,
-        //             city: id.city,
-        //             address: id.address,
-        //             cap: id.cap,
-        //             state: id.state,
-        //             ownerId: id.ownerId,
-        //             projects: id.projects.map((p) => ({
-        //                 id: p.id,
-        //                 name: p.name,
-        //                 status: p.status,
-        //                 description: p.description,
-        //                 createdAt: p.createdAt,
-        //                 closedAt: p.closedAt,
-        //                 tasks: p.tasks.map((t) => ({
-        //                     id: t.id,
-        //                     projectId: p.id,
-        //                     name: t.name,
-        //                     status: t.status,
-        //                     priority: t.priority,
-        //                     dueDate: t.dueDate,
-        //                     createdAt: t.createdAt,
-        //                     closedAt: t.closedAt,
-        //                     description: t.description,
-        //                 }))
-        //             }))
-        //         }
-        //         return result
-        //     }
-        // )
+                const result = rows.map((pp) => ({
+                    roleId: pp.roleId,
+                    project: {
+                        id: pp.project.id,
+                        name: pp.project.name,
+                        status: pp.project.status,
+                        description: pp.project.description ?? '',
+                        createdAt: pp.project.createdAt,
+                        closedAt: pp.project.closedAt,
+                        tasks: pp.project.tasks.map((t) => ({
+                            id: t.id,
+                            projectId: pp.project.id,
+                            name: t.name,
+                            status: t.status,
+                            priority: t.priority,
+                            dueDate: t.dueDate,
+                            createdAt: t.createdAt,
+                            closedAt: t.closedAt,
+                            description: t.description,
+                        })),
+                    },
+                }))
+                return result
+            }
+        )
 }
 
 export default Getters

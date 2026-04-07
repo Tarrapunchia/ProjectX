@@ -370,8 +370,59 @@ const logout: Schema = {
             required: ['error']
         }
     }
+}
 
-    }
+const getUserProjects: Schema = {
+  description: "Get current user's projects.",
+  tags: ['users'],
+  response: {
+    200: {
+      type: 'array',
+      items: {
+        type: 'object',
+        properties: {
+          roleId: { type: 'number' }, // era string ❌
+          project: {
+            type: 'object',
+            properties: {
+              id: { type: 'number' },
+              name: { type: 'string' },
+              status: { type: 'string', enum: ['TODO', 'ACTIVE', 'REVIEW', 'CLOSED'] },
+              description: { type: 'string', nullable: true },
+              createdAt: { type: 'string', format: 'date-time' },
+              closedAt: { type: 'string', format: 'date-time', nullable: true },
+              tasks: {
+                type: 'array',
+                items: {
+                  type: 'object',
+                  properties: {
+                    id: { type: 'number' },
+                    projectId: { type: 'number' },
+                    name: { type: 'string' },
+                    status: { type: 'string', enum: ['TODO', 'ACTIVE', 'REVIEW', 'CLOSED'] },
+                    priority: { type: 'string', enum: ['NONE', 'LOW', 'MEDIUM', 'HIGH', 'CRITICAL'] },
+                    dueDate: { type: 'string', format: 'date-time', nullable: true },
+                    createdAt: { type: 'string', format: 'date-time' },
+                    closedAt: { type: 'string', format: 'date-time', nullable: true },
+                    description: { type: 'string', nullable: true },
+                  },
+                  required: ['id', 'projectId', 'name', 'status', 'priority', 'createdAt'],
+                },
+              },
+            },
+            required: ['id', 'name', 'status', 'createdAt', 'tasks'],
+          },
+        },
+        required: ['roleId', 'project'],
+      },
+    },
+    400: {
+      type: 'object',
+      properties: { error: { type: 'string' } },
+      required: ['error'],
+    },
+  },
+}
 
 
 const seed: Schema = {
@@ -429,5 +480,6 @@ export const userSchemas = {
     login: login,
     logout: logout,
     seed: seed,
-    userResponse: userResponse
+    userResponse: userResponse,
+    getProjects: getUserProjects
 };
