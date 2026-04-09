@@ -45,6 +45,66 @@ const Getters: FastifyPluginAsync = async (fastify: FastifyInstance, opts) => {
         return res.send(result)
     })
 
+    fastify.get(
+    '/activeUserTasks',
+    { schema: taskSchemas.getUserTasksSchema }, 
+    async (req, res) => {
+        const id = getUserIdFromJWT(req, res, fastify)
+
+        if (!id || Number.isNaN(id)) {
+            res.code(400)
+            return { error: 'invalid user id' }
+        }
+
+        const tasks = await fastify.prisma.taskParticipant.findMany({
+            where: { userId: id },
+            include: {
+                task: {
+                    include: {
+                        project: {
+                            select: { name: true }
+                        }
+                    }
+                }
+            }
+        })
+
+        if (!tasks) {
+            res.code(404)
+            return { error: 'no tasks found' }
+        }
+
+        let priority = {
+            'NONE': 0,
+            'LOW': 0,
+            'MEDIUM': 0,
+            'HIGH': 0,
+            'CRITICAL': 0,
+        }
+
+        const result = {
+            tasks: tasks.map((t) => (
+                priority[t.task.priority]++,
+                {
+                id: t.taskId,
+                name: t.task.name,
+                description: t.task.description ?? null,
+                status: t.task.status,
+                priority: t.task.priority,
+                createdAt: t.task.createdAt,
+                dueDate: t.task.dueDate,
+                closedAt: t.task.closedAt ?? null,
+            })),
+            NONE: priority.NONE,
+            LOW: priority.LOW,
+            MEDIUM: priority.MEDIUM,
+            HIGH: priority.HIGH,
+            CRITICAL: priority.CRITICAL,
+        }
+
+        res.code(200)
+        return res.send(result)
+    })
 
     // // GET /api/v1/projects/search?organizationId=1&name=foo
     // // TODO aggiungere check su pox ricerca?

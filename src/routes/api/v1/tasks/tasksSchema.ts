@@ -88,10 +88,48 @@ const deleteTaskSchema: Schema = {
     },
 }
 
+const getUserTasksSchema: Schema = {
+    description: 'Get a single user\'s tasks',
+    tags: ['tasks'],
+    response: {
+        200: {
+            type: 'object',
+            properties: {
+                tasks: {
+                    type: 'array',
+                    items: {
+                        type: 'object',
+                        properties: {
+                            id: { type: 'string' },
+                            name: { type: 'string' },
+                            description: { type: 'string', nullable: true },
+                            status: { type: 'string' },
+                            priority: { type: 'string' },
+                            createdAt: { type: 'string', format: 'date-time' },
+                            dueDate: { type: 'string', format: 'date-time' },
+                            closedAt: { type: 'string', format: 'date-time', nullable: true },
+                        }
+                    }
+                },
+                NONE: { type: 'string' },
+                LOW: { type: 'string' },
+                MEDIUM: { type: 'string' },
+                HIGH: { type: 'string' },
+                CRITICAL: { type: 'string' },
+            }
+        },
+        400: {
+            type: 'object',
+            properties: {
+                error: { type: 'string' }
+            }
+        }
+    },
+}
+
 export const taskSchemas = {
     getProjTasksSchema: getProjTasksSchema,
     createTaskchema: createTaskchema,
-    deleteTaskSchema: deleteTaskSchema
-
-
+    deleteTaskSchema: deleteTaskSchema,
+    getUserTasksSchema,
 };
