@@ -1,5 +1,5 @@
 import './header.css';
-import { MOCK_USER, AVATAR } from '../data/mockData';
+import { MOCK_USER } from '../data/mockData';
 import type { ProjectInfo } from '../data/types';
 import { FiRepeat } from 'react-icons/fi';
 import { useEffect, useState } from 'react';

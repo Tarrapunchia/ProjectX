@@ -1,5 +1,5 @@
 import consts from './consts';
-import type { ProfileUser, Projects, Friend, ProjectInfo, ProjectTasks, userInfos, FriendList } from './types';
+import type { ProfileUser, Projects, Friend, ProjectInfo, ProjectTasks, userInfos, FriendList, TaskInfos } from './types';
 
 export const AVATAR = 'https://picsum.photos/id/64/150/150'
 
@@ -63,3 +63,43 @@ export const MOCK_FRIENDS: FriendList = {
 		{ id: '3', name: 'Giulia', surname: 'Fantozzi', email: 'mail@mail.mail', avatar: 'https://picsum.photos/id/67/50/50', isLoggedIn: true },
 	]
 } 
+
+export const MOCK_USER_TASKS: TaskInfos = {
+	tasks: [
+		{
+			id: '1',
+			name: 'prova',
+			description: 'prova',
+			status: 'ACTIVE',
+			priority: 'NONE',
+			createdAt: new Date('2025-08-15'),
+			dueDate: new Date('2025-08-15'),
+			closedAt: new Date('2025-08-15'),
+		},
+		{
+			id: '2',
+			name: 'prova',
+			description: 'prova',
+			status: 'ACTIVE',
+			priority: 'NONE',
+			createdAt: new Date('2025-08-15'),
+			dueDate: new Date('2025-08-15'),
+			closedAt: new Date('2025-08-15'),
+		},
+		{
+			id: '3',
+			name: 'prova',
+			description: 'prova',
+			status: 'ACTIVE',
+			priority: 'NONE',
+			createdAt: new Date('2025-08-15'),
+			dueDate: new Date('2025-08-15'),
+			closedAt: new Date('2025-08-15'),
+		}
+	],
+	NONE: '2',
+	LOW: '3',
+	MEDIUM: '4',
+	HIGH: '5',
+	CRITICAL: '9',
+}

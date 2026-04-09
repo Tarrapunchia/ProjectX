@@ -115,3 +115,20 @@ export interface FriendList {
 	count: number,
 	friends: Friend[]
 }
+export interface TaskInfos {
+	tasks: {
+		id: string,
+		name: string,
+		description: string,
+		status: 'ACTIVE' | 'COMPLETED' | 'REVIEW' | 'TODO',
+		priority: 'NONE' | 'LOW' | 'MEDIUM' | 'HIGH' | 'CRITICAL',
+		createdAt: Date,
+		dueDate: Date | null,
+		closedAt: Date | null,
+	}[],
+	NONE: string,
+	LOW: string,
+	MEDIUM: string,
+	HIGH: string,
+	CRITICAL: string,
+}

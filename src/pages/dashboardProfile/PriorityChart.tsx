@@ -1,82 +1,71 @@
 import { Pie } from "react-chartjs-2";
-
-import 
-{
-  Chart as ChartJS,
-  ArcElement,
-  Tooltip,
-  Legend,
-  Title,
-} from "chart.js";
+import { Chart as ChartJS, ArcElement, Tooltip, Legend, Title } from "chart.js";
+import type { TaskInfos } from "../../data/types";
 
 ChartJS.register(ArcElement, Tooltip, Legend, Title);
 
-export default function PriorityChart() {
+type Priority = "NONE" | "LOW" | "MEDIUM" | "HIGH" | "CRITICAL";
+
+const priorityColors: Record<Priority, string> = {
+  NONE: "#111827",
+  LOW: "#ef4444",
+  MEDIUM: "#f59e0b",
+  HIGH: "#10b981",
+  CRITICAL: "#7f1d1d",
+};
+
+const PRIORITIES: Priority[] = ["NONE", "LOW", "MEDIUM", "HIGH", "CRITICAL"];
+
+export default function PriorityChart({ taskData }: { taskData?: TaskInfos }) {
+  if (!taskData) return;
+  const counts: Record<Priority, number> = {
+    NONE: Number(taskData.NONE), LOW: Number(taskData.LOW), MEDIUM: Number(taskData.MEDIUM), HIGH: Number(taskData.HIGH), CRITICAL: Number(taskData.CRITICAL),
+  };
+
+  const labels = PRIORITIES
+  console.log('labels' + labels)
   const data = {
-    labels: ["High", "Medium", "Low"],
+    labels,
     datasets: [
       {
         label: "Tasks",
-        data: [12, 7, 4],
-        backgroundColor: ["#ef4444", "#f59e0b", "#10b981"],
+        data: PRIORITIES.map((p) => counts[p]),
+        backgroundColor: PRIORITIES.map((p) => priorityColors[p]),
         borderWidth: 1,
       },
     ],
   };
 
   const options = {
-    plugins: 
-    {
+    plugins: {
       title: {
         display: true,
-        text: "Distribuzione Priorità", 
-        color: "#111827", 
-        font: 
-        {
-          size: 18,
-          weight: "bold" as const,
-          family: "sans-serif",
-        },
-        padding: 
-        {
-          top: 10,
-          bottom: 30,
-        },
+        text: "Distribuzione Priorità",
       },
       legend: {
         position: "left" as const,
         labels: {
-          boxWidth: 12,
-          padding: 12,
-          color: "#111827",
-        generateLabels(chart: ChartJS) 
-        {
-            const data = chart.data;
-            const dataset = data.datasets[0];
-            const bgColors = dataset.backgroundColor as string[];
-
-            return data.labels!.map((label, i) => 
-            ({
-                    text: `${label} (${dataset.data[i]})`,
-                    fillStyle: bgColors[i],
-                    strokeStyle: bgColors[i],
-                    lineWidth: 1,
-                    hidden: !chart.getDataVisibility(i),
-                    index: i,
+          generateLabels(chart: any) {
+            const d = chart.data;
+            const values = d.datasets?.[0]?.data ?? [];
+            return (d.labels ?? []).map((lbl: string, i: number) => ({
+              text: `${lbl} (${values[i] ?? 0})`,
+              fillStyle: (d.datasets?.[0]?.backgroundColor?.[i]) ?? "#999",
+              strokeStyle: (d.datasets?.[0]?.backgroundColor?.[i]) ?? "#999",
+              lineWidth: 1,
+              hidden: !chart.getDataVisibility(i),
+              index: i,
             }));
           },
         },
-      },
-    },
-    layout: {
-      padding: {
-        top: 20,
       },
     },
     maintainAspectRatio: false,
   };
 
   return (
-      <Pie data={data} options={options} />
+    <div style={{ height: 280 }}>
+      <Pie data={data as any} options={options as any} />
+    </div>
   );
 }
