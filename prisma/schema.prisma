@@ -45,13 +45,19 @@ model User {
 
   // Organizations
   ownedOrganizations  Organization[] @relation("OrgOwner")
+  ownedEvents         Event[] @relation("EventOwner")
   memberships         OrganizationMember[]
   projectParticipants ProjectParticipant[]
   tasksParticipants   TaskParticipant[]
+  eventParticipants   EventParticipant[]
 
   // Friendships (self relation via table)
   friendshipsSent     Friendship[] @relation("FriendshipSender")
   friendshipsReceived Friendship[] @relation("FriendshipReceiver")
+
+  // Notifications
+  notifications       Notification[] @relation("Receiver")
+  notificationsSent   Notification[] @relation("Sender")
 
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
@@ -63,6 +69,61 @@ model User {
   dmReceived      DirectMessage[] @relation("DMReceiver")
 
   roomMessages    RoomMessage[]
+}
+
+enum NotificationType {
+  NONE
+  MESSAGE
+  FRIEND_REQUEST
+  JOIN_REQUEST
+  SYSTEM
+}
+
+model Notification {
+  id              Int   @id @default(autoincrement())
+
+  userId          Int
+  user            User @relation("Receiver", fields: [userId], references: [id])
+
+  senderId        Int?
+  sender          User? @relation("Sender", fields: [senderId], references: [id])
+
+  type            NotificationType @default(NONE)
+  message         String
+}
+
+enum EventType {
+  NONE
+  CALL
+  MEETING
+  CONFERENCE
+  GENERIC
+}
+
+model Event {
+  id              Int   @id @default(autoincrement())
+  name            String
+  type            EventType @default(NONE)
+
+  ownerId         Int
+  owner           User @relation("EventOwner", fields: [ownerId], references: [id])
+
+  participants    EventParticipant[]
+
+  createdAt       DateTime @default(now())
+  dueDate         DateTime
+}
+
+model EventParticipant {  // TABELLA PONTE
+  eventId   Int
+  userId    Int
+
+  event     Event   @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  user      User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+
+  @@id([eventId, userId])
 }
 
 model Organization {
