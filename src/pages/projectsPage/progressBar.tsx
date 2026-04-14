@@ -18,22 +18,26 @@ export default function ProgressBar({ projectId, createdAt, closedAt, showDetail
 	const timePercent = end > start ? Math.min(Math.round(((now - start) / (end - start)) * 100), 100) : 0;
 
 	return (
-		<div className="progress-container">
-			<div className="progress-bar-container">
-				<div className="progress-bar-fill" style={{ width: `${percent}%` }}></div>
+		<div className="w-[90%] px-[10px] mx-auto my-auto">
+			<div className="relative w-full h-[24px] bg-category-bg-color rounded-[12px] mt-[20px] overflow-visible">
+				<div className="h-full bg-owner-color rounded-[12px] transition-[width] duration-500 ease-in-out"
+					style={{ width: `${percent}%` }}
+				></div>
 				{timePercent > 0 && (
-					<div className="progress-time-marker" style={{ left: `${timePercent}%` }}></div>
+					<div className="absolute top-[-20%] h-[140%] w-[2px] bg-[rgba(255,0,0,0.616)] rounded-[1px] z-[1] -translate-x-1/2"
+						style={{ left: `${timePercent}%` }}
+					></div>
 				)}
-				<span className="progress-bar-label">
+				<span className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-[13px] font-medium text-white whitespace-nowrap">
 					{showDetails ? `${completed}/${tasks.length}` : ''}({percent}%)
 				</span>
 			</div>
 			{showDetails && (
-				<div className="progress-dates">
-					<span className="project-start-date">{new Date(createdAt).toLocaleDateString('it-IT')}</span>
-					{closedAt
-						? <span className="project-due-term">{new Date(closedAt).toLocaleDateString('it-IT')}</span>
-						: ''}
+				<div className="flex justify-between mt-[5px] text-[14px] font-light">
+					<span>{new Date(createdAt).toLocaleDateString('it-IT')}</span>
+					{closedAt && (
+						<span>{new Date(closedAt).toLocaleDateString('it-IT')}</span>
+						)}
 				</div>
 			)}
 		</div>

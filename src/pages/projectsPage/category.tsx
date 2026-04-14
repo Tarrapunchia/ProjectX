@@ -24,7 +24,9 @@ export default function Category({ label, status, projList, isExpanded, onToggle
 					{isExpanded ? <FiChevronUp /> : <FiChevronDown />}
 				</span>
 			</p>
-			<div className={`cards-container ${isExpanded ? 'expanded' : 'collapsed' }`}>
+			<div className={`grid transition-[grid-template-rows,opacity] duration-400 ease-in-out 
+				${isExpanded ? 'grid-rows-[1fr] opacity-100' : 'grid-rows-[0fr] opacity-0'}`}
+			>
 				<div className="overflow-hidden">
 					{filtered.map((project) => (
 						<div key={project.id} className="flex flex-col bg-bg-color h-[250px] w-[98%] mx-auto mb-[6px] rounded-[2px]" onClick={(e) => onCardClick(project, e)}>
