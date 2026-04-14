@@ -132,3 +132,18 @@ export interface TaskInfos {
 	HIGH: string,
 	CRITICAL: string,
 }
+
+export interface Event {
+	id: string,
+	name: string,
+	createdAt: Date,
+	dueDate: Date,
+	type: 'NONE' | 'CALL' | 'MEETING' | 'CONFERENCE' | 'GENERIC'
+	description: string,
+	ownerId: string
+}
+
+export type CalendarEntries = {
+	tasks: ProjectTasks[],
+	events: Event[]
+}
