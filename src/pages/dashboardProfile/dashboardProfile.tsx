@@ -37,8 +37,8 @@ function DashboardProf() {
 
         {/* Grafico */}
         <div className="bg-white rounded-lg shadow p-4">
-          {/* (infoFetched && <PriorityChart taskData={ tasksInfos }/>) */}
-          (!infoFetched && <PriorityChart taskData={ MOCK_USER_TASKS }/>)
+          {(infoFetched && <PriorityChart taskData={ tasksInfos }/>)}
+          {(!infoFetched && <PriorityChart taskData={ MOCK_USER_TASKS }/>)}
         </div>
 
       </div>

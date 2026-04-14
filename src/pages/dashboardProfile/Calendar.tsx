@@ -34,7 +34,7 @@ function mapCalendarEntriesToFullCalendar(entries: CalendarEntries): FCEvent[] {
   const taskEvents: FCEvent[] = (entries.tasks ?? []).map((t: ProjectTasks, i) => ({
     id: `task:${t.id}`,
     title: `🧩 ${t.name}`,
-    start: t.createdAt,
+    start: t.dueDate ?? t.createdAt,
     end: t.dueDate ?? undefined,
     color: taskColors[i%10],
     extendedProps: {
