@@ -89,7 +89,7 @@ model Notification {
   sender          User? @relation("Sender", fields: [senderId], references: [id])
 
   // Friendship Request
-  friendshipId    Int?
+  friendshipId    Int? @unique
   friendship      Friendship? @relation("FriendshipRequest", fields: [friendshipId], references: [id])
 
   type            NotificationType @default(NONE)
@@ -108,6 +108,7 @@ model Event {
   id              Int   @id @default(autoincrement())
   name            String
   type            EventType @default(NONE)
+  message         String @default("")
 
   ownerId         Int
   owner           User @relation("EventOwner", fields: [ownerId], references: [id])
@@ -349,20 +350,19 @@ model DirectMessage {
 }
 
 model Friendship {
-  id         Int @default(autoincrement())
+  id         Int @id @default(autoincrement())
   senderId   Int
   receiverId Int
 
   sender   User @relation("FriendshipSender", fields: [senderId], references: [id])
   receiver User @relation("FriendshipReceiver", fields: [receiverId], references: [id])
 
-  requestId Int?
-  request  Notification? @relation("FriendshipRequest", fields: [requestId], references: [id])
+  request  Notification? @relation("FriendshipRequest")
 
   status    FriendshipStatus @default(PENDING)
   createdAt DateTime         @default(now())
 
-  @@id([senderId, receiverId])
+  @@unique([senderId, receiverId])
   @@index([receiverId])
 }
 

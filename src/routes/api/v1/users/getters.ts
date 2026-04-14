@@ -390,6 +390,67 @@ const Getters: FastifyPluginAsync = async (fastify: FastifyInstance, opts) => {
                 return result
             }
         )
+
+        // GET /api/v1/users/calendarEntries
+        fastify.get(
+            '/calendarEntries',
+            { schema: userSchemas.getCalendarEntries },
+            async (req, res) => {
+                try {
+                    
+                    const data = await fastify.prisma.$transaction(async (tx) => {
+                        const userId = getUserIdFromJWT(req, res, fastify)
+                        if (!userId) {
+                            res.code(400)
+                            return { error: 'not connected' }
+                        }
+    
+                        const tasks = await tx.taskParticipant.findMany({
+                            where: { userId },
+                            include: {
+                                task: {
+                                    select: { id: true, name: true, dueDate: true, createdAt: true, description: true,
+                                        projectId: true, status: true, priority: true, closedAt: true
+                                     }
+                                }
+                            }
+                        })
+    
+                        const events = await tx.eventParticipant.findMany({
+                            where: { userId },
+                            include: {
+                                event: {
+                                    select: { id: true, name: true, dueDate: true, createdAt: true,
+                                        type: true, message: true, ownerId: true
+                                     }
+                                }
+                            }
+                        })
+    
+                        return {
+                            tasks: tasks.map((t) => ({
+                                id: t.task.id,
+                                name: t.task.name,
+                                dueDate: t.task.dueDate,
+                                createdAt: t.task.createdAt,
+                                description: t.task.description,
+                            })),
+                            events: events.map((e) => ({
+                                id: e.event.id,
+                                name: e.event.name,
+                                dueDate: e.event.dueDate,
+                                createdAt: e.event.createdAt,
+                            }))
+                        }
+                    })
+    
+                    return res.send(data)
+                } catch (error) {
+                    res.code(400)
+                    res.send({ error: error })
+                }
+            }
+        )
 }
 
 export default Getters

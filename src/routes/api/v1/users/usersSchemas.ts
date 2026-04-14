@@ -472,6 +472,53 @@ const seed: Schema = {
     },
 };
 
+const getCalendarEntries: Schema = {
+  description: "Get all current user's calendar entries.",
+  tags: ['users'],
+  response: {
+    200: {
+      type: 'object',
+      properties: {
+        tasks: {
+            type: 'array',
+            items: {
+                type: 'object',
+                properties: {
+                    id: { type: 'string' },
+                    name: { type: 'string' },
+                    dueDate: { type: 'string', format: 'date-time', nullable: 'true' },
+                    createdAt: { type: 'string', format: 'date-time' },
+                    closedAt: { type: 'string', format: 'date-time', nullable: 'true' },
+                    description: { type: 'string' },
+                    status: { type: 'string' },
+                    priority: { type: 'string' },
+                }
+            }
+        },
+        events: {
+            type: 'array',
+            items: {
+                type: 'object',
+                properties: {
+                    id: { type: 'string' },
+                    name: { type: 'string' },
+                    dueDate: { type: 'string', format: 'date-time' },
+                    createdAt: { type: 'string', format: 'date-time' },
+                    type: { type: 'string' },
+                    message: { type: 'string' },
+                    ownerId: { type: 'string' },
+                }
+            }
+        }
+      }
+    },
+    400: {
+        type: 'object',
+        properties : { error: { type: 'string'} }
+    }
+  }
+}
+
 export const userSchemas = {
     getAllUsers: getAllUsersSchema,
     searchUsers: searchUsers,
@@ -485,5 +532,6 @@ export const userSchemas = {
     logout: logout,
     seed: seed,
     userResponse: userResponse,
-    getProjects: getUserProjects
+    getProjects: getUserProjects,
+    getCalendarEntries
 };

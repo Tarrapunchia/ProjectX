@@ -20,18 +20,18 @@ import fastifyMultipart  from '@fastify/multipart';
 const PORT = 5000
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
+const isProd = process.env.NODE_ENV === 'production';
+const SSL = process.env.HTTPS
 
 // per TLS (metto certs in ./certs, per ora generati con mkcert, forse conviene
 // fare reverse proxy da nginx e poi lasciare fastify normale?)
-const httpsOptions = {
+const httpsOptions = SSL? {
 	// key: fs.readFileSync(path.join(__dirname, 'certs', 'localhost-key.pem')),
   	// cert: fs.readFileSync(path.join(__dirname, 'certs', 'localhost.pem')),
 	key: fs.readFileSync(path.join('certs', 'localhost-key.pem')),
   	cert: fs.readFileSync(path.join('certs', 'localhost.pem')),
-}
+}: {}
 
-const isProd = process.env.NODE_ENV === 'production';
-const SSL = process.env.HTTPS
 
 const server = fastify({
 	logger: isProd
