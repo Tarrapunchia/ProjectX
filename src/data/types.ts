@@ -133,6 +133,25 @@ export interface TaskInfos {
 	CRITICAL: string,
 }
 
+export type SelectedEvent = {
+  id: string;
+  name: string;
+  start: string;
+  end?: string;
+  type?: string;
+  description?: string;
+  status?: string;
+};
+
+export type FCEvent = {
+  id: string;
+  title: string;
+  start: string | Date;
+  end?: string | Date;
+  color: string;
+  extendedProps?: Record<string, any>;
+};
+
 export interface Event {
 	id: string,
 	name: string,

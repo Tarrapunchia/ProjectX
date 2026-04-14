@@ -5,40 +5,38 @@ import timeGridPlugin from "@fullcalendar/timegrid";
 import interactionPlugin from "@fullcalendar/interaction";
 import itLocale from "@fullcalendar/core/locales/it";
 import helpers from "../../utilities/helpers";
-import type { CalendarEntries, ProjectTasks, Event as ApiEvent } from "../../data/types";
+import type { CalendarEntries, ProjectTasks, Event as ApiEvent, SelectedEvent, FCEvent } from "../../data/types";
 
-type SelectedEvent = {
-  id: string;
-  name: string;
-  start: string;
-  end?: string;
-  type?: string;
-  description?: string;
-  status?: string;
-};
 
-type FCEvent = {
-  id: string;
-  title: string;
-  start: string | Date;
-  end?: string | Date;
-  extendedProps?: Record<string, any>;
-};
 
-function toIsoOrDateString(d: any): string {
-  // se è già string ISO ok, se è Date ok, altrimenti best effort
-  if (!d) return "";
-  if (typeof d === "string") return d;
-  if (d instanceof Date) return d.toISOString();
-  return String(d);
-}
+// function toIsoOrDateString(d: any): string {
+//   // se è già string ISO ok, se è Date ok, altrimenti best effort
+//   if (!d) return "";
+//   if (typeof d === "string") return d;
+//   if (d instanceof Date) return d.toISOString();
+//   return String(d);
+// }
+
+const taskColors = [
+  "cornflowerblue",
+  "steelblue",
+  "royalblue",
+  "seagreen",
+  "forestgreen",
+  "goldenrod",
+  "darkorange",
+  "tomato",
+  "slategray",
+  "mediumpurple",
+];
 
 function mapCalendarEntriesToFullCalendar(entries: CalendarEntries): FCEvent[] {
-  const taskEvents: FCEvent[] = (entries.tasks ?? []).map((t: ProjectTasks) => ({
+  const taskEvents: FCEvent[] = (entries.tasks ?? []).map((t: ProjectTasks, i) => ({
     id: `task:${t.id}`,
     title: `🧩 ${t.name}`,
-    start: toIsoOrDateString(t.dueDate ?? t.createdAt), // se non hai dueDate, fallback createdAt
-    end: undefined,
+    start: t.createdAt,
+    end: t.dueDate ?? undefined,
+    color: taskColors[i%10],
     extendedProps: {
       kind: "task",
       status: t.status,
@@ -51,8 +49,9 @@ function mapCalendarEntriesToFullCalendar(entries: CalendarEntries): FCEvent[] {
   const calendarEvents: FCEvent[] = (entries.events ?? []).map((e: ApiEvent) => ({
     id: `event:${e.id}`,
     title: `📅 ${e.name}`,
-    start: toIsoOrDateString(e.dueDate ?? e.createdAt),
-    end: undefined, // se hai end date mettila qui
+    start: e.dueDate,
+    end: undefined,
+    color: 'blue',
     extendedProps: {
       kind: "event",
       type: e.type,
@@ -80,18 +79,16 @@ function Calendar() {
   }
 
   // carica eventi al mount
-  useEffect(() => {
+  useEffect(() => { 
     let cancelled = false;
 
     (async () => {
       try {
         const res = await helpers.getter("/api/v1/users/calendarEntries", null);
-        console.log("calendarEntries raw:", res);
 
-        // ✅ adattati al tuo helpers.getter:
         // - se getter ritorna direttamente CalendarEntries -> entries = res
         // - se ritorna { success, data } -> entries = res.data
-        const entries: CalendarEntries = (res?.data ?? res) as CalendarEntries;
+        const entries: CalendarEntries = (res?.data) as CalendarEntries;
 
         if (!cancelled && entries) {
           setFcEvents(mapCalendarEntriesToFullCalendar(entries));
