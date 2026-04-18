@@ -67,7 +67,7 @@ function login()
                 px-[10px] py-[10px]
                 text-[18px] leading-[18px]
                 rounded-[5px]
-                bg-white text-[#3c4043] font-medium
+                bg-white text-white font-medium
                 shadow-[0_0_10px_rgba(0,0,0,0.5)]
                 border border-gray-300
                 transition-all duration-300 ease-in-out
@@ -118,7 +118,19 @@ function login()
             </div>
             <button 
                 onClick={handleLogin}
-                className="flex items-center justify-center rounded-[5px] shadow-[0_0_10px_rgba(0,0,0,0.5)] min-w-[130px] mt-[5px] px-5 py-[10px] text-[24px] bg-[#8e8d8d37] text-white cursor-pointer transition-all duration-300 ease-in-out hover:bg-[#8e8d8d93] hover:scale-120"
+                className="
+                    flex items-center justify-center gap-3
+                    w-[300px] min-h-[50px]
+                    mt-4
+                    !text-[18px] !leading-none
+                    font-bold uppercase
+                    rounded-[5px]
+                    bg-white text-white
+                    shadow-lg
+                    border border-gray-300
+                    transition-all duration-300
+                    hover:scale-105 active:scale-95  /* Feedback al click */
+                "
                 >
                 Login
             </button>

@@ -31,15 +31,13 @@ function DashboardProf() {
       <div className="col-span-2 grid grid-rows-[50%_49%] grid-cols-[100%] gap-2">
 
         {/* Calendario */}
-        <div className="bg-white rounded-lg shadow p-4 overflow-hidden">
+        <div className="bg-white rounded-lg shadow p-4 overflow-hidden relative h-full w-full text-base leading-tight text-gray-800">
           <Calendar />
         </div>
 
         {/* Grafico */}
-        <div className="bg-white rounded-lg shadow p-4">
-          {(infoFetched && <PriorityChart taskData={ tasksInfos }/>)}
-          {(!infoFetched && <PriorityChart taskData={ MOCK_USER_TASKS }/>)}
-        </div>
+        {(infoFetched && <PriorityChart taskData={ tasksInfos }/>)}
+        {(!infoFetched && <PriorityChart taskData={ MOCK_USER_TASKS }/>)}
 
       </div>
 

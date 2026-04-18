@@ -120,13 +120,20 @@ function Calendar() {
         slotMinTime="08:00:00"
         slotMaxTime="20:00:00"
         allDaySlot={false}
+        handleWindowResize={true}
         headerToolbar={{
           left: "prev,next today",
           center: "title",
           right: "dayGridMonth,timeGridWeek,timeGridDay",
         }}
+        initialDate={new Date().toISOString().split("T")[0]}
         locale={itLocale}
         height="100%"
+        aspectRatio={2}
+        dayHeaderContent={(args) => {
+        return {
+            html: `<span class='text-gray-800 text-base'>${args.text}</span>`
+        };}}
         events={fcEvents}
         eventClick={(info) => {
           const ext = info.event.extendedProps as any;
@@ -174,7 +181,7 @@ function Calendar() {
             )}
 
             <button className="mt-5 px-3 py-2 text-xs border rounded" onClick={closeModal}>
-              Chiudi
+              Close
             </button>
           </div>
         </div>

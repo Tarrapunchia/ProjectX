@@ -1,4 +1,3 @@
-import './SignUp.css';
 import { useNavigate } from "react-router-dom";
 import { useRef, useState } from "react";
 
@@ -91,7 +90,7 @@ function SignUp()
                 <path fill="#34A853" d="M24 48c6.47 0 11.9-2.38 15.96-6.31l-7.31-5.66C30.71 37.78 27.54 39 24 39c-6.26 0-11.57-3.22-14.46-8.41l-7.98 6.18C6.51 42.62 14.62 48 24 48z"/>
             </svg>
 
-            <span className="text-[16px]">Accedi con Google</span>
+            <span className="text-[16px] text-white">Accedi con Google</span>
         </button>
 
         <span className="text-[14px] text-white"> OR </span>
@@ -146,21 +145,33 @@ function SignUp()
         </div>
 
             <div className="flex justify-center items-center mt-4 gap-1">
-                    <input
-                        type="checkbox"
-                        id="terms"
-                        className="w-[15px] h-[15px] accent-black-500 cursor-pointer"
-                    />
-                    <span className="text-[14px] text-white"> I accept </span>
-                    <span className="ml-2 text-[12px] text-white cursor-pointer hover:underline">Terms and conditions!</span>
+                <input
+                    type="checkbox"
+                    id="terms"
+                    className="w-[15px] h-[15px] accent-black-500 cursor-pointer"
+                />
+                <span className="text-[14px] text-white"> I accept </span>
+                <span className="ml-2 text-[12px] text-white cursor-pointer hover:underline">Terms and conditions!</span>
             </div>
 
-        <button
+            <button
             onClick={handleLogin}
-            className="flex items-center justify-center rounded-[5px] shadow-[0_0_10px_rgba(0,0,0,0.5)] min-w-[130px] mt-[5px] px-5 py-[10px] text-[24px] bg-[#8e8d8d37] text-white cursor-pointer transition-all duration-300 ease-in-out hover:bg-[#8e8d8d93] hover:scale-120"
+            className="
+                flex items-center justify-center gap-3
+                w-[300px] min-h-[50px]
+                mt-4
+                !text-[18px] !leading-none
+                font-bold uppercase
+                rounded-[5px]
+                bg-white text-white
+                shadow-lg
+                border border-gray-300
+                transition-all duration-300
+                hover:scale-105 active:scale-95  /* Feedback al click */
+            "
             >
-            SignUp
-        </button>
+            Sign Up
+            </button>
     </div>
     </div>
 

@@ -8,6 +8,7 @@ import ProjectsPage from '../projectsPage/projectsPage';
 import ChatPage from '../chatRoomPage/chatRoomPage';
 import Dashboard from '../dashboardProfile/dashboardProfile'
 import type { ProjectInfo } from '../../data/types';
+import DocumentsPage from '../DocumentsPage/DocumentsPage';
 import { useLocation, useNavigate } from "react-router-dom";
 
 function dashBoard() {
@@ -20,7 +21,7 @@ function dashBoard() {
             <Sidebar setActivePage={setActivePage} />
             <main className="main-content">
                 { activePage === 'dashboard' && <Dashboard /> }
-                { activePage === 'documents' && <p>Documents (WIP)</p> }
+                { activePage === 'documents' && <DocumentsPage /> }
                 { activePage === 'tasks' && <p>Tasks (WIP)</p>}
                 {/* { activePage === 'organization' && <ProjectsPage setActivePage={setActivePage} setSelectedProject={setSelectedProject}/> } */}
 
