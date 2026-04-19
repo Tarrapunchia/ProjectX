@@ -113,7 +113,29 @@ function Calendar() {
   }, [selectedEvent]);
 
   return (
-    <div className="relative h-full w-full">
+    <div className="relative h-full w-full
+
+		/* Colore base dei bottoni */
+		[&_.fc-button]:!bg-category-bg-color
+		[&_.fc-button]:!border-overlay-border-color
+		[&_.fc-button]:!text-white
+		[&_.fc-button]:!font-bold
+		[&_.fc-button]:!transition-all
+
+		/* Hover dei bottoni */
+		[&_.fc-button:hover]:!bg-zinc-800
+		[&_.fc-button:hover]:!text-white
+
+		/* Bottone ATTIVO (quello selezionato) */
+		[&_.fc-button-active]:!bg-owner-color
+		[&_.fc-button-active]:!border-owner-color
+		[&_.fc-button-active]:!text-white
+
+		[&_.fc-daygrid-day-number]:!text-white
+		
+		/* Rimuove l'ombra blu del focus */
+		[&_.fc-button:focus]:!shadow-none
+  	">
       <FullCalendar
         plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
         initialView="timeGridWeek"
@@ -132,7 +154,7 @@ function Calendar() {
         aspectRatio={2}
         dayHeaderContent={(args) => {
         return {
-            html: `<span class='text-gray-800 text-base'>${args.text}</span>`
+            html: `<span class='text-white text-base'>${args.text}</span>`
         };}}
         events={fcEvents}
         eventClick={(info) => {

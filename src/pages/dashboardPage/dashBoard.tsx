@@ -9,12 +9,11 @@ import ChatPage from '../chatRoomPage/chatRoomPage';
 import Dashboard from '../dashboardProfile/dashboardProfile'
 import type { ProjectInfo } from '../../data/types';
 import DocumentsPage from '../DocumentsPage/DocumentsPage';
-import { useLocation, useNavigate } from "react-router-dom";
 
 function dashBoard() {
-    const [activePage, setActivePage] = useState('projects');
+    const [activePage, setActivePage] = useState('dashboard');
     const [selectedProject, setSelectedProject] = useState<ProjectInfo | null>(null)
-    
+	
     return (
         <div className="app-layout">
             <Header setActivePage={setActivePage} selectedProject={selectedProject}/>

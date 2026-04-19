@@ -27,10 +27,11 @@ export default function DocumentsPage() {
           <div
             key={file.id}
             onClick={() => setPreview(file)}
-            className="group cursor-pointer flex flex-col bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden hover:shadow-md hover:border-blue-400 transition-all"
+            className="group cursor-pointer flex flex-col rounded-lg shadow-sm border 
+			overflow-hidden hover:shadow-md border border-radius: 14px border-overlay-border-color hover:border-white transition-all"
           >
             {/* AREA PREVIEW (Il quadrato) */}
-            <div className="aspect-square w-full bg-gray-100 flex items-center justify-center overflow-hidden border-b border-gray-100">
+            <div className="aspect-square w-full flex items-center justify-center overflow-hidden border-b border-gray-100">
               {file.type === "image" ? (
                 <img
                   src={file.url}
@@ -47,8 +48,8 @@ export default function DocumentsPage() {
             </div>
 
             {/* INFO FILE */}
-            <div className="p-3 bg-white">
-              <p className="text-sm font-semibold text-gray-700 truncate" title={file.name}>
+            <div className="p-3">
+              <p className="text-sm font-semibold text-white truncate" title={file.name}>
                 {file.name}
               </p>
               <p className="text-[10px] text-gray-400 uppercase font-bold mt-1">

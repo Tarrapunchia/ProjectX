@@ -1,4 +1,3 @@
-import './login.css';
 import { useNavigate } from "react-router-dom";
 import { useRef, useState } from "react";
 import consts from '../../data/consts';

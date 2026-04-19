@@ -7,13 +7,13 @@ export default function Notification() {
     return (
       <div
         className="
-          flex items-start gap-3 p-3 rounded-lg cursor-pointer bg-gray-100
-          hover:bg-gray-300 transition-colors shadow-sm">
+          flex items-start gap-3 p-3 rounded-lg cursor-pointer 
+		  transition-colors shadow-sm border border-radius: 8px border-overlay-border-color hover:border-white">
         <span className={`${color} text-xl leading-none`}>•</span>
 
         <div className="flex-1">
-          <p className="text-gray-800 font-medium">{message}</p>
-          <p className="text-gray-500 text-sm">{time}</p>
+          <p className="text-white font-medium">{message}</p>
+          <p className="text-gray-400 text-sm">{time}</p>
         </div>
       </div>
     );
@@ -21,7 +21,7 @@ export default function Notification() {
 
   return (
     <div className="space-y-2">
-        <h2 className="text-lg font-semibold mb-4 flex justify-center mb-12">
+        <h2 className="text-lg text-white font-semibold mb-4 flex justify-center mb-12">
             Notifiche
         </h2>
         {renderNotification("text-blue-500", "Nuovo task assegnato", "2 minuti fa")}
