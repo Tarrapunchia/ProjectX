@@ -9,8 +9,8 @@ import { useLocation } from "react-router-dom";
 import FirstLogin from "../PopUpFirstLogin/firstLoginpage"
 
 function DashboardProf() {
-  	const [tasksInfos, setTasksInfo] = useState<TaskInfos>(MOCK_USER_TASKS)
-  	const [infoFetched, setInfoFetched] = useState<boolean>(false)
+	const [tasksInfos, setTasksInfo] = useState<TaskInfos>(MOCK_USER_TASKS)
+	const [infoFetched, setInfoFetched] = useState<boolean>(false)
 
 	const [isPopupOpen, setIsPopupOpen] = useState(true);
 
@@ -26,8 +26,8 @@ function DashboardProf() {
 		// Chiudiamo il pop-up dopo il salvataggio
 		setIsPopupOpen(false);
 	};
-  
-    useEffect(() => 
+
+	useEffect(() => 
 	{
 		if (location.state?.isFirstLogin) 
 		{
@@ -50,36 +50,39 @@ function DashboardProf() {
 		})()
 
 		return () => {};
-    }, [location.state]);
-	return (
-		<div className="grid grid-cols-[2fr_2fr_1.5fr] gap-4 p-6 h-full w-full">
+	}, [location.state]);
+		return (
+			/* 1. px-10 (lati), pt-10 (sopra), pb-4 (sotto per non avere troppo vuoto). lg:p-6 torna normale su desktop */
+			<div className="grid grid-cols-1 lg:grid-cols-[2fr_2fr_1.5fr] gap-10 px-10 pt-10 pb-4 lg:p-6 min-w-full">
 
-			<FirstLogin 
-				isOpen={isPopupOpen}
-				onClose={() => setIsPopupOpen(false)}
-				onSave={handleProfileUpdate}
-			/>
-		{/* Colonna sinistra: calendario + grafico */}
-		<div className="col-span-2 grid grid-rows-[50%_49%] grid-cols-[100%] gap-2">
+				<FirstLogin
+					isOpen={isPopupOpen}
+					onClose={() => setIsPopupOpen(false)}
+					onSave={handleProfileUpdate}
+				/>
+				
+				{/* Colonna Sinistra */}
+				<div className="col-span-1 lg:col-span-2 grid grid-cols-1 gap-6">
 
-			{/* Calendario */}
-			<div className="border border-radius: 8px border-overlay-border-color rounded-lg shadow p-4 overflow-hidden relative h-full w-full text-base leading-tight text-white">
-				<Calendar />
+					{/* Calendario */}
+					<div className="border border-overlay-border-color rounded-lg shadow p-4 overflow-hidden relative min-h-[350px] text-base leading-tight text-white">
+						<Calendar />
+					</div>
+
+					{/* Grafico */}
+					<div className="min-h-[300px]">
+						{infoFetched ? <PriorityChart taskData={ tasksInfos }/> : <PriorityChart taskData={ MOCK_USER_TASKS }/>}
+					</div>
+
+				</div>
+
+				{/* Notifiche - Ridotto il min-h così non spinge troppo in basso */}
+				<div className="col-span-1 rounded-lg shadow p-4 overflow-y-auto text-gray-800 border border-overlay-border-color min-h-[300px] lg:h-full">
+					<Notification />
+				</div>
+
 			</div>
-
-			{/* Grafico */}
-			{(infoFetched && <PriorityChart taskData={ tasksInfos }/>)}
-			{(!infoFetched && <PriorityChart taskData={ MOCK_USER_TASKS }/>)}
-
-		</div>
-
-		{/* Notifiche */}
-		<div className="col-span-1 rounded-lg shadow p-4 overflow-y-auto text-gray-800 border border-radius: 8px border-overlay-border-color">
-			<Notification />
-		</div>
-
-		</div>
-	);
+		);
 	}
 
 	export default DashboardProf;

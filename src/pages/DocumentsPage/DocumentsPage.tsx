@@ -67,11 +67,11 @@ export default function DocumentsPage() {
           onClick={() => setPreview(null)}
         >
           <div
-            className="bg-white rounded-2xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-hidden flex flex-col"
+            className="bg-category-bg-color rounded-2xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-hidden flex flex-col"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="p-4 border-b flex justify-between items-center">
-              <h2 className="text-lg font-bold text-gray-800">{preview.name}</h2>
+              <h2 className="text-lg font-bold text-white">{preview.name}</h2>
               <button 
                 onClick={() => setPreview(null)}
                 className="p-2 hover:bg-gray-100 rounded-full transition-colors"
@@ -80,12 +80,12 @@ export default function DocumentsPage() {
               </button>
             </div>
 
-            <div className="p-2 bg-gray-50 flex justify-center items-center overflow-auto">
+            <div className="bg-overlay-border-color flex justify-center items-center overflow-auto">
               {preview.type === "image" ? (
                 <img
                   src={preview.url}
                   alt={preview.name}
-                  className="max-w-full max-h-[70vh] object-contain shadow-sm"
+                  className="w-full h-full object-contain shadow-sm"
                 />
               ) : (
                 <div className="py-20 text-center">
@@ -94,12 +94,12 @@ export default function DocumentsPage() {
                      {preview.type === "doc" && "📝"}
                      {preview.type === "zip" && "🗂️"}
                   </span>
-                  <p className="text-gray-500">Anteprima non disponibile per questo formato</p>
+                  <p className="text-gray-100">Anteprima non disponibile per questo formato</p>
                 </div>
               )}
             </div>
             
-            <div className="p-4 bg-white border-t flex justify-end">
+            <div className="p-4 bg-category-bg-color border-t flex justify-end">
                 <button
                   onClick={() => setPreview(null)}
                   className="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition-colors"

@@ -7,27 +7,9 @@ import itLocale from "@fullcalendar/core/locales/it";
 import helpers from "../../utilities/helpers";
 import type { CalendarEntries, ProjectTasks, Event as ApiEvent, SelectedEvent, FCEvent } from "../../data/types";
 
-
-
-// function toIsoOrDateString(d: any): string {
-//   // se è già string ISO ok, se è Date ok, altrimenti best effort
-//   if (!d) return "";
-//   if (typeof d === "string") return d;
-//   if (d instanceof Date) return d.toISOString();
-//   return String(d);
-// }
-
 const taskColors = [
-  "cornflowerblue",
-  "steelblue",
-  "royalblue",
-  "seagreen",
-  "forestgreen",
-  "goldenrod",
-  "darkorange",
-  "tomato",
-  "slategray",
-  "mediumpurple",
+  "cornflowerblue", "steelblue", "royalblue", "seagreen", "forestgreen",
+  "goldenrod", "darkorange", "tomato", "slategray", "mediumpurple",
 ];
 
 function mapCalendarEntriesToFullCalendar(entries: CalendarEntries): FCEvent[] {
@@ -36,13 +18,10 @@ function mapCalendarEntriesToFullCalendar(entries: CalendarEntries): FCEvent[] {
     title: `🧩 ${t.name}`,
     start: t.dueDate ?? t.createdAt,
     end: t.dueDate ?? undefined,
-    color: taskColors[i%10],
+    color: taskColors[i % 10],
     extendedProps: {
-      kind: "task",
-      status: t.status,
-      priority: t.priority,
-      description: t.description,
-      projectId: t.projectId,
+      kind: "task", status: t.status, priority: t.priority,
+      description: t.description, projectId: t.projectId,
     },
   }));
 
@@ -53,10 +32,7 @@ function mapCalendarEntriesToFullCalendar(entries: CalendarEntries): FCEvent[] {
     end: undefined,
     color: 'blue',
     extendedProps: {
-      kind: "event",
-      type: e.type,
-      description: e.description,
-      ownerId: e.ownerId,
+      kind: "event", type: e.type, description: e.description, ownerId: e.ownerId,
     },
   }));
 
@@ -66,9 +42,20 @@ function mapCalendarEntriesToFullCalendar(entries: CalendarEntries): FCEvent[] {
 function Calendar() {
   const [selectedEvent, setSelectedEvent] = useState<SelectedEvent | null>(null);
   const [fcEvents, setFcEvents] = useState<FCEvent[]>([]);
-
   const modalRef = useRef<HTMLDivElement | null>(null);
   const [isClosing, setIsClosing] = useState(false);
+
+  // --- LOGICA RESPONSIVE ---
+  const [isMobile, setIsMobile] = useState(typeof window !== "undefined" ? window.innerWidth < 768 : false);
+
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+  // --------------------------
 
   function closeModal() {
     setIsClosing(true);
@@ -78,18 +65,12 @@ function Calendar() {
     }, 180);
   }
 
-  // carica eventi al mount
-  useEffect(() => { 
+  useEffect(() => {
     let cancelled = false;
-
     (async () => {
       try {
         const res = await helpers.getter("/api/v1/users/calendarEntries", null);
-
-        // - se getter ritorna direttamente CalendarEntries -> entries = res
-        // - se ritorna { success, data } -> entries = res.data
         const entries: CalendarEntries = (res?.data) as CalendarEntries;
-
         if (!cancelled && entries) {
           setFcEvents(mapCalendarEntriesToFullCalendar(entries));
         }
@@ -97,13 +78,9 @@ function Calendar() {
         console.log("Errore fetch calendarEntries:", e);
       }
     })();
-
-    return () => {
-      cancelled = true;
-    };
+    return () => { cancelled = true; };
   }, []);
 
-  // click fuori modal
   useEffect(() => {
     function handleClickOutside(e: MouseEvent) {
       if (modalRef.current && !modalRef.current.contains(e.target as Node)) closeModal();
@@ -114,52 +91,47 @@ function Calendar() {
 
   return (
     <div className="relative h-full w-full
-
-		/* Colore base dei bottoni */
-		[&_.fc-button]:!bg-category-bg-color
-		[&_.fc-button]:!border-overlay-border-color
-		[&_.fc-button]:!text-white
-		[&_.fc-button]:!font-bold
-		[&_.fc-button]:!transition-all
-
-		/* Hover dei bottoni */
-		[&_.fc-button:hover]:!bg-zinc-800
-		[&_.fc-button:hover]:!text-white
-
-		/* Bottone ATTIVO (quello selezionato) */
-		[&_.fc-button-active]:!bg-owner-color
-		[&_.fc-button-active]:!border-owner-color
-		[&_.fc-button-active]:!text-white
-
-		[&_.fc-daygrid-day-number]:!text-white
-		
-		/* Rimuove l'ombra blu del focus */
-		[&_.fc-button:focus]:!shadow-none
-  	">
+        [&_.fc-button]:!bg-category-bg-color
+        [&_.fc-button]:!border-overlay-border-color
+        [&_.fc-button]:!text-white
+        [&_.fc-button]:!font-bold
+        [&_.fc-button]:!transition-all
+        [&_.fc-button:hover]:!bg-zinc-800
+        [&_.fc-button:hover]:!text-white
+        [&_.fc-button-active]:!bg-owner-color
+        [&_.fc-button-active]:!border-owner-color
+        [&_.fc-button-active]:!text-white
+        [&_.fc-daygrid-day-number]:!text-white
+        [&_.fc-button:focus]:!shadow-none
+        /* Fix per titoli lunghi su mobile */
+        [&_.fc-toolbar-title]:!text-sm
+        md:[&_.fc-toolbar-title]:!text-xl
+        [&_.fc-toolbar]:flex-wrap
+        [&_.fc-toolbar]:gap-2
+    ">
       <FullCalendar
+        key={isMobile ? "mobile" : "desktop"} // Forza il re-render al cambio dimensione
         plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
-        initialView="timeGridWeek"
+        initialView={isMobile ? "timeGridDay" : "timeGridWeek"}
         slotMinTime="08:00:00"
         slotMaxTime="20:00:00"
         allDaySlot={false}
         handleWindowResize={true}
         headerToolbar={{
-          left: "prev,next today",
+          left: isMobile ? "prev,next" : "prev,next today",
           center: "title",
-          right: "dayGridMonth,timeGridWeek,timeGridDay",
+          right: isMobile ? "timeGridDay,dayGridMonth" : "dayGridMonth,timeGridWeek,timeGridDay",
         }}
         initialDate={new Date().toISOString().split("T")[0]}
         locale={itLocale}
         height="100%"
-        aspectRatio={2}
-        dayHeaderContent={(args) => {
-        return {
-            html: `<span class='text-white text-base'>${args.text}</span>`
-        };}}
+        aspectRatio={isMobile ? 0.8 : 2}
+        dayHeaderContent={(args) => ({
+            html: `<span class='text-white text-xs md:text-base'>${args.text}</span>`
+        })}
         events={fcEvents}
         eventClick={(info) => {
           const ext = info.event.extendedProps as any;
-
           setSelectedEvent({
             id: String(info.event.id),
             name: info.event.title,
@@ -175,35 +147,17 @@ function Calendar() {
       />
 
       {selectedEvent && (
-        <div
-          className={`absolute inset-0 bg-black/70 z-50 flex items-center justify-center p-6
-            ${isClosing ? "animate-fadeZoomOut" : "animate-fadeZoomIn"}`}
-        >
-          <div ref={modalRef} className="rounded-lg bg-zinc-900 p-6 w-full max-w-md">
+        <div className={`absolute inset-0 bg-black/70 z-[100] flex items-center justify-center p-4
+            ${isClosing ? "animate-fadeZoomOut" : "animate-fadeZoomIn"}`}>
+          <div ref={modalRef} className="rounded-lg bg-zinc-900 p-6 w-full max-w-md shadow-2xl border border-zinc-700">
             <h2 className="text-xl font-semibold text-white">{selectedEvent.name}</h2>
-
-            <p className="text-green-300 mt-3">
-              <b>Inizio:</b> {selectedEvent.start}
-            </p>
-
-            <p className="text-red-300 mt-1">
-              <b>Fine:</b> {selectedEvent.end ?? "-"}
-            </p>
-
-            {selectedEvent.status && (
-              <p className="text-white/80 mt-2"><b>Status:</b> {selectedEvent.status}</p>
-            )}
-
-            {selectedEvent.type && (
-              <p className="text-white/80 mt-1"><b>Type:</b> {selectedEvent.type}</p>
-            )}
-
-            {selectedEvent.description && (
-              <p className="text-white/80 mt-2"><b>Description:</b> {selectedEvent.description}</p>
-            )}
-
-            <button className="mt-5 px-3 py-2 text-xs border rounded" onClick={closeModal}>
-              Close
+            <p className="text-green-300 mt-3 text-sm"><b>Inizio:</b> {selectedEvent.start}</p>
+            <p className="text-red-300 mt-1 text-sm"><b>Fine:</b> {selectedEvent.end ?? "-"}</p>
+            {selectedEvent.status && <p className="text-white/80 mt-2 text-sm"><b>Status:</b> {selectedEvent.status}</p>}
+            {selectedEvent.type && <p className="text-white/80 mt-1 text-sm"><b>Type:</b> {selectedEvent.type}</p>}
+            {selectedEvent.description && <p className="text-white/80 mt-2 text-sm text-pretty"><b>Description:</b> {selectedEvent.description}</p>}
+            <button className="mt-5 w-full md:w-auto px-4 py-2 text-xs border border-white/20 rounded hover:bg-white/10 text-white transition-colors" onClick={closeModal}>
+              Chiudi
             </button>
           </div>
         </div>

@@ -1,5 +1,5 @@
 import { Pie } from "react-chartjs-2";
-import { useState } from "react";
+import { useState, useEffect } from "react"; // Aggiunto useEffect
 import { Chart as ChartJS, ArcElement, Tooltip, Legend, Title } from "chart.js";
 import type { TaskInfos } from "../../data/types";
 
@@ -20,6 +20,16 @@ const PRIORITIES: Priority[] = ["NONE", "LOW", "MEDIUM", "HIGH", "CRITICAL"];
 export default function PriorityChart({ taskData }: { taskData: TaskInfos }) {
   if (!taskData) return null;
 
+  // --- LOGICA RESPONSIVE ---
+  const [isMobile, setIsMobile] = useState(typeof window !== "undefined" ? window.innerWidth < 768 : false);
+
+  useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth < 768);
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+  // --------------------------
+
   const [activePriorities, setActivePriorities] = useState<Priority[]>(PRIORITIES);
 
   const chartData = {
@@ -36,16 +46,22 @@ export default function PriorityChart({ taskData }: { taskData: TaskInfos }) {
 
   const options = {
     plugins: {
-      title: { display: true, text: "Priority Distribution", font: { size: 14 }, color: "#ffffff" },
+      title: { 
+        display: true, 
+        text: "Priority Distribution", 
+        // Titolo più piccolo su mobile
+        font: { size: isMobile ? 12 : 14 }, 
+        color: "#ffffff",
+        padding: { bottom: isMobile ? 10 : 20 }
+      },
       legend: {
-        position: "left" as const,
+        // Legenda SOTTO su mobile, a SINISTRA su desktop
+        position: "bottom" as const,
         onClick: (_: any, legendItem: any, legend: any) => {
           const index = legendItem.index;
           const ci = legend.chart;
-          
           ci.toggleDataVisibility(index);
           ci.update();
-
           const clickedPriority = PRIORITIES[index];
           setActivePriorities((prev) => 
             prev.includes(clickedPriority) 
@@ -54,9 +70,7 @@ export default function PriorityChart({ taskData }: { taskData: TaskInfos }) {
           );
         },
         labels: {
-		
           generateLabels(chart: any) {
-			
             const d = chart.data;
             const values = d.datasets?.[0]?.data ?? [];
             return (d.labels ?? []).map((lbl: string, i: number) => ({
@@ -66,41 +80,38 @@ export default function PriorityChart({ taskData }: { taskData: TaskInfos }) {
               lineWidth: 1,
               hidden: !chart.getDataVisibility(i),
               index: i,
-			  fontColor: "#ffffff"
+              fontColor: "#ffffff"
             }));
           },
-          boxWidth: 12,
-          font: { size: 11 }
+          boxWidth: isMobile ? 8 : 12, // Quadratini più piccoli su mobile
+          font: { size: isMobile ? 9 : 11 }, // Testo più piccolo su mobile
+          padding: isMobile ? 8 : 18
         },
       },
     },
     maintainAspectRatio: false,
   };
 
-  // Filtriamo i task prima di renderizzarli
   const filteredTasks = taskData.tasks.filter(t => 
     activePriorities.includes((t.priority as Priority) || "NONE")
   );
 
   return (
-    <div className="relative border border-radius: 8px border-overlay-border-color rounded-lg shadow p-4 grid grid-cols-[1fr_1fr] gap-2">
+    /* Modificata la grid: 1 colonna su mobile, 2 su desktop */
+    <div className="relative border border-overlay-border-color rounded-lg shadow p-4 grid grid-cols-1 md:grid-cols-[1fr_1fr] gap-4 min-h-[300px]">
       
-	  <div className="relative w-full min-h-0 max-h-full overflow-hidden">
-      {taskData && taskData.tasks.length > 0 ?
-	  (
-        <Pie data={chartData} options={options} />
-      ) : 
-	  (
-        <div className="flex items-center justify-center h-full text-gray-400">
-          Loading chart...
-        </div>
-      )}
-    </div>
+      <div className="relative w-full h-[200px] md:h-full min-h-0 overflow-hidden">
+        {taskData && taskData.tasks.length > 0 ? (
+          <Pie data={chartData} options={options} />
+        ) : (
+          <div className="flex items-center justify-center h-full text-gray-400 text-sm">
+            Loading chart...
+          </div>
+        )}
+      </div>
 
       {/* SEZIONE LISTA TASK */}
-      <div className="flex flex-col gap-2 overflow-y-auto">
-        
-        {/* Renderizziamo i task filtrati */}
+      <div className="flex flex-col gap-2 overflow-y-auto max-h-[250px] md:max-h-full pr-1">
         {filteredTasks.map((task, index) => {
           const pKey = (task.priority as Priority) || "NONE";
           const borderColor = priorityColors[pKey];
@@ -111,10 +122,8 @@ export default function PriorityChart({ taskData }: { taskData: TaskInfos }) {
               className="relative border-l-2 pl-2 text-sm leading-tight group"
               style={{ borderColor: borderColor }}
             >
-              <div className="flex flex-col p-2 border rounded-lg
-			  		border-radius: 8px border-overlay-border-color hover:border-white 
-					transition-colors shadow-sm">
-                <span className="text-xs font-semibold text-slate-800 truncate text-white">
+              <div className="flex flex-col p-2 border rounded-lg border-overlay-border-color hover:border-white transition-colors shadow-sm">
+                <span className="text-xs font-semibold text-white truncate">
                   {task.name}
                 </span>
                 <span className="text-[10px] text-slate-500">
@@ -122,40 +131,32 @@ export default function PriorityChart({ taskData }: { taskData: TaskInfos }) {
                 </span>
               </div>
 
-              {/* Tooltip */}
+              {/* Tooltip (nascosto su mobile per non coprire tutto, o gestito via hover) */}
               <div className={`
-                  absolute left-2 w-max max-w-xs bg-white shadow-lg border rounded p-2 z-10
+                  absolute left-2 w-max max-w-[180px] md:max-w-xs bg-black shadow-lg border border-zinc-700 rounded p-2 z-50
                   opacity-0 pointer-events-none
                   group-hover:opacity-100 group-hover:pointer-events-auto
                   transition-opacity duration-150
                 ${index < 2 ? "top-full mt-2" : "bottom-full mb-2"}
               `}>
-                <div className="flex flex-col mb-2 border-b border-white/10 pb-1 w-full">
-                  <span className="text-black text-xs mt-1 truncate w-full" style={{ color: borderColor }}>
-                    Priority: {pKey}
-                  </span>
-                  <p className="text-black text-xs mt-1 truncate w-full">
-                    Description: {task.description || "Nessuna descrizione fornita."}
-                  </p>
-                </div>
-                {task.dueDate && (
-                  <div className="text-xs text-gray-400 italic">
-                    Scadenza: {new Date(task.dueDate).toLocaleDateString('it-IT')}
-                  </div>
-                )}
+                <span className="block text-xs font-bold" style={{ color: borderColor }}>
+                  Priority: {pKey}
+                </span>
+                <p className="text-white text-[10px] md:text-xs mt-1">
+                  {task.description || "Nessuna descrizione."}
+                </p>
               </div>
             </div>
           );
         })}
 
         {taskData.tasks.length > 0 && filteredTasks.length === 0 && (
-          <div className="flex flex-col items-center justify-center py-10 opacity-50">
-            <span className="text-[11px] font-bold text-white uppercase tracking-widest text-center">
-              No tasks to show
+          <div className="flex flex-col items-center justify-center py-4 opacity-50">
+            <span className="text-[10px] font-bold text-white uppercase tracking-widest text-center">
+              No tasks
             </span>
           </div>
         )}
-
       </div>
     </div>
   );
