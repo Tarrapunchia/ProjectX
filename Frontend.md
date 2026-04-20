@@ -54,7 +54,15 @@
 * lista amici
 
 
+### Barra di ricerca
 
+* Ricerca di utenti e organizzazioni (eventualmente progetti)
+
+
+### Pagina utente ricercato
+
+* Simile alla pagina profilo personale ma con meno informazioni
+* Tasti: richiesta amicizia/rimuovi amicizia, blocca utente
 
 
 ## Chat
