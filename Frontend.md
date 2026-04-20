@@ -23,9 +23,6 @@
 
 
 
-
-
-
 ### Pagina del progetto
 
 * Dashboard
@@ -63,6 +60,13 @@
 
 * Simile alla pagina profilo personale ma con meno informazioni
 * Tasti: richiesta amicizia/rimuovi amicizia, blocca utente
+
+
+### Settings
+
+* cancellare utente
+
+
 
 
 ## Chat
