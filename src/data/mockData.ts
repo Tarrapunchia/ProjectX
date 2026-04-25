@@ -1,5 +1,5 @@
 import consts from './consts';
-import type { ProfileUser, Projects, Friend, ProjectInfo, ProjectTasks, userInfos, FriendList, TaskInfos, Message } from './types';
+import type { ProfileUser, Projects, Friend, ProjectInfo, ProjectTasks, userInfos, FriendList, TaskInfos } from './types';
 
 export const AVATAR = 'https://picsum.photos/id/64/150/150'
 
@@ -103,7 +103,3 @@ export const MOCK_USER_TASKS: TaskInfos = {
 	HIGH: '5',
 	CRITICAL: '9',
 }
-
-export const MOCK_MESSAGES: Message[] = [
-	{ id: '1', sender: 'Fabio', text: 'Hello team, is the refactor done?', timestamp: '10:30', isMe: false }
-]

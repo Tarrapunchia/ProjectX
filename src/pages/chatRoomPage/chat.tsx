@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import './chat.css';
-import type { ProjectInfo } from '../data/types';
+import type { ProjectInfo } from '../../data/types';
 import Connections from './connection'
 
 type Message = {

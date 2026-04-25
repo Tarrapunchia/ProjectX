@@ -167,10 +167,9 @@ export type CalendarEntries = {
 	events: Event[]
 }
 
-export interface Message {
-	id: 		string;
-	sender:		string;
-	text:		string;
-	timestamp:	string;
-	isMe:		boolean;
+export interface MessageBubbleProps {
+	content: 		string,
+	senderMail:		string,
+	timestamp:		string | Date,
+	isMe:			boolean
 }

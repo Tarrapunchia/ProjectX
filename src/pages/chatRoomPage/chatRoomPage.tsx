@@ -1,4 +1,4 @@
-import chat from "../../components/chat"
+import chat from "./chat"
 import type { ProjectInfo } from "../../data/types"
 import React, { useState, useEffect, useRef } from 'react';
 import { FiSend, FiPaperclip } from 'react-icons/fi';

@@ -1,4 +1,4 @@
-import type { ProjectInfo } from "../data/types";
+import type { ProjectInfo } from "../../data/types";
 
 const getRoomId = async (serverUrl: string, project: ProjectInfo)
 : Promise<string> => {
