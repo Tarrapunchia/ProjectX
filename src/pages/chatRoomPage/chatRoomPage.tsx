@@ -1,5 +1,7 @@
 import chat from "../../components/chat"
 import type { ProjectInfo } from "../../data/types"
+import React, { useState, useEffect, useRef } from 'react';
+import { FiSend, FiPaperclip } from 'react-icons/fi';
 
 interface ChatPageProps {
     selectedProject: ProjectInfo | null

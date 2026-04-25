@@ -166,3 +166,11 @@ export type CalendarEntries = {
 	tasks: ProjectTasks[],
 	events: Event[]
 }
+
+export interface Message {
+	id: 		string;
+	sender:		string;
+	text:		string;
+	timestamp:	string;
+	isMe:		boolean;
+}
