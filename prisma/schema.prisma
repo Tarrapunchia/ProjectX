@@ -28,7 +28,7 @@ model User {
   name         String
   surname      String
   email        String   @unique
-  phone        String?
+  phone        String?  @unique
   city         String?
   address      String?
   cap          String?
@@ -94,6 +94,7 @@ model Notification {
 
   type            NotificationType @default(NONE)
   message         String
+  createdAt       DateTime @default(now())
 }
 
 enum EventType {
