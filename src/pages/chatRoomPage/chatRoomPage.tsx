@@ -2,21 +2,22 @@ import React, { useState, useEffect, useRef } from 'react';
 import type { ProjectInfo } from "../../data/types"
 import Connections from './connection';
 import { MessageBubble } from './messageBubble';
-import { ChatInput } from './chatInput'
+import { ChatInput } from './chatInput';
+import { ws } from '../loginPage/login';
+import consts from '../../data/consts';
+import helpers from '../../utilities/helpers';
 
 interface ChatPageProps {
     selectedProject: ProjectInfo | null
 }
 
 const ChatPage: React.FC<ChatPageProps> = ({ selectedProject }) => {
-    const [serverUrl] = useState('http://localhost:5000');
+    const [serverUrl] = useState(consts.BE);
 	const [chatHistory, setChatHistory] = useState<any[]>([]);
 	const [roomId, setRoomId] = useState<string>('');
+	let myMail: any | null = null;
 	const scrollRef = useRef<HTMLDivElement>(null);
-
-	//Mock user email (to change with real auth)
-	const myMail = "yourmail@example.com";
-
+	
 	useEffect(() => {
 		let cancelled = false;
 		if (selectedProject) {
@@ -24,9 +25,17 @@ const ChatPage: React.FC<ChatPageProps> = ({ selectedProject }) => {
 				try {
 					const id = await Connections.getRoomId(serverUrl, selectedProject);
 					if (!cancelled) setRoomId(id);
+					
+					if (!ws || ws.readyState  !== WebSocket.OPEN) return;
+					
+					ws.send(JSON.stringify({ type:"room:join", roomId:id}))
+					const userData = await helpers.getter('/api/v1/users/activeUser', null);
+					myMail = userData.data.email;
 
 					const data = await Connections.getRoomHistory(serverUrl, id);
 					if (data?.messages && !cancelled) setChatHistory(data.messages);
+					console.log(myMail);
+					console.log(data.messages);
 				} catch (e) {
 					console.error(e)
 				}
@@ -41,7 +50,8 @@ const ChatPage: React.FC<ChatPageProps> = ({ selectedProject }) => {
 	}, [chatHistory]);
 
 	const handleSendMessage = (content: string) => {
-		
+		if (!ws || ws.readyState !== WebSocket.OPEN) return;
+		ws.send(JSON.stringify({ type:"room:message", roomId:roomId, payload:{ text:content } }))
 		console.log("Sending to backend", content);
 	};
 
@@ -62,8 +72,8 @@ const ChatPage: React.FC<ChatPageProps> = ({ selectedProject }) => {
 						key={m.id}
 						content={m.content}
 						senderMail={m.senderMail}
+						isMe={String(m.senderMail) === String(myMail)}
 						timestamp={m.timestamp}
-						isMe={m.senderMail === myMail}
 					/>
 				))}
 			</div>

@@ -8,6 +8,9 @@ declare global {
   }
 }
 
+export let ws: WebSocket | null = null;
+
+
 function login() 
 {
     const [error, setError] = useState<string | null>(null);
@@ -37,6 +40,8 @@ function login()
                 return
             }
             console.log(login)
+			ws = new WebSocket(consts.WS);
+			ws.onopen = () => null;
             res = await login.json()
         } catch (error) {
             console.log(error)
