@@ -60,6 +60,7 @@ import type { ProjectInfo } from '../data/types';
 import { FiRepeat } from 'react-icons/fi';
 import { useEffect, useState } from 'react';
 import CONSTS from '../data/consts';
+import SearchBar from './SearchBar';
 
 interface HeaderProps {
 	setActivePage: (page: string) => void;
@@ -108,6 +109,7 @@ function Header({ setActivePage, selectedProject }: HeaderProps) {
 			<h1 className="flex-1 min-w-0 truncate m-0 mr-[50px] text-[35px] font-bold leading-tight">
 				{selectedProject ? selectedProject.name : 'Dashboard'}
 			</h1>
+			<SearchBar />
 			<button 
 				onClick={() => setActivePage('profile')}
 				className="ml-auto mr-[20px] !p-0 !bg-transparent !border-none cursor-pointer focus:!outline-none focus:!border-none active:!border-none"

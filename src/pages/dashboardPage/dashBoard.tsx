@@ -20,7 +20,7 @@ function dashBoard() {
             <Sidebar setActivePage={setActivePage} />
             <main className="main-content">
                 { activePage === 'dashboard' && <Dashboard /> }
-                { activePage === 'documents' && <DocumentsPage /> }
+                { activePage === 'documents' && <DocumentsPage selectedProject={selectedProject}/> }
                 { activePage === 'tasks' && <p>Tasks (WIP)</p>}
                 {/* { activePage === 'organization' && <ProjectsPage setActivePage={setActivePage} setSelectedProject={setSelectedProject}/> } */}
 

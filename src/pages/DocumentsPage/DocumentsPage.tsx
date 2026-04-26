@@ -1,22 +1,55 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import type { ProjectInfo } from "../../data/types"
+import helpers from "../../utilities/helpers" 
 
 type FileItem = {
   id: string;
   name: string;
   url: string;
-  type: "image" | "pdf" | "doc" | "zip";
+  type: "image" | "pdf" | "doc" | "zip" | "text";
 };
 
-export default function DocumentsPage() {
+interface ChatPageProps {
+    selectedProject: ProjectInfo | null
+}
+
+export default function DocumentsPage({ selectedProject }: ChatPageProps) {
+  const [files, setFiles] = useState<FileItem[]>([]);
   const [preview, setPreview] = useState<FileItem | null>(null);
 
-  const files: FileItem[] = [
-    { id: "1", name: "citta.jpg", url: "../../assets/citta.jpg", type: "image" },
-    { id: "2", name: "montagna.jpg", url: "../../assets/montagna.jpg", type: "image" },
-    { id: "3", name: "workspace.jpg", url: "../../assets/workspace.jpg", type: "image" },
-    { id: "4", name: "progetto.pdf", url: "#", type: "pdf" },
-    { id: "5", name: "note.doc", url: "#", type: "doc" },
-  ];
+  useEffect(() => {
+    // Funzione per caricare i file dall'API
+	
+    const loadFiles = async () => {
+	  if (!selectedProject)
+		return
+      try {
+        let data = (await helpers.getter("/api/v1/projects/" + selectedProject?.id, null)).data
+
+		const organizationId = data.organization.id
+        const BASE_URL = "http://localhost:5000/api/v1/files/files/preview/" + organizationId + "/" + selectedProject?.id 
+		const files_url = "/api/v1/files/" + organizationId + "/" + selectedProject?.id
+
+		data = (await helpers.getter(files_url, null)).data
+        const formatted = data.files.map((name: string, i: number) => ({
+          id: String(i + 1),
+          name: name,
+          url: `${BASE_URL}/${name}`,
+          type: name.endsWith('.txt') ? "text" : 
+                name.match(/\.(png|jpg|jpeg|gif)$/i) ? "image" : "doc"
+        }));
+
+        setFiles(formatted);
+      } catch (error) {
+        console.error("Errore nel fetch:", error);
+      }
+    };
+
+    loadFiles();
+  }, [selectedProject]);
+
+  if (!selectedProject)
+	return <div className="flex h-full items-center justify-center text-gray-500">Select a project.</div>
 
   return (
     <div className="p-6">
@@ -31,21 +64,25 @@ export default function DocumentsPage() {
 			overflow-hidden hover:shadow-md border border-radius: 14px border-overlay-border-color hover:border-white transition-all"
           >
             {/* AREA PREVIEW (Il quadrato) */}
-            <div className="aspect-square w-full flex items-center justify-center overflow-hidden border-b border-gray-100">
-              {file.type === "image" ? (
-                <img
-                  src={file.url}
-                  alt={file.name}
-                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                />
-              ) : (
-                <div className="text-4xl">
-                  {file.type === "pdf" && "📄"}
-                  {file.type === "doc" && "📝"}
-                  {file.type === "zip" && "🗂️"}
-                </div>
-              )}
-            </div>
+		<div className="bg-overlay-border-color flex justify-center items-center overflow-auto min-h-[300px]">
+		{file.type === "image" ? (
+			<img
+			src={file.url}
+			alt={file.name}
+			className="max-w-full max-h-[70vh] object-contain shadow-sm"
+			/>
+		) : 
+		(
+			<div className="py-20 text-center">
+			<span className="text-6xl block mb-4">
+				{file.type === "pdf" && "📄"}
+				{file.type === "doc" && "📝"}
+				{file.type === "zip" && "🗂️"}
+			</span>
+			<p className="text-gray-100">Anteprima non disponibile per {file.type}</p>
+			</div>
+		)}
+		</div>
 
             {/* INFO FILE */}
             <div className="p-3">
@@ -60,7 +97,6 @@ export default function DocumentsPage() {
         ))}
       </div>
 
-      {/* MODAL PREVIEW (Invariato ma con overlay scuro migliorato) */}
       {preview && (
         <div
           className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-[100] p-4"
@@ -87,7 +123,15 @@ export default function DocumentsPage() {
                   alt={preview.name}
                   className="w-full h-full object-contain shadow-sm"
                 />
-              ) : (
+				) : preview.type === "text" ? (
+					/* Anteprima per i file di testo */
+					<iframe
+					src={preview.url}
+					className="w-full h-full object-contain shadow-sm"
+					title="text-preview"
+					/>
+				)
+               : (
                 <div className="py-20 text-center">
                   <span className="text-6xl block mb-4">
                      {preview.type === "pdf" && "📄"}

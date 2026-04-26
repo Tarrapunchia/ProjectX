@@ -111,7 +111,7 @@ export default function PriorityChart({ taskData }: { taskData: TaskInfos }) {
       </div>
 
       {/* SEZIONE LISTA TASK */}
-      <div className="flex flex-col gap-2 overflow-y-auto max-h-[250px] md:max-h-full pr-1">
+      <div className="flex flex-col gap-2 overflow-y-auto max-h-[250px] md:max-h-[80vh] pr-1">
         {filteredTasks.map((task, index) => {
           const pKey = (task.priority as Priority) || "NONE";
           const borderColor = priorityColors[pKey];

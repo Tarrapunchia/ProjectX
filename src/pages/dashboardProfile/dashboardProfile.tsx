@@ -12,7 +12,7 @@ function DashboardProf() {
 	const [tasksInfos, setTasksInfo] = useState<TaskInfos>(MOCK_USER_TASKS)
 	const [infoFetched, setInfoFetched] = useState<boolean>(false)
 
-	const [isPopupOpen, setIsPopupOpen] = useState(true);
+	const [isPopupOpen, setIsPopupOpen] = useState(false);
 
 	const location = useLocation();
 
@@ -70,7 +70,7 @@ function DashboardProf() {
 					</div>
 
 					{/* Grafico */}
-					<div className="min-h-[300px]">
+					<div className="min-h-75">
 						{infoFetched ? <PriorityChart taskData={ tasksInfos }/> : <PriorityChart taskData={ MOCK_USER_TASKS }/>}
 					</div>
 
