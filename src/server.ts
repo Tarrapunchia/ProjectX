@@ -16,6 +16,7 @@ import fs from 'fs'
 import websocketPlugin from './plugins/websockets/websocket.js'
 import AuthGoogle from './routes/google/auth.js'
 import fastifyMultipart  from '@fastify/multipart';
+import fastifyMetrics from 'fastify-metrics'
 
 const PORT = 5000
 const __filename = fileURLToPath(import.meta.url)
@@ -112,6 +113,10 @@ await server.register(rateLimit, {
 })
 await server.register(cookie, {
 //   secret: process.env.COOKIE_SECRET, // opzionale, se si vuol usare signed cookies
+})
+
+await server.register(fastifyMetrics.default ?? fastifyMetrics, {
+  endpoint: '/metrics'
 })
 
 await server.register(formBody)

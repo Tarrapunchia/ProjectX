@@ -33,11 +33,9 @@ const previewFile = (baseDir: string, filename: string, reply: FastifyReply) => 
 
     reply.type('text/plain')
 
-    reply.header('Content-Disposition', `inline`)
-    console.log(`AHHHHHHHHHHHHHHHHHH ${resolvedFile}`);
+    reply.header('Content-Disposition', `inline; filename="${path.basename(filename)}"`)
     
     return reply.send(fs.createReadStream(resolvedFile))
-     
 }
 
 const Files: FastifyPluginAsync = async (fastify: FastifyInstance) => {
