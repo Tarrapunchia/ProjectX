@@ -96,7 +96,7 @@ const ChatPage: React.FC<ChatPageProps> = ({ selectedProject }) => {
 			{/* Header */}
 			<div className="p-4 border-b border-overlay-border-color bg-overlay-bg-color">
 				<h2 className="text-xl font-bold text-white uppercase tracking-tight">Team Chat</h2>
-				<p className="text-xs text-owner-color font-mono">ID: {roomId}</p>
+				<p className="mt-1 text-xs text-owner-color font-semibold tracking-wider">{selectedProject?.name || 'Caricamento...'}</p>
 			</div>
 			{/* Message List */}
 			<div ref={scrollRef} className="flex-1 overflow-y-auto p-6 scrollbar-thin">

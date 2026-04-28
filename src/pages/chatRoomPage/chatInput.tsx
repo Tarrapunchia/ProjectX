@@ -26,7 +26,7 @@ export const ChatInput: React.FC<ChatInputProps> = ({ onSendMessage }) => {
 					value={text}
 					onChange={(e) => setText(e.target.value)}
 					onKeyDown={(e) => e.key === 'Enter' && handleSend()}
-					placeholder="Scivi un messaggio di team..."
+					placeholder="Scrivi un messaggio di team..."
 					className="flex-1 bg-transparent border-none outline-none text-white placeholder-gray-600 text-sm"
 				/>
 				<button
