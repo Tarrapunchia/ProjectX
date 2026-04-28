@@ -3,7 +3,7 @@ import type { ProjectInfo } from "../../data/types"
 import Connections from './connection';
 import { MessageBubble } from './messageBubble';
 import { ChatInput } from './chatInput';
-import { ws } from '../loginPage/login';
+import { useWebSocket } from '../../utilities/WebSocketContext';
 import consts from '../../data/consts';
 import helpers from '../../utilities/helpers';
 
@@ -17,25 +17,25 @@ const ChatPage: React.FC<ChatPageProps> = ({ selectedProject }) => {
 	const [roomId, setRoomId] = useState<string>('');
 	const [myMail, setMyMail] = useState<string>('');
 	const scrollRef = useRef<HTMLDivElement>(null);
+	const { socket, isReady, send } = useWebSocket();
 	
 	useEffect(() => {
 		let cancelled = false;
-		if (selectedProject) {
+		if (selectedProject && isReady) {
 			(async () => {
 				try {
 					const id = await Connections.getRoomId(serverUrl, selectedProject);
 					if (!cancelled) setRoomId(id);
 					
-					if (!ws || ws.readyState  !== WebSocket.OPEN) return;
-					
-					ws.send(JSON.stringify({ type:"room:join", roomId:id}))
+					send({ type: "room:join", roomId: id});
+
 					const userData = await helpers.getter('/api/v1/users/activeUser', null);
 					if (!cancelled) setMyMail(userData.data.email);
 
 					const data = await Connections.getRoomHistory(serverUrl, id);
 					if (data?.messages && !cancelled) setChatHistory(data.messages);
 
-					ws.onmessage = (e: MessageEvent) => {
+					const handleIncomingMessage = (e: MessageEvent) => {
 						try {
 							const messageData = JSON.parse(e.data);
 
@@ -47,23 +47,25 @@ const ChatPage: React.FC<ChatPageProps> = ({ selectedProject }) => {
 									timestamp: messageData.payload.timestamp || new Date().toISOString()
 								};
 
-								if (!cancelled)
-									setChatHistory((prev) => [...prev, newMessage]);
+								if (!cancelled) setChatHistory((prev) => [...prev, newMessage]);
 							}
 						} catch (err) {
 							console.error("WebSocket message parsing error:", err);
 						}
 					};
+
+					socket?.addEventListener('message', handleIncomingMessage);
+
+					return () => {
+						socket?.removeEventListener('message', handleIncomingMessage);
+					}
 				} catch (e) {
 					console.error(e)
 				}
 			})();
 		}
-		return () => { 
-			cancelled = true;
-			if (ws) ws.onmessage = null;
-		};
-	}, [selectedProject?.id, serverUrl]);
+		return () => { cancelled = true; };
+	}, [selectedProject?.id, serverUrl, isReady, socket, myMail]);
 
 	useEffect(() => {
 		if (scrollRef.current)
@@ -71,7 +73,7 @@ const ChatPage: React.FC<ChatPageProps> = ({ selectedProject }) => {
 	}, [chatHistory]);
 
 	const handleSendMessage = (content: string) => {
-		if (!ws || ws.readyState !== WebSocket.OPEN) return;
+		if (!isReady) return;
 
 		const newMessage = {
 			id: Date.now(),
@@ -82,7 +84,7 @@ const ChatPage: React.FC<ChatPageProps> = ({ selectedProject }) => {
 
 		setChatHistory((prev) => [...prev, newMessage]);
 
-		ws.send(JSON.stringify({ type:"room:message", roomId:roomId, payload:{ text:content } }))
+		send({ type:"room:message", roomId:roomId, payload:{ text:content } });
 		console.log("Sending to backend", content);
 	};
 
