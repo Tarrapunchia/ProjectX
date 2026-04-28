@@ -15,7 +15,7 @@ const ChatPage: React.FC<ChatPageProps> = ({ selectedProject }) => {
     const [serverUrl] = useState(consts.BE);
 	const [chatHistory, setChatHistory] = useState<any[]>([]);
 	const [roomId, setRoomId] = useState<string>('');
-	let myMail: any | null = null;
+	const [myMail, setMyMail] = useState<string>('');
 	const scrollRef = useRef<HTMLDivElement>(null);
 	
 	useEffect(() => {
@@ -30,7 +30,7 @@ const ChatPage: React.FC<ChatPageProps> = ({ selectedProject }) => {
 					
 					ws.send(JSON.stringify({ type:"room:join", roomId:id}))
 					const userData = await helpers.getter('/api/v1/users/activeUser', null);
-					myMail = userData.data.email;
+					if (!cancelled) setMyMail(userData.data.email);
 
 					const data = await Connections.getRoomHistory(serverUrl, id);
 					if (data?.messages && !cancelled) setChatHistory(data.messages);
@@ -72,7 +72,7 @@ const ChatPage: React.FC<ChatPageProps> = ({ selectedProject }) => {
 						key={m.id}
 						content={m.content}
 						senderMail={m.senderMail}
-						isMe={String(m.senderMail) === String(myMail)}
+						isMe={m.senderMail === myMail}
 						timestamp={m.timestamp}
 					/>
 				))}
