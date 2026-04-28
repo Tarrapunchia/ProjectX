@@ -34,15 +34,36 @@ const ChatPage: React.FC<ChatPageProps> = ({ selectedProject }) => {
 
 					const data = await Connections.getRoomHistory(serverUrl, id);
 					if (data?.messages && !cancelled) setChatHistory(data.messages);
-					console.log(myMail);
-					console.log(data.messages);
+
+					ws.onmessage = (e: MessageEvent) => {
+						try {
+							const messageData = JSON.parse(e.data);
+
+							if (messageData.type === "room:message" && messageData.roomId === id) {
+								const newMessage = {
+									id: messageData.payload.id || Date.now(),
+									senderMail: messageData.payload.senderMail,
+									content: messageData.payload.text,
+									timestamp: messageData.payload.timestamp || new Date().toISOString()
+								};
+
+								if (!cancelled)
+									setChatHistory((prev) => [...prev, newMessage]);
+							}
+						} catch (err) {
+							console.error("WebSocket message parsing error:", err);
+						}
+					};
 				} catch (e) {
 					console.error(e)
 				}
 			})();
 		}
-		return () => { cancelled = true; };
-	}, [selectedProject?.id]);
+		return () => { 
+			cancelled = true;
+			if (ws) ws.onmessage = null;
+		};
+	}, [selectedProject?.id, serverUrl]);
 
 	useEffect(() => {
 		if (scrollRef.current)
@@ -51,6 +72,16 @@ const ChatPage: React.FC<ChatPageProps> = ({ selectedProject }) => {
 
 	const handleSendMessage = (content: string) => {
 		if (!ws || ws.readyState !== WebSocket.OPEN) return;
+
+		const newMessage = {
+			id: Date.now(),
+			senderMail: myMail,
+			content: content,
+			timestamp: new Date().toISOString()
+		};
+
+		setChatHistory((prev) => [...prev, newMessage]);
+
 		ws.send(JSON.stringify({ type:"room:message", roomId:roomId, payload:{ text:content } }))
 		console.log("Sending to backend", content);
 	};
