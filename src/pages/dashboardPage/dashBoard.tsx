@@ -10,6 +10,7 @@ import DashboardProfile from '../dashboardProfile/dashboardProfile'
 import type { ProjectInfo } from '../../data/types';
 import DocumentsPage from '../DocumentsPage/DocumentsPage';
 import { WebSocketProvider } from '../../utilities/WebSocketContext'
+import FloatingChat from '../../components/FloatingChat';
 
 function DashboardPage() {
     const [activePage, setActivePage] = useState(() => {
@@ -49,6 +50,7 @@ function DashboardPage() {
 					{ activePage === 'profile' && <ProfilePage /> }
 				</main>
 				<Footer />
+				<FloatingChat />
 			</div>
 		</WebSocketProvider>
     );

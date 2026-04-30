@@ -1,10 +1,20 @@
 import React, { createContext, useContext, useEffect, useState, type ReactNode } from 'react';
 import consts from '../data/consts';
 
+export interface FloatingChatInfo {
+	roomId: string;
+	senderMail: string;
+	type: 'private' | 'group';
+}
+
 interface WebSocketContextType {
 	socket: WebSocket | null;
 	isReady: boolean;
 	send: (data: any) => void;
+
+	floatingChats: FloatingChatInfo[];
+	openFloatingChat: (chat: FloatingChatInfo) => void;
+	closeFloatingChat: (roomId: string) => void;
 }
 
 const WebSocketContext = createContext<WebSocketContextType | undefined>(undefined);
@@ -12,6 +22,7 @@ const WebSocketContext = createContext<WebSocketContextType | undefined>(undefin
 export const WebSocketProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
 	const [socket, setSocket] = useState<WebSocket | null>(null);
 	const [isReady, setIsReady] = useState(false);
+	const [floatingChats, setFloatingChats] = useState<FloatingChatInfo[]>([]);
 
 	useEffect(() => {
 		const ws = new WebSocket(consts.WS);
@@ -38,8 +49,29 @@ export const WebSocketProvider: React.FC<{ children: ReactNode }> = ({ children 
 			socket.send(JSON.stringify(data));
 	};
 
+	const openFloatingChat = (chat: FloatingChatInfo) => {
+		setFloatingChats(prev => {
+			if (prev.find(c => c.roomId === chat.roomId))
+				return prev;
+
+			return [...prev, chat];
+		});
+	};
+
+	const closeFloatingChat = (roomId: string) => {
+		setFloatingChats(prev => prev.filter(chat => chat.roomId !== roomId));
+	};
+
 	return (
-		<WebSocketContext.Provider value={{ socket, isReady, send}}>
+		<WebSocketContext.Provider value={{
+			socket,
+			isReady,
+			send,
+			floatingChats,
+			openFloatingChat,
+			closeFloatingChat
+			}}
+		>
 			{children}
 		</WebSocketContext.Provider>
 	)

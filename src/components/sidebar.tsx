@@ -1,27 +1,3 @@
-// import './sidebar.css';
-
-// interface SidebarProps {
-// 	setActivePage: (page: string) => void;
-// }
-
-// function Sidebar({ setActivePage }: SidebarProps) {
-// 	return (
-// 		<aside className="sidebar">
-// 			<button className="logo">Project X</button>
-// 			<nav>
-// 				<button onClick={() => setActivePage('dashboard')}>Dashboard</button>
-// 				<button onClick={() => setActivePage('documents')}>Documents</button>
-// 				<button onClick={() => setActivePage('tasks')}>Tasks</button>
-// 				<button onClick={() => setActivePage('chat')}>Team Chat</button>
-// 				<button onClick={() => setActivePage('files')}>File Library</button>
-// 			</nav>
-// 			<button className="settings" onClick={() => setActivePage('settings')}>Settings</button>
-// 		</aside>
-// 	);
-// }
-
-// export default Sidebar;
-
 interface SidebarProps {
 	setActivePage: (page: string) => void;
 }
@@ -34,11 +10,11 @@ function Sidebar({ setActivePage }: SidebarProps) {
 	return (
 		<aside className="bg-[#333] p-[5px_20px] [grid-area:sidebar] border-r border-[#606060] flex flex-col h-full overflow-hidden">
 			<button 
-				className="!bg-transparent !border-none cursor-pointer !font-medium !text-[35px] text-center mt-[10px] !outline-none text-white block w-full"
+				className="bg-transparent! border-none! cursor-pointer font-medium! text-[35px]! text-center mt-2.5 outline-none! text-white block w-full"
 			>
 				Project X
 			</button>
-			<nav className="flex flex-col mt-[40px] gap-[10px]">
+			<nav className="flex flex-col mt-10 gap-2.5">
 				<button className={`${btnBase} ${btnHover} ${btnFocus}`} onClick={() => setActivePage('dashboard')}>Dashboard</button>
 				<button className={`${btnBase} ${btnHover} ${btnFocus}`} onClick={() => setActivePage('documents')}>Documents</button>
 				<button className={`${btnBase} ${btnHover} ${btnFocus}`} onClick={() => setActivePage('tasks')}>Tasks</button>
@@ -46,7 +22,7 @@ function Sidebar({ setActivePage }: SidebarProps) {
 				<button className={`${btnBase} ${btnHover} ${btnFocus}`} onClick={() => setActivePage('files')}>File Library</button>
 			</nav>
 			<button 
-				className={`${btnBase} ${btnHover} ${btnFocus} mt-auto mb-[10px]`} 
+				className={`${btnBase} ${btnHover} ${btnFocus} mt-auto mb-2.5`} 
 				onClick={() => setActivePage('settings')}
 			>
 				Settings
