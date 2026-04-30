@@ -8,7 +8,7 @@ interface FloatingChatProps {
 
 function FloatingChat() {
 	const [isOpen, setIsOpen] = useState(false);
-	const [pos, setPos] = useState({ x: 50, y: 50 });
+	const [pos, setPos] = useState({ x: window.innerWidth - 100, y: window.innerHeight - 120 });
 	const [isDragging, setIsDragging] = useState(false);
 	const offset = useRef({ x: 0, y: 0});
 	const hasMoved = useRef(false);
@@ -29,7 +29,6 @@ function FloatingChat() {
 
 			const rawX = e.clientX - offset.current.x;
 			const rawY = e.clientY - offset.current.y;
-
 			const maxX = window.innerWidth - 60;
 			const maxY = window.innerHeight - 60;
 
@@ -55,6 +54,18 @@ function FloatingChat() {
 			window.removeEventListener('mouseup', handleMouseUp);
 		};
 	}, [isDragging]);
+
+	useEffect(() => {
+		const handleResize = () => {
+			setPos(prevPos => ({
+				x: Math.min(prevPos.x, window.innerWidth - 60),
+				y: Math.min(prevPos.y, window.innerHeight - 60)
+			}));
+		};
+
+		window.addEventListener('resize', handleResize);
+		return () => window.removeEventListener('resize', handleResize);
+	}, []);
 
 	return (
 		<div className="fixed select-none z-50"
