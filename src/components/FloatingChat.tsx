@@ -85,7 +85,7 @@ function FloatingChat() {
 				};
 			}}
 			onMouseUp={ () => setIsDragging(false) }>
-			<button className="flex items-center justify-center w-14 h-14 rounded-full bg-bg-color text-white shadow-lg hover:scale-110 active:scale-95 transition-transform focus:outline-none border border-overlay-border-color cursor-pointer"
+			<button className="flex items-center justify-center w-14 h-14 rounded-full bg-bg-color text-color-main shadow-lg hover:scale-110 active:scale-95 transition-transform focus:outline-none border border-overlay-border-color cursor-pointer"
 				onClick={ () => {
 					if (!hasMoved.current)
 						setIsOpen(!isOpen)

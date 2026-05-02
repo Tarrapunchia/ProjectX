@@ -3,14 +3,14 @@ interface SidebarProps {
 }
 
 function Sidebar({ setActivePage }: SidebarProps) {
-	const btnBase = "!p-[10px_15px] !border-none !bg-[#333] cursor-pointer text-left !rounded-[10px] !text-[#dddcdc] !text-[20px] !font-light transition-colors !outline-none";
-	const btnHover = "hover:!bg-[#3e3e3e] hover:!font-medium";
-	const btnFocus = "focus:!bg-[#3e3e3e] focus:!font-medium focus:!text-white";
+	const btnBase = "!p-[10px_15px] text-text-main !border-none !bg-side-bg-color cursor-pointer text-left !rounded-[10px] !text-[20px] !font-light transition-colors !outline-none";
+	const btnHover = "hover:!bg-category-bg-color hover:!font-medium";
+	const btnFocus = "focus:!bg-category-bg-color focus:!font-medium focus:!text-text-main";
 
 	return (
-		<aside className="bg-[#333] p-[5px_20px] [grid-area:sidebar] border-r border-[#606060] flex flex-col h-full overflow-hidden">
+		<aside className="bg-side-bg-color p-[5px_20px] [grid-area:sidebar] border-r border-overlay-border-color flex flex-col h-full overflow-hidden">
 			<button 
-				className="bg-transparent! border-none! cursor-pointer font-medium! text-[35px]! text-center mt-2.5 outline-none! text-white block w-full"
+				className="bg-transparent! border-none! cursor-pointer font-medium! text-[35px]! text-center mt-2.5 outline-none! text-text-main block w-full"
 			>
 				Project X
 			</button>

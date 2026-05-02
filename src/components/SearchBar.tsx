@@ -13,7 +13,7 @@ const SearchBar: React.FC = () => {
       <input
         type="text"
         placeholder="Cerca..."
-        className="w-full pl-10 pr-4 py-2 bg-[#2a2a2a] border border-overlay-border-color rounded-full text-sm text-white placeholder-slate-500 focus:outline-none focus:border-white transition-all duration-200"
+        className="w-full pl-10 pr-4 py-2 bg-bg-color border border-overlay-border-color rounded-full text-sm text-text-main placeholder-slate-500 focus:outline-none focus:border-border-focus transition-all duration-200"
       />
     </div>
   );

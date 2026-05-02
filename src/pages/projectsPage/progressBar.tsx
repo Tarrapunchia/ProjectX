@@ -19,8 +19,8 @@ export default function ProgressBar({ projectId, createdAt, closedAt, showDetail
 
 	return (
 		<div className="w-[90%] px-[10px] mx-auto my-auto">
-			<div className="relative w-full h-[24px] bg-category-bg-color rounded-[12px] mt-[20px] overflow-visible">
-				<div className="h-full bg-owner-color rounded-[12px] transition-[width] duration-500 ease-in-out"
+			<div className="relative w-full h-[24px] bg-progressbar-bg rounded-[12px] mt-[20px] overflow-visible">
+				<div className="h-full bg-category-bg-color rounded-xl transition-[width] duration-500 ease-in-out"
 					style={{ width: `${percent}%` }}
 				></div>
 				{timePercent > 0 && (
@@ -28,7 +28,7 @@ export default function ProgressBar({ projectId, createdAt, closedAt, showDetail
 						style={{ left: `${timePercent}%` }}
 					></div>
 				)}
-				<span className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-[13px] font-medium text-white whitespace-nowrap">
+				<span className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-[13px] font-medium text-bg-color whitespace-nowrap">
 					{showDetails ? `${completed}/${tasks.length}` : ''}({percent}%)
 				</span>
 			</div>
