@@ -104,7 +104,6 @@ function FloatingChat() {
 			</div>
 		</div>
 	);
-
 }
 
 export default FloatingChat;
