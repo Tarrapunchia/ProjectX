@@ -25,6 +25,7 @@ export default {
 				'text-main': 'var(--color-text)',
 				'text-category': 'var(--color-category-text)',
 				'progressbar-bg': 'var(--color-progressbar-bg)',
+				'text-login': 'var(--color-text-login)'
 			},
 			backgroundImage: {
 				'gradient-color': "linear-gradient(45deg, var(--color-category-gradient-start), var(--color-category-gradient-end))",
