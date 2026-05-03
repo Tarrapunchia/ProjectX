@@ -18,9 +18,9 @@ export default function Category({ label, status, projList, isExpanded, onToggle
 	return (
 		<div className="min-w-[320px] w-[19vw] bg-category-bg-color rounded-t-xl rounded-b-xs">
 			<p onClick={onToggle} className="flex text-[20px] items-center cursor-pointer w-[98%] min-h-[40px] bg-bg-color rounded-t-xl rounded-b-xs ml-[1%] mt-1 mb-1">
-				<span className="inline-block ml-5 font-medium text-text-category">{label}</span>
+				<span className="inline-block ml-5 font-medium bg-gradient-color text-transparent bg-clip-text">{label}</span>
 				<span className="ml-[5px] font-extralight">({filtered.length})</span>
-				<span className="ml-auto mr-[10px] text-text-category">
+				<span className="ml-auto mr-[10px]">
 					{isExpanded ? <FiChevronUp /> : <FiChevronDown />}
 				</span>
 			</p>
@@ -30,7 +30,7 @@ export default function Category({ label, status, projList, isExpanded, onToggle
 				<div className="overflow-hidden">
 					{filtered.map((project) => (
 						<div key={project.id} className="flex flex-col bg-side-bg-color h-[250px] w-[98%] mx-auto mb-[6px] rounded-[2px]" onClick={(e) => onCardClick(project, e)}>
-							<h3 className="text-[20px] ml-1">{project.name}</h3>
+							<h3 className="text-[20px] ml-1 ">{project.name}</h3>
 							<p className="text-[16px] ml-1 line-clamp-2 break-words font-light">{project.description}</p>
 							<ProgressBar projectId={project.id} createdAt={project.createdAt} closedAt={project.closedAt} />
 						</div>

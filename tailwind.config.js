@@ -17,7 +17,7 @@ export default {
 			colors: {
 				'bg-color': 'var(--color-bg)',
 				'side-bg-color': 'var(--color-side-bg)',
-				// 'category-bg-color': 'var(--color-category-bg)',
+				'category-bg-color': 'var(--color-category-bg)',
 				'overlay-bg-color': 'var(--color-overlay-bg)',
 				'overlay-border-color': 'var(--color-overlay-border)',
 				'border-focus': 'var(--color-focus-border)',
@@ -27,7 +27,7 @@ export default {
 				'progressbar-bg': 'var(--color-progressbar-bg)',
 			},
 			backgroundImage: {
-				'category-bg-color': "linear-gradient(45deg, var(--color-category-gradient-start), var(--color-category-gradient-end))",
+				'gradient-color': "linear-gradient(45deg, var(--color-category-gradient-start), var(--color-category-gradient-end))",
 			}
 		},
 	},

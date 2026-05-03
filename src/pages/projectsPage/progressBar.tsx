@@ -20,7 +20,7 @@ export default function ProgressBar({ projectId, createdAt, closedAt, showDetail
 	return (
 		<div className="w-[90%] px-[10px] mx-auto my-auto">
 			<div className="relative w-full h-[24px] bg-progressbar-bg rounded-[12px] mt-[20px] overflow-visible">
-				<div className="h-full bg-category-bg-color rounded-xl transition-[width] duration-500 ease-in-out"
+				<div className="h-full bg-gradient-color rounded-xl transition-[width] duration-500 ease-in-out"
 					style={{ width: `${percent}%` }}
 				></div>
 				{timePercent > 0 && (

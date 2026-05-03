@@ -7,17 +7,17 @@
 
 :root {
   --color-bg: #ffffff;
-  --color-side-bg: #272a2b;
+  --color-side-bg: #ffffff;
   --color-category-bg: #f3f4f6;
   --color-overlay-bg: #ffffff;
   --color-overlay-border: #e5e7eb;
-  --color-focus-border: #000000;
-  --color-category-gradient-start: #55bcd9;
-  --color-category-gradient-end: #41b07c;
+  --color-focus-border: #213547;
+  --color-category-gradient-start: #ac8600;
+  --color-category-gradient-end: #dfae00;
   --color-text: #213547;
-  --color-category-text: #efcf25;
-  --color-owner: rgb(172, 134, 0);
-  --color-progressbar-bg: #ffffff;
+  --color-category-text: #d6b27e;
+  --color-owner: #ac8600;
+  --color-progressbar-bg: #213547;
 
   font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
   line-height: 1.5;
@@ -38,8 +38,7 @@
 	--color-overlay-bg: #1a1a1a;
 	--color-overlay-border: #606060;
 	--color-focus-border: #ffffff;
-	--color-category-gradient-start: #29aec8;
-	--color-category-gradient-end: #64c5c1;
+	--color-progressbar-bg: #ffffff;
 	--color-text: rgba(255, 255, 255, 0.87);
 }
 
