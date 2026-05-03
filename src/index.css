@@ -6,12 +6,12 @@
 }
 
 :root {
-  --color-bg: #f8f9fa;
-  --color-side-bg: #e9ecef;
-  --color-category-bg: #adb5bd;
+  --color-bg: #f8fafc;
+  --color-side-bg: #f1f5f9;
+  --color-category-bg: #e0e6ec;
   --color-overlay-bg: #ffffff;
-  --color-overlay-border: #8d99ae;
-  --color-focus-border: #213547;
+  --color-overlay-border: #e2e8f0;
+  --color-focus-border: #94a3b8;
   --color-category-gradient-start: #ac8600;
   --color-category-gradient-end: #dfae00;
   --color-text: #213547;

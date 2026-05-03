@@ -94,8 +94,8 @@ const ChatPage: React.FC<ChatPageProps> = ({ selectedProject }) => {
 	return (
 		<div className="flex flex-col h-full bg-bg-color overflow-hidden">
 			{/* Header */}
-			<div className="p-4 border-b border-overlay-border-color bg-overlay-bg-color">
-				<h2 className="text-xl font-bold text-white uppercase tracking-tight">Team Chat</h2>
+			<div className="p-4 border-b border-overlay-border-color bg-bg-color">
+				<h2 className="text-xl font-bold text-text-main uppercase tracking-tight">Team Chat</h2>
 				<p className="mt-1 text-xs text-owner-color font-semibold tracking-wider">{selectedProject?.name || 'Caricamento...'}</p>
 			</div>
 			{/* Message List */}

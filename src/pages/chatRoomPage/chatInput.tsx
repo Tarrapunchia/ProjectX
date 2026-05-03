@@ -16,8 +16,8 @@ export const ChatInput: React.FC<ChatInputProps> = ({ onSendMessage }) => {
 	};
 
 	return (
-		<div className="p-4 bg-overlay-bg-color border-t border-overlay-border-color">
-			<div className="flex items-center space-x-2 bg-bg-color rounded-lg border border-overlay-border-color p-2 focus-within:border-owner-color transition-colors">
+		<div className="p-4 bg-bg-color border-t border-overlay-border-color">
+			<div className="flex items-center space-x-2 bg-overlay-bg-color rounded-lg border border-overlay-border-color p-2 focus-within:border-owner-color transition-colors">
 				<button className="!p-2 text-gray-400 hover:text-white transition-colors !bg-transparent !border-none">
 					<FiPaperclip size={20} />
 				</button>
@@ -27,7 +27,7 @@ export const ChatInput: React.FC<ChatInputProps> = ({ onSendMessage }) => {
 					onChange={(e) => setText(e.target.value)}
 					onKeyDown={(e) => e.key === 'Enter' && handleSend()}
 					placeholder="Scrivi un messaggio di team..."
-					className="flex-1 bg-transparent border-none outline-none text-white placeholder-gray-600 text-sm"
+					className="flex-1 bg-transparent border-none outline-none text-text-main placeholder-gray-600 text-sm"
 				/>
 				<button
 					onClick={handleSend}
