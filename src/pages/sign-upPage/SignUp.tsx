@@ -16,6 +16,7 @@ function SignUp()
 	const nameRef = useRef<HTMLInputElement>(null);
 	const surnameRef = useRef<HTMLInputElement>(null);
 	const reapetedpwRef = useRef<HTMLInputElement>(null);
+    const termsRef = useRef<HTMLInputElement>(null);
     const navigate = useNavigate();
 
     async function handleLogin() 
@@ -28,9 +29,16 @@ function SignUp()
 			const name	= nameRef.current?.value
 			const surname = surnameRef.current?.value
 			const passwordRepeat = reapetedpwRef.current?.value
+            const isTermsAccepted = termsRef.current?.checked;
+            //Segnalare che sono obbligatori anche se non dovrebbero
 			const phone = "673932"
 			const jobQualifier = "developer"
 
+            if (!isTermsAccepted) {
+                setError("Please accept our terms and conditions");
+                return;
+            }
+            
 			const response = await fetch(LOGIN_URL, 
 			{
 				method: "POST",
@@ -54,6 +62,7 @@ function SignUp()
             setError("Errore del server");
             return
         }
+        
 		navigate("/dashboard", { state: { isFirstLogin: true } });
 	}
 
@@ -63,25 +72,23 @@ function SignUp()
 	}
 
     return (
-    <div className="flex items-center justify-center min-h-screen w-screen bg-gray-900">
-    <div className="flex flex-col items-center text-center gap-5 p-10 text-[8px] bg-[#8e8d8d37] rounded-[10px] shadow-[0_0_10px_rgba(0,0,0,0.5)] h-auto w-auto">
-        <h1 className="text-[30px] mb-[50px] text-white font-bold">
-        Create your account!
-        </h1>
-
+    <div className="flex items-center justify-center min-h-screen w-screen bg-bg-color">
+    <div className="flex flex-col items-center text-center gap-5 p-10 text-[8px] bg-side-bg-color rounded-[10px] shadow-[0_0_10px_rgba(0,0,0,0.5)] h-auto w-auto">
+        <h1 className="text-[30px] mb-[50px] text-text-main font-bold">Create your account!</h1>
         <button
             onClick={handleGoogleLogin}
             className="
                 flex items-center justify-center gap-3
-                w-[300px] min-h-[50px]
+                w-[250px] min-h-[50px]
                 px-[10px] py-[10px]
                 text-[18px] leading-[18px]
                 rounded-[5px]
-                bg-white text-[#3c4043] font-medium
+                bg-white font-medium
                 shadow-[0_0_10px_rgba(0,0,0,0.5)]
                 border border-gray-300
                 transition-all duration-300 ease-in-out
                 hover:scale-105 hover:shadow-[0_0_15px_rgba(0,0,0,0.6)]
+                cursor-pointer
             "
             >
             <svg className="w-5 h-5" viewBox="0 0 48 48">
@@ -91,10 +98,10 @@ function SignUp()
                 <path fill="#34A853" d="M24 48c6.47 0 11.9-2.38 15.96-6.31l-7.31-5.66C30.71 37.78 27.54 39 24 39c-6.26 0-11.57-3.22-14.46-8.41l-7.98 6.18C6.51 42.62 14.62 48 24 48z"/>
             </svg>
 
-            <span className="text-[16px] text-white">Accedi con Google</span>
+            <span className="text-[16px] text-text-login">Sign Up with Google</span>
         </button>
 
-        <span className="text-[14px] text-white"> OR </span>
+        <span className="text-[14px] text-text-main"> OR </span>
 
         <div className="flex flex-col items-center text-center gap-3 w-[300px]">
 
@@ -102,7 +109,7 @@ function SignUp()
                 ref={nameRef}
                 type="text"
                 placeholder="Name"
-                className="mt-[5px] bg-white text-black p-[10px] text-[18px] rounded-[5px] w-[300px] min-h-[50px] transition-transform duration-200 ease-in-out focus:scale-105 outline-none"
+                className="mt-[5px] bg-white text-text-login border border-gray-300 p-[10px] text-[18px] rounded-[5px] w-[300px] min-h-[50px] transition-transform duration-200 ease-in-out focus:scale-105 outline-none"
 
             />
 
@@ -110,7 +117,7 @@ function SignUp()
                 ref={surnameRef}
                 type="text"
                 placeholder="Surname"
-                className="mt-[5px] bg-white text-black p-[10px] text-[18px] rounded-[5px] w-[300px] min-h-[50px] transition-transform duration-200 ease-in-out focus:scale-105 outline-none"
+                className="mt-[5px] bg-white text-text-login border border-gray-300 p-[10px] text-[18px] rounded-[5px] w-[300px] min-h-[50px] transition-transform duration-200 ease-in-out focus:scale-105 outline-none"
 
             />
 
@@ -118,7 +125,7 @@ function SignUp()
                 ref={emailRef}
                 type="text"
                 placeholder="E-mail"
-                className="mt-[5px] bg-white text-black p-[10px] text-[18px] rounded-[5px] w-[300px] min-h-[50px] transition-transform duration-200 ease-in-out focus:scale-105 outline-none"
+                className="mt-[5px] bg-white text-text-login border border-gray-300 p-[10px] text-[18px] rounded-[5px] w-[300px] min-h-[50px] transition-transform duration-200 ease-in-out focus:scale-105 outline-none"
 
             />
 
@@ -126,7 +133,7 @@ function SignUp()
                 ref={pwRef}
                 type="password"
                 placeholder="Password"
-                className="mt-[5px] bg-white text-black p-[10px] text-[18px] rounded-[5px] w-[300px] min-h-[50px] transition-transform duration-200 ease-in-out focus:scale-105 outline-none"
+                className="mt-[5px] bg-white text-text-login border border-gray-300 p-[10px] text-[18px] rounded-[5px] w-[300px] min-h-[50px] transition-transform duration-200 ease-in-out focus:scale-105 outline-none"
 
             />
 
@@ -134,11 +141,11 @@ function SignUp()
                 ref={reapetedpwRef}
                 type="password"
                 placeholder="Confirm Password"
-                className="mt-[5px] bg-white text-black p-[10px] text-[18px] rounded-[5px] w-[300px] min-h-[50px] transition-transform duration-200 ease-in-out focus:scale-105 outline-none"
+                className="mt-[5px] bg-white text-text-login border border-gray-300 p-[10px] text-[18px] rounded-[5px] w-[300px] min-h-[50px] transition-transform duration-200 ease-in-out focus:scale-105 outline-none"
             />
 
             {error && (
-                <div className="w-[250px] bg-red-900/40 border border-red-600 text-red-300 px-2 py-0.5 rounded-md text-[13px]">
+                <div className="w-[250px] bg-red-900/40 border border-red-700 text-text-main px-2 py-0.5 rounded-md text-[13px]">
                     {error}
                 </div>
             )}
@@ -147,31 +154,33 @@ function SignUp()
 
             <div className="flex justify-center items-center mt-4 gap-1">
                 <input
+                    ref={termsRef}
                     type="checkbox"
                     id="terms"
                     className="w-[15px] h-[15px] accent-black-500 cursor-pointer"
                 />
-                <span className="text-[14px] text-white"> I accept </span>
-                <span className="ml-2 text-[12px] text-white cursor-pointer hover:underline">Terms and conditions!</span>
+                <span className="text-[14px] text-text-main"> I accept </span>
+                <span className="ml-2 text-[12px] text-text-main cursor-pointer hover:underline">Terms and conditions!</span>
             </div>
 
             <button
-            onClick={handleLogin}
-            className="
-                flex items-center justify-center gap-3
-                w-[300px] min-h-[50px]
-                mt-4
-                !text-[18px] !leading-none
-                font-bold uppercase
-                rounded-[5px]
-                bg-white text-white
-                shadow-lg
-                border border-gray-300
-                transition-all duration-300
-                hover:scale-105 active:scale-95  /* Feedback al click */
-            "
+                onClick={handleLogin}
+                className="
+                    flex items-center justify-center gap-3
+                    w-[200px] min-h-[50px]
+                    px-[10px] py-[10px]
+                    text-[18px] leading-[18px]
+                    text-text-login
+                    rounded-[5px]
+                    bg-white font-medium
+                    shadow-[0_0_10px_rgba(0,0,0,0.5)]
+                    border border-gray-300
+                    transition-all duration-300 ease-in-out
+                    hover:scale-105 hover:shadow-[0_0_15px_rgba(0,0,0,0.6)]
+                    cursor-pointer
+                "
             >
-            Sign Up
+                Sign Up
             </button>
     </div>
     </div>

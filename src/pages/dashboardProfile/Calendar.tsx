@@ -93,7 +93,7 @@ function Calendar() {
     <div className="relative h-full w-full
         [&_.fc-button]:!bg-category-bg-color
         [&_.fc-button]:!border-overlay-border-color
-        [&_.fc-button]:!text-white
+        [&_.fc-button]:!text-text-main
         [&_.fc-button]:!font-bold
         [&_.fc-button]:!transition-all
         [&_.fc-button:hover]:!bg-zinc-800
@@ -101,7 +101,7 @@ function Calendar() {
         [&_.fc-button-active]:!bg-owner-color
         [&_.fc-button-active]:!border-owner-color
         [&_.fc-button-active]:!text-white
-        [&_.fc-daygrid-day-number]:!text-white
+        [&_.fc-daygrid-day-number]:!text-text-main
         [&_.fc-button:focus]:!shadow-none
         /* Fix per titoli lunghi su mobile */
         [&_.fc-toolbar-title]:!text-sm
@@ -110,7 +110,7 @@ function Calendar() {
         [&_.fc-toolbar]:gap-2
     ">
       <FullCalendar
-        key={isMobile ? "mobile" : "desktop"} // Forza il re-render al cambio dimensione
+        key={isMobile ? "mobile" : "desktop"}
         plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
         initialView={isMobile ? "timeGridDay" : "timeGridWeek"}
         slotMinTime="08:00:00"
@@ -127,7 +127,7 @@ function Calendar() {
         height="100%"
         aspectRatio={isMobile ? 0.8 : 2}
         dayHeaderContent={(args) => ({
-            html: `<span class='text-white text-xs md:text-base'>${args.text}</span>`
+            html: `<span class='text-text-main text-xs md:text-base'>${args.text}</span>`
         })}
         events={fcEvents}
         eventClick={(info) => {

@@ -52,7 +52,6 @@ function DashboardProf() {
 		return () => {};
 	}, [location.state]);
 		return (
-			/* 1. px-10 (lati), pt-10 (sopra), pb-4 (sotto per non avere troppo vuoto). lg:p-6 torna normale su desktop */
 			<div className="grid grid-cols-1 lg:grid-cols-[2fr_2fr_1.5fr] gap-10 px-10 pt-10 pb-4 lg:p-6 min-w-full">
 
 				<FirstLogin
@@ -65,19 +64,19 @@ function DashboardProf() {
 				<div className="col-span-1 lg:col-span-2 grid grid-cols-1 gap-6">
 
 					{/* Calendario */}
-					<div className="border border-overlay-border-color rounded-lg shadow p-4 overflow-hidden relative min-h-[350px] text-base leading-tight text-white">
+					<div className="bg-side-bg-color border border-overlay-border-color rounded-lg shadow p-4 overflow-hidden relative min-h-[350px] text-base leading-tight text-text-main">
 						<Calendar />
 					</div>
 
 					{/* Grafico */}
-					<div className="min-h-75">
+					<div className="min-h-75 bg-side-bg-color text-text-main max-h-full overflow-hidden">
 						{infoFetched ? <PriorityChart taskData={ tasksInfos }/> : <PriorityChart taskData={ MOCK_USER_TASKS }/>}
 					</div>
 
 				</div>
 
 				{/* Notifiche - Ridotto il min-h così non spinge troppo in basso */}
-				<div className="col-span-1 rounded-lg shadow p-4 overflow-y-auto text-gray-800 border border-overlay-border-color min-h-[300px] lg:h-full">
+				<div className="bg-side-bg-color col-span-1 rounded-lg shadow p-4 overflow-y-auto border border-overlay-border-color min-h-[300px] lg:h-full">
 					<Notification />
 				</div>
 

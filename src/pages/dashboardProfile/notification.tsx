@@ -12,7 +12,7 @@ export default function Notification() {
         <span className={`${color} text-xl leading-none`}>•</span>
 
         <div className="flex-1">
-          <p className="text-white font-medium">{message}</p>
+          <p className="text-text-main font-medium">{message}</p>
           <p className="text-gray-400 text-sm">{time}</p>
         </div>
       </div>
@@ -21,7 +21,7 @@ export default function Notification() {
 
   return (
     <div className="space-y-2">
-        <h2 className="text-lg text-white font-semibold mb-4 flex justify-center mb-12">
+        <h2 className="text-lg text-text-main font-semibold mb-4 flex justify-center mb-12">
             Notifiche
         </h2>
         {renderNotification("text-blue-500", "Nuovo task assegnato", "2 minuti fa")}

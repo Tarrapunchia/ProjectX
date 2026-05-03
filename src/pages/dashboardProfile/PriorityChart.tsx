@@ -48,10 +48,10 @@ export default function PriorityChart({ taskData }: { taskData: TaskInfos }) {
     plugins: {
       title: { 
         display: true, 
-        text: "Priority Distribution", 
+        text: "Priority Distribution",
+        color: 'rgb(var(--text-main))',
         // Titolo più piccolo su mobile
         font: { size: isMobile ? 12 : 14 }, 
-        color: "#ffffff",
         padding: { bottom: isMobile ? 10 : 20 }
       },
       legend: {
@@ -80,7 +80,7 @@ export default function PriorityChart({ taskData }: { taskData: TaskInfos }) {
               lineWidth: 1,
               hidden: !chart.getDataVisibility(i),
               index: i,
-              fontColor: "#ffffff"
+              fontColor: 'rgb(var(--text-main))'
             }));
           },
           boxWidth: isMobile ? 8 : 12, // Quadratini più piccoli su mobile
@@ -98,20 +98,19 @@ export default function PriorityChart({ taskData }: { taskData: TaskInfos }) {
 
   return (
     /* Modificata la grid: 1 colonna su mobile, 2 su desktop */
-    <div className="relative border border-overlay-border-color rounded-lg shadow p-4 grid grid-cols-1 md:grid-cols-[1fr_1fr] gap-4 min-h-[300px]">
-      
-      <div className="relative w-full h-[200px] md:h-full min-h-0 overflow-hidden">
+    <div className="relative border border-overlay-border-color rounded-lg shadow p-4 grid grid-cols-1 md:grid-cols-[1fr_1fr] gap-4 min-h-[300px] max-h-full text-text-main overflow-hidden">
+      <div className="relative w-full h-[200px] md:h-full min-h-0 overflow-hidden text-text-main">
         {taskData && taskData.tasks.length > 0 ? (
           <Pie data={chartData} options={options} />
         ) : (
-          <div className="flex items-center justify-center h-full text-gray-400 text-sm">
+          <div className="flex items-center justify-center h-full text-text-main text-sm">
             Loading chart...
           </div>
         )}
       </div>
 
       {/* SEZIONE LISTA TASK */}
-      <div className="flex flex-col gap-2 overflow-y-auto max-h-[250px] md:max-h-[80vh] pr-1">
+      <div className="flex flex-col gap-2 overflow-y-auto md:max-h-[40vh] pr-1">
         {filteredTasks.map((task, index) => {
           const pKey = (task.priority as Priority) || "NONE";
           const borderColor = priorityColors[pKey];
@@ -123,7 +122,7 @@ export default function PriorityChart({ taskData }: { taskData: TaskInfos }) {
               style={{ borderColor: borderColor }}
             >
               <div className="flex flex-col p-2 border rounded-lg border-overlay-border-color hover:border-white transition-colors shadow-sm">
-                <span className="text-xs font-semibold text-white truncate">
+                <span className="text-xs font-semibold text-text-main truncate">
                   {task.name}
                 </span>
                 <span className="text-[10px] text-slate-500">
