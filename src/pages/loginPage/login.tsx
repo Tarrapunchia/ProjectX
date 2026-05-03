@@ -62,7 +62,7 @@ function login()
     return (
     <div className="flex items-center justify-center h-screen w-screen bg-gray-900">
         <div className="flex flex-col items-center text-center gap-5 p-10 text-[8px] bg-[#8e8d8d37] rounded-[10px] shadow-[0_0_10px_rgba(0,0,0,0.5)] h-auto w-auto">
-            <h1 className="text-[30px] mb-[50px] text-white font-bold">Login to your account!</h1>
+            <h1 className="text-[30px] mb-[50px] text-text-main font-bold">Login to your account!</h1>
             <button
             onClick={handleGoogleLogin}
             className="
@@ -71,7 +71,7 @@ function login()
                 px-[10px] py-[10px]
                 text-[18px] leading-[18px]
                 rounded-[5px]
-                bg-white text-white font-medium
+                bg-white font-medium
                 shadow-[0_0_10px_rgba(0,0,0,0.5)]
                 border border-gray-300
                 transition-all duration-300 ease-in-out
@@ -85,11 +85,10 @@ function login()
                 <path fill="#34A853" d="M24 48c6.47 0 11.9-2.38 15.96-6.31l-7.31-5.66C30.71 37.78 27.54 39 24 39c-6.26 0-11.57-3.22-14.46-8.41l-7.98 6.18C6.51 42.62 14.62 48 24 48z"/>
             </svg>
 
-            <span className="text-[16px]">Accedi con Google</span>
+            <span className="text-[16px] text-text-login">Accedi con Google</span>
             </button>
 
-            <span className="text-[14px] text-white"> OR </span>
-
+            <span className="text-[14px] text-text-main"> OR </span>
 
             <input 
                 ref={emailRef}
@@ -110,7 +109,7 @@ function login()
                 </div>
             )}
 
-            <span className="text-[14px] text-white cursor-pointer hover:underline"> 
+            <span className="text-[14px] text-text-login cursor-pointer hover:underline"> 
                 Password forgotten? 
             </span>
             <div>
