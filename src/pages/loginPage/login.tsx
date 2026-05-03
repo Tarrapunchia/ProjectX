@@ -60,8 +60,8 @@ function login()
     function handleSignUp() { navigate("/SignUp"); }
 
     return (
-    <div className="flex items-center justify-center h-screen w-screen bg-gray-900">
-        <div className="flex flex-col items-center text-center gap-5 p-10 text-[8px] bg-[#8e8d8d37] rounded-[10px] shadow-[0_0_10px_rgba(0,0,0,0.5)] h-auto w-auto">
+    <div className="flex items-center justify-center h-screen w-screen bg-bg-color">
+        <div className="flex flex-col items-center text-center gap-5 p-10 text-[8px] bg-side-bg-color rounded-[10px] shadow-[0_0_10px_rgba(0,0,0,0.5)] h-auto w-auto">
             <h1 className="text-[30px] mb-[50px] text-text-main font-bold">Login to your account!</h1>
             <button
             onClick={handleGoogleLogin}
@@ -76,6 +76,7 @@ function login()
                 border border-gray-300
                 transition-all duration-300 ease-in-out
                 hover:scale-105 hover:shadow-[0_0_15px_rgba(0,0,0,0.6)]
+                cursor-pointer
             "
             >
             <svg className="w-5 h-5" viewBox="0 0 48 48">
@@ -94,28 +95,28 @@ function login()
                 ref={emailRef}
                 type="text" 
                 placeholder="E-mail" 
-                className="mt-[5px] bg-white text-black p-[10px] text-[18px] rounded-[5px] w-[300px] min-h-[50px] transition-transform duration-200 ease-in-out focus:scale-105 outline-none"
+                className="mt-[5px] bg-white text-text-login border border-gray-300 p-[10px] text-[18px] rounded-[5px] w-[300px] min-h-[50px] transition-transform duration-200 ease-in-out focus:scale-105 outline-none"
             />
             <input 
                 ref={pwRef} 
                 type="password" 
                 placeholder="Password" 
-                className="mt-[5px] bg-white text-black p-[10px] text-[18px] rounded-[5px] w-[300px] min-h-[50px] transition-transform duration-200 ease-in-out focus:scale-105 outline-none"
+                className="mt-[5px] bg-white text-text-login border border-gray-300 p-[10px] text-[18px] rounded-[5px] w-[300px] min-h-[50px] transition-transform duration-200 ease-in-out focus:scale-105 outline-none"
             />
             
             {error && (
-                <div className="w-[250px] bg-red-900/40 border border-red-600 text-red-300 px-2 py-0.5 rounded-md text-[13px]">
+                <div className="w-[250px] bg-red-900/40 border border-red-700 text-text-main px-2 py-0.5 rounded-md text-[13px]">
                     {error}
                 </div>
             )}
 
-            <span className="text-[14px] text-text-login cursor-pointer hover:underline"> 
+            <span className="text-[14px] text-text-main cursor-pointer hover:underline"> 
                 Password forgotten? 
             </span>
             <div>
-                <span className="text-[14px] text-white">Not a member yet? </span>
+                <span className="text-[14px] text-text-main">Not a member yet? </span>
                 <span 
-                    className="ml-2 text-[12px] text-white cursor-pointer hover:underline" 
+                    className="ml-2 text-[12px] text-text-main cursor-pointer hover:underline" 
                     onClick={handleSignUp}> Sign-Up! 
                 </span>
             </div>
@@ -123,16 +124,17 @@ function login()
                 onClick={handleLogin}
                 className="
                     flex items-center justify-center gap-3
-                    w-[300px] min-h-[50px]
-                    mt-4
-                    !text-[18px] !leading-none
-                    font-bold uppercase
+                    w-[200px] min-h-[50px]
+                    px-[10px] py-[10px]
+                    text-[18px] leading-[18px]
+                    text-text-login
                     rounded-[5px]
-                    bg-white text-white
-                    shadow-lg
+                    bg-white font-medium
+                    shadow-[0_0_10px_rgba(0,0,0,0.5)]
                     border border-gray-300
-                    transition-all duration-300
-                    hover:scale-105 active:scale-95  /* Feedback al click */
+                    transition-all duration-300 ease-in-out
+                    hover:scale-105 hover:shadow-[0_0_15px_rgba(0,0,0,0.6)]
+                    cursor-pointer
                 "
                 >
                 Login
