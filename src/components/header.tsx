@@ -43,7 +43,7 @@ function Header({ setActivePage, selectedProject }: HeaderProps) {
 		<header className="bg-side-bg-color text-white p-[15px_20px] [grid-area:header] flex items-center border-b border-overlay-border-color ">
 			<span 
 				onClick={() => setActivePage('projects')} 
-				className="relative text-text-main inline-flex items-center justify-center w-10 h-10 rounded-full border-2 border-text-main cursor-pointer mr-3.75 ml-1.25 text-[20px] hover:bg-bg-color group
+				className="relative text-text-main inline-flex items-center justify-center w-10 h-10 rounded-full border-2 border-text-main cursor-pointer mr-3.75 ml-1.25 text-[20px] hover:bg-bg-color hover:scale-110 transition-transform duration-300 group
 				after:content-['Change_Project'] after:absolute after:top-full after:left-1/2 after:-translate-x-1/2 after:mt-1.25
 				after:bg-bg-color after:border after:border-text-main after:text-main after:py-1.25 after:px-2.5 after:rounded-sm after:text-[12px] after:white-space-nowrap
 				after:opacity-0 after:invisible after:transition-opacity after:duration-300
@@ -63,7 +63,7 @@ function Header({ setActivePage, selectedProject }: HeaderProps) {
 				<img 
 					src={infoFetched ? `${CONSTS.BE + userInfo.avatar}` : MOCK_USER.avatar} 
 					alt="Foto profilo" 
-					className="w-12.5 h-12.5 rounded-full object-cover block"
+					className="w-12.5 h-12.5 rounded-full object-cover hover:scale-110 transition-transform duration-300 block"
 				/>
 			</button>
 		</header>
