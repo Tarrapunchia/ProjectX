@@ -12,9 +12,9 @@ export const MessageBubble: React.FC<MessageBubbleProps> = ({ content, senderMai
 				{!isMe && <span className="text-xs font-bold text-owner-color">{senderMail}</span>}
 				<span className="text-[10px] text-gray-500">{time}</span>
 			</div>
-			<div className={`max-w-[80%] p-3 rounded-xl text-sm break-words shadow-sm ${
+			<div className={`max-w-[80%] p-3 rounded-xl text-sm wrap-break-word shadow-sm ${
 					isMe ? 'bg-owner-color text-white rounded-tr-none'
-					: 'bg-category-bg-color text-gray-100 rounded-tl-none'
+					: 'bg-category-bg-color text-main rounded-tl-none'
 			}`}>
 				{content}
 			</div>

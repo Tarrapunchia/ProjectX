@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { FiPlus, FiUsers } from 'react-icons/fi';
-import { useWebSocket } from '../utilities/WebSocketContext';
+import { ChatButton } from './ChatButton';
+import { ChatMenu } from './ChatMenu';
 
 interface FloatingChatProps {
 	myMail: string;
@@ -10,18 +10,10 @@ function FloatingChat() {
 	const [isOpen, setIsOpen] = useState(false);
 	const [pos, setPos] = useState({ x: window.innerWidth - 100, y: window.innerHeight - 120 });
 	const [isDragging, setIsDragging] = useState(false);
+	
 	const offset = useRef({ x: 0, y: 0});
 	const hasMoved = useRef(false);
 	const startPos = useRef({ x: 0, y: 0 });
-
-	const menuSize = { x: 288, y: 320};
-
-	const openLeft = pos.x + (menuSize.x + 4) > window.innerWidth;
-	const openDown = pos.y - (menuSize.y + 4) < 0;
-
-	const horizontalClass = openLeft ? 'right-16' : 'left-16';
-	const verticalClass = openDown ? 'top-0' : 'bottom-0';
-	const originClass = `origin-${openDown ? 'top' : 'bottom'}-${openLeft ? 'right' : 'left'}`;
 
 	useEffect(() => {
 		const handleMouseMove = (e: MouseEvent) => {
@@ -85,23 +77,22 @@ function FloatingChat() {
 				};
 			}}
 			onMouseUp={ () => setIsDragging(false) }>
-			<button className="flex items-center justify-center w-14 h-14 rounded-full bg-bg-color text-color-main shadow-lg hover:scale-110 active:scale-95 transition-transform focus:outline-none border border-overlay-border-color cursor-pointer"
+			{/* <div className="flex items-center justify-center w-14 h-14 rounded-full bg-bg-color text-color-main shadow-lg hover:scale-110 active:scale-95 transition-transform focus:outline-none border border-overlay-border-color cursor-pointer"
 				onClick={ () => {
 					if (!hasMoved.current)
 						setIsOpen(!isOpen)
 				}}
-			>
-				<FiPlus size={26}
-						className={`transition-transform duration-300 ${isOpen ? 'rotate-45' : 'rotate-0'}`}
-				/>
-			</button>
-			<div className={`absolute w-72 h-80 rounded-md bg-bg-color border border-overlay-border-color transition-transform duration-400
-							${horizontalClass}
-							${verticalClass}
-							${originClass}
-							${isOpen && !isDragging ? 'scale-100 shadow-xl' : 'scale-0'}`}>
-				Div Test
-			</div>
+			> */}
+			<ChatButton
+				isOpen={isOpen}
+				onClick={() => !hasMoved.current && setIsOpen(!isOpen)}
+			/>
+			<ChatMenu
+				isOpen={isOpen}
+				isDragging={isDragging}
+				pos={pos}
+			/>
+			{/* </div> */}
 		</div>
 	);
 }
