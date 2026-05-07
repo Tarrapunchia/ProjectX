@@ -1,15 +1,13 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { ChatButton } from './ChatButton';
 import { ChatMenu } from './ChatMenu';
-
-interface FloatingChatProps {
-	myMail: string;
-}
+import { useWebSocket } from '../../utilities/WebSocketContext';
 
 function FloatingChat() {
 	const [isOpen, setIsOpen] = useState(false);
 	const [pos, setPos] = useState({ x: window.innerWidth - 100, y: window.innerHeight - 120 });
 	const [isDragging, setIsDragging] = useState(false);
+	const { friends } = useWebSocket();
 	
 	const offset = useRef({ x: 0, y: 0});
 	const hasMoved = useRef(false);
@@ -77,12 +75,6 @@ function FloatingChat() {
 				};
 			}}
 			onMouseUp={ () => setIsDragging(false) }>
-			{/* <div className="flex items-center justify-center w-14 h-14 rounded-full bg-bg-color text-color-main shadow-lg hover:scale-110 active:scale-95 transition-transform focus:outline-none border border-overlay-border-color cursor-pointer"
-				onClick={ () => {
-					if (!hasMoved.current)
-						setIsOpen(!isOpen)
-				}}
-			> */}
 			<ChatButton
 				isOpen={isOpen}
 				onClick={() => !hasMoved.current && setIsOpen(!isOpen)}
@@ -91,8 +83,8 @@ function FloatingChat() {
 				isOpen={isOpen}
 				isDragging={isDragging}
 				pos={pos}
+				friends={friends || []}
 			/>
-			{/* </div> */}
 		</div>
 	);
 }

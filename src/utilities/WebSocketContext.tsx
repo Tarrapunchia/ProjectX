@@ -1,5 +1,16 @@
 import React, { createContext, useContext, useEffect, useState, type ReactNode } from 'react';
 import consts from '../data/consts';
+import helpers from '../utilities/helpers';
+
+export interface Friend {
+	id: number;
+	name: string;
+	surname: string;
+	email: string;
+	jobQualifier: string;
+	isLoggedIn: boolean;
+	avatarUrl: string;
+}
 
 export interface FloatingChatInfo {
 	roomId: string;
@@ -15,6 +26,7 @@ interface WebSocketContextType {
 	floatingChats: FloatingChatInfo[];
 	openFloatingChat: (chat: FloatingChatInfo) => void;
 	closeFloatingChat: (roomId: string) => void;
+	friends: Friend[];
 }
 
 const WebSocketContext = createContext<WebSocketContextType | undefined>(undefined);
@@ -23,14 +35,33 @@ export const WebSocketProvider: React.FC<{ children: ReactNode }> = ({ children 
 	const [socket, setSocket] = useState<WebSocket | null>(null);
 	const [isReady, setIsReady] = useState(false);
 	const [floatingChats, setFloatingChats] = useState<FloatingChatInfo[]>([]);
+	const [friends, setFriends] = useState<Friend[]>([]);
 
 	useEffect(() => {
 		const ws = new WebSocket(consts.WS);
+
+		loadFriends();
 
 		ws.onopen = () => {
 			console.log("WS connected via Context");
 			setIsReady(true);
 		};
+
+		ws.onmessage = (event) => {
+			try {
+				const messageData = JSON.parse(event.data);
+
+				if (messageData.type === "presence:update") {
+					setFriends(prev => prev.map(f =>
+						f.email === messageData.payload.email
+						? { ...f, online: messageData.payload.online }
+						: f
+					));
+				}
+			} catch (err) {
+				console.error("Ws message error:", err);
+			}
+		}
 
 		ws.onclose = () => {
 			console.log("WS closed");
@@ -43,6 +74,12 @@ export const WebSocketProvider: React.FC<{ children: ReactNode }> = ({ children 
 			ws.close();
 		};
 	}, []);
+
+	const loadFriends = async () => {
+		const response = await helpers.getter('/api/v1/friends/ACCEPTED', null);
+		if (response.success)
+			setFriends(response.data.friends);
+	}
 
 	const send = (data: any) => {
 		if (socket && socket.readyState === WebSocket.OPEN)
@@ -69,7 +106,8 @@ export const WebSocketProvider: React.FC<{ children: ReactNode }> = ({ children 
 			send,
 			floatingChats,
 			openFloatingChat,
-			closeFloatingChat
+			closeFloatingChat,
+			friends
 			}}
 		>
 			{children}

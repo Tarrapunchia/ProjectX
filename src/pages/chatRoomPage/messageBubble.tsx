@@ -4,8 +4,6 @@ import type { MessageBubbleProps } from '../../data/types';
 export const MessageBubble: React.FC<MessageBubbleProps> = ({ content, senderMail, isMe, timestamp }) => {
 	const time = new Date(timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit'});
 
-	console.log(isMe);
-
 	return (
 		<div className={`flex flex-col ${isMe ? 'items-end' : 'items-start'} mb-6`}>
 			<div className="flex items-center space-x-2 mb-1">
