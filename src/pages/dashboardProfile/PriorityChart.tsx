@@ -15,6 +15,9 @@ const priorityColors: Record<Priority, string> = {
   CRITICAL: "#7f1d1d",
 };
 
+
+
+
 const PRIORITIES: Priority[] = ["NONE", "LOW", "MEDIUM", "HIGH", "CRITICAL"];
 
 export default function PriorityChart({ taskData }: { taskData: TaskInfos }) {
@@ -29,6 +32,31 @@ export default function PriorityChart({ taskData }: { taskData: TaskInfos }) {
     return () => window.removeEventListener("resize", handleResize);
   }, []);
   // --------------------------
+
+  const [textColor, setTextColor] = useState("#000");
+
+  useEffect(() => {
+    const readColor = () => {
+      const c = getComputedStyle(document.documentElement)
+        .getPropertyValue("--color-text")
+      setTextColor(c || "#000");
+    };
+
+    // Prima lettura iniziale
+    readColor();
+
+    // Osserva cambiamenti di class su <html>
+    const observer = new MutationObserver(() => {
+      readColor();
+    });
+
+    observer.observe(document.documentElement, {
+      attributes: true,
+      attributeFilter: ["class"],
+    });
+
+    return () => observer.disconnect();
+  }, []);
 
   const [activePriorities, setActivePriorities] = useState<Priority[]>(PRIORITIES);
 
@@ -49,7 +77,7 @@ export default function PriorityChart({ taskData }: { taskData: TaskInfos }) {
       title: { 
         display: true, 
         text: "Priority Distribution",
-        color: 'rgb(var(--text-main))',
+        color: textColor,
         // Titolo più piccolo su mobile
         font: { size: isMobile ? 12 : 14 }, 
         padding: { bottom: isMobile ? 10 : 20 }
@@ -80,7 +108,7 @@ export default function PriorityChart({ taskData }: { taskData: TaskInfos }) {
               lineWidth: 1,
               hidden: !chart.getDataVisibility(i),
               index: i,
-              fontColor: 'rgb(var(--text-main))'
+              fontColor: textColor,
             }));
           },
           boxWidth: isMobile ? 8 : 12, // Quadratini più piccoli su mobile
