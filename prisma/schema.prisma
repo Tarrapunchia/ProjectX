@@ -50,6 +50,7 @@ model User {
   projectParticipants ProjectParticipant[]
   tasksParticipants   TaskParticipant[]
   eventParticipants   EventParticipant[]
+  groupMember         GroupParticipant[]
 
   // Friendships (self relation via table)
   friendshipsSent     Friendship[] @relation("FriendshipSender")
@@ -215,6 +216,31 @@ model TaskParticipant {  // TABELLA PONTE
   @@id([taskId, userId]) // un utente compare una volta per task
 }
 
+model Group {
+  id             Int    @id @default(autoincrement())
+  name           String
+  description    String?
+
+  participants   GroupParticipant[]
+  chatRoom       ChatRoom?
+
+  createdAt      DateTime @default(now())
+  closedAt       DateTime?
+}
+
+model GroupParticipant {  // TABELLA PONTE
+  userId    Int
+  groupId   Int
+
+  group   Group   @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+
+  @@id([groupId, userId]) // un utente compare una volta per chat di gruppo
+}
+
+
 model Project {
   id             Int    @id @default(autoincrement())
   name           String
@@ -286,9 +312,11 @@ model ChatRoom {
   type      ChatRoomType
   orgId     Int?
   projectId Int?
+  groupId   Int?    @unique
 
   organization Organization? @relation(fields: [orgId], references: [id], onDelete: Cascade)
   project      Project?      @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  group        Group?        @relation(fields: [groupId], references: [id], onDelete: Cascade)
 
   messages  RoomMessage[]
 
@@ -313,6 +341,7 @@ model RoomMessage {
 enum ChatRoomType {
   ORG
   PROJECT
+  GROUP
 }
 
 // messaggi pvt

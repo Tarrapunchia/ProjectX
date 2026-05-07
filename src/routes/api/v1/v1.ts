@@ -6,6 +6,7 @@ import Projects from "./projects/projects.js";
 import Tasks from "./tasks/tasks.js";
 import Messages from "./messages/messages.js";
 import Files from "./files/files.js"
+import Groups from "./groups/groups.js"
 import Friends from "./friends/friends.js"
 
 const V1: FastifyPluginAsync = async (fastify: FastifyInstance, opts) => {
@@ -16,6 +17,7 @@ const V1: FastifyPluginAsync = async (fastify: FastifyInstance, opts) => {
     fastify.register(Messages, { prefix: 'messages'})
     fastify.register(Files, { prefix: 'files'})
     fastify.register(Friends, { prefix: 'friends'})
+    fastify.register(Groups, { prefix: 'groups'})
     fastify.register(Debug, { prefix: 'debug'})
 }
 

@@ -1,7 +1,8 @@
 import fastify, { type FastifyInstance, type FastifyPluginAsync } from "fastify";
 import { userSchemas } from "../users/usersSchemas.js";
 import { RoleName, Status, FriendshipStatus, Priority, NotificationType, EventType } from "@prisma/client";
-import { genSaltSync, hashSync } from "bcrypt-ts";
+import { compareSync, genSaltSync, hashSync } from "bcrypt-ts";
+import { setAuthCookie } from "../../../../helpers/cookies.js";
 
 const Debug: FastifyPluginAsync = async (fastify: FastifyInstance, opts) => {
 
@@ -476,6 +477,90 @@ const Debug: FastifyPluginAsync = async (fastify: FastifyInstance, opts) => {
         return reply.code(500).send({ ok: false, error: 'seed failed' })
     }
     })
+
+    // POST /api/v1/debug/loginFabio
+    fastify.get(
+    '/loginFabio',
+    {
+        config: {
+        rateLimit: {
+            max: 5,
+            timeWindow: '15 minutes',
+        },
+        },
+        schema: {
+    description: 'Login user fabio',
+    tags: ['debug'],
+    response: {
+        200: {
+        type: 'object',
+        properties: {
+            success: { type: 'boolean' },
+            user: {
+            type: 'object',
+            properties: {
+                id: { type: 'number' },
+                name: { type: 'string' },
+                surname: { type: 'string' },
+                email: { type: 'string', format: 'email' },
+            },
+            required: ['id', 'name', 'surname', 'email'],
+            },
+        },
+        required: ['success', 'user'],
+        },
+        400: {
+        type: 'object',
+        properties: { error: { type: 'string' } },
+        required: ['error'],
+        },
+        401: {
+        type: 'object',
+        properties: { error: { type: 'string' } },
+        required: ['error'],
+        },
+    },
+}},
+    async (req, res) => {
+        const { email, password } = { email: "fzucconi@student.42campus.com", password: '1234'}
+        // check base
+        if (!email || !password) {
+            res.code(400)
+            return { error: 'Email and password are mandatory!' }
+        }
+
+        // prendo user
+        const user = await fastify.prisma.user.findUnique({
+            where: { email },
+        })
+
+        if (!user) {
+            res.code(401)
+            return { error: 'Invalid credentials' }
+        }
+
+        // verifica password
+        if (!user.hashedPw || !compareSync(password, String(user.hashedPw))) {
+            res.code(401)
+            return { error: 'Invalid credentials' }
+        }
+
+        // setto logged-in
+        await fastify.prisma.user.update({
+            where: { id: user.id },
+            data: { isLoggedIn: true },
+        })
+
+        // HTTP ONLY
+        const token = fastify.jwt.sign({ userId: user.id }, { expiresIn: '24h' })
+        setAuthCookie(res, token)
+
+        return res.send({
+            success: true,
+            user: { id: user.id, name: user.name, surname: user.surname, email: user.email },
+        })
+    }
+    )
 }
 
 export default Debug
