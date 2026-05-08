@@ -1,5 +1,6 @@
 import { FiUsers, FiUser, FiSearch } from 'react-icons/fi';
-import { useState } from 'react';
+import { useState, memo } from 'react';
+import { useWebSocket, type FloatingChatInfo } from '../../utilities/WebSocketContext';
 
 interface Friend {
 	id: number;
@@ -16,11 +17,14 @@ interface ChatMenuProps {
 	isDragging: boolean;
 	pos: { x: number, y: number };
 	friends: Friend[];
+	activeChat: FloatingChatInfo | null;
+	setActiveChat: (chat: FloatingChatInfo | null) => void;
 }
 
-const menuSize = { x: 400, y: 500};
+export const menuSize = { x: 400, y: 500};
 
-export const ChatMenu = ({ isOpen, isDragging, pos, friends }: ChatMenuProps) => {
+export const ChatMenu = memo(({ isOpen, isDragging, pos, friends, activeChat, setActiveChat }: ChatMenuProps) => {
+	const { openFloatingChat } = useWebSocket();
 	const openLeft = pos.x + (menuSize.x + 20) > window.innerWidth;
 	const openDown = pos.y - (menuSize.y + 20) < 0;
 
@@ -53,7 +57,7 @@ export const ChatMenu = ({ isOpen, isDragging, pos, friends }: ChatMenuProps) =>
 						${horizontalClass} 
 						${verticalClass} 
 						${origins[originKey]} 
-						${isOpen && !isDragging ? 'scale-100 opacity-100 shadow-xl' : 'scale-0 opacity-0 pointer-events-none'}`
+						${isOpen && !isDragging && !activeChat ? 'scale-100 opacity-100 shadow-xl' : 'scale-0 opacity-0 pointer-events-none'}`
 		}>
 			<div className="grid grid-cols-2 h-12 bg-side-bg-color border-b border-overlay-border-color shrink-0">
 				<button 
@@ -104,6 +108,15 @@ export const ChatMenu = ({ isOpen, isDragging, pos, friends }: ChatMenuProps) =>
 							filteredFriends.map((friend) => (
 								<div
 									key={friend.id}
+									onClick={() => {
+										const newChat: FloatingChatInfo = {
+											roomId: `private-${friend.id}`,
+											senderMail: friend.email,
+											type: 'private'
+										};
+										openFloatingChat(newChat);
+										setActiveChat(newChat);
+									}}
 									className="flex items-center gap-3 p-3 rounded-md hover:bg-side-bg-color cursor-pointer transition-colors group/item"
 								>
 									<div className="relative shrink-0">		
@@ -144,7 +157,7 @@ export const ChatMenu = ({ isOpen, isDragging, pos, friends }: ChatMenuProps) =>
 			</div>
 		</div>
 	)
-}
+});
 
 
 

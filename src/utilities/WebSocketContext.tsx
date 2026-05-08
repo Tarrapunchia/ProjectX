@@ -88,10 +88,12 @@ export const WebSocketProvider: React.FC<{ children: ReactNode }> = ({ children 
 
 	const openFloatingChat = (chat: FloatingChatInfo) => {
 		setFloatingChats(prev => {
-			if (prev.find(c => c.roomId === chat.roomId))
-				return prev;
+			if (prev.find(c => c.roomId === chat.roomId)) {
+				prev = prev.filter(c => c.roomId !== chat.roomId)
+				return [chat, ...prev];
+			}
 
-			return [...prev, chat];
+			return [chat, ...prev];
 		});
 	};
 

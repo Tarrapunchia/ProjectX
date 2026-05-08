@@ -43,6 +43,17 @@
 	--color-text: rgba(255, 255, 255, 0.87);
 }
 
+@layer utilities {
+	.no-scrollbar::-webkit-scrollbar {
+		display: none;
+	}
+
+	.no-scrollbar {
+		-ms-overflow-style: none;
+		scrollbar-width: none;
+	}
+}
+
 body {
   margin: 0;
   min-width: 320px;
