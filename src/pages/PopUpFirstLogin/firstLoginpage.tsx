@@ -14,7 +14,6 @@ interface Props {
   onSave: (data: ExtraProfileData) => void;
 }
 
-// Configurazione dei passaggi per facilitare la manutenzione
 const STEPS = [
   { id: "profession", label: "Profession", placeholder: "e.g. Software Engineer, Designer...", type: "text" },
   { id: "phone", label: "Phone Number", placeholder: "e.g. +39 333 1234567", type: "tel" },
@@ -45,7 +44,7 @@ export default function ProfileCompletionModal({ isOpen, onClose, onSave }: Prop
     } else {
       setShouldRender(false);
       setIsExiting(false);
-      setCurrentStep(0); // Resetta al primo step quando chiudi
+      setCurrentStep(0);
     }
     return () => clearTimeout(timer);
   }, [isOpen]);
@@ -109,29 +108,41 @@ export default function ProfileCompletionModal({ isOpen, onClose, onSave }: Prop
       >
         
         {/* Header */}
-        <div className="bg-gradient-to-r from-bg-color to-category-bg-color p-6 text-white text-center border-b border-overlay-border-color">
-          	<h2 className="text-2xl font-bold text-white tracking-tight">
-				Finalize your professional profile
-			</h2>
-			<p className="text-zinc-400 text-sm mt-1 italic">
-				Please provide the following details to enhance your experience.
-			</p>
-          <p className="text-zinc-400 text-sm mt-1 italic">
-            Step {currentStep + 1} of {STEPS.length}
-          </p>
+        <div className="bg-gradient-to-r from-bg-color to-category-bg-color p-4 text-white text-center border-b border-overlay-border-color">
+						<div className="flex justify-end items-up">
+							<button
+                  onClick={startCloseAnimation}
+                  className="border border-category-bg-color bg-side-bg-color 
+                            rounded-full w-8 h-8 flex items-center justify-center
+                            text-text-main cursor-pointer hover:scale-105 hover:border-text-main">
+                  ✕
+              </button>
+						</div>
+            <div className="flex items-center justify-center mb-1">
+              <h1 className="bg-gradient-to-r from-pink-400 via-sky-400 to-purple-500 text-3xl font-bold tracking-tight text-text-main bg-clip-text text-transparent">Welcome!</h1>
+            </div>
+          	<h2 className="text-2xl font-bold text-text-main tracking-tight">
+              Finalize your professional profile
+            </h2>
+            <p className="text-zinc-500 text-sm mt-1 italic">
+              Please provide the following details to enhance your experience.
+            </p>
+            <p className="text-zinc-500 text-sm mt-1 italic">
+              Step {currentStep + 1} of {STEPS.length}
+            </p>
         </div>
 
         <div className="p-8">
           {/* Progress Bar */}
-          <div className="w-full bg-zinc-800 h-1 mb-8 rounded-full overflow-hidden">
+          <div className="w-full bg-zinc-500 h-1 mb-8 rounded-full overflow-hidden">
             <div 
-              className="h-full bg-owner-color transition-all duration-500" 
+              className="h-full bg-owner-color transition-all duration-500"
               style={{ width: `${((currentStep + 1) / STEPS.length) * 100}%` }}
             />
           </div>
 
           <div className="flex flex-col gap-4 min-h-[140px] step-transition">
-            <label className="text-zinc-200 text-[10px] uppercase font-bold tracking-widest">
+            <label className="text-zinc-500 text-[10px] uppercase font-bold tracking-widest">
               {currentStepData.label}
             </label>
             
@@ -159,16 +170,11 @@ export default function ProfileCompletionModal({ isOpen, onClose, onSave }: Prop
 
           <div className="flex items-center justify-between mt-10 gap-4">
             {currentStep === 0 ? (
-              <button 
-                onClick={startCloseAnimation} 
-                className="bg-category-bg-color/10 text-zinc-400 px-6 py-3 rounded-xl font-bold hover:bg-zinc-800 transition-all duration-200"
-              >
-                Skip for now
-              </button>
+              <> </>
             ) : (
               <button 
                 onClick={handleBack} 
-                className="text-zinc-400 px-6 py-3 rounded-xl font-bold transition-all duration-200"
+                className="border border-category-bg-color bg-side-bg-color rounded-xl p-2 !text-text-main cursor-pointer hover:scale-105 hover:border-text-main"
               >
                 Back
               </button>
@@ -176,7 +182,7 @@ export default function ProfileCompletionModal({ isOpen, onClose, onSave }: Prop
             
             <button 
               onClick={handleNext}
-              className="bg-category-bg-color text-black px-10 py-3 rounded-xl font-bold hover:bg-zinc-200 hover:scale-105 active:scale-95 transition-all duration-200 shadow-lg ml-auto"
+              className="border border-category-bg-color bg-side-bg-color rounded-xl p-2 !text-text-main cursor-pointer hover:scale-105 hover:border-text-main shadow-lg ml-auto"
             >
               {isLastStep ? "Save and continue" : "Next step"}
             </button>
