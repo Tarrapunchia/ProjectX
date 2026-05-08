@@ -12,7 +12,7 @@ function DashboardProf() {
 	const [tasksInfos, setTasksInfo] = useState<TaskInfos>(MOCK_USER_TASKS)
 	const [infoFetched, setInfoFetched] = useState<boolean>(false)
 
-	const [isPopupOpen, setIsPopupOpen] = useState(false);
+	const [isPopupOpen, setIsPopupOpen] = useState(true);
 
 	const location = useLocation();
 
@@ -52,7 +52,7 @@ function DashboardProf() {
 		return () => {};
 	}, [location.state]);
 		return (
-			<div className="grid grid-cols-1 lg:grid-cols-[2fr_2fr_1.5fr] gap-10 px-10 pt-10 pb-4 lg:p-6 min-w-full">
+			<div className="grid grid-cols-1 lg:grid-cols-[2fr_2fr_1.5fr] gap-2 px-5 pt-5 pb-4 lg:p-6 min-w-full">
 
 				<FirstLogin
 					isOpen={isPopupOpen}
@@ -61,7 +61,7 @@ function DashboardProf() {
 				/>
 				
 				{/* Colonna Sinistra */}
-				<div className="col-span-1 lg:col-span-2 grid grid-cols-1 gap-6">
+				<div className="col-span-1 lg:col-span-2 grid grid-cols-1 gap-2">
 
 					{/* Calendario */}
 					<div className="bg-side-bg-color border border-overlay-border-color rounded-lg shadow p-4 overflow-hidden relative min-h-[350px] text-base leading-tight text-text-main">

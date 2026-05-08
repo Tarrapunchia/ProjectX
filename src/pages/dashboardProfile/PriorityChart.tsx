@@ -15,9 +15,6 @@ const priorityColors: Record<Priority, string> = {
   CRITICAL: "#7f1d1d",
 };
 
-
-
-
 const PRIORITIES: Priority[] = ["NONE", "LOW", "MEDIUM", "HIGH", "CRITICAL"];
 
 export default function PriorityChart({ taskData }: { taskData: TaskInfos }) {
@@ -31,6 +28,7 @@ export default function PriorityChart({ taskData }: { taskData: TaskInfos }) {
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
   }, []);
+  
   // --------------------------
 
   const [textColor, setTextColor] = useState("#000");
