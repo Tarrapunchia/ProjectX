@@ -52,7 +52,7 @@ export const ChatBox = memo(({ isOpen, isDragging, hiddenChatId, pos, friends, a
 							onAvatarDragStart(chat, e.clientX, e.clientY);
 						}}
 						onClick={() => {
-							if (activeChat === chat)
+							if (activeChat?.roomId === chat.roomId)
 								setActiveChat(null)
 							else
 								setActiveChat(chat)

@@ -99,7 +99,7 @@ const ChatPage: React.FC<ChatPageProps> = ({ selectedProject }) => {
 				<p className="mt-1 text-xs text-owner-color font-semibold tracking-wider">{selectedProject?.name || 'Caricamento...'}</p>
 			</div>
 			{/* Message List */}
-			<div ref={scrollRef} className="flex-1 overflow-y-auto p-6 scrollbar-thin">
+			<div ref={scrollRef} className="flex-1 overflow-y-auto p-6 no-scrollbar">
 				{chatHistory.map((m) => (
 					<MessageBubble
 						key={m.id}

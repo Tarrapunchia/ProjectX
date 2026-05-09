@@ -18,6 +18,14 @@ export interface FloatingChatInfo {
 	type: 'private' | 'group';
 }
 
+export interface ChatMessage {
+	id: number | string;
+	senderId: number;
+	senderMail?: string;
+	content: string;
+	timestamp: string | number;
+}
+
 interface WebSocketContextType {
 	socket: WebSocket | null;
 	isReady: boolean;
@@ -27,6 +35,11 @@ interface WebSocketContextType {
 	openFloatingChat: (chat: FloatingChatInfo) => void;
 	closeFloatingChat: (roomId: string) => void;
 	friends: Friend[];
+
+	messages: Record<string, ChatMessage[]>;
+	setMessages: React.Dispatch<React.SetStateAction<Record<string, ChatMessage[]>>>;
+	loadHistory: (roomId: string, friendId: number) => Promise<void>;
+	myUserId: number | null;
 }
 
 const WebSocketContext = createContext<WebSocketContextType | undefined>(undefined);
@@ -36,8 +49,20 @@ export const WebSocketProvider: React.FC<{ children: ReactNode }> = ({ children 
 	const [isReady, setIsReady] = useState(false);
 	const [floatingChats, setFloatingChats] = useState<FloatingChatInfo[]>([]);
 	const [friends, setFriends] = useState<Friend[]>([]);
+	const [messages, setMessages] = useState<Record<string, ChatMessage[]>>({});
+	const [myUserId, setMyUserId] = useState<number | null>(null);
 
 	useEffect(() => {
+		const fetchMe = async () => {
+			const res = await helpers.getter('/api/v1/users/activeUser', null);
+			if (res.success) setMyUserId(res.data.id);
+		};
+		fetchMe();
+	}, []);
+
+	useEffect(() => {
+		if (myUserId === null) return;
+
 		const ws = new WebSocket(consts.WS);
 
 		loadFriends();
@@ -54,14 +79,32 @@ export const WebSocketProvider: React.FC<{ children: ReactNode }> = ({ children 
 				if (messageData.type === "presence:update") {
 					setFriends(prev => prev.map(f =>
 						f.email === messageData.payload.email
-						? { ...f, online: messageData.payload.online }
+						? { ...f, isLoggedIn: messageData.payload.online }
 						: f
 					));
 				}
+
+				if (messageData.type === "chat:message") {
+					const friendId = messageData.fromUserId;
+					const roomId = `private-${friendId}`;
+
+					const newMessage: ChatMessage = {
+						id: Date.now(),
+						senderId: messageData.fromUserId,
+						content: messageData.text,
+						timestamp: messageData.ts
+					}
+
+					setMessages(prev => ({
+						...prev,
+						[roomId]: [...(prev[roomId] || []), newMessage]
+					}));
+				}
+
 			} catch (err) {
-				console.error("Ws message error:", err);
+				console.error("ws message error:", err);
 			}
-		}
+		};
 
 		ws.onclose = () => {
 			console.log("WS closed");
@@ -71,9 +114,26 @@ export const WebSocketProvider: React.FC<{ children: ReactNode }> = ({ children 
 		setSocket(ws);
 
 		return() => {
-			ws.close();
+			if (ws.readyState === WebSocket.OPEN || ws.readyState === WebSocket.CONNECTING)
+				ws.close();
 		};
-	}, []);
+	}, [myUserId]);
+
+	const loadHistory = async (roomId: string, friendId: number) => {
+		if (!myUserId) return;
+
+		const a = Math.min(myUserId, friendId);
+		const b = Math.max(myUserId, friendId);
+		
+		const response = await helpers.getter(`/api/v1/messages/pvtHistory?userA=${a}&userB=${b}`, null);
+
+		if (response.success) {
+			setMessages(prev => ({
+				...prev,
+				[roomId]: response.data.messages
+			}));
+		}
+	};
 
 	const loadFriends = async () => {
 		const response = await helpers.getter('/api/v1/friends/ACCEPTED', null);
@@ -82,8 +142,12 @@ export const WebSocketProvider: React.FC<{ children: ReactNode }> = ({ children 
 	}
 
 	const send = (data: any) => {
-		if (socket && socket.readyState === WebSocket.OPEN)
+		if (socket && socket.readyState === WebSocket.OPEN) {
+			console.log("WS Sending:", data);
 			socket.send(JSON.stringify(data));
+		} else {
+			console.error("WS not ready. State", socket?.readyState);
+		}
 	};
 
 	const openFloatingChat = (chat: FloatingChatInfo) => {
@@ -109,7 +173,11 @@ export const WebSocketProvider: React.FC<{ children: ReactNode }> = ({ children 
 			floatingChats,
 			openFloatingChat,
 			closeFloatingChat,
-			friends
+			friends,
+			messages,
+			setMessages,
+			loadHistory,
+			myUserId
 			}}
 		>
 			{children}
