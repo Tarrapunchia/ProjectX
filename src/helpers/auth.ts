@@ -1,16 +1,20 @@
 import { type FastifyInstance } from "fastify"
 
-const parseRoomKey = (key: string): { type: 'ORG' | 'PROJECT', orgId: number | null, projectId: number | null } => {
+const parseRoomKey = (key: string): { type: 'ORG' | 'PROJECT' | 'GROUP', orgId: number | null, projectId: number | null, groupId: number | null } => {
     // org:12
     const orgMatch = /^org:(\d+)$/.exec(key)
-    if (orgMatch) return { type: 'ORG', orgId: Number(orgMatch[1]), projectId: null }
+    if (orgMatch) return { type: 'ORG', orgId: Number(orgMatch[1]), projectId: null, groupId: null }
 
     // proj:12:5
     const projMatch = /^proj:(\d+):(\d+)$/.exec(key)
-    if (projMatch) return { type: 'PROJECT', orgId: Number(projMatch[1]), projectId: Number(projMatch[2]) }
+    if (projMatch) return { type: 'PROJECT', orgId: Number(projMatch[1]), projectId: Number(projMatch[2]), groupId: null }
+
+    // group:7
+    const groupMatch = /^group:(\d+)$/.exec(key)
+    if (groupMatch) return { type: 'GROUP', orgId: null, projectId: null, groupId: Number(groupMatch[1]) }
 
     // fallback: room “generica”
-    return { type: 'ORG', orgId: null, projectId: null }
+    return { type: 'ORG', orgId: null, projectId: null, groupId: null }
 }
 
 const isMember = async (userId: number, orgId: number, fastify: FastifyInstance) => {
@@ -18,6 +22,15 @@ const isMember = async (userId: number, orgId: number, fastify: FastifyInstance)
         await fastify.prisma.organizationMember.findUnique({
             where: { organizationId_userId: { organizationId: orgId, userId } },
             select: { organizationId: true },
+        })
+    )
+}
+
+const isGroupParticipant = async (userId: number, groupId: number, fastify: FastifyInstance) => {
+    return !!(
+        await fastify.prisma.groupParticipant.findUnique({
+            where: { groupId_userId: { groupId: groupId, userId } },
+            select: { groupId: true },
         })
     )
 }
@@ -57,6 +70,10 @@ const canAccessRoom = async (userId: number, roomKey: string, fastify: FastifyIn
         case 'PROJECT':
             if (Number.isNaN(parsed.projectId) || parsed.projectId === 0) return false
             return isParticipant(userId, Number(parsed.projectId), fastify)
+            break;
+        case 'GROUP':
+            if (Number.isNaN(parsed.groupId) || parsed.groupId === 0) return false
+            return isGroupParticipant(userId, Number(parsed.groupId), fastify)
             break;
         default:
             return false

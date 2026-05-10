@@ -1,6 +1,7 @@
 import fastify, { type FastifyInstance, type FastifyPluginAsync } from "fastify";
 import { groupSchemas } from "./groupsSchema.js";
 import { getUserIdFromJWT } from "../../../../helpers/cookies.js";
+import auth from "../../../../helpers/auth.js";
 
 const Getters: FastifyPluginAsync = async (fastify: FastifyInstance, opts) => {
 
@@ -9,14 +10,26 @@ const Getters: FastifyPluginAsync = async (fastify: FastifyInstance, opts) => {
         Params: { id: string }
         }>(
         '/:id',
-        // { schema: groupSchemas.getGroupByIdSchema }, 
+        { schema: groupSchemas.getGroupByIdSchema }, 
         async (req, res) => {
         const id = Number(req.params.id)
 
         if (Number.isNaN(id)) {
             res.code(400)
-            return { error: 'invalid id' }
+            return { error: 'invalid group id' }
         }
+
+        const userId = getUserIdFromJWT(req, res, fastify);
+        if (!userId || Number.isNaN(userId)) {
+            res.code(400)
+            return { error: 'no user logged in' }
+        }
+
+        if (!(await auth.canAccessRoom(userId, `group:${id}`, fastify))) {
+            res.code(403)
+            return { error: 'Forbidden' }
+        }
+
         const group = await fastify.prisma.group.findUnique({
             where: { id },
             include: {
@@ -27,6 +40,9 @@ const Getters: FastifyPluginAsync = async (fastify: FastifyInstance, opts) => {
                         },
                     },
                 },
+                chatRoom: {
+                    select: { id: true, key: true, type: true }
+                }
             },
         })
 
@@ -35,6 +51,8 @@ const Getters: FastifyPluginAsync = async (fastify: FastifyInstance, opts) => {
             return { error: 'Group not found' }
         }
 
+        fastify.log.error(group)
+
         const result = {
             id: group.id,
             name: group.name,
@@ -42,6 +60,7 @@ const Getters: FastifyPluginAsync = async (fastify: FastifyInstance, opts) => {
                 user: pp.user,
                 joinedAt: pp.createdAt,
             })),
+            chatRoom: group.chatRoom,
             description: group.description ?? '',
             createdAt: group.createdAt,
             closedAt: group.closedAt ?? null
@@ -101,94 +120,65 @@ const Getters: FastifyPluginAsync = async (fastify: FastifyInstance, opts) => {
     //     return res.send(result)
     // })
 
-    // // GET /api/v1/projects/room/:id
-    fastify.get<{
-        Params: { id: string }
-        }>(
-        '/room/:id',
-        { schema: projectSchemas.getProjectRoom }, 
-        async (req, res) => {
-        const id = Number(req.params.id)
-
-        if (Number.isNaN(id)) {
-            res.code(400)
-            return { error: 'invalid id' }
-        }
-        const project = await fastify.prisma.project.findUnique({
-            where: { id },
-            include: {  organization : { select: { id: true }} },
-        })
-
-        if (!project) {
-            res.code(404)
-            return { error: 'Project not found' }
-        }
-
-        const result = {
-            roomId: `proj:${project.organizationId}:${project.id}`
-        }
-
-        res.code(200)
-        return res.send(result)
-    })
+    // // GET /api/v1/group/room/:id
 
     // GET /api/v1/projects/search?organizationId=1&name=foo
     // TODO aggiungere check su pox ricerca?
-    fastify.get<{
-    Querystring: { organizationId: string; name?: string }
-    }>(
-    '/search',
-    { schema: projectSchemas.getOrgProjectsByNameSchema },
-    async (req, reply) => {
-        const organizationId = Number(req.query.organizationId)
-        const name = (req.query.name ?? '').trim()
+    // fastify.get<{
+    // Querystring: { organizationId: string; name?: string }
+    // }>(
+    // '/search',
+    // { schema: projectSchemas.getOrgProjectsByNameSchema },
+    // async (req, reply) => {
+    //     const organizationId = Number(req.query.organizationId)
+    //     const name = (req.query.name ?? '').trim()
 
-        if (Number.isNaN(organizationId)) {
-            reply.code(400)
-            return { error: 'organizationId must be a number' }
-        }
+    //     if (Number.isNaN(organizationId)) {
+    //         reply.code(400)
+    //         return { error: 'organizationId must be a number' }
+    //     }
 
-        const where = name
-            ? { organizationId, name: { contains: name } }
-            : { organizationId }
+    //     const where = name
+    //         ? { organizationId, name: { contains: name } }
+    //         : { organizationId }
 
-        const projects = await fastify.prisma.project.findMany({
-            where,
-            include: {
-            organization: { select: { id: true, name: true } },
-            participants: {
-                include: {
-                user: { select: { id: true, name: true, surname: true, email: true } },
-                role: { select: { name: true } },
-                },
-            },
-            },
-            orderBy: { name: 'asc' },
-        })
+    //     const projects = await fastify.prisma.project.findMany({
+    //         where,
+    //         include: {
+    //         organization: { select: { id: true, name: true } },
+    //         participants: {
+    //             include: {
+    //             user: { select: { id: true, name: true, surname: true, email: true } },
+    //             role: { select: { name: true } },
+    //             },
+    //         },
+    //         },
+    //         orderBy: { name: 'asc' },
+    //     })
 
-        const result = projects.map((p) => ({
-            id: p.id,
-            name: p.name,
-            status: p.status,
-            description: p.description,
-            organizationId: p.organizationId,
-            organization: p.organization,
-            participants: p.participants.map((pp) => ({
-            user: pp.user,
-            role: pp.role.name,
-            joinedAt: pp.createdAt,
-            })),
-            createdAt: p.createdAt,
-            closedAt: p.closedAt ?? null
-        }))
+    //     const result = projects.map((p) => ({
+    //         id: p.id,
+    //         name: p.name,
+    //         status: p.status,
+    //         description: p.description,
+    //         organizationId: p.organizationId,
+    //         organization: p.organization,
+    //         participants: p.participants.map((pp) => ({
+    //         user: pp.user,
+    //         role: pp.role.name,
+    //         joinedAt: pp.createdAt,
+    //         })),
+    //         createdAt: p.createdAt,
+    //         closedAt: p.closedAt ?? null
+    //     }))
 
-        return reply.send({
-            organizationId,
-            query: name || null,
-            count: result.length,
-            projects: result,
-        })
-    })
+    //     return reply.send({
+    //         organizationId,
+    //         query: name || null,
+    //         count: result.length,
+    //         projects: result,
+    //     })
+    // })
 
 
     // // GET /api/v1/projects/:id/project

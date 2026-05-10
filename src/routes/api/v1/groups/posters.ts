@@ -84,20 +84,16 @@ const Posters: FastifyPluginAsync = async (fastify: FastifyInstance, opts) => {
 
         const { userId, groupId } = req.body
 
-        if (!userId || !groupId) {
+        if (!Number.isFinite(userId) || !Number.isFinite(groupId)) {
             res.code(400)
             return { error: 'All fields are required' }
         }
 
         // verifico che gruppo esista e che l'utente ne faccia parte
-        const group = await fastify.prisma.group.findUnique({
+        const group = await fastify.prisma.group.findFirst({
             where: {
                 id: groupId,
-                participants:  {
-                    some: {
-                        userId: activeId
-                    }
-                }
+                participants: { some: { userId: activeId } },
             },
             select: { id: true, name: true },
         })
@@ -110,12 +106,17 @@ const Posters: FastifyPluginAsync = async (fastify: FastifyInstance, opts) => {
         // in modo che tutto quello che viene eseguito viene eseguito atomicamente (se anche solo una
         // delle query che esegue fallisce fa il rollback, comodo)
         try {
-            const created = fastify.prisma.groupParticipant.create({
+            const created = await fastify.prisma.groupParticipant.create({
                 data: {
                     userId: userId,
                     groupId: groupId
                 }
             })
+            res.code(200)
+            return {
+                userId: userId,
+                groupId: groupId
+            }
         } catch (error: any) {
             fastify.log.error(error)
 

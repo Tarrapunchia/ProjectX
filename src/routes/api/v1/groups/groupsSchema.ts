@@ -129,8 +129,8 @@ const addParticipantSchema: Schema = {
         201: {
             type: 'object',
             properties: {
-                id: { type: 'number' },
-                name: { type: 'string' },
+                userId: { type: 'number' },
+                groupId: { type: 'number' },
             },
             required: ['id', 'name'],
         },
@@ -172,9 +172,44 @@ const createGroupSchema: Schema = {
 }
 
 
+const getGroupByIdSchema: Schema = {
+    description: 'Get a single group with participants',
+    tags: ['groups'],
+    response: {
+        200: {
+            type: 'object',
+            properties: {
+                id: { type: 'number' },
+                name: { type: 'string' },
+                participants: {
+                    type: 'array',
+                    items: {
+                        type: 'object',
+                        properties: {
+                            id: { type: 'number' },
+                            name: { type: 'string' },
+                            surname: { type: 'string' },
+                            email: { type: 'string' }
+                        }
+                    }
+                },
+                chatRoom: {
+                    type: 'object',
+                    properties: {
+                        id: { type: 'string' },
+                        key: { type: 'string' },
+                        type: { type: 'string' },
+                    }
+                }
+            }
+        },
+    },
+}
+
 export const groupSchemas = {
     addParticipantSchema,
     createGroupSchema: createGroupSchema,
+    getGroupByIdSchema,
 };
 
 

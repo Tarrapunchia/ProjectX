@@ -1,11 +1,10 @@
 import fastify, { type FastifyInstance, type FastifyPluginAsync } from "fastify";
 import { userSchemas } from "../users/usersSchemas.js";
-import { RoleName, Status, FriendshipStatus, Priority, NotificationType, EventType } from "@prisma/client";
+import { RoleName, Status, FriendshipStatus, Priority, NotificationType, EventType, ChatRoomType } from "@prisma/client";
 import { compareSync, genSaltSync, hashSync } from "bcrypt-ts";
 import { setAuthCookie } from "../../../../helpers/cookies.js";
 
 const Debug: FastifyPluginAsync = async (fastify: FastifyInstance, opts) => {
-
 
     fastify.post<{
     Querystring: {
@@ -15,6 +14,7 @@ const Debug: FastifyPluginAsync = async (fastify: FastifyInstance, opts) => {
         tasksPerProject?: string
         friendships?: string
         events?: string
+        groups?: string
     }
     }>('/seed', { schema: userSchemas.seed }, async (req, reply) => {
     const prisma = fastify.prisma
@@ -25,6 +25,7 @@ const Debug: FastifyPluginAsync = async (fastify: FastifyInstance, opts) => {
     const TASKS_PER_PROJECT = Math.max(0, Number(req.query.tasksPerProject ?? 4))
     const FRIENDSHIPS_N = Math.max(0, Number(req.query.friendships ?? 60))
     const EVENTS_N = Math.max(0, Number(req.query.events ?? 20))
+    const GROUPS_N = Math.max(0, Number(req.query.groups ?? 6))
 
     const randInt = (min: number, max: number) =>
         Math.floor(Math.random() * (max - min + 1)) + min
@@ -51,7 +52,17 @@ const Debug: FastifyPluginAsync = async (fastify: FastifyInstance, opts) => {
     }
 
     const randomEmail = (i: number) => `user${i}_${randInt(1000, 9999)}@test.local`
-    const randomPhone = () => `3${randInt(20, 99)}${randInt(1000000, 9999999)}`
+
+    // phone è @unique: generiamo numeri unici e li teniamo in un set
+    const usedPhones = new Set<string>()
+    const uniquePhone = () => {
+        let p = ''
+        do {
+        p = `3${randInt(20, 99)}${randInt(1000000, 9999999)}`
+        } while (usedPhones.has(p))
+        usedPhones.add(p)
+        return p
+    }
 
     const firstNames = ['Luca', 'Marco', 'Giulia', 'Anna', 'Paolo', 'Sara', 'Franco', 'Elisa', 'Davide', 'Marta']
     const lastNames  = ['Rossi', 'Bianchi', 'Verdi', 'Romano', 'Gallo', 'Costa', 'Fontana', 'Conti', 'Greco', 'Marino']
@@ -78,11 +89,16 @@ const Debug: FastifyPluginAsync = async (fastify: FastifyInstance, opts) => {
     try {
         // 1) CLEANUP (children -> parents)
         await prisma.roomMessage.deleteMany()
-        await prisma.directMessage.deleteMany()
+
+        // chatroom dipende da org/project/group: quindi prima delete groupParticipant+group, poi chatRoom
+        await prisma.groupParticipant.deleteMany()
+        await prisma.group.deleteMany()
+
         await prisma.chatRoom.deleteMany()
+        await prisma.directMessage.deleteMany()
         await prisma.directConversation.deleteMany()
 
-        // NOTIFICATIONS prima delle friendships (per via friendshipId FK)
+        // notification prima di friendship (FK friendshipId)
         await prisma.notification.deleteMany()
         await prisma.friendship.deleteMany()
 
@@ -152,7 +168,6 @@ const Debug: FastifyPluginAsync = async (fastify: FastifyInstance, opts) => {
         roles.push({ id: role.id, name: role.name })
         }
 
-        const roleOwner  = roles.find(r => r.name === RoleName.OWNER)!
         const roleEditor = roles.find(r => r.name === RoleName.EDITOR)!
 
         // 3) USERS random
@@ -167,7 +182,7 @@ const Debug: FastifyPluginAsync = async (fastify: FastifyInstance, opts) => {
             name: pick(firstNames),
             surname: pick(lastNames),
             email: randomEmail(i),
-            phone: maybeNull(randomPhone(), 0.8),
+            phone: maybeNull(uniquePhone(), 0.95), // phone è opzionale ma unique se presente
             city: maybeNull(pick(cities), 0.7),
             address: maybeNull(`Via Test ${randInt(1, 200)}`, 0.6),
             cap: maybeNull(String(randInt(10000, 99999)), 0.6),
@@ -177,13 +192,12 @@ const Debug: FastifyPluginAsync = async (fastify: FastifyInstance, opts) => {
             googleId: maybeNull(`google_${randInt(100000, 999999)}`, 0.3),
             googleSecret: maybeNull(`secret_${randInt(100000, 999999)}`, 0.3),
             isLoggedIn: false,
-            // avatarUrl: default da schema
             },
         })
         users.push(u)
         }
 
-        // 3b) USERS fixed (42)
+        // 3b) USERS fixed (42) — phone unique obbligatoria se la mettiamo
         const fixedUsersData = [
         { name: 'fabio',  surname: 'zucconi',     email: 'fzucconi@student.42campus.com' },
         { name: 'manuel', surname: 'chiaramello', email: 'mchiaram@42firenze.com' },
@@ -201,8 +215,8 @@ const Debug: FastifyPluginAsync = async (fastify: FastifyInstance, opts) => {
             name: fu.name,
             surname: fu.surname,
             email: fu.email,
-            phone: randomPhone(),
-            city: 'Florence',
+            phone: uniquePhone(),
+            city: 'Firenze',
             address: 'Via del Tiratoio 1',
             cap: '50100',
             state: 'IT',
@@ -211,7 +225,6 @@ const Debug: FastifyPluginAsync = async (fastify: FastifyInstance, opts) => {
             googleId: null,
             googleSecret: null,
             isLoggedIn: false,
-            // avatarUrl: default
             },
         })
         fixedUsers.push(u)
@@ -228,7 +241,7 @@ const Debug: FastifyPluginAsync = async (fastify: FastifyInstance, opts) => {
             data: {
             name: `Org ${i}`,
             email: `org${i}_${randInt(1000, 9999)}@test.local`,
-            phone: randomPhone(),
+            phone: uniquePhone(),
             city: maybeNull(pick(cities), 0.8),
             address: maybeNull(`Piazza Demo ${randInt(1, 50)}`, 0.5),
             cap: maybeNull(String(randInt(10000, 99999)), 0.5),
@@ -239,7 +252,6 @@ const Debug: FastifyPluginAsync = async (fastify: FastifyInstance, opts) => {
         })
         orgs.push(org)
 
-        // owner come membro
         await prisma.organizationMember.create({
             data: { organizationId: org.id, userId: owner.id },
         })
@@ -250,8 +262,8 @@ const Debug: FastifyPluginAsync = async (fastify: FastifyInstance, opts) => {
         data: {
             name: '42',
             email: '42@42.it',
-            phone: '',
-            city: 'Florence',
+            phone: uniquePhone(),
+            city: 'Firenze',
             address: 'Via del Tiratoio 1',
             cap: '',
             state: 'IT',
@@ -261,7 +273,7 @@ const Debug: FastifyPluginAsync = async (fastify: FastifyInstance, opts) => {
         })
         orgs.push(org42)
 
-        // members of 42 (tutti i fixed)
+        // members of 42
         for (const u of fixedUsers) {
         await prisma.organizationMember.create({
             data: { organizationId: org42.id, userId: u.id },
@@ -339,7 +351,7 @@ const Debug: FastifyPluginAsync = async (fastify: FastifyInstance, opts) => {
         })
         }
 
-        // 8) TASKS + TASK PARTICIPANTS (priority + dueDate + closedAt)
+        // 8) TASKS + TASK PARTICIPANTS
         const tasks: any[] = []
         for (const p of projects) {
         for (let i = 1; i <= TASKS_PER_PROJECT; i++) {
@@ -379,9 +391,8 @@ const Debug: FastifyPluginAsync = async (fastify: FastifyInstance, opts) => {
         }
         }
 
-        // 9) FRIENDSHIPS + NOTIFICATIONS (solo per PENDING)
-        const friendships: any[] = []
-        const used = new Set<string>() // "a:b"
+        // 9) FRIENDSHIPS + NOTIFICATIONS (PENDING)
+        const used = new Set<string>()
         let created = 0
 
         while (created < FRIENDSHIPS_N) {
@@ -403,24 +414,20 @@ const Debug: FastifyPluginAsync = async (fastify: FastifyInstance, opts) => {
                 status: st,
             },
             })
-            friendships.push(fr)
             created++
 
-            // se PENDING, crea anche una notifica al receiver (friend request)
             if (st === FriendshipStatus.PENDING) {
             await prisma.notification.create({
                 data: {
-                userId: b,              // receiver della notifica
-                senderId: a,            // chi ha inviato
-                friendshipId: fr.id,    // FK 1:1 unique
+                userId: b,
+                senderId: a,
+                friendshipId: fr.id, // unique 1:1
                 type: NotificationType.FRIEND_REQUEST,
                 message: `Friend request from user ${a}`,
                 },
             })
             }
-        } catch {
-            // collisioni su @@unique([senderId, receiverId]) ecc.
-        }
+        } catch {}
         }
 
         // 10) EVENTS + EVENT PARTICIPANTS
@@ -438,17 +445,47 @@ const Debug: FastifyPluginAsync = async (fastify: FastifyInstance, opts) => {
         })
         events.push(ev)
 
-        // owner partecipa sempre
         await prisma.eventParticipant.create({
             data: { eventId: ev.id, userId: owner.id },
         })
 
-        // altri partecipanti random
         const others = sampleUnique(users.filter(u => u.id !== owner.id), randInt(0, 4))
         for (const u of others) {
             try {
             await prisma.eventParticipant.create({
                 data: { eventId: ev.id, userId: u.id },
+            })
+            } catch {}
+        }
+        }
+
+        // 11) GROUPS + GROUP PARTICIPANTS + CHATROOM (GROUP)
+        const groups: any[] = []
+        for (let i = 1; i <= GROUPS_N; i++) {
+        const g = await prisma.group.create({
+            data: {
+            name: `Group ${i}`,
+            description: maybeNull(`Group ${i} description`, 0.7),
+            closedAt: null,
+            },
+        })
+        groups.push(g)
+
+        // chatroom 1:1 per group (groupId è unique)
+        await prisma.chatRoom.create({
+            data: {
+            key: `group:${g.id}`,
+            type: ChatRoomType.GROUP,
+            groupId: g.id,
+            },
+        })
+
+        // partecipanti (2..6)
+        const members = sampleUnique(users, randInt(2, Math.min(6, users.length)))
+        for (const u of members) {
+            try {
+            await prisma.groupParticipant.create({
+                data: { groupId: g.id, userId: u.id },
             })
             } catch {}
         }
@@ -463,14 +500,15 @@ const Debug: FastifyPluginAsync = async (fastify: FastifyInstance, opts) => {
             tasks: tasks.length,
             roles: roles.length,
             friendships: FRIENDSHIPS_N,
-            notifications: (await prisma.notification.count()),
+            notifications: await prisma.notification.count(),
             events: events.length,
+            groups: groups.length,
         },
         special: {
             org42Id: org42.id,
             transcendenceId: transcendence.id,
         },
-        hint: 'QS: ?users=..&orgs=..&projectsPerOrg=..&tasksPerProject=..&friendships=..&events=..',
+        hint: 'QS: ?users=..&orgs=..&projectsPerOrg=..&tasksPerProject=..&friendships=..&events=..&groups=..',
         })
     } catch (err) {
         fastify.log.error(err)

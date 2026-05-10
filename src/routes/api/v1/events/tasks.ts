@@ -1,15 +1,15 @@
-import fastify, { type FastifyInstance, type FastifyPluginAsync } from "fastify";
-import Getters from "./getters.js";
-import Posters from "./posters.js";
-import Deleters from "./deleters.js";
-// import Putters from "./putters.js";
+// import fastify, { type FastifyInstance, type FastifyPluginAsync } from "fastify";
+// import Getters from "./getters.js";
+// // import Posters from "./posters.js";
+// import Deleters from "./deleters.js";
+// // import Putters from "./putters.js";
 
-const V1: FastifyPluginAsync = async (fastify: FastifyInstance, opts) => {
-    fastify.register(Getters)
-    fastify.register(Posters)
-    // fastify.register(Putters)
-    fastify.register(Deleters)
+// const V1: FastifyPluginAsync = async (fastify: FastifyInstance, opts) => {
+//     fastify.register(Getters)
+//     fastify.register(Posters)
+//     // fastify.register(Putters)
+//     fastify.register(Deleters)
 
-}
+// }
 
-export default V1
+// export default V1
