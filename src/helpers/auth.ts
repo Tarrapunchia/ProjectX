@@ -60,6 +60,14 @@ const projExist = async (orgId: number, projId: number, fastify: FastifyInstance
     )
 }
 
+const groupExist = async (groupId: number, fastify: FastifyInstance) => {
+    return !!(
+        await fastify.prisma.group.findUnique({
+            where: { id: groupId }
+        })
+    )
+}
+
 const canAccessRoom = async (userId: number, roomKey: string, fastify: FastifyInstance): Promise<boolean> => {
     const parsed = parseRoomKey(roomKey)
     switch (parsed.type) {
@@ -91,6 +99,10 @@ const roomExist = async (roomKey: string, fastify: FastifyInstance): Promise<boo
     case 'PROJECT':
         if (Number.isNaN(parsed.projectId) || parsed.projectId === 0) return false
         return projExist(Number(parsed.orgId), Number(parsed.projectId), fastify)
+        break;
+    case 'GROUP':
+        if (Number.isNaN(parsed.groupId) || parsed.groupId === 0) return false
+        return groupExist(Number(parsed.groupId), fastify)
         break;
     default:
         return false

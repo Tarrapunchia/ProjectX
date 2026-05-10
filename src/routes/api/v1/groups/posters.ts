@@ -5,7 +5,7 @@ import { groupSchemas } from "./groupsSchema.js";
 const Posters: FastifyPluginAsync = async (fastify: FastifyInstance, opts) => {
     // // POST /api/v1/groups/addGroup
     fastify.post<{
-        Body: { name: string; description?: 'string' }
+        Body: { name: string; description?: string }
     }>(
     '/addGroup',
     { schema: groupSchemas.createGroupSchema },
@@ -44,13 +44,24 @@ const Posters: FastifyPluginAsync = async (fastify: FastifyInstance, opts) => {
                     },
                 })
 
-                res.code(201)
-                return ({
+                // 3) creo la chatroom collegata
+                await tx.chatRoom.create({
+                    data: {
+                        key: `group:${group.id}`,
+                        type: 'GROUP',
+                        groupId: group.id,
+                    },
+                })
+                return {
                     id: group.id,
                     name: group.name,
                     description: group.description ?? ''
-                })
-        })} catch (error: any) {
+                }
+            })
+            res.code(201)
+            return created
+        
+        } catch (error: any) {
             fastify.log.error(error)
 
             if (error?.code === 'P2002') {

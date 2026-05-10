@@ -324,7 +324,7 @@ const websocketPlugin: FastifyPluginAsync = fp(async (server) => {
                     break;
 
                 case 'room:message':
-                    const roomId = String(msg.roomId ?? '').trim() // sara' org:orgId oppure proj:orgId:projId
+                    const roomId = String(msg.roomId ?? '').trim() // sara' org:orgId oppure proj:orgId:projId o group:groupId
                     const msgText = String(msg.payload.text ?? '')
                     if (!roomId) return
 
@@ -335,7 +335,7 @@ const websocketPlugin: FastifyPluginAsync = fp(async (server) => {
                         return
                     }
 
-                    // es: "org:12" or "proj:12:5"
+                    // es: "org:12" or "proj:12:5" or "group:8"
                     const parsed = Helpers.parseRoomKey(roomId)
 
                     // 1) upsert ChatRoom
@@ -346,6 +346,7 @@ const websocketPlugin: FastifyPluginAsync = fp(async (server) => {
                             type: parsed.type,
                             orgId: parsed.orgId,
                             projectId: parsed.projectId,
+                            groupId: parsed.groupId
                         },
                         update: {}, // nulla
                         select: { id: true, key: true }
