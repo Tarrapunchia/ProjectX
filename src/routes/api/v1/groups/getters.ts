@@ -57,7 +57,11 @@ const Getters: FastifyPluginAsync = async (fastify: FastifyInstance, opts) => {
             id: group.id,
             name: group.name,
             participants: group.participants.map((pp) => ({
-                user: pp.user,
+                // user: pp.user,
+                id: pp.user.id,
+                name: pp.user.name,
+                surname: pp.user.surname,
+                email: pp.user.email,
                 joinedAt: pp.createdAt,
             })),
             chatRoom: group.chatRoom,

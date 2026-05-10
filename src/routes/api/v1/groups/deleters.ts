@@ -3,59 +3,50 @@ import { getUserIdFromJWT } from "../../../../helpers/cookies.js";
 import { groupSchemas } from "./groupsSchema.js";
 
 const Deleters: FastifyPluginAsync = async (fastify: FastifyInstance, opts) => {
-    // DELETE /api/v1/group/:groupId/leave
-    fastify.delete<{ Params: { groupId: string } }>(
-    '/:groupId/leave',
+    // DELETE /api/v1/groups/:id/leave
+    fastify.delete<{ Params: { id: string } }>(
+    '/:id/leave',
     { schema: groupSchemas.leaveGroupSchema },
-    async (req, res) => {
-        const activeId = getUserIdFromJWT(req, res, fastify)
-        if (!activeId) {
-            res.code(401)
-            return { error: 'You must be logged in in order to leave a group' }
-        }
-        const groupId = Number(req.params.groupId)
-
-        if (!Number.isFinite(groupId)) {
-            res.code(400)
-            return { error: 'All fields are required' }
+    async (req, reply) => {
+        const userId = getUserIdFromJWT(req, reply, fastify)
+        if (!userId) {
+        reply.code(401)
+        return { error: 'You must be logged in in order to leave a group' }
         }
 
-        // verifico che gruppo esista e che l'utente ne faccia parte
-        const group = await fastify.prisma.group.findFirst({
-            where: {
-                id: groupId,
-                participants: { some: { userId: activeId } },
-            },
-            select: { id: true, name: true },
+        const groupId = Number(req.params.id)
+        if (Number.isNaN(groupId)) {
+        reply.code(400)
+        return { error: 'invalid group id' }
+        }
+
+        // (opzionale) check group exists
+        const groupExists = await fastify.prisma.group.findUnique({
+        where: { id: groupId },
+        select: { id: true },
         })
-        if (!group) {
-            res.code(404)
-            return { error: 'Group not found' }
+        if (!groupExists) {
+        reply.code(404)
+        return { error: 'Group not found' }
         }
 
-        try {
-            await fastify.prisma.groupParticipant.delete({
-                where: { groupId_userId: { groupId, userId: activeId } }
-            })
-            res.code(200)
-            return { success: true }
-        } catch (error: any) {
-            fastify.log.error(error)
-
-            if (error?.code === 'P2002') {
-                res.code(409)
-                return { error: 'Duplicate constraint' }
-            }
-
-            if (error?.code === 'P2003') {
-                res.code(400)
-                return { error: 'Foreign key constraint ' }
-            }
-
-            res.code(400)
-            return { error: 'Unable to add member' }
+        // check membership
+        const membership = await fastify.prisma.groupParticipant.findUnique({
+        where: { groupId_userId: { groupId, userId } },
+        select: { groupId: true },
+        })
+        if (!membership) {
+        reply.code(404)
+        return { error: 'You are not a member of this group' }
         }
-        }
+
+        // delete membership (PK composta)
+        await fastify.prisma.groupParticipant.delete({
+        where: { groupId_userId: { groupId, userId } },
+        })
+
+        return { success: true }
+    }
     )
 //         // POST /api/v1/organizations/:id/removeMember
 //         fastify.post<{

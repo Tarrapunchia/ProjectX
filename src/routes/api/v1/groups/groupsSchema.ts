@@ -172,20 +172,36 @@ const createGroupSchema: Schema = {
 }
 
 const leaveGroupSchema: Schema = {
-    description: 'Leave the group passed as param',
+    description: 'Leave a group (removes current user from group participants)',
     tags: ['groups'],
+    params: {
+        type: 'object',
+        properties: {
+            id: { type: 'string', description: 'group id' },
+        },
+        required: ['id'],
+    },
     response: {
-        201: {
-            type: 'object',
-            properties: {
-                success: { type: 'boolean' }
-            }
-        },
-        400: {
-            type: 'object',
-            properties: { error: { type: 'string' } },
-            required: ['error'],
-        },
+    200: {
+        type: 'object',
+        properties: { success: { type: 'boolean' } },
+        required: ['success'],
+    },
+    400: {
+        type: 'object',
+        properties: { error: { type: 'string' } },
+        required: ['error'],
+    },
+    401: {
+        type: 'object',
+        properties: { error: { type: 'string' } },
+        required: ['error'],
+    },
+    404: {
+        type: 'object',
+        properties: { error: { type: 'string' } },
+        required: ['error'],
+    },
     },
 }
 
@@ -206,7 +222,8 @@ const getGroupByIdSchema: Schema = {
                             id: { type: 'number' },
                             name: { type: 'string' },
                             surname: { type: 'string' },
-                            email: { type: 'string' }
+                            email: { type: 'string' },
+                            joinedAt: { type: 'string', format: 'date-time' }
                         }
                     }
                 },
