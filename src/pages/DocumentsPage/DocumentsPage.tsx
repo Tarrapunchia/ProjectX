@@ -45,28 +45,31 @@ export default function DocumentsPage({ selectedProject }: ChatPageProps)
 	const [activeUser, setActiveUser] = useState<any>(null);
 	
 	
-	const initData = async () => 
-	{
-		const user = (await helpers.getter("/api/v1/users/activeUser", null)).data;
-        setActiveUser(user);
+	const initData = async () => {
+		try {
+			const userData = (await helpers.getter("/api/v1/users/activeUser", null)).data;
+			setActiveUser(userData);
 
-        if (!selectedProject) 
-			return;
+			if (!selectedProject) return { user: userData, project: null };
 
-        const project = (await helpers.getter("/api/v1/projects/" + selectedProject.id, null)).data;
-        setProjectData(project);
-    };
-
-	initData();
+			const pData = (await helpers.getter("/api/v1/projects/" + selectedProject.id, null)).data;
+			setProjectData(pData);
+			
+			return { user: userData, project: pData };
+		} catch (e) {
+			console.error(e);
+			return null;
+		}
+	};
 	
-    const checkPermissions = async () => 
+    const checkPermissions = async (pData: any, uData: any) => 
 	{
 		if (!selectedProject)
 			return
 		try 
 		{
-			const ownerStatus = projectData.participants.some(
-			(p: any) => p.user.id === activeUser.id && p.role === "OWNER"
+			const ownerStatus = pData.participants.some(
+			(p: any) => p.user.id === uData.id && p.role === "OWNER"
 			);
 			
 			setIsOwner(ownerStatus);
@@ -75,13 +78,13 @@ export default function DocumentsPage({ selectedProject }: ChatPageProps)
 		}
 	};
 	
-    const loadFiles = async () => 
+    const loadFiles = async (pData: any) => 
 	{
 		if (!selectedProject)
 			return
 		try
 		{
-			const organizationId = projectData.organization.id
+			const organizationId = pData.organization.id
 			const BASE_URL = "http://localhost:5000/api/v1/files/files/preview/" + organizationId + "/" + selectedProject?.id
 			const files_url = "/api/v1/files/" + organizationId + "/" + selectedProject?.id
 
@@ -118,7 +121,7 @@ export default function DocumentsPage({ selectedProject }: ChatPageProps)
 
 			if (res.success) {
 				console.log("Caricato con successo!", res.data);
-				loadFiles()
+				loadFiles(projectData)
 			} else {
 				console.error("Errore durante l'upload:", res.data);
 			}
@@ -129,10 +132,20 @@ export default function DocumentsPage({ selectedProject }: ChatPageProps)
 		}
   	};
 
-	useEffect(() => 
-	{
-		checkPermissions();
-		loadFiles();
+	useEffect(() => {
+		const sequence = async () => {
+			// Aspettiamo che initData finisca e prendiamo i risultati freschi
+			const results = await initData();
+			
+			if (results && results.project && results.user) {
+				// Ora che abbiamo i dati, chiamiamo le altre funzioni
+				// Passiamo i dati direttamente invece di leggerli dallo stato
+				checkPermissions(results.project, results.user);
+				loadFiles(results.project);
+			}
+		};
+
+		sequence();
 	}, [selectedProject]);
 
 

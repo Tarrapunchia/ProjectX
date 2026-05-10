@@ -8,11 +8,12 @@ import { MOCK_USER_TASKS } from "../../data/mockData";
 import { useLocation } from "react-router-dom";
 import FirstLogin from "../PopUpFirstLogin/firstLoginpage"
 
-function DashboardProf() {
+function DashboardProf() 
+{
 	const [tasksInfos, setTasksInfo] = useState<TaskInfos>(MOCK_USER_TASKS)
 	const [infoFetched, setInfoFetched] = useState<boolean>(false)
 
-	const [isPopupOpen, setIsPopupOpen] = useState(true);
+	const [isPopupOpen, setIsPopupOpen] = useState(false);
 
 	const location = useLocation();
 

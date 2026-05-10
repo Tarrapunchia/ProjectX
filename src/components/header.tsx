@@ -5,7 +5,6 @@ import { useEffect, useState } from 'react';
 import CONSTS from '../data/consts';
 import SearchBar from './SearchBar';
 import ThemeToggle from './ThemeToggle';
-import { Theme } from '@fullcalendar/core/internal';
 
 interface HeaderProps {
 	setActivePage: (page: string) => void;
@@ -13,14 +12,18 @@ interface HeaderProps {
 }
 
 function Header({ setActivePage, selectedProject }: HeaderProps) {
-	const [userInfo, setUserInfo] = useState<{ email: string, avatar: string }>({ email: MOCK_USER.email, avatar: MOCK_USER.avatar })
+	const [userInfo, setUserInfo] = useState<{ id: string, email: string, avatar: string }>({ 
+    id: MOCK_USER.id, 
+    email: MOCK_USER.email, 
+    avatar: MOCK_USER.avatar 
+});
 	const [infoFetched, setInfoFetched] = useState<boolean>(false)
 
 	useEffect(() => {
 		(async () => {
 			try {
 				const res = await fetch(
-					`${CONSTS.BE}/api/v1/users/activeUserAvatar`,
+					`${CONSTS.BE}/api/v1/users/activeUser`,
 					{
 						method: 'GET',
 						headers: { "Content-Type": 'application/json' },
@@ -29,7 +32,11 @@ function Header({ setActivePage, selectedProject }: HeaderProps) {
 				)
 				if (res.ok) {
 					const user = await res.json()
-					setUserInfo(user)
+					setUserInfo({
+							id: user.id,
+							email: user.email,
+							avatar: user.avatar
+						});
 					setInfoFetched(true)
 				}
 			} catch (error) {
@@ -55,7 +62,8 @@ function Header({ setActivePage, selectedProject }: HeaderProps) {
 				{selectedProject ? selectedProject.name : 'Dashboard'}
 			</h1>
 			<ThemeToggle />
-			<SearchBar />
+			
+			<SearchBar activeUserId={userInfo.id}/>
 			<button 
 				onClick={() => setActivePage('profile')}
 				className="ml-auto mr-5 p-0! bg-transparent! border-none! cursor-pointer focus:outline-none! focus:border-none! active:border-none!"
