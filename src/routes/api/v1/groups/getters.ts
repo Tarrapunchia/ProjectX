@@ -3,49 +3,13 @@ import { groupSchemas } from "./groupsSchema.js";
 import { getUserIdFromJWT } from "../../../../helpers/cookies.js";
 
 const Getters: FastifyPluginAsync = async (fastify: FastifyInstance, opts) => {
-    // GET /api/v1/projects
-    fastify.get('/', { schema: groupSchemas.getAllGroupsSchema },  async (_req, res) => {
-        const projects = await fastify.prisma.group.findMany({
-            include: {
-                organization : { select: { id: true, name: true }},
-                participants: {
-                    include: {
-                        user: {
-                            select: { id: true, name: true, surname: true, email: true },
-                        },
-                        role: { select: { id: true, name: true }},
-                    },
-                },
-            },
-            orderBy: { id: 'asc' }
-        })
 
-        const result = projects.map((p) => ({
-            id: p.id,
-            name: p.name,
-            organization: p.organization,
-            status: p.status,
-            description: p.description ?? '',
-            participants: p.participants.map((pp) => ({
-                user: pp.user,
-                role: pp.role.name,
-                joinedAt: pp.createdAt,
-            })),
-            createdAt: p.createdAt,
-            closedAt: p.closedAt ?? null
-        }))
-
-        res.code(200)
-        return res.send(result)
-
-    })
-
-    // // GET /api/v1/projects/:id
+    // // GET /api/v1/groups/:id
     fastify.get<{
         Params: { id: string }
         }>(
         '/:id',
-        { schema: projectSchemas.getProjectByIdSchema }, 
+        // { schema: groupSchemas.getGroupByIdSchema }, 
         async (req, res) => {
         const id = Number(req.params.id)
 
@@ -53,39 +17,34 @@ const Getters: FastifyPluginAsync = async (fastify: FastifyInstance, opts) => {
             res.code(400)
             return { error: 'invalid id' }
         }
-        const project = await fastify.prisma.project.findUnique({
+        const group = await fastify.prisma.group.findUnique({
             where: { id },
             include: {
-                organization : { select: { id: true, name: true }},
                 participants: {
                     include: {
                         user: {
                             select: { id: true, name: true, surname: true, email: true },
                         },
-                        role: { select: { id: true, name: true }},
                     },
                 },
             },
         })
 
-        if (!project) {
+        if (!group) {
             res.code(404)
-            return { error: 'Project not found' }
+            return { error: 'Group not found' }
         }
 
         const result = {
-            id: project.id,
-            name: project.name,
-            organization: project.organization,
-            participants: project.participants.map((pp) => ({
+            id: group.id,
+            name: group.name,
+            participants: group.participants.map((pp) => ({
                 user: pp.user,
-                role: pp.role.name,
                 joinedAt: pp.createdAt,
             })),
-            status: project.status,
-            description: project.description ?? '',
-            createdAt: project.createdAt,
-            closedAt: project.closedAt ?? null
+            description: group.description ?? '',
+            createdAt: group.createdAt,
+            closedAt: group.closedAt ?? null
         }
 
         res.code(200)
