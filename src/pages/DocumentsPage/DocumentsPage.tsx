@@ -27,13 +27,15 @@ const getFileType = (fileName: string): "image" | "pdf" | "doc" | "zip" | "text"
 type FileItem = {
   id: string;
   name: string;
-  url: string;
+  view_url: string;
+  download_url: string;
   type: "image" | "pdf" | "doc" | "zip" | "text" | "video";
 };
 
 interface ChatPageProps {
     selectedProject: ProjectInfo | null
 }
+
 
 export default function DocumentsPage({ selectedProject }: ChatPageProps) 
 {
@@ -43,8 +45,7 @@ export default function DocumentsPage({ selectedProject }: ChatPageProps)
 	const [isOwner, setIsOwner] = useState(false);
 	const [projectData, setProjectData] = useState<any>(null);
 	const [activeUser, setActiveUser] = useState<any>(null);
-	
-	
+
 	const initData = async () => {
 		try {
 			const userData = (await helpers.getter("/api/v1/users/activeUser", null)).data;
@@ -69,7 +70,7 @@ export default function DocumentsPage({ selectedProject }: ChatPageProps)
 		try 
 		{
 			const ownerStatus = pData.participants.some(
-			(p: any) => p.user.id === uData.id && p.role === "OWNER"
+			(p: any) => p.user.id === uData.id && (p.role === "OWNER" || p.role === "EDITOR")
 			);
 			
 			setIsOwner(ownerStatus);
@@ -87,12 +88,14 @@ export default function DocumentsPage({ selectedProject }: ChatPageProps)
 			const organizationId = pData.organization.id
 			const BASE_URL = "http://localhost:5000/api/v1/files/files/preview/" + organizationId + "/" + selectedProject?.id
 			const files_url = "/api/v1/files/" + organizationId + "/" + selectedProject?.id
+			const download_url = "http://localhost:5000/api/v1/files/files/" + organizationId + "/" + selectedProject?.id
 
 			const data = (await helpers.getter(files_url, null)).data
 			const formatted = data.files.map((name: string, i: number) => ({
 				id: String(i + 1),
 				name: name,
-				url: `${BASE_URL}/${name}`,
+				view_url: `${BASE_URL}/${name}`,
+				download_url: `${download_url}/${name}`,
 				type: getFileType(name)
 			}));
 
@@ -132,14 +135,43 @@ export default function DocumentsPage({ selectedProject }: ChatPageProps)
 		}
   	};
 
+    const delete_file = async (fileName: string) => {
+        if (!selectedProject || !projectData) return;
+
+        if (!confirm(`Are ypu sure to delete file ? ${fileName}?`)) return;
+
+        try {
+            const organizationId = projectData.organization.id;
+            const projectId = selectedProject.id;
+            console.log(organizationId, projectId)
+			const res = await fetch(`http://localhost:5000/api/v1/files/${organizationId}/${projectId}/${fileName}`, {
+				method: 'DELETE',
+				headers: { 'accept': '*/*' },
+				credentials: 'include'
+			});
+
+            if (res.ok)
+			{
+                setPreview(null);
+                loadFiles(projectData);
+                
+            } else {
+                alert("Errore durante l'eliminazione");
+            }
+        } catch (error) {
+            console.error("Errore di rete durante l'eliminazione:", error);
+        }
+    };
+
+    // ... resto del componente
+
 	useEffect(() => {
 		const sequence = async () => {
 			// Aspettiamo che initData finisca e prendiamo i risultati freschi
 			const results = await initData();
 			
-			if (results && results.project && results.user) {
-				// Ora che abbiamo i dati, chiamiamo le altre funzioni
-				// Passiamo i dati direttamente invece di leggerli dallo stato
+			if (results && results.project && results.user) 
+			{
 				checkPermissions(results.project, results.user);
 				loadFiles(results.project);
 			}
@@ -192,12 +224,12 @@ export default function DocumentsPage({ selectedProject }: ChatPageProps)
 					<div className="bg-overlay-border-color flex justify-center items-center overflow-hidden min-h-[300px] relative ">
 					{/* Logica per mostrare contenuto reale nel quadrato */}
 					{file.type === "image" ? (
-						<img src={file.url} alt={file.name} className="w-full h-full object-contain pointer-events-none" />
+						<img src={file.view_url} alt={file.name} className="w-full h-full object-contain pointer-events-none" />
 					) : file.type === "text" || file.type === "pdf" ? (
 						/* Mostriamo un'anteprima del file di testo o PDF direttamente nel quadrato */
 						/* 'pointer-events-none' è fondamentale per permettere il click sulla card */
 						<iframe 
-						src={`${file.url}#toolbar=0&navpanes=0&scrollbar=0`}
+						src={`${file.view_url}#toolbar=0&navpanes=0&scrollbar=0`}
 						className="w-full h-[300px] border-none bg-white pointer-events-none scale-90"
 						/>
 					) : (
@@ -248,14 +280,13 @@ export default function DocumentsPage({ selectedProject }: ChatPageProps)
 						{(() => {
 									switch (preview.type) 
 									{
-										case "image": return <img src={preview.url} className="max-w-full max-h-full object-contain" />;
-										case "pdf": return ( <iframe src={`${preview.url}#view=FitH`} className="w-full h-full" />);
-										case "text": return <iframe src={preview.url} className="w-full h-full border-none bg-white" />;
-										case "video": return <video controls className="max-w-full max-h-full"><source src={preview.url} /></video>;
+										case "image": return <img src={preview.view_url} className="max-w-full max-h-full object-contain" />;
+										case "pdf": return ( <iframe src={`${preview.view_url}#view=FitH`} className="w-full h-full" />);
+										case "text": return <iframe src={preview.view_url} className="w-full h-full border-none bg-white" />;
+										case "video": return <video controls className="max-w-full max-h-full"><source src={preview.view_url} /></video>;
 										default: return (
 											<div className="text-center py-20">
 											<span className="text-8xl block mb-6">{preview.type === "zip" ? "🗂️" : "📄"}</span>
-											<a href={preview.url} download className="border border-category-bg-color bg-side-bg-color rounded-xl p-2 !text-text-main cursor-pointer hover:scale-105 hover:border-text-main">Scarica File</a>
 											</div>
 										);
 									}
@@ -263,8 +294,9 @@ export default function DocumentsPage({ selectedProject }: ChatPageProps)
 						)()}
 						</div>
 						
-						<div className="p-4 border-t flex justify-end">
-							{/*<a href={preview.url} download className="border border-category-bg-color bg-side-bg-color rounded-xl p-2 !text-text-main cursor-pointer hover:scale-105 hover:border-text-main">Scarica File</a>*/}
+						<div className="p-4 border-t flex justify-between">
+							{ isOwner && <button onClick={() => delete_file(preview.name)} className="border border-category-bg-color bg-side-bg-color rounded-xl p-2 !text-text-main cursor-pointer hover:scale-105 hover:border-text-main">Delete File</button>}
+							{<a href={preview.download_url} download className="border border-category-bg-color bg-side-bg-color rounded-xl p-2 !text-text-main cursor-pointer hover:scale-105 hover:border-text-main">Download File</a>}
 						</div>
 					</div>
 				</div>
