@@ -67,7 +67,7 @@ const SearchBar: React.FC<SearchBarProps> = ({activeUserId}) =>
 
             {/* Dropdown dei risultati */}
             {showDropdown && (query.length > 0) && (
-                <div className="absolute top-full mt-2 w-full bg-side-bg-color border border-overlay-border-color rounded-xl shadow-lg z-50 max-h-80 overflow-y-auto p-2">
+                <div className="absolute top-full mt-2 w-full bg-side-bg-color border border-overlay-border-color rounded-xl shadow-lg z-50 max-h-80 overflow-y-auto p-2 no-scrollbar">
                     
                     {/* Sezione Utenti */}
                     <div className="mb-2">
