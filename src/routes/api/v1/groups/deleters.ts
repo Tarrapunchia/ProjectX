@@ -1,8 +1,62 @@
-// import fastify, { type FastifyInstance, type FastifyPluginAsync } from "fastify";
-// import { getUserIdFromJWT } from "../../../../helpers/cookies.js";
-// import { orgSchemas } from "./organizationsSchema.js";
+import fastify, { type FastifyInstance, type FastifyPluginAsync } from "fastify";
+import { getUserIdFromJWT } from "../../../../helpers/cookies.js";
+import { groupSchemas } from "./groupsSchema.js";
 
-// const Deleters: FastifyPluginAsync = async (fastify: FastifyInstance, opts) => {
+const Deleters: FastifyPluginAsync = async (fastify: FastifyInstance, opts) => {
+    // DELETE /api/v1/group/:groupId/leave
+    fastify.delete<{ Params: { groupId: string } }>(
+    '/:groupId/leave',
+    { schema: groupSchemas.leaveGroupSchema },
+    async (req, res) => {
+        const activeId = getUserIdFromJWT(req, res, fastify)
+        if (!activeId) {
+            res.code(401)
+            return { error: 'You must be logged in in order to leave a group' }
+        }
+        const groupId = Number(req.params.groupId)
+
+        if (!Number.isFinite(groupId)) {
+            res.code(400)
+            return { error: 'All fields are required' }
+        }
+
+        // verifico che gruppo esista e che l'utente ne faccia parte
+        const group = await fastify.prisma.group.findFirst({
+            where: {
+                id: groupId,
+                participants: { some: { userId: activeId } },
+            },
+            select: { id: true, name: true },
+        })
+        if (!group) {
+            res.code(404)
+            return { error: 'Group not found' }
+        }
+
+        try {
+            await fastify.prisma.groupParticipant.delete({
+                where: { groupId_userId: { groupId, userId: activeId } }
+            })
+            res.code(200)
+            return { success: true }
+        } catch (error: any) {
+            fastify.log.error(error)
+
+            if (error?.code === 'P2002') {
+                res.code(409)
+                return { error: 'Duplicate constraint' }
+            }
+
+            if (error?.code === 'P2003') {
+                res.code(400)
+                return { error: 'Foreign key constraint ' }
+            }
+
+            res.code(400)
+            return { error: 'Unable to add member' }
+        }
+        }
+    )
 //         // POST /api/v1/organizations/:id/removeMember
 //         fastify.post<{
 //         Params: { id: string }
@@ -79,6 +133,6 @@
 //             }
 //         }
 //     )
-// }
+}
 
-// export default Deleters
+export default Deleters

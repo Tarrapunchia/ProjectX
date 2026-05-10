@@ -80,7 +80,7 @@ const Posters: FastifyPluginAsync = async (fastify: FastifyInstance, opts) => {
         }
     )
 
-     // // POST /api/v1/group/addPartecipant
+    // POST /api/v1/group/addPartecipant
     fastify.post<{
         Body: { userId: number; groupId: number }
     }>(
@@ -146,6 +146,8 @@ const Posters: FastifyPluginAsync = async (fastify: FastifyInstance, opts) => {
         }
         }
     )
+    
+
 }
 
 export default Posters

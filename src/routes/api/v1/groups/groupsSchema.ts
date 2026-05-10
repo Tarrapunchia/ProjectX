@@ -171,6 +171,23 @@ const createGroupSchema: Schema = {
     },
 }
 
+const leaveGroupSchema: Schema = {
+    description: 'Leave the group passed as param',
+    tags: ['groups'],
+    response: {
+        201: {
+            type: 'object',
+            properties: {
+                success: { type: 'boolean' }
+            }
+        },
+        400: {
+            type: 'object',
+            properties: { error: { type: 'string' } },
+            required: ['error'],
+        },
+    },
+}
 
 const getGroupByIdSchema: Schema = {
     description: 'Get a single group with participants',
@@ -210,6 +227,7 @@ export const groupSchemas = {
     addParticipantSchema,
     createGroupSchema: createGroupSchema,
     getGroupByIdSchema,
+    leaveGroupSchema,
 };
 
 

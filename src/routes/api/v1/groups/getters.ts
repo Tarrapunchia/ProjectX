@@ -70,6 +70,8 @@ const Getters: FastifyPluginAsync = async (fastify: FastifyInstance, opts) => {
         return res.send(result)
     })
 
+    
+
     // // // GET /api/v1/projects/summary/:id
     // fastify.get<{
     //     Params: { id: string }
