@@ -251,9 +251,9 @@ const Getters: FastifyPluginAsync = async (fastify: FastifyInstance, opts) => {
                 ? {
                     AND: terms.map((t) => ({
                     OR: [
-                        { name: { contains: t } },
-                        { surname: { contains: t } },
-                        { email: { contains: t } },
+                        { name: { startsWith: t } },
+                        { surname: { startsWith: t } },
+                        // { email: { contains: t } },
                     ],
                     })),
                 } : {}
