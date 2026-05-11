@@ -599,6 +599,90 @@ const Debug: FastifyPluginAsync = async (fastify: FastifyInstance, opts) => {
         })
     }
     )
+
+    // POST /api/v1/debug/loginOsme
+    fastify.get(
+    '/loginOsme',
+    {
+        config: {
+        rateLimit: {
+            max: 5,
+            timeWindow: '15 minutes',
+        },
+        },
+        schema: {
+    description: 'Login user osme',
+    tags: ['debug'],
+    response: {
+        200: {
+        type: 'object',
+        properties: {
+            success: { type: 'boolean' },
+            user: {
+            type: 'object',
+            properties: {
+                id: { type: 'number' },
+                name: { type: 'string' },
+                surname: { type: 'string' },
+                email: { type: 'string', format: 'email' },
+            },
+            required: ['id', 'name', 'surname', 'email'],
+            },
+        },
+        required: ['success', 'user'],
+        },
+        400: {
+        type: 'object',
+        properties: { error: { type: 'string' } },
+        required: ['error'],
+        },
+        401: {
+        type: 'object',
+        properties: { error: { type: 'string' } },
+        required: ['error'],
+        },
+    },
+}},
+    async (req, res) => {
+        const { email, password } = { email: "aosmenaj@42firenze.com", password: '1234'}
+        // check base
+        if (!email || !password) {
+            res.code(400)
+            return { error: 'Email and password are mandatory!' }
+        }
+
+        // prendo user
+        const user = await fastify.prisma.user.findUnique({
+            where: { email },
+        })
+
+        if (!user) {
+            res.code(401)
+            return { error: 'Invalid credentials' }
+        }
+
+        // verifica password
+        if (!user.hashedPw || !compareSync(password, String(user.hashedPw))) {
+            res.code(401)
+            return { error: 'Invalid credentials' }
+        }
+
+        // setto logged-in
+        await fastify.prisma.user.update({
+            where: { id: user.id },
+            data: { isLoggedIn: true },
+        })
+
+        // HTTP ONLY
+        const token = fastify.jwt.sign({ userId: user.id }, { expiresIn: '24h' })
+        setAuthCookie(res, token)
+
+        return res.send({
+            success: true,
+            user: { id: user.id, name: user.name, surname: user.surname, email: user.email },
+        })
+    }
+    )
 }
 
 export default Debug

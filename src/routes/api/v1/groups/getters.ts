@@ -73,7 +73,89 @@ const Getters: FastifyPluginAsync = async (fastify: FastifyInstance, opts) => {
         return res.send(result)
     })
 
-    
+    // // GET /api/v1/groups/pending
+    fastify.get(
+        '/pending',
+        { schema: groupSchemas.getPendingInvitationsSchema }, 
+        async (req, res) => {
+
+         const authUser = getUserIdFromJWT(req, res, fastify);
+
+        if (!authUser) {
+            res.code(401);
+            return { error: 'Unauthorized' };
+        }
+
+        const invitations = await fastify.prisma.groupJoinRequest.findMany({
+            where: {
+                targetUserId: authUser,
+                status: 'PENDING',
+            },
+            select: {
+                id: true,
+                groupId: true,
+                requesterId: true,
+                targetUserId: true,
+                status: true,
+                createdAt: true,
+            },
+            orderBy: {
+                createdAt: 'desc',
+            },
+        });
+
+        return res.code(200).send({
+            success: true,
+            invitations,
+        });
+    })
+
+    // // GET /api/v1/groups/joined
+    fastify.get(
+        '/joined',
+        { schema: groupSchemas.getJoinedGroupsSchema }, 
+        async (req, res) => {
+
+         const authUser = getUserIdFromJWT(req, res, fastify);
+
+        if (!authUser) {
+            res.code(401);
+            return { error: 'Unauthorized' };
+        }
+
+        const groups = await fastify.prisma.groupParticipant.findMany({
+            where: { userId: authUser },
+            include: {
+                group: {
+                    include: {
+                        participants: {
+                            include: {
+                                user: {
+                                    select: {
+                                        id: true,
+                                        name: true,
+                                        surname: true,
+                                        email: true,
+                                        avatarUrl: true,
+                                        isLoggedIn: true
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            orderBy: {
+                createdAt: 'desc',
+            },
+        });
+
+        return res.code(200).send({
+            success: true,
+            groups,
+        });
+    })    
+
 
     // // // GET /api/v1/projects/summary/:id
     // fastify.get<{

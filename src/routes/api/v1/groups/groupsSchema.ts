@@ -456,6 +456,149 @@ const acceptInvitationSchema: Schema = {
     },
 };
 
+const getPendingInvitationsSchema: Schema = {
+    description: 'Get pending group invitations for the authenticated user',
+    tags: ['groups'],
+    summary: 'Get pending group invitations',
+    response: {
+      200: {
+        description: 'Pending invitations retrieved successfully',
+        type: 'object',
+        properties: {
+          success: { type: 'boolean' },
+          invitations: {
+            type: 'array',
+            items: {
+              type: 'object',
+              properties: {
+                id: { type: 'integer' },
+                groupId: { type: 'integer' },
+                requesterId: { type: 'integer' },
+                targetUserId: { type: 'integer' },
+                status: { type: 'string', enum: ['PENDING', 'ACCEPTED', 'REJECTED'] },
+                createdAt: { type: 'string', format: 'date-time' },
+                },
+              required: [
+                'id',
+                'groupId',
+                'requesterId',
+                'targetUserId',
+                'status',
+                'createdAt',
+              ],
+            },
+          },
+        },
+        required: ['success', 'invitations'],
+      },
+      401: {
+        description: 'Unauthorized',
+        type: 'object',
+        properties: {
+          error: { type: 'string' },
+        },
+        required: ['error'],
+      },
+    },
+}
+
+const getJoinedGroupsSchema: Schema = {
+  description: 'Get all groups joined by the authenticated user',
+  tags: ['groups'],
+  summary: 'Get joined groups',
+  response: {
+    200: {
+      description: 'Joined groups retrieved successfully',
+      type: 'object',
+      properties: {
+        success: { type: 'boolean' },
+        groups: {
+          type: 'array',
+          items: {
+            type: 'object',
+            properties: {
+              userId: { type: 'integer' },
+              groupId: { type: 'integer' },
+              createdAt: { type: 'string', format: 'date-time' },
+              group: {
+                type: 'object',
+                properties: {
+                  id: { type: 'integer' },
+                  name: { type: 'string' },
+                  description: { type: ['string', 'null'] },
+                  createdAt: { type: 'string', format: 'date-time' },
+                  closedAt: { type: ['string', 'null'], format: 'date-time' },
+                  participants: {
+                    type: 'array',
+                    items: {
+                      type: 'object',
+                      properties: {
+                        userId: { type: 'integer' },
+                        groupId: { type: 'integer' },
+                        createdAt: { type: 'string', format: 'date-time' },
+                        user: {
+                          type: 'object',
+                          properties: {
+                            id: { type: 'integer' },
+                            name: { type: 'string' },
+                            surname: { type: 'string' },
+                            email: { type: 'string', format: 'email' },
+                            avatarUrl: { type: 'string' },
+                            isLoggedIn: { type: 'boolean' },
+                          },
+                          required: [
+                            'id',
+                            'name',
+                            'surname',
+                            'email',
+                            'avatarUrl',
+                            'isLoggedIn',
+                          ],
+                        },
+                      },
+                      required: [
+                        'userId',
+                        'groupId',
+                        'createdAt',
+                        'user',
+                      ],
+                    },
+                  },
+                },
+                required: [
+                  'id',
+                  'name',
+                  'description',
+                  'createdAt',
+                  'closedAt',
+                  'participants',
+                ],
+              },
+            },
+            required: [
+              'userId',
+              'groupId',
+              'createdAt',
+              'group',
+            ],
+          },
+        },
+      },
+      required: ['success', 'groups'],
+    },
+    401: {
+      description: 'Unauthorized',
+      type: 'object',
+      properties: {
+        error: { type: 'string' },
+      },
+      required: ['error'],
+    },
+  },
+};
+
+export default getJoinedGroupsSchema;
+
 export const groupSchemas = {
     addParticipantSchema,
     createGroupSchema: createGroupSchema,
@@ -464,6 +607,8 @@ export const groupSchemas = {
     updateGroupSchema,
     inviteSchema: groupInvitationSchema,
     acceptSchema: acceptInvitationSchema,
+    getPendingInvitationsSchema,
+    getJoinedGroupsSchema,
 };
 
 
