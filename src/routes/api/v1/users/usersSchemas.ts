@@ -519,6 +519,57 @@ const getCalendarEntries: Schema = {
   }
 }
 
+const deleteSchema: Schema = 
+{
+    description: 'Delete the authenticated user account',
+    tags: ['users'],
+    summary: 'Delete my account',
+    body: {
+        type: 'object',
+        properties: {
+        password: { type: 'string' },
+        },
+        required: ['password'],
+    },
+    response: {
+        200: {
+        type: 'object',
+        properties: {
+            success: { type: 'boolean' },
+        },
+        required: ['success'],
+        },
+        400: {
+        type: 'object',
+        properties: {
+            error: { type: 'string' },
+        },
+        required: ['error'],
+        },
+        401: {
+        type: 'object',
+        properties: {
+            error: { type: 'string' },
+        },
+        required: ['error'],
+        },
+        404: {
+        type: 'object',
+        properties: {
+            error: { type: 'string' },
+        },
+        required: ['error'],
+        },
+        409: {
+        type: 'object',
+        properties: {
+            error: { type: 'string' },
+        },
+        required: ['error'],
+        },
+    },
+}
+
 export const userSchemas = {
     getAllUsers: getAllUsersSchema,
     searchUsers: searchUsers,
@@ -533,5 +584,6 @@ export const userSchemas = {
     seed: seed,
     userResponse: userResponse,
     getProjects: getUserProjects,
-    getCalendarEntries
+    getCalendarEntries,
+    deleteSchema, 
 };
