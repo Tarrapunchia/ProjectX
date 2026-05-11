@@ -1,6 +1,7 @@
 import fastify, { type FastifyInstance, type FastifyPluginAsync } from "fastify";
 import { userSchemas } from "./usersSchemas.js";
 import { getUserIdFromJWT } from "../../../../helpers/cookies.js";
+import { genSaltSync, hashSync } from "bcrypt-ts";
 
 const Putters: FastifyPluginAsync = async (fastify: FastifyInstance, opts) => {
 // PUT /api/v1/users/modifyUserProfile
@@ -115,8 +116,8 @@ const Putters: FastifyPluginAsync = async (fastify: FastifyInstance, opts) => {
         // if (password != repeatPassword) // dovrebbe esser gestito direttamente nel form da FE
             
 
-        // TODO: modPassword - HASH PW
-        const hashedPw = password
+        const salt = genSaltSync(10)
+        const hashedPw = hashSync(password, salt)
 
         try {
             const user = await fastify.prisma.user.update({
