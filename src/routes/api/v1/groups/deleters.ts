@@ -10,44 +10,83 @@ const Deleters: FastifyPluginAsync = async (fastify: FastifyInstance, opts) => {
     async (req, reply) => {
         const userId = getUserIdFromJWT(req, reply, fastify)
         if (!userId) {
-        reply.code(401)
-        return { error: 'You must be logged in in order to leave a group' }
+            reply.code(401)
+            return { error: 'You must be logged in in order to leave a group' }
         }
 
         const groupId = Number(req.params.id)
         if (Number.isNaN(groupId)) {
-        reply.code(400)
-        return { error: 'invalid group id' }
+            reply.code(400)
+            return { error: 'invalid group id' }
         }
 
-        // (opzionale) check group exists
-        const groupExists = await fastify.prisma.group.findUnique({
-        where: { id: groupId },
-        select: { id: true },
-        })
-        if (!groupExists) {
-        reply.code(404)
-        return { error: 'Group not found' }
+        try {
+            const result = await fastify.prisma.$transaction(async (tx) => {
+                const groupExists = await tx.group.findUnique({
+                    where: { id: groupId },
+                    select: { id: true },
+                })
+                if (!groupExists) {
+                    reply.code(404)
+                    return { error: 'Group not found' }
+                }
+                // check membership
+                const membership = await tx.groupParticipant.findUnique({
+                    where: { groupId_userId: { groupId, userId } },
+                    select: { groupId: true },
+                })
+                if (!membership) {
+                    reply.code(404)
+                    return { error: 'You are not a member of this group' }
+                }
+
+                // delete membership (PK composta)
+                await tx.groupParticipant.delete({
+                    where: { groupId_userId: { groupId, userId } },
+                })
+
+                // controllo se il gruppo e' vuoto => cancello tutto
+                // conta membri rimasti
+                const remaining = await tx.groupParticipant.count({
+                    where: { groupId },
+                })
+
+                if (remaining === 0) {
+                    // cancella chatroom di gruppo -> cascata RoomMessage
+                    await tx.chatRoom.deleteMany({
+                        where: { groupId },
+                    })
+
+                    // cancella gruppo (cascata su GroupParticipant già vuoto)
+                    await tx.group.delete({
+                        where: { id: groupId },
+                    })
+
+                    return { ok: true as const, deletedGroup: true, remaining: 0 }
+                }
+
+                return { ok: true as const, deletedGroup: false, remaining }
+            })
+
+            if (!result.ok) {
+                reply.code(400)
+                return { error: result.error }
+            }
+
+            reply.code(200)
+            return {
+                success: true,
+                deletedGroup: result.deletedGroup,
+                remainingMembers: result.remaining,
+            }
+            } catch (err) {
+                fastify.log.error(err)
+                reply.code(500)
+                return { error: 'Internal error' }
+            }
         }
-
-        // check membership
-        const membership = await fastify.prisma.groupParticipant.findUnique({
-        where: { groupId_userId: { groupId, userId } },
-        select: { groupId: true },
-        })
-        if (!membership) {
-        reply.code(404)
-        return { error: 'You are not a member of this group' }
-        }
-
-        // delete membership (PK composta)
-        await fastify.prisma.groupParticipant.delete({
-        where: { groupId_userId: { groupId, userId } },
-        })
-
-        return { success: true }
-    }
     )
+
 //         // POST /api/v1/organizations/:id/removeMember
 //         fastify.post<{
 //         Params: { id: string }

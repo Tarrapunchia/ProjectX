@@ -184,7 +184,11 @@ const leaveGroupSchema: Schema = {
     response: {
     200: {
         type: 'object',
-        properties: { success: { type: 'boolean' } },
+        properties: {
+            success: { type: 'boolean' },
+            deletedGroup: { type: 'boolean' },
+            remainingMembers: { type: 'number' }
+        },
         required: ['success'],
     },
     400: {
@@ -240,11 +244,71 @@ const getGroupByIdSchema: Schema = {
     },
 }
 
+const updateGroupSchema: Schema = {
+  description: 'Update group name and/or description (must be member)',
+  tags: ['groups'],
+  params: {
+    type: 'object',
+    properties: { id: { type: 'string' } },
+    required: ['id'],
+  },
+  body: {
+    type: 'object',
+    properties: {
+      name: { type: 'string' },
+      description: { type: 'string', nullable: true },
+    },
+    additionalProperties: false,
+  },
+  response: {
+    200: {
+      type: 'object',
+      properties: {
+        success: { type: 'boolean' },
+        group: {
+          type: 'object',
+          properties: {
+            id: { type: 'number' },
+            name: { type: 'string' },
+            description: { type: 'string', nullable: true },
+            createdAt: { type: 'string', format: 'date-time' },
+            closedAt: { type: 'string', format: 'date-time', nullable: true },
+          },
+          required: ['id', 'name', 'createdAt'],
+        },
+      },
+      required: ['success', 'group'],
+    },
+    400: {
+      type: 'object',
+      properties: { error: { type: 'string' } },
+      required: ['error'],
+    },
+    401: {
+      type: 'object',
+      properties: { error: { type: 'string' } },
+      required: ['error'],
+    },
+    403: {
+      type: 'object',
+      properties: { error: { type: 'string' } },
+      required: ['error'],
+    },
+    404: {
+      type: 'object',
+      properties: { error: { type: 'string' } },
+      required: ['error'],
+    },
+  },
+}
+
+
 export const groupSchemas = {
     addParticipantSchema,
     createGroupSchema: createGroupSchema,
     getGroupByIdSchema,
     leaveGroupSchema,
+    updateGroupSchema,
 };
 
 

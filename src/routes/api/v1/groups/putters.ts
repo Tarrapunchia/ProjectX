@@ -1,97 +1,88 @@
-// import fastify, { type FastifyInstance, type FastifyPluginAsync } from "fastify";
-// import { getUserIdFromJWT } from "../../../../helpers/cookies.js";
-// import { orgSchemas } from "./projectsSchema.js";
+import fastify, { type FastifyInstance, type FastifyPluginAsync } from "fastify";
+import { getUserIdFromJWT } from "../../../../helpers/cookies.js";
+import { groupSchemas } from "./groupsSchema.js";
 
-// const Putters: FastifyPluginAsync = async (fastify: FastifyInstance, opts) => {
-// // PUT /api/v1/organizations/modifyOrganizationInfos
-//     fastify.put<{
-//         Body: {
-//             orgId: number
-//             name?: string | null
-//             email?: string | null
-//             phone?: string | null
-//             city?: string | null
-//             address?: string | null
-//             cap?: string | null
-//             state?: string | null
-//         }
-//         }>(
-//         '/modifyOrganizationInfos',
-//         { schema: orgSchemas.modifyOrgInfos },
-//         async (req, res) => {
-//             // Controllo se loggati (vedo se ho JWT nei session token)
-//             let ownerId = getUserIdFromJWT(req, res, fastify)
-//             if (!ownerId) {
-//                 res.code(400)
-//                 return { error: 'You must be logged in in order to modify an Organization' }
-//             }
+const Putters: FastifyPluginAsync = async (fastify: FastifyInstance, opts) => {
+    fastify.put<{
+    Params: { id: string }
+    Body: { name?: string; description?: string | null }
+    }>(
+    '/:id',
+    { schema: groupSchemas.updateGroupSchema },
+    async (req, reply) => {
+        const userId = getUserIdFromJWT(req, reply, fastify)
+        if (!userId) {
+        reply.code(401)
+        return { error: 'You must be logged in' }
+        }
 
-//             const existing = await fastify.prisma.user.findUnique({
-//                 where: { id: ownerId },
-//                 select: { id: true },
-//             })
-//             if (!existing) {
-//                 res.code(404)
-//                 return { error: 'User not found' }
-//             }
+        const groupId = Number(req.params.id)
+        if (Number.isNaN(groupId)) {
+        reply.code(400)
+        return { error: 'invalid group id' }
+        }
 
-//             const {
-//                 orgId,
-//                 name,
-//                 email,
-//                 phone,
-//                 city,
-//                 address,
-//                 cap,
-//                 state,
-//             } = req.body
+        const { name, description } = req.body
+        const hasName = typeof name === 'string' && name.trim().length > 0
+        const hasDescription = description !== undefined // può essere string oppure null
 
-//             const existingOrg = await fastify.prisma.organization.findUnique({
-//                 where: { id: orgId, ownerId: ownerId },
-//                 select: { id: true },
-//             })
-//             if (!existingOrg) {
-//                 res.code(404)
-//                 return { error: 'Organization not found / no rights to modify' }
-//             }
+        if (!hasName && !hasDescription) {
+        reply.code(400)
+        return { error: 'Provide at least one field: name or description' }
+        }
 
+        try {
+        const out = await fastify.prisma.$transaction(async (tx) => {
+            // check group exists
+            const group = await tx.group.findUnique({
+            where: { id: groupId },
+            select: { id: true },
+            })
+            if (!group) {
+            return { ok: false as const, code: 404, error: 'Group not found' }
+            }
 
-//             const data: Record<string, any> = {}
-//             if (name !== undefined) data.name = name
-//             if (email !== undefined) data.email = email
-//             if (phone !== undefined) data.phone = phone
-//             if (city !== undefined) data.city = city
-//             if (address !== undefined) data.address = address
-//             if (cap !== undefined) data.cap = cap
-//             if (state !== undefined) data.state = state
+            // check membership
+            const membership = await tx.groupParticipant.findUnique({
+            where: { groupId_userId: { groupId, userId } },
+            select: { groupId: true },
+            })
+            if (!membership) {
+            return { ok: false as const, code: 403, error: 'Forbidden' }
+            }
 
-//             if (Object.keys(data).length === 0) {
-//                 res.code(400)
-//                 return { error: 'No fields to update' }
-//             }
+            const updated = await tx.group.update({
+            where: { id: groupId },
+            data: {
+                ...(hasName ? { name: name!.trim() } : {}),
+                ...(hasDescription ? { description } : {}),
+            },
+            select: {
+                id: true,
+                name: true,
+                description: true,
+                createdAt: true,
+                closedAt: true,
+            },
+            })
 
-//             try {
-//                 const org = await fastify.prisma.organization.update({
-//                     where: { id: orgId },
-//                     data,
-//                 })
+            return { ok: true as const, updated }
+        })
 
-//                 res.code(200)
-//                 return org
-//             } catch (error: any) {
-//                 fastify.log.error(error)
+        if (!out.ok) {
+            reply.code(out.code)
+            return { error: out.error }
+        }
 
-//                 // nome duplicato
-//                 if (error?.code === 'P2002') {
-//                     res.code(400)
-//                     return { error: 'Name already in use' }
-//                 }
+        reply.code(200)
+        return { success: true, group: out.updated }
+        } catch (err) {
+        fastify.log.error(err)
+        reply.code(500)
+        return { error: 'Internal error' }
+        }
+    }
+    )
+}
 
-//                 res.code(400)
-//                 return { error: 'Unable to update organization' }
-//             }
-//         }
-//     )
-// }
-
-// export default Putters
+export default Putters
