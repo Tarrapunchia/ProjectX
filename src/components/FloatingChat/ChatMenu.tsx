@@ -128,7 +128,7 @@ export const ChatMenu = memo(({ isOpen, isDragging, pos, friends, activeChat, se
 									className="flex items-center gap-3 p-3 rounded-md hover:bg-side-bg-color cursor-pointer transition-colors group/item"
 								>
 									<div className="relative shrink-0">		
-										<div className=" w-10 h-10 rounded-full bg-overlay-border-color flex items-center justify-center text-text-main font-bold border border-overlay-border-color">
+										<div className=" w-10 h-10 rounded-full bg-overlay-border-color flex items-center justify-center text-text-main font-bold border border-overlay-border-color uppercase">
 											{friend.avatarUrl && friend.avatarUrl !== '/avatar/default.png' ? (
 												<img src={friend.avatarUrl} alt={friend.name} className="w-full h-full object-cover" />
 											) : (

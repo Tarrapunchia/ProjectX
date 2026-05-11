@@ -63,7 +63,7 @@ export const ChatBox = memo(({ isOpen, isDragging, hiddenChatId, pos, friends, a
 						className={`relative w-12 h-12 m-1 rounded-full border-2 transition-all hover:scale-110 shrink-0
 									${isActive ? 'border-owner-color text-owner-color scale-110' : 'border-overlay-border-color'}`}
 					>
-						<div className="w-full h-full rounded-full bg-side-bg-color flex items-center justify-center overflow-hidden text-lg">
+						<div className="w-full h-full rounded-full bg-side-bg-color flex items-center justify-center overflow-hidden text-lg uppercase">
 							{friend?.avatarUrl && friend.avatarUrl !== '/avatar/default.png' ? (
 								<img src={friend.avatarUrl} className="w-full h-full object-cover" />
 							) : (
