@@ -145,13 +145,17 @@ const websocketPlugin: FastifyPluginAsync = fp(async (server) => {
         set.add(ws)
         server.log.info({ userId, connectionsForUser: set.size }, 'WS connected')
 
-        ws.on('close', (code: number, reason: Buffer) => {
+        ws.on('close', async (code: number, reason: Buffer) => {
             const curUsr = server.wsClientsByUserId.get(userId)
             if (curUsr) {
                 curUsr.delete(ws)
                 if (curUsr.size == 0) {
                     server.wsClientsByUserId.delete(userId)
                 }
+                await server.prisma.user.update({
+                    where: { id: userId },
+                    data: { isLoggedIn: false },
+                })
             }
             // rimuovi ws da tutte le rooms
             for (const [roomId, roomSet] of server.wsRooms) {
@@ -159,6 +163,7 @@ const websocketPlugin: FastifyPluginAsync = fp(async (server) => {
                     server.wsRooms.delete(roomId)
                 }
             }
+
 
             server.log.info({userId, code, reason: reason?.toString?.(), remainingWs: curUsr?.size ?? 0}, 'ws closed')
         })
