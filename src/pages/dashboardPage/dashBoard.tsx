@@ -7,8 +7,9 @@ import ProfilePage from '../profilePage/profilePage';
 import ProjectsPage from '../projectsPage/projectsPage';
 import ChatPage from '../chatRoomPage/chatRoomPage';
 import DashboardProfile from '../dashboardProfile/dashboardProfile'
-import type { ProjectInfo } from '../../data/types';
 import DocumentsPage from '../DocumentsPage/DocumentsPage';
+import LibraryPage from '../libraryPage/libraryPage'
+import type { ProjectInfo } from '../../data/types';
 import { WebSocketProvider } from '../../utilities/WebSocketContext'
 import FloatingChat from '../../components/FloatingChat/FloatingChat';
 
@@ -45,7 +46,7 @@ function DashboardPage() {
 
 					{ activePage === 'projects' && <ProjectsPage setActivePage={setActivePage} setSelectedProject={setSelectedProject}/> }
 					{ activePage === 'chat' && <ChatPage selectedProject={selectedProject}/> }
-					{ activePage === 'files' && <p>Files (WIP)</p> }
+					{ activePage === 'files' && <LibraryPage selectedProject={selectedProject}/> }
 					{ activePage === 'settings' && <p>Settings (WIP)</p> }
 					{ activePage === 'profile' && <ProfilePage /> }
 				</main>

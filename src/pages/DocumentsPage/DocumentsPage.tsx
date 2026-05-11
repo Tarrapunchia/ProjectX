@@ -36,7 +36,6 @@ interface ChatPageProps {
     selectedProject: ProjectInfo | null
 }
 
-
 export default function DocumentsPage({ selectedProject }: ChatPageProps) 
 {
 	const fileInputRef = useRef<HTMLInputElement>(null);
@@ -185,13 +184,47 @@ export default function DocumentsPage({ selectedProject }: ChatPageProps)
 		return <div className="flex h-full items-center justify-center text-zinc-500">Select a project.</div>
 
 	if (!files.length)
-		return <div className="flex h-full items-center justify-center text-zinc-500">There are no files to display for this project.</div>
-
 		return (
+			<div className="relative flex h-full w-full items-center justify-center text-zinc-500">
+				
+				{/* Header: Posizionato in alto, occupa tutta la larghezza */}
+				<div className="absolute top-0 left-0 w-full flex justify-between items-center p-6">
+					<h1 className="text-base font-bold text-text-main">
+						Project Documents
+					</h1>
+
+					{isOwner && (
+						<div>
+							<input 
+								type="file" 
+								ref={fileInputRef} 
+								onChange={handleUpload} 
+								className="hidden"
+							/>
+							<button 
+								className="border border-category-bg-color bg-side-bg-color rounded-lg px-3 py-1 text-m text-text-main cursor-pointer hover:scale-105 hover:border-text-main transition-all"
+								onClick={() => fileInputRef.current?.click()}
+							>
+								📤 Upload Files
+							</button>
+						</div>
+					)}
+				</div>
+
+				{/* Testo centrale: rimane al centro esatto del padre flex */}
+				<p className="text-center">
+					There are no documents to display for this project.
+				</p>
+				
+			</div>
+		);
+
+	return (
 		
-		<div className="p-1">
+		<div className="">
 			{/* INTESTAZIONE CON BOTTONE CONDIZIONALE */}
-			<div className="flex justify-center items-center mb-2 pb-1">
+			<div className="flex justify-between items-center mb-6">
+                <h1 className="text-base font-bold text-text-main">Project Documents</h1>
 				{isOwner && (
 					<>
 						<input 
@@ -204,7 +237,7 @@ export default function DocumentsPage({ selectedProject }: ChatPageProps)
 							className="border border-category-bg-color bg-side-bg-color rounded-lg px-3 text-m text-text-main cursor-pointer hover:scale-105 hover:border-text-main transition-all"
 							onClick={() => fileInputRef.current?.click()}
 						>
-							➕ Upload Files
+							📤 Upload Files
 						</button>
 					</>
 				)}
@@ -221,28 +254,30 @@ export default function DocumentsPage({ selectedProject }: ChatPageProps)
 					overflow-hidden hover:shadow-md border rounded-[14px] border-overlay-border-color hover:border-text-main transition-all hover:scale-105"
 				>
 					{/* AREA ANTEPRIMA (IL QUADRATO) */}
-					<div className="bg-overlay-border-color flex justify-center items-center overflow-hidden min-h-[300px] relative ">
-					{/* Logica per mostrare contenuto reale nel quadrato */}
-					{file.type === "image" ? (
-						<img src={file.view_url} alt={file.name} className="w-full h-full object-contain pointer-events-none" />
-					) : file.type === "text" || file.type === "pdf" ? (
-						/* Mostriamo un'anteprima del file di testo o PDF direttamente nel quadrato */
-						/* 'pointer-events-none' è fondamentale per permettere il click sulla card */
-						<iframe 
-						src={`${file.view_url}#toolbar=0&navpanes=0&scrollbar=0`}
-						className="w-full h-[300px] border-none bg-white pointer-events-none scale-90"
-						/>
-					) : (
-						/* Icona per file non visualizzabili in miniatura (Zip, Docx, ecc) */
-						<div className="py-20 text-center">
-						<span className="text-6xl block mb-4">
-							{file.type === "doc" && "📝"}
-							{file.type === "zip" && "🗂️"}
-							{file.type === "video" && "🎬"}
-						</span>
-						<p className="text-gray-100 text-xs">No preview</p>
-						</div>
-					)}
+					<div className="bg-overlay-border-color flex justify-center items-center overflow-hidden max-w-full min-h-[300px] max-h-[300px] relative ">
+					
+						{file.type === "image" ? 
+						(
+							<img src={file.view_url} alt={file.name} className="w-full h-full object-contain pointer-events-none" />
+						) 
+						: file.type === "text" || file.type === "pdf" ? 
+						(
+							<iframe 
+							src={`${file.view_url}#toolbar=0&navpanes=0&scrollbar=0`}
+							className="w-full h-[300px] border-none bg-white pointer-events-none scale-90"
+							/>
+						) 
+						: 
+						(
+							<div className="py-20 text-center">
+							<span className="text-6xl block mb-4">
+								{file.type === "doc" && "📝"}
+								{file.type === "zip" && "🗂️"}
+								{file.type === "video" && "🎬"}
+							</span>
+							<p className="text-gray-100 text-xs">No preview</p>
+							</div>
+						)}
 					</div>
 
 					{/* INFO FILE */}
