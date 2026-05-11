@@ -4,6 +4,20 @@ import fs from 'fs'
 import auth from '../../../../helpers/auth.js'
 import { getUserIdFromJWT } from '../../../../helpers/cookies.js'
 
+const getMimeType = (filename: string) => {
+    const ext = path.extname(filename).toLowerCase();
+    const mimes: Record<string, string> = {
+        '.pdf': 'application/pdf',
+        '.txt': 'text/plain',
+        '.png': 'image/png',
+        '.jpg': 'image/jpeg',
+        '.jpeg': 'image/jpeg',
+        '.gif': 'image/gif',
+        '.mp4': 'video/mp4'
+    };
+    return mimes[ext];
+}
+
 const streamFile = (baseDir: string, filename: string, reply: FastifyReply) => {
     const resolvedBase = path.resolve(baseDir)
     const resolvedFile = path.resolve(resolvedBase, filename)
@@ -29,9 +43,9 @@ const previewFile = (baseDir: string, filename: string, reply: FastifyReply) => 
         return reply.code(404).send({ error: 'File not found' })
     }
 
-    const finalPath = path.basename(filename)
+    // const finalPath = path.basename(filename)
 
-    reply.type('text/plain')
+    reply.type(getMimeType(filename) ?? 'text/plain')
 
     reply.header('Content-Disposition', `inline; filename="${path.basename(filename)}"`)
     
