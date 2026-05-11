@@ -2,7 +2,7 @@ import fastify, { type FastifyInstance, type FastifyPluginAsync } from "fastify"
 import { userSchemas } from "../users/usersSchemas.js";
 import { RoleName, Status, FriendshipStatus, Priority, NotificationType, EventType, ChatRoomType } from "@prisma/client";
 import { compareSync, genSaltSync, hashSync } from "bcrypt-ts";
-import { setAuthCookie } from "../../../../helpers/cookies.js";
+import { getUserIdFromJWT, setAuthCookie } from "../../../../helpers/cookies.js";
 
 const Debug: FastifyPluginAsync = async (fastify: FastifyInstance, opts) => {
 
@@ -683,6 +683,137 @@ const Debug: FastifyPluginAsync = async (fastify: FastifyInstance, opts) => {
         })
     }
     )
+
+    fastify.post<{
+  Params: { friendId: string }
+}>(
+  '/forceAddFriend/:friendId',
+  {
+    schema: {
+      description: 'Debug: force add a friend to the authenticated user',
+      tags: ['debug'],
+      params: {
+        type: 'object',
+        properties: {
+          friendId: { type: 'integer' },
+        },
+        required: ['friendId'],
+      },
+      response: {
+        200: {
+          type: 'object',
+          properties: {
+            success: { type: 'boolean' },
+            friendship: {
+              type: 'object',
+              properties: {
+                id: { type: 'integer' },
+                senderId: { type: 'integer' },
+                receiverId: { type: 'integer' },
+                status: {
+                  type: 'string',
+                  enum: ['PENDING', 'ACCEPTED', 'REJECTED', 'BLOCKED'],
+                },
+                createdAt: { type: 'string', format: 'date-time' },
+              },
+              required: ['id', 'senderId', 'receiverId', 'status', 'createdAt'],
+            },
+          },
+          required: ['success', 'friendship'],
+        },
+        400: {
+          type: 'object',
+          properties: {
+            error: { type: 'string' },
+          },
+          required: ['error'],
+        },
+        401: {
+          type: 'object',
+          properties: {
+            error: { type: 'string' },
+          },
+          required: ['error'],
+        },
+        404: {
+          type: 'object',
+          properties: {
+            error: { type: 'string' },
+          },
+          required: ['error'],
+        },
+      },
+    },
+  },
+    async (req, res) => {
+        const authUser = getUserIdFromJWT(req, res, fastify);
+        const friendId = Number(req.params.friendId);
+
+        if (!authUser) {
+        res.code(401);
+        return { error: 'Unauthorized' };
+        }
+
+        if (Number.isNaN(friendId)) {
+        res.code(400);
+        return { error: 'Invalid friendId' };
+        }
+
+        if (authUser === friendId) {
+        res.code(400);
+        return { error: 'You cannot add yourself as friend' };
+        }
+
+        const friend = await fastify.prisma.user.findUnique({
+        where: { id: friendId },
+        select: { id: true },
+        });
+
+        if (!friend) {
+        res.code(404);
+        return { error: 'User not found' };
+        }
+
+        const existing = await fastify.prisma.friendship.findFirst({
+        where: {
+            OR: [
+            { senderId: authUser, receiverId: friendId },
+            { senderId: friendId, receiverId: authUser },
+            ],
+        },
+        });
+
+        let friendship;
+
+        if (existing) {
+        friendship = await fastify.prisma.friendship.update({
+            where: { id: existing.id },
+            data: { status: 'ACCEPTED' },
+        });
+        } else {
+        friendship = await fastify.prisma.friendship.create({
+            data: {
+            senderId: authUser,
+            receiverId: friendId,
+            status: 'ACCEPTED',
+            },
+        });
+        }
+
+        fastify.wsSendToUser(friendId, {
+        type: 'friend:force_added',
+        fromUserId: authUser,
+        friendshipId: friendship.id,
+        status: friendship.status,
+        ts: Date.now(),
+        });
+
+        return res.code(200).send({
+        success: true,
+        friendship,
+        });
+    }
+    );
 }
 
 export default Debug
