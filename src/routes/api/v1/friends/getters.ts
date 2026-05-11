@@ -49,6 +49,50 @@ const Getters: FastifyPluginAsync = async (fastify: FastifyInstance, opts) => {
             })
         }
         )
+
+
+    // GET /api/v1/friends/requests/pending
+    fastify.get(
+        '/requests/pending',
+    {
+        schema: friendsSchema.getPendingRequests,
+    },
+    async (req, res) => {
+        const authUser = getUserIdFromJWT(req, res, fastify);
+
+        if (!authUser) {
+        res.code(401);
+        return { error: 'Unauthorized' };
+        }
+
+        const requests = await fastify.prisma.friendship.findMany({
+        where: {
+            receiverId: authUser,
+            status: 'PENDING',
+        },
+        include: {
+            sender: {
+            select: {
+                id: true,
+                name: true,
+                surname: true,
+                email: true,
+                avatarUrl: true,
+                isLoggedIn: true,
+            },
+            },
+        },
+        orderBy: {
+            createdAt: 'desc',
+        },
+        });
+
+        return res.code(200).send({
+        success: true,
+        requests,
+        });
+    }
+    );
 }
 
 export default Getters

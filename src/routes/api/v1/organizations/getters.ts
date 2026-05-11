@@ -174,6 +174,34 @@ const Getters: FastifyPluginAsync = async (fastify: FastifyInstance, opts) => {
         )
     }
     )
+
+    fastify.get(
+    '/invitations/pending',
+    { schema: orgSchemas.getPendingInvitations },
+    async (req, res) => {
+        const authUser = getUserIdFromJWT(req, res, fastify);
+
+        if (!authUser) {
+        res.code(401);
+        return { error: 'Unauthorized' };
+        }
+
+        const invitations = await fastify.prisma.organizationJoinRequest.findMany({
+        where: {
+            targetUserId: authUser,
+            status: 'PENDING',
+        },
+        orderBy: {
+            createdAt: 'desc',
+        },
+        });
+
+        return res.code(200).send({
+        success: true,
+        invitations,
+        });
+    }
+    );
 }
 
 export default Getters

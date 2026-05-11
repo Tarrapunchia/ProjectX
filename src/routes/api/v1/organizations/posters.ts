@@ -155,6 +155,201 @@ const Posters: FastifyPluginAsync = async (fastify: FastifyInstance, opts) => {
             }
         }
     )
+
+    fastify.post<{
+        Params: { id: string }
+        Body: { email: string }
+    }>(
+        '/:id/invitations',
+        { schema: orgSchemas.inviteMember },
+        async (req, res) => {
+        const organizationId = Number(req.params.id);
+        if (Number.isNaN(organizationId)) {
+            res.code(400);
+            return { error: 'invalid organization id' };
+        }
+
+        const { email } = req.body;
+        if (!email) {
+            res.code(400);
+            return { error: 'email address is required' };
+        }
+
+        const actorId = getUserIdFromJWT(req, res, fastify);
+        if (!actorId) {
+            res.code(401);
+            return { error: 'You must be logged in to perform the action' };
+        }
+
+        const org = await fastify.prisma.organization.findUnique({
+            where: { id: organizationId },
+            select: { id: true, ownerId: true, name: true },
+        });
+
+        if (!org) {
+            res.code(404);
+            return { error: 'Organization not found' };
+        }
+
+        if (org.ownerId !== actorId) {
+            res.code(403);
+            return { error: 'Only the owner can invite members' };
+        }
+
+        const user = await fastify.prisma.user.findUnique({
+            where: { email },
+            select: { id: true, email: true, name: true, surname: true },
+        });
+
+        if (!user) {
+            res.code(404);
+            return { error: 'User not found' };
+        }
+
+        const existingMember = await fastify.prisma.organizationMember.findUnique({
+            where: {
+            organizationId_userId: {
+                organizationId,
+                userId: user.id,
+            },
+            },
+        });
+
+        if (existingMember) {
+            res.code(409);
+            return { error: 'User is already a member' };
+        }
+
+        const existingInvitation = await fastify.prisma.organizationJoinRequest.findFirst({
+            where: {
+            organizationId,
+            requesterId: actorId,
+            targetUserId: user.id,
+            status: 'PENDING',
+            },
+        });
+
+        if (existingInvitation) {
+            res.code(409);
+            return { error: 'Invitation already pending' };
+        }
+
+        const invitation = await fastify.prisma.organizationJoinRequest.create({
+            data: {
+            organizationId,
+            requesterId: actorId,
+            targetUserId: user.id,
+            status: 'PENDING',
+            },
+        });
+
+        fastify.wsSendToUser(user.id, {
+            type: 'organization:invitation',
+            organizationId,
+            requestId: invitation.id,
+            fromUserId: actorId,
+            status: 'PENDING',
+            ts: Date.now(),
+        });
+
+        return res.code(201).send({
+            success: true,
+            invitation,
+        });
+        }
+    );
+
+    fastify.post<{
+  Params: { id: string; requestId: string }
+}>(
+  '/:id/invitations/:requestId/accept',
+  { schema: orgSchemas.acceptInvitation },
+  async (req, res) => {
+    const authUser = getUserIdFromJWT(req, res, fastify);
+
+    const organizationId = Number(req.params.id);
+    const requestId = Number(req.params.requestId);
+
+    if (!authUser || Number.isNaN(organizationId) || Number.isNaN(requestId)) {
+      res.code(400);
+      return { error: 'Invalid organizationId or requestId' };
+    }
+
+    const invitation = await fastify.prisma.organizationJoinRequest.findUnique({
+      where: { id: requestId },
+    });
+
+    if (!invitation) {
+      res.code(404);
+      return { error: 'Invitation not found' };
+    }
+
+    if (invitation.organizationId !== organizationId) {
+      res.code(400);
+      return { error: 'Invitation does not belong to this organization' };
+    }
+
+    if (invitation.targetUserId !== authUser) {
+      res.code(403);
+      return { error: 'You are not allowed to accept this invitation' };
+    }
+
+    if (invitation.status !== 'PENDING') {
+      res.code(409);
+      return { error: `Invitation already ${invitation.status}` };
+    }
+
+    const alreadyMember = await fastify.prisma.organizationMember.findUnique({
+      where: {
+        organizationId_userId: {
+          organizationId,
+          userId: authUser,
+        },
+      },
+    });
+
+    if (alreadyMember) {
+      await fastify.prisma.organizationJoinRequest.update({
+        where: { id: requestId },
+        data: { status: 'ACCEPTED' },
+      });
+
+      return res.code(200).send({
+        success: true,
+        message: 'User already in organization, invitation marked as accepted',
+      });
+    }
+
+    const result = await fastify.prisma.$transaction(async (tx) => {
+      const membership = await tx.organizationMember.create({
+        data: {
+          organizationId,
+          userId: authUser,
+        },
+      });
+
+      const updatedInvitation = await tx.organizationJoinRequest.update({
+        where: { id: requestId },
+        data: { status: 'ACCEPTED' },
+      });
+
+      return { membership, updatedInvitation };
+    });
+
+    fastify.wsSendToUser(invitation.requesterId, {
+      type: 'organization:invitation:accepted',
+      organizationId,
+      requestId: invitation.id,
+      acceptedByUserId: authUser,
+      ts: Date.now(),
+    });
+
+    return res.code(200).send({
+      success: true,
+      invitation: result.updatedInvitation,
+      membership: result.membership,
+    });
+  })
 }
 
 export default Posters

@@ -170,6 +170,18 @@ model OrganizationMember { // TABELLA PONTE
   @@id([organizationId, userId]) // impedisce doppioni
 }
 
+model OrganizationJoinRequest {
+  id           Int      @id @default(autoincrement())
+  organizationId Int
+  requesterId  Int      // chi invita
+  targetUserId Int      // chi riceve l'invito
+  status       String   // PENDING / ACCEPTED / REJECTED
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@unique([organizationId, requesterId, targetUserId])
+}
+
 enum Status {
   TODO
   ACTIVE
@@ -411,4 +423,5 @@ enum FriendshipStatus {
   PENDING
   ACCEPTED
   BLOCKED
+  REJECTED
 }

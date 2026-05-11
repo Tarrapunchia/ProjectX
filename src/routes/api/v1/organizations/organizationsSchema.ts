@@ -300,6 +300,187 @@ const addMember: Schema = {
     },
 };
 
+const inviteMember: Schema = {
+  description: 'Invite a user to join an organization',
+  tags: ['organizations'],
+  summary: 'Create organization invitation',
+  params: {
+    type: 'object',
+    properties: {
+      id: { type: 'integer' },
+    },
+    required: ['id'],
+  },
+  body: {
+    type: 'object',
+    properties: {
+      email: { type: 'string', format: 'email' },
+    },
+    required: ['email'],
+  },
+  response: {
+    201: {
+      type: 'object',
+      properties: {
+        success: { type: 'boolean' },
+        invitation: {
+          type: 'object',
+          properties: {
+            id: { type: 'integer' },
+            organizationId: { type: 'integer' },
+            requesterId: { type: 'integer' },
+            targetUserId: { type: 'integer' },
+            status: { type: 'string' },
+            createdAt: { type: 'string', format: 'date-time' },
+            updatedAt: { type: 'string', format: 'date-time' },
+          },
+          required: [
+            'id',
+            'organizationId',
+            'requesterId',
+            'targetUserId',
+            'status',
+            'createdAt',
+            'updatedAt',
+          ],
+        },
+      },
+      required: ['success', 'invitation'],
+    },
+    400: {
+      type: 'object',
+      properties: { error: { type: 'string' } },
+      required: ['error'],
+    },
+    401: {
+      type: 'object',
+      properties: { error: { type: 'string' } },
+      required: ['error'],
+    },
+    403: {
+      type: 'object',
+      properties: { error: { type: 'string' } },
+      required: ['error'],
+    },
+    404: {
+      type: 'object',
+      properties: { error: { type: 'string' } },
+      required: ['error'],
+    },
+    409: {
+      type: 'object',
+      properties: { error: { type: 'string' } },
+      required: ['error'],
+    },
+  },
+};
+
+const acceptInvitation: Schema = {
+  description: 'Accept an organization invitation',
+  tags: ['organizations'],
+  summary: 'Accept organization invitation',
+  params: {
+    type: 'object',
+    properties: {
+      id: { type: 'integer' },
+      requestId: { type: 'integer' },
+    },
+    required: ['id', 'requestId'],
+  },
+  response: {
+    200: {
+      type: 'object',
+      properties: {
+        success: { type: 'boolean' },
+        invitation: {
+          type: 'object',
+          properties: {
+            id: { type: 'integer' },
+            organizationId: { type: 'integer' },
+            requesterId: { type: 'integer' },
+            targetUserId: { type: 'integer' },
+            status: { type: 'string' },
+            createdAt: { type: 'string', format: 'date-time' },
+            updatedAt: { type: 'string', format: 'date-time' },
+          },
+        },
+        membership: {
+          type: 'object',
+          properties: {
+            organizationId: { type: 'integer' },
+            userId: { type: 'integer' },
+            createdAt: { type: 'string', format: 'date-time' },
+          },
+        },
+        message: { type: 'string' },
+      },
+    },
+    400: {
+      type: 'object',
+      properties: { error: { type: 'string' } },
+      required: ['error'],
+    },
+    403: {
+      type: 'object',
+      properties: { error: { type: 'string' } },
+      required: ['error'],
+    },
+    404: {
+      type: 'object',
+      properties: { error: { type: 'string' } },
+      required: ['error'],
+    },
+    409: {
+      type: 'object',
+      properties: { error: { type: 'string' } },
+      required: ['error'],
+    },
+  },
+};
+
+const getPendingInvitations: Schema = {
+  description: 'Get pending organization invitations for authenticated user',
+  tags: ['organizations'],
+  summary: 'Get pending organization invitations',
+  response: {
+    200: {
+      type: 'object',
+      properties: {
+        success: { type: 'boolean' },
+        invitations: {
+          type: 'array',
+          items: {
+            type: 'object',
+            properties: {
+              id: { type: 'integer' },
+              organizationId: { type: 'integer' },
+              requesterId: { type: 'integer' },
+              targetUserId: { type: 'integer' },
+              status: { type: 'string', enum: ['PENDING', 'ACCEPTED', 'REJECTED'] },
+              createdAt: { type: 'string', format: 'date-time' },
+              updatedAt: { type: 'string', format: 'date-time' },
+            },
+            required: [
+              'id',
+              'organizationId',
+              'requesterId',
+              'targetUserId',
+              'status',
+              'createdAt',
+              'updatedAt',
+            ],
+          },
+        },
+      },
+      required: ['success', 'invitations'],
+    },
+    401: {
+      type: 'object',
+      properties: { error: { type: 'string' } },
+      required: ['error'],
+    },
+  },
+};
 
 export const orgSchemas = {
     getAllOrgs: getAllOrgsSchema,
@@ -308,5 +489,8 @@ export const orgSchemas = {
     getOrgMembers: getOrgMembers,
     createOrg: createOrg,
     modifyOrgInfos: modifyOrgInfos,
-    addMember: addMember
+    addMember: addMember,
+    inviteMember,
+    acceptInvitation,
+    getPendingInvitations,
 };
