@@ -302,6 +302,159 @@ const updateGroupSchema: Schema = {
   },
 }
 
+const groupInvitationSchema = {
+    description: 'Invite a user to join a group',
+    tags: ['groups'],
+    summary: 'Create group invitation',
+    params: {
+      type: 'object',
+      properties: {
+        groupId: { type: 'integer' },
+      },
+      required: ['groupId'],
+    },
+    body: {
+      type: 'object',
+      properties: {
+        targetUserId: { type: 'integer' },
+      },
+      required: ['targetUserId'],
+    },
+    response: {
+      201: {
+        description: 'Invitation created successfully',
+        type: 'object',
+        properties: {
+          success: { type: 'boolean' },
+          invitation: {
+            type: 'object',
+            properties: {
+              id: { type: 'integer' },
+              groupId: { type: 'integer' },
+              requesterId: { type: 'integer' },
+              targetUserId: { type: 'integer' },
+              status: { type: 'string', enum: ['PENDING', 'ACCEPTED', 'REJECTED'] },
+              createdAt: { type: 'string', format: 'date-time' },
+              updatedAt: { type: 'string', format: 'date-time' },
+            },
+            required: [
+              'id',
+              'groupId',
+              'requesterId',
+              'targetUserId',
+              'status',
+              'createdAt',
+              'updatedAt',
+            ],
+          },
+        },
+        required: ['success', 'invitation'],
+      },
+      400: {
+        description: 'Invalid groupId or targetUserId',
+        type: 'object',
+        properties: {
+          error: { type: 'string' },
+        },
+        required: ['error'],
+      },
+      403: {
+        description: 'User is not allowed to invite users to this group',
+        type: 'object',
+        properties: {
+          error: { type: 'string' },
+        },
+        required: ['error'],
+      },
+      404: {
+        description: 'Group not found',
+        type: 'object',
+        properties: {
+          error: { type: 'string' },
+        },
+        required: ['error'],
+      },
+      409: {
+        description: 'User already in group or invitation already pending',
+        type: 'object',
+        properties: {
+          error: { type: 'string' },
+        },
+        required: ['error'],
+      },
+    }
+}
+
+const acceptInvitationSchema: Schema = {
+    description: 'Accept a group invitation',
+    tags: ['groups'],
+    summary: 'Accept invitation to join a group',
+    params: {
+      type: 'object',
+      properties: {
+        groupId: { type: 'integer' },
+        requestId: { type: 'integer' },
+      },
+      required: ['groupId', 'requestId'],
+    },
+    response: {
+      200: {
+        description: 'Invitation accepted successfully',
+        type: 'object',
+        properties: {
+          success: { type: 'boolean' },
+          invitation: {
+            type: 'object',
+            properties: {
+              id: { type: 'integer' },
+              groupId: { type: 'integer' },
+              requesterId: { type: 'integer' },
+              targetUserId: { type: 'integer' },
+              status: { type: 'string' },
+              createdAt: { type: 'string', format: 'date-time' },
+              updatedAt: { type: 'string', format: 'date-time' },
+            },
+          },
+          membership: {
+            type: 'object',
+            properties: {
+              groupId: { type: 'integer' },
+              userId: { type: 'integer' },
+            },
+          },
+          message: { type: 'string' },
+        },
+      },
+      400: {
+        type: 'object',
+        properties: {
+          error: { type: 'string' },
+        },
+        required: ['error'],
+      },
+      403: {
+        type: 'object',
+        properties: {
+          error: { type: 'string' },
+        },
+        required: ['error'],
+      },
+      404: {
+        type: 'object',
+        properties: {
+          error: { type: 'string' },
+        },
+        required: ['error'],
+      },
+      409: {
+        type: 'object',
+        properties: {
+          error: { type: 'string' },
+        },
+        required: ['error'],
+      },
+    },
+};
 
 export const groupSchemas = {
     addParticipantSchema,
@@ -309,6 +462,8 @@ export const groupSchemas = {
     getGroupByIdSchema,
     leaveGroupSchema,
     updateGroupSchema,
+    inviteSchema: groupInvitationSchema,
+    acceptSchema: acceptInvitationSchema,
 };
 
 

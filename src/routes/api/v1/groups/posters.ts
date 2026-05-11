@@ -147,6 +147,195 @@ const Posters: FastifyPluginAsync = async (fastify: FastifyInstance, opts) => {
         }
     )
     
+    // POST 
+    fastify.post(
+    '/:groupId/invitations',
+    {
+        schema: groupSchemas.inviteSchema
+        // preValidation: [fastify.authenticate],
+    },
+    async (req, res) => {
+        const authUser = getUserIdFromJWT(req, res, fastify);
+        const groupId = Number((req.params as { groupId: string }).groupId);
+        const { targetUserId } = req.body as { targetUserId: number };
+        if (Number.isNaN(groupId) || !targetUserId || !authUser) {
+            res.code(400);
+            return { error: 'Invalid groupId or targetUserId' };
+        }
+
+        const group = await fastify.prisma.group.findUnique({
+            where: { id: groupId },
+        });
+
+        if (!group) {
+            res.code(404);
+            return { error: 'Group not found' };
+        }
+
+        const membership = await fastify.prisma.groupParticipant.findUnique({
+            where: {
+                groupId_userId: {
+                groupId,
+                userId: authUser,
+                },
+            },
+        });
+
+        if (!membership) {
+            res.code(403);
+            return { error: 'Not allowed to invite users to this group' };
+        }
+
+        const targetMembership = await fastify.prisma.groupParticipant.findUnique({
+            where: {
+                groupId_userId: {
+                groupId,
+                userId: targetUserId,
+                },
+            },
+        });
+
+        if (targetMembership) {
+            res.code(409);
+            return { error: 'User already in group' };
+        }
+
+        const existing = await fastify.prisma.groupJoinRequest.findFirst({
+        where: {
+            groupId,
+            requesterId: authUser,
+            targetUserId,
+            status: 'PENDING',
+        },
+        });
+
+        if (existing) {
+        res.code(409);
+        return { error: 'Invitation already pending' };
+        }
+
+        const invitation = await fastify.prisma.groupJoinRequest.create({
+        data: {
+            groupId,
+            requesterId: authUser,
+            targetUserId,
+            status: 'PENDING',
+        },
+        });
+
+        fastify.wsSendToUser(targetUserId, {
+            type: 'group:invitation',
+            groupId,
+            reqId: invitation.id,
+            fromUserId: authUser,
+            status: 'PENDING',
+            ts: Date.now(),
+        });
+
+        return res.code(201).send({
+            success: true,
+            invitation,
+        });
+    }
+    );
+
+    fastify.post(
+    '/:groupId/invitations/:requestId/accept',
+    {
+        schema: groupSchemas.acceptSchema,
+        // preValidation: [fastify.authenticate],
+    },
+    async (req, res) => {
+        const authUser = getUserIdFromJWT(req, res, fastify);
+
+        const groupId = Number((req.params as { groupId: string }).groupId);
+        const requestId = Number((req.params as { requestId: string }).requestId);
+
+        if (!authUser || Number.isNaN(groupId) || Number.isNaN(requestId)) {
+            res.code(400);
+            return { error: 'Invalid groupId or requestId' };
+        }
+
+        const invitation = await fastify.prisma.groupJoinRequest.findUnique({
+            where: { id: requestId },
+        });
+
+        if (!invitation) {
+            res.code(404);
+            return { error: 'Invitation not found' };
+        }
+
+        if (invitation.groupId !== groupId) {
+            res.code(400);
+            return { error: 'Invitation does not belong to this group' };
+        }
+
+        if (invitation.targetUserId !== authUser) {
+            res.code(403);
+            return { error: 'You are not allowed to accept this invitation' };
+        }
+
+        if (invitation.status !== 'PENDING') {
+            res.code(409);
+            return { error: `Invitation already ${invitation.status}` };
+        }
+
+        const alreadyMember = await fastify.prisma.groupParticipant.findUnique({
+            where: {
+                groupId_userId: {
+                groupId,
+                userId: authUser,
+                },
+            },
+        });
+
+        if (alreadyMember) {
+            await fastify.prisma.groupJoinRequest.update({
+                where: { id: requestId },
+                data: { status: 'ACCEPTED' },
+            });
+
+            return res.code(200).send({
+                success: true,
+                message: 'User already in group, invitation marked as accepted',
+            });
+        }
+
+        const result = await fastify.prisma.$transaction(async (tx) => {
+            const participant = await tx.groupParticipant.create({
+                data: {
+                    groupId,
+                    userId: authUser,
+                },
+            });
+
+            const updatedInvitation = await tx.groupJoinRequest.update({
+                    where: { id: requestId },
+                    data: {
+                    status: 'ACCEPTED',
+                },
+            });
+
+            return { participant, updatedInvitation };
+        });
+
+        fastify.wsRoomBroadcast('group:' + groupId, {
+            type: 'group:invitation:accepted',
+            requestId: invitation.id,
+            groupId,
+            acceptedByUserId: authUser,
+            ts: Date.now(),
+            },
+            invitation.targetUserId
+        )
+
+        return res.code(200).send({
+            success: true,
+            invitation: result.updatedInvitation,
+            membership: result.participant,
+        });
+    }
+    );
 
 }
 

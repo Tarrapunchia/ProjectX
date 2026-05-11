@@ -240,6 +240,17 @@ model GroupParticipant {  // TABELLA PONTE
   @@id([groupId, userId]) // un utente compare una volta per chat di gruppo
 }
 
+model GroupJoinRequest {
+  id           Int      @id @default(autoincrement())
+  groupId      Int
+  requesterId  Int      // chi chiede / chi invita
+  targetUserId Int      // chi riceve la richiesta
+  status       String   // PENDING / ACCEPTED / REJECTED
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@unique([groupId, requesterId, targetUserId])
+}
 
 model Project {
   id             Int    @id @default(autoincrement())

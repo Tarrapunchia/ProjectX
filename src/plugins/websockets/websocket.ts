@@ -29,7 +29,7 @@ declare module 'fastify' {
     }
 }
 
-function safeSend(ws: WebSocket, payload: string) {
+export function safeSend(ws: WebSocket, payload: string) {
     // constrollo se socket sono aperti
     const anyWs = ws as any
     if (anyWs.readyState !== 1) return false
