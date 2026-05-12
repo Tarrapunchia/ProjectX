@@ -126,8 +126,13 @@ export default function PriorityChart({ taskData }: { taskData: TaskInfos }) {
 
   return (
     /* Modificata la grid: 1 colonna su mobile, 2 su desktop */
-    <div className="h-auto md:h-full relative border border-overlay-border-color rounded-lg shadow p-4 grid grid-cols-1 md:grid-cols-[1fr_1fr] gap-4 min-h-[300px] text-text-main overflow-hidden">
-      <div className="relative w-full md:h-full min-h-0 overflow-hidden text-text-main">
+<div className="h-full relative border border-overlay-border-color rounded-lg shadow p-4 
+                    /* Forziamo sempre 2 colonne anche su schermi piccoli */
+                    grid grid-cols-[1.2fr_1fr] gap-4 
+                    min-w-[400px] max-h-full text-text-main overflow-hidden">
+      
+      {/* SEZIONE GRAFICO */}
+      <div className="relative w-full h-full min-h-0 overflow-hidden text-text-main">
         {taskData && taskData.tasks.length > 0 ? (
           <Pie data={chartData} options={options} />
         ) : (
@@ -138,9 +143,9 @@ export default function PriorityChart({ taskData }: { taskData: TaskInfos }) {
       </div>
 
       {/* SEZIONE LISTA TASK */}
-      <div className="flex flex-col gap-2 overflow-y-auto h-auto md:h-0 md:min-h-full pr-1 min-h-[150px]">
+      <div className="flex flex-col gap-2 overflow-y-auto h-0 min-h-full pr-1">
         {filteredTasks.map((task, index) => {
-          const pKey = (task.priority as Priority) || "NONE";
+          const pKey = task.priority || "NONE";
           const borderColor = priorityColors[pKey];
 
           return (
@@ -158,9 +163,9 @@ export default function PriorityChart({ taskData }: { taskData: TaskInfos }) {
                 </span>
               </div>
 
-              {/* Tooltip (nascosto su mobile per non coprire tutto, o gestito via hover) */}
+              {/* Tooltip con posizionamento migliorato per spazi stretti */}
               <div className={`
-                  absolute left-2 w-max max-w-[180px] md:max-w-xs bg-black shadow-lg border border-zinc-700 rounded p-2 z-50
+                  absolute left-2 w-max max-w-[150px] bg-black shadow-lg border border-zinc-700 rounded p-2 z-50
                   opacity-0 pointer-events-none
                   group-hover:opacity-100 group-hover:pointer-events-auto
                   transition-opacity duration-150
@@ -169,7 +174,7 @@ export default function PriorityChart({ taskData }: { taskData: TaskInfos }) {
                 <span className="block text-xs font-bold" style={{ color: borderColor }}>
                   Priority: {pKey}
                 </span>
-                <p className="text-white text-[10px] md:text-xs mt-1">
+                <p className="text-white text-[10px] mt-1">
                   {task.description || "Nessuna descrizione."}
                 </p>
               </div>
@@ -177,8 +182,9 @@ export default function PriorityChart({ taskData }: { taskData: TaskInfos }) {
           );
         })}
 
+        {/* Messaggio fallback se non ci sono task filtrati */}
         {taskData.tasks.length > 0 && filteredTasks.length === 0 && (
-          <div className="flex flex-col items-center justify-center py-4 opacity-50">
+          <div className="flex flex-col items-center justify-center py-4 opacity-50 h-full">
             <span className="text-[10px] font-bold text-white uppercase tracking-widest text-center">
               No tasks
             </span>
