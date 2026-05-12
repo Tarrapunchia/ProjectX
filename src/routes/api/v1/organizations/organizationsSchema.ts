@@ -273,6 +273,56 @@ const modifyOrgInfos: Schema = {
     },
 };
 
+const deleteOrganization: Schema = {
+  description: 'Delete an organization owned by the authenticated user',
+  tags: ['organizations'],
+  summary: 'Delete organization',
+  params: {
+    type: 'object',
+    properties: {
+      id: { type: 'integer' },
+    },
+    required: ['id'],
+  },
+  response: {
+    200: {
+      type: 'object',
+      properties: {
+        success: { type: 'boolean' },
+      },
+      required: ['success'],
+    },
+    400: {
+      type: 'object',
+      properties: {
+        error: { type: 'string' },
+      },
+      required: ['error'],
+    },
+    401: {
+      type: 'object',
+      properties: {
+        error: { type: 'string' },
+      },
+      required: ['error'],
+    },
+    403: {
+      type: 'object',
+      properties: {
+        error: { type: 'string' },
+      },
+      required: ['error'],
+    },
+    404: {
+      type: 'object',
+      properties: {
+        error: { type: 'string' },
+      },
+      required: ['error'],
+    },
+  },
+};
+
 const addMember: Schema = {
     description: 'Adds a new user to the Organization and returns it on success',
     tags: ['organizations'],
@@ -489,6 +539,7 @@ export const orgSchemas = {
     getOrgMembers: getOrgMembers,
     createOrg: createOrg,
     modifyOrgInfos: modifyOrgInfos,
+    deleteOrganization,
     addMember: addMember,
     inviteMember,
     acceptInvitation,
