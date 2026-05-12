@@ -78,7 +78,9 @@ export default function PriorityChart({ taskData }: { taskData: TaskInfos }) {
         color: textColor,
         // Titolo più piccolo su mobile
         font: { size: isMobile ? 12 : 14 }, 
-        padding: { bottom: isMobile ? 10 : 20 }
+        padding: { bottom: isMobile ? 10 : 20 },
+		responsive: true,
+		maintainAspectRatio: false,
       },
       legend: {
         // Legenda SOTTO su mobile, a SINISTRA su desktop
@@ -124,8 +126,8 @@ export default function PriorityChart({ taskData }: { taskData: TaskInfos }) {
 
   return (
     /* Modificata la grid: 1 colonna su mobile, 2 su desktop */
-    <div className="relative border border-overlay-border-color rounded-lg shadow p-4 grid grid-cols-1 md:grid-cols-[1fr_1fr] gap-4 min-h-[300px] max-h-full text-text-main overflow-hidden">
-      <div className="relative w-full h-[200px] md:h-full min-h-0 overflow-hidden text-text-main">
+    <div className="h-auto md:h-full relative border border-overlay-border-color rounded-lg shadow p-4 grid grid-cols-1 md:grid-cols-[1fr_1fr] gap-4 min-h-[300px] text-text-main overflow-hidden">
+      <div className="relative w-full md:h-full min-h-0 overflow-hidden text-text-main">
         {taskData && taskData.tasks.length > 0 ? (
           <Pie data={chartData} options={options} />
         ) : (
@@ -136,7 +138,7 @@ export default function PriorityChart({ taskData }: { taskData: TaskInfos }) {
       </div>
 
       {/* SEZIONE LISTA TASK */}
-      <div className="flex flex-col gap-2 overflow-y-auto md:max-h-[40vh] pr-1">
+      <div className="flex flex-col gap-2 overflow-y-auto h-auto md:h-0 md:min-h-full pr-1 min-h-[150px]">
         {filteredTasks.map((task, index) => {
           const pKey = (task.priority as Priority) || "NONE";
           const borderColor = priorityColors[pKey];

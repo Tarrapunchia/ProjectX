@@ -29,11 +29,10 @@ const poster = async (api: string, body: any)
             `${CONSTS.BE + api}`,
             {
                 method: 'POST',
-                // NOTA: Se body è FormData, NON impostare Content-Type header
                 headers: { 
                     "Accept": 'application/json' 
                 },
-                credentials: 'include', // <--- FONDAMENTALE per i cookie
+                credentials: 'include',
                 body: body
             }
         )
@@ -48,7 +47,38 @@ const poster = async (api: string, body: any)
     }
 }
 
+const putter = async (api: string, body: any): Promise<{ success: boolean, data: any }> => {
+    try {
+        const res = await fetch(
+            `${CONSTS.BE + api}`,
+            {
+                method: 'PUT', // Cambiato in PUT
+                headers: { 
+                    "Accept": 'application/json',
+                    "Content-Type": 'application/json' // Fondamentale per inviare JSON
+                },
+                credentials: 'include',
+                body: JSON.stringify(body) // Trasformiamo l'oggetto in stringa JSON
+            }
+        )
+        
+        if (res.ok) {
+            const data = await res.json()
+            return { success: true, data: data }
+        }
+        
+        // In caso di errore (400, 401, 404, ecc.)
+        const errorData = await res.json().catch(() => ({}));
+        return { success: false, data: errorData.error || res.statusText }
+        
+    } catch (error) {
+        console.error("Putter Error:", error)
+        return { success: false, data: 'Network error' }
+    }
+}
+
 export default {
     getter,
 	poster,
+	putter,
 }

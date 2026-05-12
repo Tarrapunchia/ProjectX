@@ -29,7 +29,7 @@ export default {
 			},
 			backgroundImage: {
 				'gradient-color': "linear-gradient(45deg, var(--color-category-gradient-start), var(--color-category-gradient-end))",
-			}
+			},
 		},
 	},
 	plugins: [],

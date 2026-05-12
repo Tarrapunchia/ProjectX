@@ -7,11 +7,12 @@ import SearchBar from './SearchBar';
 import ThemeToggle from './ThemeToggle';
 
 interface HeaderProps {
+	className?: string;
 	setActivePage: (page: string) => void;
 	selectedProject: ProjectInfo | null;
 }
 
-function Header({ setActivePage, selectedProject }: HeaderProps) {
+function Header({ setActivePage, selectedProject, className }: HeaderProps) {
 	const [userInfo, setUserInfo] = useState<{ id: string, email: string, avatar: string }>({ 
     id: MOCK_USER.id, 
     email: MOCK_USER.email, 
@@ -47,7 +48,7 @@ function Header({ setActivePage, selectedProject }: HeaderProps) {
 	}, []);
 
 	return (
-		<header className="bg-side-bg-color text-white p-[15px_20px] [grid-area:header] flex items-center border-b border-overlay-border-color ">
+		<header className={`${className} bg-side-bg-color text-white p-[15px_20px] flex items-center border-b border-overlay-border-color`}>
 			<span 
 				onClick={() => setActivePage('projects')} 
 				className="relative text-text-main inline-flex items-center justify-center w-10 h-10 rounded-full border-2 border-text-main cursor-pointer mr-3.75 ml-1.25 text-[20px] hover:bg-bg-color hover:scale-110 transition-transform duration-300 group

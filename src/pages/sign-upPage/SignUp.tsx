@@ -31,7 +31,7 @@ function SignUp()
 			const passwordRepeat = reapetedpwRef.current?.value
             const isTermsAccepted = termsRef.current?.checked;
             //Segnalare che sono obbligatori anche se non dovrebbero
-			const phone = "673932"
+			const phone = "00078"
 			const jobQualifier = "developer"
 
             if (!isTermsAccepted) {

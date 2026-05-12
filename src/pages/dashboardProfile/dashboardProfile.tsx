@@ -8,6 +8,7 @@ import { MOCK_USER_TASKS } from "../../data/mockData";
 import { useLocation } from "react-router-dom";
 import FirstLogin from "../PopUpFirstLogin/firstLoginpage"
 
+
 function DashboardProf() 
 {
 	const [tasksInfos, setTasksInfo] = useState<TaskInfos>(MOCK_USER_TASKS)
@@ -17,14 +18,18 @@ function DashboardProf()
 
 	const location = useLocation();
 
-	const handleProfileUpdate = async (data: any) => 
+	const handleProfileUpdate = async (formData: any) => 
 	{
-		console.log("Dati ricevuti dal Modal:", data);
+		console.log("Dati ricevuti dal Modal:", formData);
 		
-		// Esempio: invio al tuo backend
-		// await helpers.poster('/api/v1/users/complete-profile', data);
-		
-		// Chiudiamo il pop-up dopo il salvataggio
+		const { success } = await helpers.putter('/api/v1/users/modifyUserProfile', formData);
+
+		if (success) {
+			console.log("Profilo aggiornato!");
+			
+		} else {
+			console.error("Errore durante l'aggiornamento:");
+		}
 		setIsPopupOpen(false);
 	};
 
@@ -53,31 +58,32 @@ function DashboardProf()
 		return () => {};
 	}, [location.state]);
 		return (
-			<div className="grid grid-cols-1 lg:grid-cols-[2fr_2fr_1.5fr] gap-2 px-5 pt-5 pb-4 lg:p-6 min-w-full">
+			
+			<div className="grid grid-cols-1 lg:grid-cols-[2fr_2fr_1.5fr] gap-2 w-full h-full">
 
 				<FirstLogin
 					isOpen={isPopupOpen}
 					onClose={() => setIsPopupOpen(false)}
 					onSave={handleProfileUpdate}
 				/>
-				
-				{/* Colonna Sinistra */}
-				<div className="col-span-1 lg:col-span-2 grid grid-cols-1 gap-2">
+			
 
-					{/* Calendario */}
-					<div className="bg-side-bg-color border border-overlay-border-color rounded-lg shadow p-4 overflow-hidden relative min-h-[350px] text-base leading-tight text-text-main">
+				<div className="col-span-1 lg:col-span-2 flex flex-col gap-2 h-auto lg:h-full">
+					
+					{/* Calendario - h-[400px] su mobile, flex-1 su desktop */}
+					<div className="h-[400px] lg:flex-1 bg-side-bg-color border border-overlay-border-color rounded-lg shadow p-4">
 						<Calendar />
 					</div>
 
-					{/* Grafico */}
-					<div className="min-h-75 bg-side-bg-color text-text-main max-h-full overflow-hidden">
-						{infoFetched ? <PriorityChart taskData={ tasksInfos }/> : <PriorityChart taskData={ MOCK_USER_TASKS }/>}
+					{/* Grafico - h-[400px] su mobile, flex-1 su desktop */}
+					<div className="h-[400px] lg:flex-1 bg-side-bg-color">
+						{infoFetched ? <PriorityChart taskData={tasksInfos}/> : <PriorityChart taskData={MOCK_USER_TASKS}/>}
 					</div>
 
 				</div>
 
-				{/* Notifiche - Ridotto il min-h così non spinge troppo in basso */}
-				<div className="bg-side-bg-color col-span-1 rounded-lg shadow p-4 overflow-y-auto border border-overlay-border-color min-h-[300px] lg:h-full">
+				{/* Notifiche */}
+				<div className="col-span-1 bg-side-bg-color rounded-lg shadow p-4 border border-overlay-border-color h-[400px] lg:h-full">
 					<Notification />
 				</div>
 
