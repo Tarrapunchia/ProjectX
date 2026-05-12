@@ -2,11 +2,12 @@ import type { FastifyInstance, FastifyPluginAsync } from 'fastify';
 import { getUserIdFromJWT } from '../../../../helpers/cookies.js';
 import { orgSchemas } from './organizationsSchema.js';
 
-const DeleteOrganization: FastifyPluginAsync = async (fastify: FastifyInstance) => {
+// DELETE api/v1/organizations/delete/:id
+const Deleters: FastifyPluginAsync = async (fastify: FastifyInstance) => {
   fastify.delete<{
     Params: { id: string }
   }>(
-    '/:id',
+    '/delete/:id',
     { schema: orgSchemas.deleteOrganization },
     async (req, res) => {
       const actorId = getUserIdFromJWT(req, res, fastify);
@@ -112,4 +113,4 @@ const DeleteOrganization: FastifyPluginAsync = async (fastify: FastifyInstance) 
   );
 };
 
-export default DeleteOrganization;
+export default Deleters;

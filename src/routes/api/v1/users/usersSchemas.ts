@@ -150,7 +150,6 @@ const userProfileResponse = {
             'updatedAt',
             'organizations',
             'projects',
-            'tasks',
             'avatar'
         ],
         },
