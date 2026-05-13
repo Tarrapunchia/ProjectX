@@ -91,6 +91,23 @@ function Calendar() {
 
   return (
     <div className="relative h-full w-full
+		[&_.fc-scroller::-webkit-scrollbar]:!w-[10px]
+		[&_.fc-scroller::-webkit-scrollbar]:!h-[10px]
+
+		/* .custom-scrollbar::-webkit-scrollbar-track */
+		[&_.fc-scroller::-webkit-scrollbar-track]:!rounded-[100vh]
+		[&_.fc-scroller::-webkit-scrollbar-track]:!bg-[#0000000]
+
+		/* .custom-scrollbar::-webkit-scrollbar-thumb */
+		[&_.fc-scroller::-webkit-scrollbar-thumb]:!bg-[var(--color-text)]
+		[&_.fc-scroller::-webkit-scrollbar-thumb]:!rounded-[100vh]
+		[&_.fc-scroller::-webkit-scrollbar-thumb]:!border-t-[1px]
+		[&_.fc-scroller::-webkit-scrollbar-thumb]:!border-t-solid
+		[&_.fc-scroller::-webkit-scrollbar-thumb]:!border-t-[#00000000]
+		[&_.fc-scroller::-webkit-scrollbar-thumb]:!border-b-[1px]
+		[&_.fc-scroller::-webkit-scrollbar-thumb]:!border-b-solid
+		[&_.fc-scroller::-webkit-scrollbar-thumb]:!border-b-[#00000000]
+
         [&_.fc-button]:!bg-category-bg-color
         [&_.fc-button]:!border-overlay-border-color
         [&_.fc-button]:!text-text-main
@@ -103,7 +120,6 @@ function Calendar() {
         [&_.fc-button-active]:!text-white
         [&_.fc-daygrid-day-number]:!text-text-main
         [&_.fc-button:focus]:!shadow-none
-        /* Fix per titoli lunghi su mobile */
         [&_.fc-toolbar-title]:!text-sm
         md:[&_.fc-toolbar-title]:!text-xl
         [&_.fc-toolbar]:flex-wrap

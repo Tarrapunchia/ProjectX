@@ -52,6 +52,44 @@
 		-ms-overflow-style: none;
 		scrollbar-width: none;
 	}
+
+	.custom-scrollbar::-webkit-scrollbar {
+        width: 10px;
+        height: 10px;
+    }
+
+    .custom-scrollbar::-webkit-scrollbar-track {
+        border-radius: 100vh;
+        background: 000000; 
+    }
+
+    .custom-scrollbar::-webkit-scrollbar-thumb {
+        background: var(--color-text);
+        border-radius: 100vh;
+
+		border-top: 1px solid #000000; 
+        border-bottom: 1px solid #000000;
+    }
+
+    .custom-scrollbar::-webkit-scrollbar-button:single-button {
+        display: block;
+        border-style: solid;
+        height: 10px;
+        width: 10px;
+        background-color: transparent;
+    }
+
+    .custom-scrollbar::-webkit-scrollbar-button:single-button:vertical:decrement {
+
+        border-width: 0 5px 8px 5px;
+        border-color: transparent transparent var(--color-text) transparent;
+    }
+
+    .custom-scrollbar::-webkit-scrollbar-button:single-button:vertical:increment {
+        
+        border-width: 8px 5px 0 5px;
+        border-color: var(--color-text) transparent transparent transparent;
+    }
 }
 
 body {

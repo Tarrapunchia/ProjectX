@@ -185,7 +185,7 @@ export default function DocumentsPage({ selectedProject }: ChatPageProps)
 
 	if (!files.length)
 		return (
-			<div className="relative flex h-full w-full items-center justify-center text-zinc-500">
+			<div className="relative flex h-full w-full items-center justify-center text-zinc-500 ">
 				
 				<div className="absolute top-0 left-0 w-full flex justify-between items-center">
 					<h1 className="text-base font-bold text-text-main">
@@ -220,7 +220,7 @@ export default function DocumentsPage({ selectedProject }: ChatPageProps)
 
 	return (
 		
-		<div className="min-w-0">
+		<div className="min-w-0 custom-scrollbar">
 			{/* INTESTAZIONE CON BOTTONE CONDIZIONALE */}
 			<div className="flex justify-between items-center ">
                 <h1 className="text-base font-bold text-text-main">Project Documents</h1>
@@ -244,13 +244,13 @@ export default function DocumentsPage({ selectedProject }: ChatPageProps)
 			{/* ==========================================
 				3. GRIGLIA FILE (I QUADRATINI)
 				========================================== */}
-			<div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6 ">
+			<div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6 custom-scrollbar">
 				{files.map((file) => (
 				<div
 					key={file.id}
 					onClick={() => setPreview(file)}
 					className="group cursor-pointer flex flex-col rounded-lg shadow-sm border 
-					overflow-hidden hover:shadow-md border rounded-[14px] border-overlay-border-color hover:border-text-main transition-all hover:scale-105"
+					overflow-hidden hover:shadow-md border rounded-[14px] border-overlay-border-color hover:border-text-main transition-all hover:scale-105 custom-scrollbar"
 				>
 					{/* AREA ANTEPRIMA (IL QUADRATO) */}
 					<div className="bg-overlay-border-color flex justify-center items-center overflow-hidden max-w-full min-h-[300px] max-h-[300px] relative ">
