@@ -187,8 +187,7 @@ export default function DocumentsPage({ selectedProject }: ChatPageProps)
 		return (
 			<div className="relative flex h-full w-full items-center justify-center text-zinc-500">
 				
-				{/* Header: Posizionato in alto, occupa tutta la larghezza */}
-				<div className="absolute top-0 left-0 w-full flex justify-between items-center p-6">
+				<div className="absolute top-0 left-0 w-full flex justify-between items-center">
 					<h1 className="text-base font-bold text-text-main">
 						Project Documents
 					</h1>
@@ -221,9 +220,9 @@ export default function DocumentsPage({ selectedProject }: ChatPageProps)
 
 	return (
 		
-		<div className="">
+		<div className="min-w-0">
 			{/* INTESTAZIONE CON BOTTONE CONDIZIONALE */}
-			<div className="flex justify-between items-center mb-6">
+			<div className="flex justify-between items-center ">
                 <h1 className="text-base font-bold text-text-main">Project Documents</h1>
 				{isOwner && (
 					<>

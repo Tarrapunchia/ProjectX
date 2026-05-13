@@ -48,7 +48,7 @@ function Header({ setActivePage, selectedProject, className }: HeaderProps) {
 	}, []);
 
 	return (
-		<header className={`${className} bg-side-bg-color text-white p-[15px_20px] flex items-center border-b border-overlay-border-color`}>
+		<header className={`${className} bg-side-bg-color text-white p-[15px_20px] flex items-center border-b border-overlay-border-color min-w-0`}>
 			<span 
 				onClick={() => setActivePage('projects')} 
 				className="relative text-text-main inline-flex items-center justify-center w-10 h-10 rounded-full border-2 border-text-main cursor-pointer mr-3.75 ml-1.25 text-[20px] hover:bg-bg-color hover:scale-110 transition-transform duration-300 group

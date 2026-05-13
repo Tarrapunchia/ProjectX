@@ -20,7 +20,7 @@ export default function Notification() {
   }
 
   return (
-    <div className="space-y-2">
+    <div className="space-y-2 overflow-y-auto">
         <h2 className="text-lg text-text-main font-semibold mb-4 flex justify-center mb-12">
             Notifiche
         </h2>

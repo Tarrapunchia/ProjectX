@@ -37,7 +37,7 @@ function DashboardPage() {
 			<div className="grid h-screen overflow-hidden grid-cols-[70px_1fr] md:grid-cols-[10vw_1fr] grid-rows-[auto_1fr_auto] [grid-template-areas:'sidebar_header''sidebar_main''sidebar_footer']">
 				<Header className="[grid-area:header]" setActivePage={setActivePage} selectedProject={selectedProject}/>
 				<Sidebar className="[grid-area:sidebar]" setActivePage={setActivePage} />
-				<main className="[grid-area:main] p-[20px] overflow-y-auto h-full">
+				<main className="[grid-area:main] p-[20px] overflow-y-auto h-full min-w-0">
 					{ activePage === 'dashboard' && <DashboardProfile /> }
 					{ activePage === 'documents' && <DocumentsPage selectedProject={selectedProject}/> }
 					{ activePage === 'tasks' && <p>Tasks (WIP)</p>}
@@ -49,7 +49,7 @@ function DashboardPage() {
 					{ activePage === 'settings' && <p>Settings (WIP)</p> }
 					{ activePage === 'profile' && <ProfilePage /> }
 				</main>
-				<footer className="[grid-area:footer] bg-side-bg-color text-text-main py-2.5 px-5 text-center w-full border-t border-overlay-border-color">
+				<footer className="[grid-area:footer] bg-side-bg-color text-text-main py-2.5 px-5 text-center w-full border-t border-overlay-border-color min-w-0">
 					<p className="m-0 text-[14px]">© 2026 - Trascendence</p>
 				</footer>
 				<FloatingChat />

@@ -68,22 +68,20 @@ function DashboardProf()
 				/>
 			
 
-				<div className="col-span-1 lg:col-span-2 flex flex-col gap-2 h-auto lg:h-full">
+				<div className="col-span-1 lg:col-span-2 flex flex-col gap-2 h-auto lg:h-full ">
 					
-					{/* Calendario - h-[400px] su mobile, flex-1 su desktop */}
-					<div className="h-[400px] lg:flex-1 bg-side-bg-color border border-overlay-border-color rounded-lg shadow p-4">
+					<div className="h-[400px] lg:flex-1 bg-side-bg-color border border-overlay-border-color rounded-lg shadow p-4 min-h-[50%]">
 						<Calendar />
 					</div>
 
-					{/* Grafico - h-[400px] su mobile, flex-1 su desktop */}
-					<div className="h-[400px] lg:flex-1 bg-side-bg-color">
+					<div className="h-[400px] lg:flex-1 bg-side-bg-color min-h-[49%]">
 						{infoFetched ? <PriorityChart taskData={tasksInfos}/> : <PriorityChart taskData={MOCK_USER_TASKS}/>}
 					</div>
 
 				</div>
 
 				{/* Notifiche */}
-				<div className="col-span-1 bg-side-bg-color rounded-lg shadow p-4 border border-overlay-border-color h-[400px] lg:h-full">
+				<div className="col-span-1 bg-side-bg-color rounded-lg shadow p-2 border border-overlay-border-color lg:h-full lg:mb-4">
 					<Notification />
 				</div>
 

@@ -129,7 +129,7 @@ export default function PriorityChart({ taskData }: { taskData: TaskInfos }) {
 <div className="h-full relative border border-overlay-border-color rounded-lg shadow p-4 
                     /* Forziamo sempre 2 colonne anche su schermi piccoli */
                     grid grid-cols-[1.2fr_1fr] gap-4 
-                    min-w-[400px] max-h-full text-text-main overflow-hidden">
+                     max-h-full text-text-main overflow-hidden">
       
       {/* SEZIONE GRAFICO */}
       <div className="relative w-full h-full min-h-0 overflow-hidden text-text-main">
@@ -163,20 +163,19 @@ export default function PriorityChart({ taskData }: { taskData: TaskInfos }) {
                 </span>
               </div>
 
-              {/* Tooltip con posizionamento migliorato per spazi stretti */}
               <div className={`
-                  absolute left-2 w-max max-w-[150px] bg-black shadow-lg border border-zinc-700 rounded p-2 z-50
-                  opacity-0 pointer-events-none
-                  group-hover:opacity-100 group-hover:pointer-events-auto
-                  transition-opacity duration-150
-                ${index < 2 ? "top-full mt-2" : "bottom-full mb-2"}
-              `}>
-                <span className="block text-xs font-bold" style={{ color: borderColor }}>
-                  Priority: {pKey}
-                </span>
-                <p className="text-white text-[10px] mt-1">
-                  {task.description || "Nessuna descrizione."}
-                </p>
+                    absolute left-2 w-max max-w-[150px] bg-black shadow-lg border border-zinc-700 rounded p-2 z-50
+                    opacity-0 pointer-events-none
+                    group-hover:opacity-100 group-hover:pointer-events-auto
+                    transition-opacity duration-150
+                  ${index < 2 ? "top-full mt-2" : "bottom-full mb-2"}
+                `}>
+                  <span className="block text-xs font-bold" style={{ color: borderColor }}>
+                    Priority: {pKey}
+                  </span>
+                  <p className="text-white text-[10px] mt-1">
+                    {task.description || "No description."}
+                  </p>
               </div>
             </div>
           );
