@@ -14,6 +14,18 @@ const SearchBar: React.FC<SearchBarProps> = ({activeUserId}) =>
     const [loading, setLoading] = useState(false);
     const [showDropdown, setShowDropdown] = useState(false);
 
+    const sendFriendRequest = async (targetUserId: number) => 
+    {
+        try {
+            await helpers.poster('/api/v1/friends/requests', { targetUserId });
+
+            console.log("Friend request sent to user:", targetUserId);
+        } catch (err) {
+            console.error("Error sending friend request:", err);
+        }
+    };
+
+
     useEffect(() => {
         if (!activeUserId) return;
         const timeoutId = setTimeout(() => {
@@ -73,11 +85,22 @@ const SearchBar: React.FC<SearchBarProps> = ({activeUserId}) =>
                     <div className="mb-2">
                         <h3 className="text-xs font-semibold text-slate-500 px-3 py-1 uppercase">Utenti</h3>
                         {results.users.length > 0 ? results.users.map((user: any) => (
-                            <div key={user.id} className="flex items-center gap-3 p-2 hover:bg-overlay-hover rounded-lg cursor-pointer transition-colors">
-                                <div className="w-8 h-8 rounded-full bg-slate-700 flex items-center justify-center text-white text-xs">
-                                    <FiUser />
+                            <div key={user.id} className="flex items-center justify-between gap-3 p-2 hover:bg-overlay-hover rounded-lg transition-colors">
+                                <div className="flex items-center gap-3">
+                                    <div className="w-8 h-8 rounded-full bg-slate-700 flex items-center justify-center text-white text-xs">
+                                        <FiUser />
+                                    </div>
+                                    <span className="text-sm text-text-main">
+                                        {user.name} {user.surname}
+                                    </span>
                                 </div>
-                                <span className="text-sm text-text-main">{user.name} {user.surname}</span>
+                                {user.id !== activeUserId && (
+                                    <button
+                                        onClick={() => sendFriendRequest(user.id)}
+                                        className="px-2 py-1 text-xs rounded-lg bg-category-bg-color hover:bg-owner-color hover:text-white transition">
+                                        Add
+                                    </button>
+                                )}
                             </div>
                         )) : <p className="text-xs text-text-main px-3">Nessun utente trovato</p>}
                     </div>
