@@ -8,6 +8,8 @@ declare global {
   }
 }
 
+export let ws: WebSocket | null = null;
+
 function SignUp()
 {
     const [error, setError] = useState<string | null>(null);
@@ -51,7 +53,6 @@ function SignUp()
 
 			if (!response.ok) 
 			{
-				// TO DO: chiedere ai ragazi dei messaggi coerenti in csdo di errore
 				const errorMessage = data.error || 'Something went wrong';
                 setError(errorMessage);
                 return
