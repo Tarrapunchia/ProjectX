@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useEffect, useState, type ReactNode } from 'react';
+import React, { createContext, useContext, useEffect, useState, useRef, type ReactNode } from 'react';
 import consts from '../data/consts';
 import helpers from '../utilities/helpers';
 
@@ -51,6 +51,7 @@ export const WebSocketProvider: React.FC<{ children: ReactNode }> = ({ children 
 	const [friends, setFriends] = useState<Friend[]>([]);
 	const [messages, setMessages] = useState<Record<string, ChatMessage[]>>({});
 	const [myUserId, setMyUserId] = useState<number | null>(null);
+	const friendsRef = useRef<Friend[]>([]);
 
 	useEffect(() => {
 		const fetchMe = async () => {
@@ -59,6 +60,10 @@ export const WebSocketProvider: React.FC<{ children: ReactNode }> = ({ children 
 		};
 		fetchMe();
 	}, []);
+
+	useEffect(() => {
+		friendsRef.current = friends;
+	}, [friends]);
 
 	useEffect(() => {
 		if (myUserId === null) return;
@@ -87,11 +92,27 @@ export const WebSocketProvider: React.FC<{ children: ReactNode }> = ({ children 
 				if (messageData.type === "chat:message") {
 					const friendId = messageData.fromUserId;
 					const roomId = `private-${friendId}`;
+					const friend = friendsRef.current.find(f => f.id === friendId);
+
+					let finalContent = messageData.text;
+
+					if (typeof finalContent === 'string' && finalContent.startsWith('{')) {
+						const parsed = JSON.parse(finalContent);
+						if (parsed.text) finalContent = parsed.text;
+					}
+
+					if (friend) {
+						openFloatingChat({
+							roomId,
+							senderMail: friend.email,
+							type: 'private'
+						});
+					}
 
 					const newMessage: ChatMessage = {
 						id: Date.now(),
 						senderId: messageData.fromUserId,
-						content: messageData.text,
+						content: finalContent,
 						timestamp: messageData.ts
 					}
 

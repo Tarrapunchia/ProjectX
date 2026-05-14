@@ -29,6 +29,7 @@ export const ChatWindow = ({ isOpen, isDragging, pos, activeChat, friends, setAc
 	const [inputText, setInputText] = useState('');
 	const scrollRef = useRef<HTMLDivElement>(null);
 	const lastChatRef = useRef<FloatingChatInfo | null>(null);
+	const loadedRooms = useRef<Set<string>>(new Set());
 	const chatToDisplay = activeChat || lastChatRef.current;
 	const friend = friends?.find(friend => friend.email === chatToDisplay?.senderMail);
 	const roomId = chatToDisplay?.roomId;
@@ -49,8 +50,10 @@ export const ChatWindow = ({ isOpen, isDragging, pos, activeChat, friends, setAc
 	}, [currentMessages, isOpen]);
 
 	useEffect(() => {
-		if (isOpen && activeChat && friend && currentMessages.length === 0)
+		if (isOpen && activeChat && friend && !loadedRooms.current.has(activeChat.roomId)) {
 			loadHistory(activeChat.roomId, friend.id);
+			loadedRooms.current.add(activeChat.roomId);
+		}
 	}, [activeChat, isOpen, friend]);
 
 	const handleSendMessage = () => {
