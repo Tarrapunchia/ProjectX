@@ -85,4 +85,4 @@
 
 ## Fixes
 
-* Il server non manda un messaggio di broadcast agli amici quando un utente si disconnette (come stiamo notificando il login/logout agli utenti?)
+* Il server non manda un messaggio di broadcast agli amici quando un utente si connette o disconnette
