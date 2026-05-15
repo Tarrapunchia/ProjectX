@@ -1,24 +1,43 @@
 import type { FastifyInstance } from "fastify"
 
+// function setAuthCookie(reply: any, token: string) {
+//   const isProd = process.env.NODE_ENV === 'production'
+
+// //   reply.setCookie('session', token, {
+// //     httpOnly: true,
+// //     secure: isProd,                     // in dev: false
+// //     sameSite: isProd ? 'none' : 'lax', // se prod e cross-site -> none
+// //     path: '/',
+// //     maxAge: 60 * 60 * 24, // 1 giorno,
+// //   })
+
+//     // https
+//     reply.setCookie('session', token, {
+//         path: '/',
+//         httpOnly: true,
+//         secure: true,
+//         // secure: true,
+//         sameSite: 'none',
+//         maxAge: 60 * 60 * 24, // 1 giorno,
+//     })
+// }
+
 function setAuthCookie(reply: any, token: string) {
   const isProd = process.env.NODE_ENV === 'production'
 
-//   reply.setCookie('session', token, {
-//     httpOnly: true,
-//     secure: isProd,                     // in dev: false
-//     sameSite: isProd ? 'none' : 'lax', // se prod e cross-site -> none
-//     path: '/',
-//     maxAge: 60 * 60 * 24, // 1 giorno,
-//   })
+  reply.setCookie('session', token, {
+    path: '/',
+    httpOnly: true,
 
-    // https
-    reply.setCookie('session', token, {
-        path: '/',
-        httpOnly: true,
-        secure: true,
-        sameSite: 'none',
-        maxAge: 60 * 60 * 24, // 1 giorno,
-    })
+    // in dev (http) deve essere false, altrimenti il cookie non esiste
+    secure: isProd,                 
+
+    // in dev va bene LAX (stesso dominio localhost, anche se porta diversa)
+    // in prod cross-site -> 'none' (ma solo con https)
+    sameSite: isProd ? 'none' : 'lax',
+
+    maxAge: 60 * 60 * 24,
+  })
 }
 
 function getUserIdFromJWT(req: any, res: any, fastify: FastifyInstance) {

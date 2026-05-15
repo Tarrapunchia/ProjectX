@@ -64,6 +64,7 @@ const AuthGoogle: FastifyPluginAsync = async (fastify: FastifyInstance, opts) =>
                     googleId,
                     // googleSecret: di solito salva il refresh_token SE Google te lo manda
                     googleSecret: tokens.refresh_token ?? null,
+                    isLoggedIn: true,
                 },
                 create: {
                     name,
@@ -73,6 +74,7 @@ const AuthGoogle: FastifyPluginAsync = async (fastify: FastifyInstance, opts) =>
                     phone: '',
                     googleId,
                     googleSecret: tokens.refresh_token ?? null,
+                    isLoggedIn: true
                 },
             });
 
@@ -93,10 +95,14 @@ const AuthGoogle: FastifyPluginAsync = async (fastify: FastifyInstance, opts) =>
             const token = fastify.jwt.sign({ userId: user.id }, { expiresIn: '24h' })
             setAuthCookie(res, token)
 
+            
+            return res.redirect('http://localhost:5173/dashboard');
+            
             return res.send({
                 success: true,
                 user: { id: user.id, name: user.name, surname: user.surname, email: user.email },
             })
+
 
         } catch (err) {
             fastify.log.error(err);
