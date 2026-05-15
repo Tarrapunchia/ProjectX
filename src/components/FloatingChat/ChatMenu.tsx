@@ -52,7 +52,9 @@ export const ChatMenu = memo(({ isOpen, isDragging, pos, friends, activeChat, se
 
 	const filteredFriends = friends?.filter(friend => 
 						`${friend.name} ${friend.surname}`.toLowerCase().includes(searchQuery.toLowerCase())
-	) || [];
+	).sort((a, b) => {
+		return Number(b.isLoggedIn) - (Number(a.isLoggedIn));
+	}) || [];
 	
 	return (
 		<div 

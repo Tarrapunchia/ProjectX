@@ -30,6 +30,7 @@ export const ChatWindow = ({ isOpen, isDragging, pos, activeChat, friends, setAc
 	const scrollRef = useRef<HTMLDivElement>(null);
 	const lastChatRef = useRef<FloatingChatInfo | null>(null);
 	const loadedRooms = useRef<Set<string>>(new Set());
+	const inputRef = useRef<HTMLInputElement>(null);
 	const chatToDisplay = activeChat || lastChatRef.current;
 	const friend = friends?.find(friend => friend.email === chatToDisplay?.senderMail);
 	const roomId = chatToDisplay?.roomId;
@@ -55,6 +56,16 @@ export const ChatWindow = ({ isOpen, isDragging, pos, activeChat, friends, setAc
 			loadedRooms.current.add(activeChat.roomId);
 		}
 	}, [activeChat, isOpen, friend]);
+
+	useEffect(() => {
+		if (isOpen && activeChat) {
+			const timeout = setTimeout(() => {
+				inputRef.current?.focus();
+			}, 100);
+
+			return () => clearTimeout(timeout);
+		}
+	}, [isOpen, activeChat]);
 
 	const handleSendMessage = () => {
 		if (!inputText.trim() || !friend || !myUserId || !roomId) return;
@@ -155,6 +166,7 @@ export const ChatWindow = ({ isOpen, isDragging, pos, activeChat, friends, setAc
 			<div className="p-3 bg-side-bg-color border-t border-overlay-border-color shrink-0">
 				<div className="relative flex items-center">
 					<input
+						ref={inputRef}
 						type="text"
 						placeholder="Scrivi un messaggio..."
 						value={inputText}

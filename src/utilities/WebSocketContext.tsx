@@ -163,12 +163,10 @@ export const WebSocketProvider: React.FC<{ children: ReactNode }> = ({ children 
 	}
 
 	const send = (data: any) => {
-		if (socket && socket.readyState === WebSocket.OPEN) {
-			console.log("WS Sending:", data);
+		if (socket && socket.readyState === WebSocket.OPEN)
 			socket.send(JSON.stringify(data));
-		} else {
+		else
 			console.error("WS not ready. State", socket?.readyState);
-		}
 	};
 
 	const openFloatingChat = (chat: FloatingChatInfo) => {

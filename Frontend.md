@@ -80,3 +80,9 @@
 . grafico a torta sulla priorità delle task in basso a sinistra
 
 . tutte le nitifiche elencate tutto a destra
+
+
+
+## Fixes
+
+* Il server non manda un messaggio di broadcast agli amici quando un utente si disconnette (come stiamo notificando il login/logout agli utenti?)
