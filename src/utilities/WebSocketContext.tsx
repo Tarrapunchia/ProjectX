@@ -29,7 +29,7 @@ export interface Participant {
 }
 
 export interface Group {
-	id: number;
+	id: string;
 	name: string;
 	description: string;
 	createdAt: Date;

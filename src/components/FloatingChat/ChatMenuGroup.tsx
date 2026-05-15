@@ -36,7 +36,7 @@ export const ChatMenuGroup = ({ groups, setActiveChat }: ChatMenuGroupProps) => 
 							key={group.id}
 							onClick={() => {
 								const newChat: FloatingChatInfo = {
-									roomId: `group-${group.id}`,
+									roomId: group.id,
 									senderMail: `${group.name}`,
 									type: 'group'
 								};
