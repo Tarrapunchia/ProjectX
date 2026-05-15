@@ -151,7 +151,7 @@ export default function PriorityChart({ taskData }: { taskData: TaskInfos }) {
 				className="relative border-l-2 pl-2 text-sm leading-tight group"
 				style={{ borderColor: borderColor }}
 				>
-				<div className="flex flex-col p-2 border rounded-lg border-overlay-border-color hover:border-white transition-colors shadow-sm ">
+				<div className="flex flex-col p-2 border rounded-lg border-overlay-border-color hover:border-text-main transition-colors shadow-sm ">
 					<span className="text-xs font-semibold text-text-main truncate">
 					{task.name}
 					</span>

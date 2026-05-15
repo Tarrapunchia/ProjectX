@@ -8,6 +8,8 @@ declare global {
   }
 }
 
+export let ws: WebSocket | null = null;
+
 function SignUp()
 {
     const [error, setError] = useState<string | null>(null);
@@ -31,7 +33,8 @@ function SignUp()
 			const passwordRepeat = reapetedpwRef.current?.value
             const isTermsAccepted = termsRef.current?.checked;
             //Segnalare che sono obbligatori anche se non dovrebbero
-			const phone = "00078"
+			const rand2 = Math.floor(Math.random() * 90) + 10;
+            const phone = `+1234567${rand2}`;
 			const jobQualifier = "developer"
 
             if (!isTermsAccepted) {
@@ -50,7 +53,6 @@ function SignUp()
 
 			if (!response.ok) 
 			{
-				// TO DO: chiedere ai ragazi dei messaggi coerenti in csdo di errore
 				const errorMessage = data.error || 'Something went wrong';
                 setError(errorMessage);
                 return

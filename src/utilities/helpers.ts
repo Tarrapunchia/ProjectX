@@ -30,10 +30,11 @@ const poster = async (api: string, body: any)
             {
                 method: 'POST',
                 headers: { 
-                    "Accept": 'application/json' 
+                    "Accept": 'application/json',
+                    "Content-Type": "application/json"
                 },
                 credentials: 'include',
-                body: body
+                body: JSON.stringify(body)
             }
         )
         if (res.ok) {
@@ -52,13 +53,13 @@ const putter = async (api: string, body: any): Promise<{ success: boolean, data:
         const res = await fetch(
             `${CONSTS.BE + api}`,
             {
-                method: 'PUT', // Cambiato in PUT
+                method: 'PUT',
                 headers: { 
                     "Accept": 'application/json',
-                    "Content-Type": 'application/json' // Fondamentale per inviare JSON
+                    "Content-Type": 'application/json'
                 },
                 credentials: 'include',
-                body: JSON.stringify(body) // Trasformiamo l'oggetto in stringa JSON
+                body: JSON.stringify(body)
             }
         )
         
