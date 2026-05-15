@@ -1,4 +1,4 @@
-import { FiUsers, FiUser, FiSearch } from 'react-icons/fi';
+import { FiUsers, FiUser } from 'react-icons/fi';
 import { useState, memo } from 'react';
 import { type FloatingChatInfo } from '../../utilities/WebSocketContext';
 import { ChatMenuPrivate } from './ChatMenuPrivate';
@@ -48,7 +48,6 @@ export const ChatMenu = memo(({ isOpen, isDragging, pos, friends, activeChat, se
 	const { horizontalClass, verticalClass, originKey } = getFloatingLayout(pos, menuSize);
 
 	const [activeTab, setActiveTab] = useState('friends');
-	const [searchQuery, setSearchQuery] = useState('');
 	
 	return (
 		<div 
@@ -90,27 +89,11 @@ export const ChatMenu = memo(({ isOpen, isDragging, pos, friends, activeChat, se
 					/>
 				</button>
 			</div>
-				{activeTab === 'friends' && (
-					<div className="px-2 pt-2 border-overlay-border-color bg-side-bg-color/30">
-						<div className="relative flex items-center">
-							<FiSearch className="absolute left-3 text-gray-400" size={16} />
-							<input
-								type="text"
-								placeholder="Cerca amici..."
-								value={searchQuery}
-								onChange={(e) => setSearchQuery(e.target.value)}
-								className="w-full pl-9 pr-4 py-1.5 text-xs rounded-full bg-bg-color border border-overlay-border-color focus:outline-none focus:border-owner-color text-text-main transition-colors"
-							/>
-						</div>
-					</div>
-				)}
-
-				<div className="flex-1 overflow-y-auto p-2"> 
+				<div className="flex-1 overflow-y-auto"> 
 				{activeTab === 'friends' ? (
 					<ChatMenuPrivate 
 						friends= {friends}
 						setActiveChat= {setActiveChat}
-						searchQuery= {searchQuery}
 					/>
 				) : (
 					<div className="animate-fadeIn p-4 text-center opacity-50">
