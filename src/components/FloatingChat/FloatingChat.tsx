@@ -14,7 +14,7 @@ function FloatingChat() {
 	const [showTrash, setShowTrash] = useState(false);
 	const [isOverTrash, setIsOverTrash] = useState(false);
 	const [activeChat, setActiveChat] = useState<FloatingChatInfo | null>(null);
-	const { friends, closeFloatingChat } = useWebSocket();
+	const { friends, groups, closeFloatingChat } = useWebSocket();
 	
 	const offset = useRef({ x: 0, y: 0});
 	const hasMoved = useRef(false);
@@ -172,6 +172,7 @@ function FloatingChat() {
 				isDragging={isDragging}
 				pos={pos}
 				friends={friends || []}
+				groups={groups || []}
 				activeChat={activeChat}
 				setActiveChat={setActiveChat}
 			/>

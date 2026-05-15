@@ -12,6 +12,31 @@ export interface Friend {
 	avatarUrl: string;
 }
 
+export interface GroupUser {
+	id: number;
+	name: string;
+	surname: string;
+	email: string;
+	avatarUrl: string;
+	isLoggedIn: boolean;
+}
+
+export interface Participant {
+	userId: number;
+	groupId: number;
+	createdAt: string;
+	user: GroupUser;
+}
+
+export interface Group {
+	id: number;
+	name: string;
+	description: string;
+	createdAt: Date;
+	closedAt: string | null;
+	participants: Participant[];
+}
+
 export interface FloatingChatInfo {
 	roomId: string;
 	senderMail: string;
@@ -35,6 +60,8 @@ interface WebSocketContextType {
 	openFloatingChat: (chat: FloatingChatInfo) => void;
 	closeFloatingChat: (roomId: string) => void;
 	friends: Friend[];
+	groups: Group[];
+	loadGroups: () => Promise<void>;
 
 	messages: Record<string, ChatMessage[]>;
 	setMessages: React.Dispatch<React.SetStateAction<Record<string, ChatMessage[]>>>;
@@ -49,6 +76,7 @@ export const WebSocketProvider: React.FC<{ children: ReactNode }> = ({ children 
 	const [isReady, setIsReady] = useState(false);
 	const [floatingChats, setFloatingChats] = useState<FloatingChatInfo[]>([]);
 	const [friends, setFriends] = useState<Friend[]>([]);
+	const [groups, setGroups] = useState<Group[]>([]);
 	const [messages, setMessages] = useState<Record<string, ChatMessage[]>>({});
 	const [myUserId, setMyUserId] = useState<number | null>(null);
 	const friendsRef = useRef<Friend[]>([]);
@@ -71,6 +99,7 @@ export const WebSocketProvider: React.FC<{ children: ReactNode }> = ({ children 
 		const ws = new WebSocket(consts.WS);
 
 		loadFriends();
+		loadGroups();
 
 		ws.onopen = () => {
 			console.log("WS connected via Context");
@@ -160,7 +189,15 @@ export const WebSocketProvider: React.FC<{ children: ReactNode }> = ({ children 
 		const response = await helpers.getter('/api/v1/friends/ACCEPTED', null);
 		if (response.success)
 			setFriends(response.data.friends);
-	}
+	};
+
+	const loadGroups = async () => {
+		const response = await helpers.getter('/api/v1/groups/joined', null);
+		if (response.success) {
+			const joinedGroups: Group[] = response.data.groups.map((item: any) => item.group);
+			setGroups(joinedGroups);
+		}
+	};
 
 	const send = (data: any) => {
 		if (socket && socket.readyState === WebSocket.OPEN)
@@ -193,6 +230,8 @@ export const WebSocketProvider: React.FC<{ children: ReactNode }> = ({ children 
 			openFloatingChat,
 			closeFloatingChat,
 			friends,
+			groups,
+			loadGroups,
 			messages,
 			setMessages,
 			loadHistory,
