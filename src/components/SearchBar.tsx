@@ -70,7 +70,7 @@ const SearchBar: React.FC<SearchBarProps> = ({ activeUserId }) => {
     };
 
     return (
-        <div ref={searchWrapperRef} className="relative w-full max-w-50 md:max-w-75 mr-6">
+        <div ref={searchWrapperRef} className="relative max-w-50 md:max-w-75 mr-12">
             <span className="absolute inset-y-0 left-3 flex items-center pointer-events-none text-slate-400">
                 {loading ? <FiLoader className="animate-spin" size={18} /> : <FiSearch size={18} />}
             </span>
@@ -82,12 +82,13 @@ const SearchBar: React.FC<SearchBarProps> = ({ activeUserId }) => {
                     setQuery(e.target.value);
                     if (e.target.value.length > 0) setShowDropdown(true);
                 }}
-                // 4. Se clicchi per scrivere e c'è del testo, riapre il dropdown
+                
                 onFocus={() => {
                     if (query.length > 0) setShowDropdown(true);
                 }}
                 placeholder="Search..."
-                className="w-full pl-10 pr-4 py-2 bg-bg-color border border-overlay-border-color rounded-full text-sm text-text-main placeholder-slate-500 focus:outline-none focus:border-border-focus transition-all duration-200"
+                className="w-[70%] pl-10 pr-4 py-2 bg-bg-color border border-overlay-border-color rounded-full text-sm text-text-main 
+                placeholder-slate-500 focus:outline-none focus:border-border-focus focus:w-full transition-all duration-200"
             />
 
             {showDropdown && query.length > 0 && (

@@ -17,19 +17,16 @@ const priorityColors: Record<Priority, string> = {
 
 const PRIORITIES: Priority[] = ["NONE", "LOW", "MEDIUM", "HIGH", "CRITICAL"];
 
-export default function PriorityChart({ taskData }: { taskData: TaskInfos }) {
-  if (!taskData) return null;
-
-  // --- LOGICA RESPONSIVE ---
+export default function PriorityChart({ taskData }: { taskData: TaskInfos | null }) 
+{
   const [isMobile, setIsMobile] = useState(typeof window !== "undefined" ? window.innerWidth < 768 : false);
 
-  useEffect(() => {
+  useEffect(() => 
+  {
     const handleResize = () => setIsMobile(window.innerWidth < 768);
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
   }, []);
-  
-  // --------------------------
 
   const [textColor, setTextColor] = useState("#000");
 
@@ -40,10 +37,8 @@ export default function PriorityChart({ taskData }: { taskData: TaskInfos }) {
       setTextColor(c || "#000");
     };
 
-    // Prima lettura iniziale
     readColor();
 
-    // Osserva cambiamenti di class su <html>
     const observer = new MutationObserver(() => {
       readColor();
     });
@@ -55,6 +50,18 @@ export default function PriorityChart({ taskData }: { taskData: TaskInfos }) {
 
     return () => observer.disconnect();
   }, []);
+
+  if (!taskData || taskData.tasks.length === 0) 
+  {
+    return (
+      <div className="flex-col items-center justify-center h-full text-text-main">
+          <h2 className="text-lg mt-4 text-text-main font-semibold flex justify-center shrink-0">
+              Priority Distribution
+          </h2>
+          <p className="text-center text-gray-500 text-sm mt-12">Nothing to chart yet.</p>
+      </div>
+    );
+  }
 
   const [activePriorities, setActivePriorities] = useState<Priority[]>(PRIORITIES);
 
@@ -126,15 +133,14 @@ export default function PriorityChart({ taskData }: { taskData: TaskInfos }) {
 
   return (
   
-	<div className="h-full relative border border-overlay-border-color rounded-lg shadow p-4 grid grid-cols-[1.2fr_1fr] gap-4 max-h-full text-text-main overflow-hidden">
+	<div className="h-full relative p-4 grid grid-cols-[1.2fr_1fr] gap-4 max-h-full text-text-main overflow-hidden">
       
-		{/* SEZIONE GRAFICO */}
 		<div className="relative w-full h-full min-h-0 overflow-hidden text-text-main">
 			{taskData && taskData.tasks.length > 0 ? (
 			<Pie data={chartData} options={options} />
 			) : (
 			<div className="flex items-center justify-center h-full text-text-main text-sm">
-				Loading chart...
+			    <p className="text-center text-gray-500 text-sm mt-10">Nothing to chart yet.</p>
 			</div>
 			)}
 		</div>
@@ -181,8 +187,8 @@ export default function PriorityChart({ taskData }: { taskData: TaskInfos }) {
 			{/* Messaggio fallback se non ci sono task filtrati */}
 			{taskData.tasks.length > 0 && filteredTasks.length === 0 && (
 			<div className="flex flex-col items-center justify-center py-4 opacity-50 h-full">
-				<span className="text-[10px] font-bold text-white uppercase tracking-widest text-center">
-				No tasks
+				<span className="text-[12px] font-bold text-text-main uppercase tracking-widest text-center">
+				  No tasks selected with current priority filters.
 				</span>
 			</div>
 			)}

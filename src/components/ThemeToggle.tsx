@@ -20,7 +20,7 @@ function ThemeToggle() {
 	return (
 		<button	
 			onClick={() => setIsDark(!isDark)}
-			className="fixed top-5 right-110 p-3 rounded-full bg-category-bg-color shadow-lg hover:scale-110 transition-all duration-300 border border-overlay-border-color cursor-pointer focus:outline-none hover:border-border-focus"
+			className="fixed top-5 right-95 p-3 rounded-full bg-category-bg-color shadow-lg hover:scale-110 transition-all duration-300 border border-overlay-border-color cursor-pointer focus:outline-none hover:border-border-focus"
 			aria-label="Toggle Theme"
 		>
 			{isDark ? (

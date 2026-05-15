@@ -7,6 +7,7 @@ import ChatPage from '../chatRoomPage/chatRoomPage';
 import DashboardProfile from '../dashboardProfile/dashboardProfile'
 import DocumentsPage from '../DocumentsPage/DocumentsPage';
 import LibraryPage from '../libraryPage/libraryPage'
+import SettingsPage from '../settingsPage/settingsPage';
 import type { ProjectInfo } from '../../data/types';
 import { WebSocketProvider } from '../../utilities/WebSocketContext'
 import FloatingChat from '../../components/FloatingChat/FloatingChat';
@@ -33,7 +34,7 @@ function DashboardPage() {
 	
     return (
 		<WebSocketProvider>
-			<div className="grid h-screen overflow-hidden grid-cols-[70px_1fr] md:grid-cols-[10vw_1fr] grid-rows-[auto_1fr_auto] [grid-template-areas:'sidebar_header''sidebar_main''sidebar_footer']">
+			<div className="grid h-screen overflow-hidden grid-cols-[75px_1fr] md:grid-cols-[11vw_1fr] grid-rows-[auto_1fr_auto] [grid-template-areas:'sidebar_header''sidebar_main''sidebar_footer']">
 				<Header className="[grid-area:header]" setActivePage={setActivePage} selectedProject={selectedProject}/>
 				<Sidebar className="[grid-area:sidebar]" setActivePage={setActivePage} />
 				<main className="[grid-area:main] p-[20px] overflow-y-auto h-full min-w-0">
@@ -41,11 +42,10 @@ function DashboardPage() {
 					{ activePage === 'documents' && <DocumentsPage selectedProject={selectedProject}/> }
 					{ activePage === 'tasks' && <p>Tasks (WIP)</p>}
 					{/* { activePage === 'organization' && <ProjectsPage setActivePage={setActivePage} setSelectedProject={setSelectedProject}/> } */}
-
 					{ activePage === 'projects' && <ProjectsPage setActivePage={setActivePage} setSelectedProject={setSelectedProject}/> }
 					{ activePage === 'chat' && <ChatPage selectedProject={selectedProject}/> }
 					{ activePage === 'files' && <LibraryPage selectedProject={selectedProject}/> }
-					{ activePage === 'settings' && <p>Settings (WIP)</p> }
+					{ activePage === 'settings' && <SettingsPage /> }
 					{ activePage === 'profile' && <ProfilePage /> }
 				</main>
 				<footer className="[grid-area:footer] bg-side-bg-color text-text-main py-2.5 px-5 text-center w-full border-t border-overlay-border-color min-w-0">

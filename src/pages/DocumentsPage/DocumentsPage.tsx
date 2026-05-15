@@ -45,12 +45,15 @@ export default function DocumentsPage({ selectedProject }: ChatPageProps)
 	const [projectData, setProjectData] = useState<any>(null);
 	const [activeUser, setActiveUser] = useState<any>(null);
 
-	const initData = async () => {
-		try {
+	const initData = async () => 
+	{
+		try 
+		{
 			const userData = (await helpers.getter("/api/v1/users/activeUser", null)).data;
 			setActiveUser(userData);
 
-			if (!selectedProject) return { user: userData, project: null };
+			if (!selectedProject) 
+				return { user: userData, project: null };
 
 			const pData = (await helpers.getter("/api/v1/projects/" + selectedProject.id, null)).data;
 			setProjectData(pData);
@@ -162,14 +165,13 @@ export default function DocumentsPage({ selectedProject }: ChatPageProps)
         }
     };
 
-    // ... resto del componente
-
-	useEffect(() => {
-		const sequence = async () => {
-			// Aspettiamo che initData finisca e prendiamo i risultati freschi
+	useEffect(() => 
+	{
+		const sequence = async () => 
+		{
 			const results = await initData();
 			
-			if (results && results.project && results.user) 
+			if (results) 
 			{
 				checkPermissions(results.project, results.user);
 				loadFiles(results.project);
@@ -181,14 +183,14 @@ export default function DocumentsPage({ selectedProject }: ChatPageProps)
 
 
 	if (!selectedProject)
-		return <div className="flex h-full items-center justify-center text-zinc-500">Select a project.</div>
+		return (<div className="flex h-full items-center justify-center text-zinc-500">Select a project.</div>);
 
 	if (!files.length)
 		return (
 			<div className="relative flex h-full w-full items-center justify-center text-zinc-500 ">
 				
 				<div className="absolute top-0 left-0 w-full flex justify-between items-center">
-					<h1 className="text-base font-bold text-text-main">
+					<h1 className="text-xs font-bold text-text-main">
 						Project Documents
 					</h1>
 
@@ -202,8 +204,7 @@ export default function DocumentsPage({ selectedProject }: ChatPageProps)
 							/>
 							<button 
 								className="border border-category-bg-color bg-side-bg-color rounded-lg px-3 py-1 text-m text-text-main cursor-pointer hover:scale-105 hover:border-text-main transition-all"
-								onClick={() => fileInputRef.current?.click()}
-							>
+								onClick={() => fileInputRef.current?.click()}>
 								📤 Upload Files
 							</button>
 						</div>
@@ -223,7 +224,7 @@ export default function DocumentsPage({ selectedProject }: ChatPageProps)
 		<div className="min-w-0 custom-scrollbar">
 			{/* INTESTAZIONE CON BOTTONE CONDIZIONALE */}
 			<div className="flex justify-between items-center ">
-                <h1 className="text-base font-bold text-text-main">Project Documents</h1>
+                <h1 className="text-xs font-bold text-text-main">Project Documents</h1>
 				{isOwner && (
 					<>
 						<input 

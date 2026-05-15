@@ -2,7 +2,6 @@ import { useState, useEffect } from "react";
 
 export interface ExtraProfileData 
 {
-
 	jobQualifier: string;
 	phone: string;
 	city: string;

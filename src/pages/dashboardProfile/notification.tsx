@@ -124,7 +124,7 @@ export default function Notification() {
                 {notifications.length > 0 ? (
                     notifications.map(renderNotification)
                 ) : (
-                    <p className="text-center text-gray-500 text-sm mt-10">No pending requests</p>
+                    <p className="text-center text-gray-500 text-sm mt-10">No pending requests.</p>
                 )}
             </div>
         </div>

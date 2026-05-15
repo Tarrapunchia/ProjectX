@@ -63,7 +63,6 @@ function Header({ setActivePage, selectedProject, className }: HeaderProps) {
 				{selectedProject ? selectedProject.name : 'Dashboard'}
 			</h1>
 			<ThemeToggle />
-			
 			<SearchBar activeUserId={userInfo.id}/>
 			<button 
 				onClick={() => setActivePage('profile')}
