@@ -28,12 +28,12 @@ model User {
   name         String
   surname      String
   email        String   @unique
-  phone        String?  @unique
+  phone        String?
   city         String?
   address      String?
   cap          String?
   state        String?
-  jobQualifier String
+  jobQualifier String?
 
   avatarUrl    String   @default("/avatar/default.png")
 

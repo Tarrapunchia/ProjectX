@@ -245,7 +245,7 @@ const createUser: Schema = {
         cap: { type: 'string', nullable: true },
         state: { type: 'string', nullable: true },
         },
-        required: ['name', 'surname', 'email', 'phone', 'jobQualifier', 'password', 'passwordRepeat'],
+        required: ['name', 'surname', 'email', 'password', 'passwordRepeat'],
     },
     response: {
         201: {

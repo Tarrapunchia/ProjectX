@@ -1,83 +1,126 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="it">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Upload test</title>
+  <style>
+    body { font-family: system-ui, Arial, sans-serif; margin: 24px; }
+    form { border: 1px solid #ddd; border-radius: 10px; padding: 14px; margin: 14px 0; max-width: 720px; }
+    label { display:block; margin-top: 10px; font-weight: 600; }
+    input { padding: 8px 10px; margin-top: 6px; width: 100%; box-sizing: border-box; }
+    button { margin-top: 12px; padding: 10px 14px; cursor: pointer; }
+    .row { display:flex; gap: 12px; }
+    .row > div { flex: 1; }
+    .hint { color:#666; font-size: 12px; margin-top: 6px; }
+    pre { background:#fafafa; border:1px solid #eee; padding:10px; border-radius:10px; max-width: 720px; overflow:auto; }
+    h2 { margin-top: 24px; }
+  </style>
 </head>
 <body>
-      <h1>Test upload multipart/form-data</h1>
+  <h1>Test upload multipart/form-data</h1>
 
-  <form id="uploadForm">
-    <label for="apiUrl">API URL</label>
-    <input id="apiUrl" value="http://localhost:5000/api/upload" />
-    <div class="hint">Cambia il path se la tua route ha un prefix diverso.</div>
+  <!-- FORM A: orgId + projectId + file -->
+  <h2>Upload con organizationId / projectId</h2>
+  <form id="uploadFormA">
+    <label for="apiUrlA">API URL</label>
+    <input id="apiUrlA" value="http://localhost:5000/api/v1/files/" />
+    <div class="hint">Invia: organizationId (+ projectId opzionale) + file</div>
 
     <div class="row">
       <div>
-        <label for="organizationId">organizationId</label>
-        <input id="organizationId" placeholder="es. 42" required />
+        <label for="organizationIdA">organizationId</label>
+        <input id="organizationIdA" placeholder="es. 42" required />
       </div>
       <div>
-        <label for="projectId">projectId (opzionale)</label>
-        <input id="projectId" placeholder="es. 7" />
+        <label for="projectIdA">projectId (opzionale)</label>
+        <input id="projectIdA" placeholder="es. 7" />
       </div>
     </div>
 
-    <label for="fileInput">File</label>
-    <input id="fileInput" type="file" required />
+    <label for="fileInputA">File</label>
+    <input id="fileInputA" type="file" required />
 
-    <button type="submit">Upload</button>
+    <button type="submit">Upload A</button>
   </form>
 
-  <h3>Risposta</h3>
-  <pre id="out">—</pre>
+  <h3>Risposta A</h3>
+  <pre id="outA">—</pre>
+
+  <!-- FORM B: solo file -->
+  <h2>Upload solo file, per Avatar</h2>
+  <form id="uploadFormB">
+    <label for="apiUrlB">API URL</label>
+    <input id="apiUrlB" value="http://localhost:5000/api/v1/files/avatar" />
+    <div class="hint">Invia: solo file</div>
+
+    <label for="fileInputB">File</label>
+    <input id="fileInputB" type="file" required />
+
+    <button type="submit">Upload B</button>
+  </form>
+
+  <h3>Risposta B</h3>
+  <pre id="outB">—</pre>
 
   <script>
-    const form = document.getElementById('uploadForm');
-    const out = document.getElementById('out');
-
-    form.addEventListener('submit', async (e) => {
-      e.preventDefault();
-      out.textContent = 'Uploading...';
-
-      const apiUrl = document.getElementById('apiUrl').value.trim();
-      const organizationId = document.getElementById('organizationId').value.trim();
-      const projectId = document.getElementById('projectId').value.trim();
-      const fileInput = document.getElementById('fileInput');
-
-      if (!organizationId) {
-        out.textContent = 'organizationId è obbligatorio';
-        return;
-      }
-      if (!fileInput.files || fileInput.files.length === 0) {
-        out.textContent = 'Seleziona un file';
-        return;
-      }
-
-      const fd = new FormData();
-      fd.append('organizationId', organizationId);
-      if (projectId) fd.append('projectId', projectId);
-      fd.append('file', fileInput.files[0]);
+    async function postFormData({ apiUrl, fd, outEl }) {
+      outEl.textContent = "Uploading...";
 
       try {
-        const resp = await fetch('https://localhost:5000/api/v1/files/', {
-          method: 'POST',
+        const resp = await fetch(apiUrl, {
+          method: "POST",
           body: fd,
-          credentials: 'include', // importante se usi cookie HttpOnly "session"
+          credentials: "include",
         });
 
         const text = await resp.text();
-        // prova a parse JSON se possibile
         try {
           const json = JSON.parse(text);
-          out.textContent = `HTTP ${resp.status}\n` + JSON.stringify(json, null, 2);
+          outEl.textContent = `HTTP ${resp.status}\n` + JSON.stringify(json, null, 2);
         } catch {
-          out.textContent = `HTTP ${resp.status}\n` + text;
+          outEl.textContent = `HTTP ${resp.status}\n` + text;
         }
       } catch (err) {
-        out.textContent = String(err);
+        outEl.textContent = String(err);
       }
+    }
+
+    // ===== FORM A =====
+    document.getElementById("uploadFormA").addEventListener("submit", async (e) => {
+      e.preventDefault();
+
+      const apiUrl = document.getElementById("apiUrlA").value.trim();
+      const organizationId = document.getElementById("organizationIdA").value.trim();
+      const projectId = document.getElementById("projectIdA").value.trim();
+      const fileInput = document.getElementById("fileInputA");
+      const outEl = document.getElementById("outA");
+
+      if (!organizationId) { outEl.textContent = "organizationId è obbligatorio"; return; }
+      if (!fileInput.files || fileInput.files.length === 0) { outEl.textContent = "Seleziona un file"; return; }
+
+      const fd = new FormData();
+      fd.append("organizationId", organizationId);
+      if (projectId) fd.append("projectId", projectId);
+      fd.append("file", fileInput.files[0]);
+
+      await postFormData({ apiUrl, fd, outEl });
+    });
+
+    // ===== FORM B =====
+    document.getElementById("uploadFormB").addEventListener("submit", async (e) => {
+      e.preventDefault();
+
+      const apiUrl = document.getElementById("apiUrlB").value.trim();
+      const fileInput = document.getElementById("fileInputB");
+      const outEl = document.getElementById("outB");
+
+      if (!fileInput.files || fileInput.files.length === 0) { outEl.textContent = "Seleziona un file"; return; }
+
+      const fd = new FormData();
+      fd.append("file", fileInput.files[0]);
+
+      await postFormData({ apiUrl, fd, outEl });
     });
   </script>
 </body>
