@@ -67,6 +67,15 @@ const Posters: FastifyPluginAsync = async (fastify: FastifyInstance, opts) => {
             status: 'PENDING',
           },
         })
+        // WS realtime verso receiver
+        fastify.wsSendToUser(targetUserId, {
+          type: "friend:request",
+          requestId: fr.id,
+          fromUserId: authUser,
+          status: "PENDING",
+          notificationId: existing.id,
+          ts: Date.now(),
+        });
         }
       }
 
