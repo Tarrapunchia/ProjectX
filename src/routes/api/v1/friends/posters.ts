@@ -58,6 +58,16 @@ const Posters: FastifyPluginAsync = async (fastify: FastifyInstance, opts) => {
           reply.code(403);
           return { error: "Friendship is blocked" };
         }
+        if (existing.status === 'REJECTED') {
+        const fr = await fastify.prisma.friendship.update({
+          where: { id: existing.id },
+          data: {
+            senderId: authUser,
+            receiverId: targetUserId,
+            status: 'PENDING',
+          },
+        })
+        }
       }
 
       try {
