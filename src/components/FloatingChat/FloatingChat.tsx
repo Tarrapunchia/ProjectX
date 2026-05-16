@@ -14,7 +14,7 @@ function FloatingChat() {
 	const [showTrash, setShowTrash] = useState(false);
 	const [isOverTrash, setIsOverTrash] = useState(false);
 	const [activeChat, setActiveChat] = useState<FloatingChatInfo | null>(null);
-	const { friends, closeFloatingChat } = useWebSocket();
+	const { friends, groups, closeFloatingChat } = useWebSocket();
 	
 	const offset = useRef({ x: 0, y: 0});
 	const hasMoved = useRef(false);
@@ -23,6 +23,7 @@ function FloatingChat() {
 	const avatarHasMoved = useRef(false);
 	const hiddenChatId = showTrash && draggedChat ? draggedChat.roomId : null;
 	const draggedFriend = friends?.find(f => f.email === draggedChat?.senderMail);
+	const draggedGroup = groups?.find(g => g.id === draggedChat?.roomId);
 
 	useEffect(() => {
 		const handleMouseMove = (e: MouseEvent) => {
@@ -122,33 +123,54 @@ function FloatingChat() {
 			onMouseUp={ () => setIsDragging(false) }
 		>
 			{draggedChat && (
-				<div
+				draggedChat.type === 'private' ? (
+					<div
 					className={`fixed pointer-events-none z-60 w-12 h-12 rounded-full border-2 overflow-hidden
-								${isOverTrash ? 'border-red-500 bg-red-950/80 scale-90' : 'border-owner-color bg-side-bg-color'}`}
-					style={{
-						left: draggedPos.x,
-						top: draggedPos.y,
-						transform: 'translate(-50%, -50%)',
-						opacity: avatarHasMoved.current ? 1 : 0
-					}}
-				>
-					<div className="w-full h-full flex items-center justify-center text-owner-color font-bold">
-						{draggedFriend?.avatarUrl && draggedFriend.avatarUrl !== '/avatar/default.png' ? (
-							<img src={draggedFriend.avatarUrl} alt="" className="w-full h-full object-cover" />
-						) : (
-							<span className="text-lg uppercase">
-								{draggedFriend?.name?.charAt(0)}{draggedFriend?.surname?.charAt(0)}
-							</span>
-						)}
-					</div>
-				</div>
+						${isOverTrash ? 'border-red-500 bg-red-950/80 scale-90' : 'border-owner-color bg-side-bg-color'}`}
+						style={{
+							left: draggedPos.x,
+							top: draggedPos.y,
+							transform: 'translate(-50%, -50%)',
+							opacity: avatarHasMoved.current ? 1 : 0
+						}}
+						>
+							<div className="w-full h-full flex items-center justify-center text-owner-color font-bold">
+								{draggedFriend?.avatarUrl && draggedFriend.avatarUrl !== '/avatar/default.png' ? (
+									<img src={draggedFriend.avatarUrl} alt="" className="w-full h-full object-cover" />
+								) : (
+									<span className="text-lg uppercase">
+										{draggedFriend?.name?.charAt(0)}{draggedFriend?.surname?.charAt(0)}
+									</span>
+								)}
+							</div>
+						</div>
+					) : (
+						<div
+						className={`fixed pointer-events-none z-60 w-12 h-12 rounded-md border-2 overflow-hidden
+						${isOverTrash ? 'border-red-500 bg-red-950/80 scale-90' : 'border-owner-color bg-side-bg-color'}`}
+						style={{
+							left: draggedPos.x,
+							top: draggedPos.y,
+							transform: 'translate(-50%, -50%)',
+							opacity: avatarHasMoved.current ? 1 : 0
+						}}
+						>
+							<div className="w-full h-full flex items-center justify-center text-owner-color font-bold">
+								<span className="text-lg uppercase">
+									{draggedGroup?.name?.charAt(0)}
+								</span>
+							</div>
+						</div>
+					)
 			)}
+
 			<ChatBox 
 				isOpen={isOpen}
 				isDragging={isDragging}
 				hiddenChatId={hiddenChatId}
 				pos={pos.y}
 				friends={friends || []}
+				groups={groups || []}
 				activeChat={activeChat}
 				setActiveChat={setActiveChat}
 				onAvatarDragStart={(chat, x, y) => {
@@ -172,6 +194,7 @@ function FloatingChat() {
 				isDragging={isDragging}
 				pos={pos}
 				friends={friends || []}
+				groups={groups || []}
 				activeChat={activeChat}
 				setActiveChat={setActiveChat}
 			/>

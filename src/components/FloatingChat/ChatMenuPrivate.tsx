@@ -1,16 +1,6 @@
 import { useState } from 'react';
-import { useWebSocket, type FloatingChatInfo } from '../../utilities/WebSocketContext';
+import { useWebSocket, type FloatingChatInfo, type Friend } from '../../utilities/WebSocketContext';
 import { FiUser, FiSearch } from 'react-icons/fi';
-
-interface Friend {
-	id: number;
-	name: string;
-	surname: string;
-	email: string;
-	jobQualifier: string;
-	isLoggedIn: boolean;
-	avatarUrl: string;
-}
 
 interface ChatMenuPrivateProps {
 	friends: Friend[];
@@ -30,7 +20,7 @@ export const ChatMenuPrivate = ({ friends, setActiveChat }: ChatMenuPrivateProps
 
 	return (
 		<div>
-			<div className="px-2 pt-2 border-overlay-border-color bg-side-bg-color/30">
+			<div className="px-2 pt-2 bg-bg-color">
 				<div className="relative flex items-center">
 					<FiSearch className="absolute left-3 text-gray-400" size={16} />
 					<input

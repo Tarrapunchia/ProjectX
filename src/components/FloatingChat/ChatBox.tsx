@@ -2,6 +2,8 @@ import { memo } from 'react';
 import { menuSize } from './ChatMenu';
 import { buttonSize } from './ChatButton';
 import { useWebSocket, type FloatingChatInfo } from '../../utilities/WebSocketContext';
+import { ChatBoxPrivate } from './ChatBoxPrivate';
+import { ChatBoxGroup } from './ChatBoxGroup';
 
 interface ChatBoxProps {
 	isOpen: boolean;
@@ -9,12 +11,13 @@ interface ChatBoxProps {
 	hiddenChatId: string | null;
 	pos: number;
 	friends: any[];
+	groups: any[];
 	activeChat: FloatingChatInfo | null;
 	setActiveChat: (chat: FloatingChatInfo | null) => void;
 	onAvatarDragStart: (chat: FloatingChatInfo, clientX: number, clientY: number) => void;
 }
 
-export const ChatBox = memo(({ isOpen, isDragging, hiddenChatId, pos, friends, activeChat, setActiveChat, onAvatarDragStart }: ChatBoxProps) => {
+export const ChatBox = memo(({ isOpen, isDragging, hiddenChatId, pos, friends, groups, activeChat, setActiveChat, onAvatarDragStart }: ChatBoxProps) => {
 	const { floatingChats } = useWebSocket();
 	
 	const openDown = pos - (menuSize.y + 20) < 0;
@@ -40,39 +43,27 @@ export const ChatBox = memo(({ isOpen, isDragging, hiddenChatId, pos, friends, a
 					${origins[originKey]}
 					${isOpen && !isDragging ? 'scale-100 opacity-100' : 'scale-0 opacity-0 pointer-events-none'}`}
 		>
-			{floatingChats.map((chat) => {
-				const friend = friends.find(f => f.email === chat.senderMail);
-				const isActive = activeChat?.roomId === chat.roomId;
-
-				return (
-					<button
-						key={chat.roomId}
-						onMouseDown={(e) => {
-							e.stopPropagation();
-							onAvatarDragStart(chat, e.clientX, e.clientY);
-						}}
-						onClick={() => {
-							if (activeChat?.roomId === chat.roomId)
-								setActiveChat(null)
-							else
-								setActiveChat(chat)
-						}}
-						style= {{
-							opacity: hiddenChatId === chat.roomId ? 0 : 1
-						}}
-						className={`relative w-12 h-12 m-1 rounded-full border-2 transition-all hover:scale-110 shrink-0
-									${isActive ? 'border-owner-color text-owner-color scale-110' : 'border-overlay-border-color'}`}
-					>
-						<div className="w-full h-full rounded-full bg-side-bg-color flex items-center justify-center overflow-hidden text-lg uppercase">
-							{friend?.avatarUrl && friend.avatarUrl !== '/avatar/default.png' ? (
-								<img src={friend.avatarUrl} className="w-full h-full object-cover" />
-							) : (
-								<span>{friend?.name.charAt(0)}{friend?.surname.charAt(0)}</span>
-							)}
-						</div>
-					</button>
+			{floatingChats.map((chat) => (
+				chat.type === 'private' ? (
+					<ChatBoxPrivate
+						friends={friends}
+						chat={chat}
+						activeChat={activeChat}
+						setActiveChat={setActiveChat}
+						hiddenChatId={hiddenChatId}
+						onAvatarDragStart={onAvatarDragStart}
+					/>
+				) : (
+					<ChatBoxGroup
+						groups={groups}
+						chat={chat}
+						activeChat={activeChat}
+						hiddenChatId={hiddenChatId}
+						setActiveChat={setActiveChat}
+						onAvatarDragStart={onAvatarDragStart}
+					/>
 				)
-			})}
+			))}
 		</div>
 	)
 });

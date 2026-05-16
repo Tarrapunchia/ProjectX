@@ -1,23 +1,15 @@
 import { FiUsers, FiUser } from 'react-icons/fi';
 import { useState, memo } from 'react';
-import { type FloatingChatInfo } from '../../utilities/WebSocketContext';
+import { type FloatingChatInfo, type Friend, type Group } from '../../utilities/WebSocketContext';
 import { ChatMenuPrivate } from './ChatMenuPrivate';
-
-interface Friend {
-	id: number;
-	name: string;
-	surname: string;
-	email: string;
-	jobQualifier: string;
-	isLoggedIn: boolean;
-	avatarUrl: string;
-}
+import { ChatMenuGroup } from './ChatMenuGroup';
 
 interface ChatMenuProps {
 	isOpen: boolean;
 	isDragging: boolean;
 	pos: { x: number, y: number };
 	friends: Friend[];
+	groups: Group[];
 	activeChat: FloatingChatInfo | null;
 	setActiveChat: (chat: FloatingChatInfo | null) => void;
 }
@@ -36,7 +28,7 @@ export const getFloatingLayout = (pos: { x: number, y: number }, size: { x: numb
 
 export const menuSize = { x: 400, y: 500};
 
-export const ChatMenu = memo(({ isOpen, isDragging, pos, friends, activeChat, setActiveChat }: ChatMenuProps) => {
+export const ChatMenu = memo(({ isOpen, isDragging, pos, friends, groups, activeChat, setActiveChat }: ChatMenuProps) => {
 
 	const origins = {
 		'top-left': 'origin-top-left',
@@ -96,9 +88,10 @@ export const ChatMenu = memo(({ isOpen, isDragging, pos, friends, activeChat, se
 						setActiveChat= {setActiveChat}
 					/>
 				) : (
-					<div className="animate-fadeIn p-4 text-center opacity-50">
-						<p className="text-sm">Group section incoming</p>
-					</div>
+					<ChatMenuGroup 
+						groups={groups}
+						setActiveChat= {setActiveChat}
+					/>
 				)}
 			</div>
 		</div>
