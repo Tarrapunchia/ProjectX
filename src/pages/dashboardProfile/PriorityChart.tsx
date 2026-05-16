@@ -51,6 +51,8 @@ export default function PriorityChart({ taskData }: { taskData: TaskInfos | null
     return () => observer.disconnect();
   }, []);
 
+  const [activePriorities, setActivePriorities] = useState<Priority[]>(PRIORITIES);
+
   if (!taskData || taskData.tasks.length === 0) 
   {
     return (
@@ -62,8 +64,6 @@ export default function PriorityChart({ taskData }: { taskData: TaskInfos | null
       </div>
     );
   }
-
-  const [activePriorities, setActivePriorities] = useState<Priority[]>(PRIORITIES);
 
   const chartData = {
     labels: PRIORITIES,

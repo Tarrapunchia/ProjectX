@@ -24,7 +24,6 @@ function login()
         // const LOGIN_URL = 'https://silver-rotary-phone-g44xxv559r7r2x4q-5000.app.github.dev/api/v1/users/login'
         const LOGIN_URL = `${consts.BE}/api/v1/users/login`
         const DASHBOARD = '/dashboard'
-        let res: any
         try {
             const email = emailRef.current?.value
             const password = pwRef.current?.value
@@ -39,10 +38,6 @@ function login()
                 setError("Email o password errati");
                 return
             }
-            console.log(login)
-			ws = new WebSocket(consts.WS);
-			ws.onopen = () => null;
-            res = await login.json()
         } catch (error) {
             console.log(error)
             setError("Errore del server");

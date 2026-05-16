@@ -1,7 +1,7 @@
 // poi andra' in .env
 
-const BE = 'https://studious-winner-7vv77jrrqpwgcx467-5000.app.github.dev';
-const WS = 'wss://studious-winner-7vv77jrrqpwgcx467-5000.app.github.dev/ws';
+const BE = 'http://localhost:5000';
+const WS = 'ws://localhost:5000/ws';
 
 export default {
     BE: BE,
