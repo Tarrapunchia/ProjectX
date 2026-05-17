@@ -65,10 +65,15 @@ const Posters: FastifyPluginAsync = async (fastify: FastifyInstance, opts) => {
                 address: address ?? null,
                 cap: cap ?? null,
                 state: state ?? null,
+                isLoggedIn: true,
                 // googleId/googleSecret restano null di default
                 // isLoggedIn default false
                 },
             })
+
+            // HTTP ONLY
+            const token = fastify.jwt.sign({ userId: user.id }, { expiresIn: '24h' })
+            setAuthCookie(res, token)
 
             res.code(201)
             return user
