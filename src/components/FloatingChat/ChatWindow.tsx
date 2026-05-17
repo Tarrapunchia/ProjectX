@@ -1,25 +1,15 @@
 import { useEffect, useState, useRef } from 'react';
-import { type FloatingChatInfo } from '../../utilities/WebSocketContext';
+import { type FloatingChatInfo, type Friend } from '../../utilities/WebSocketContext';
 import { menuSize, getFloatingLayout } from './ChatMenu';
 import { FiChevronLeft, FiSend } from 'react-icons/fi';
 import { useWebSocket, type ChatMessage } from '../../utilities/WebSocketContext';
-
-interface Friend {
-	id: number;
-	name: string;
-	surname: string;
-	email: string;
-	jobQualifier: string;
-	isLoggedIn: boolean;
-	avatarUrl: string;
-}
 
 interface ChatWindowProps {
 	isOpen: boolean;
 	isDragging: boolean;
 	pos: { x: number, y: number };
 	activeChat: FloatingChatInfo | null;
-	friends: Friend[]
+	friends: Friend[];
 	setActiveChat: (chat: FloatingChatInfo | null) => void;
 }
 
