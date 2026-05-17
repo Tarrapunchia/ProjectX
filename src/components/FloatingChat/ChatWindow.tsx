@@ -1,7 +1,8 @@
 import { useEffect, useRef } from 'react';
-import { useWebSocket, type FloatingChatInfo, type Friend } from '../../utilities/WebSocketContext';
+import { useWebSocket, type FloatingChatInfo, type Friend, type Group } from '../../utilities/WebSocketContext';
 import { menuSize, getFloatingLayout } from './ChatMenu';
 import { ChatWindowPrivate } from './ChatWindowPrivate';
+import { ChatWindowGroup } from './ChatWindowGroup';
 
 interface ChatWindowProps {
 	isOpen: boolean;
@@ -9,10 +10,11 @@ interface ChatWindowProps {
 	pos: { x: number, y: number };
 	activeChat: FloatingChatInfo | null;
 	friends: Friend[];
+	groups: Group[];
 	setActiveChat: (chat: FloatingChatInfo | null) => void;
 }
 
-export const ChatWindow = ({ isOpen, isDragging, pos, activeChat, friends, setActiveChat }: ChatWindowProps) => {
+export const ChatWindow = ({ isOpen, isDragging, pos, activeChat, friends, groups, setActiveChat }: ChatWindowProps) => {
 	const { messages, loadHistory } = useWebSocket();
 	const { horizontalClass, verticalClass, originKey } = getFloatingLayout(pos, menuSize);
 	const scrollRef = useRef<HTMLDivElement>(null);
@@ -20,8 +22,9 @@ export const ChatWindow = ({ isOpen, isDragging, pos, activeChat, friends, setAc
 	const loadedRooms = useRef<Set<string>>(new Set());
 	const inputRef = useRef<HTMLInputElement>(null);
 	const chatToDisplay = activeChat || lastChatRef.current;
-	const friend = friends?.find(friend => friend.email === chatToDisplay?.senderMail);
 	const roomId = chatToDisplay?.roomId;
+	const friend = friends?.find(friend => friend.email === chatToDisplay?.senderMail);
+	const group = groups?.find(group => group.id === chatToDisplay?.roomId)
 	const currentMessages = roomId ? (messages[roomId] || []) : [];
 
 	const origins = {
@@ -69,14 +72,24 @@ export const ChatWindow = ({ isOpen, isDragging, pos, activeChat, friends, setAc
 						${isOpen && !isDragging && activeChat ? 'scale-100 opacity-100 shadow-xl' : 'scale-0 opacity-0 pointer-events-none'}`
 					}
 		>
-			<ChatWindowPrivate
-				friend={friend}
-				roomId={roomId}
-				scrollRef={scrollRef}
-				inputRef={inputRef}
-				currentMessages={currentMessages}
-				setActiveChat={setActiveChat}
-			/>
+			{activeChat?.type === 'private' ? (
+				<ChatWindowPrivate
+					friend={friend}
+					roomId={roomId}
+					scrollRef={scrollRef}
+					inputRef={inputRef}
+					currentMessages={currentMessages}
+					setActiveChat={setActiveChat}
+				/>
+			) : (
+				<ChatWindowGroup
+					group={group}
+					scrollRef={scrollRef}
+					inputRef={inputRef}
+					currentMessages={currentMessages}
+					setActiveChat={setActiveChat}
+				/>
+			)}
 		</div>
 	);
 }

@@ -204,6 +204,7 @@ function FloatingChat() {
 				pos={pos}
 				activeChat={activeChat}
 				friends={friends || []}
+				groups={groups || []}
 				setActiveChat={setActiveChat}
 			/>
 		</div>

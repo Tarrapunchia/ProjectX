@@ -59,7 +59,6 @@ export const ChatWindowPrivate = ({ friend, roomId, scrollRef, inputRef, current
 					<div className="flex items-center gap-3">
 						<div className="relative">
 							<div className="w-9 h-9 rounded-full bg-overlay-border-color flex items-center justify-center overflow-hidden border border-overlay-border-color">
-								<span className="text-xs font-bold uppercase">
 									{friend?.avatarUrl && friend.avatarUrl !== '/avatar/default.png' ? (
 										<img src={friend.avatarUrl} className="w-full h-full object-cover" alt="" />
 									) : (
@@ -67,7 +66,6 @@ export const ChatWindowPrivate = ({ friend, roomId, scrollRef, inputRef, current
 											{friend?.name.charAt(0)}{friend?.surname.charAt(0)}
 										</span>
 									)}
-								</span>
 							</div>
 							<span className={`absolute bottom-0 right-0 w-2.5 h-2.5 rounded-full border-2 border-side-bg-color ${friend?.isLoggedIn ? 'bg-green-500' : 'bg-gray-500'}`} />
 						</div>
@@ -93,7 +91,7 @@ export const ChatWindowPrivate = ({ friend, roomId, scrollRef, inputRef, current
 						return (
 							<div key={msg.id} className={`flex ${isMe ? 'justify-end' : 'justify-start'}`} >
 								<div className={`max-w-[80%] px-3 py-2 rounded-2xl text-xs
-												${isMe ? 'bg-owner-color text-white' : `bg-side-bg-color border border-overlay-border-color`}`}>
+												${isMe ? 'bg-owner-color text-white' : 'bg-side-bg-color border border-overlay-border-color'}`}>
 									{msg.content}
 								</div>
 							</div>
