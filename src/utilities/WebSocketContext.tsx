@@ -1,6 +1,7 @@
-import React, { createContext, useContext, useEffect, useState, useRef, type ReactNode } from 'react';
+import React, { createContext, useContext, useEffect, useState, useRef, type ReactNode, useCallback } from 'react';
 import consts from '../data/consts';
 import helpers from '../utilities/helpers';
+import type { CalendarEntries } from "../data/types";
 
 export interface Friend {
 	id: number;
@@ -26,6 +27,18 @@ export interface ChatMessage {
 	timestamp: string | number;
 }
 
+export interface FriendRequest 
+{
+	id: number;
+	senderId: number;
+	sender: {
+		name: string;
+		surname: string;
+		email: string;
+	};
+	createdAt: string;
+}
+
 interface WebSocketContextType {
 	socket: WebSocket | null;
 	isReady: boolean;
@@ -40,7 +53,19 @@ interface WebSocketContextType {
 	setMessages: React.Dispatch<React.SetStateAction<Record<string, ChatMessage[]>>>;
 	loadHistory: (roomId: string, friendId: number) => Promise<void>;
 	myUserId: number | null;
+
+	pendingRequests: FriendRequest[]; // Nuova lista
+    acceptRequest: (id: number) => Promise<void>;
+    rejectRequest: (id: number) => Promise<void>;
+
+	calendarEntries: CalendarEntries | null;
+	loadCalendar: () => Promise<void>;
+	alertThreshold: number; // Soglia in ore
+  	updateAlertThreshold: (hours: number) => void;
+	activeUser: any | null; // L'oggetto profilo completo
+    refreshUser: () => Promise<void>;
 }
+
 
 const WebSocketContext = createContext<WebSocketContextType | undefined>(undefined);
 
@@ -50,14 +75,72 @@ export const WebSocketProvider: React.FC<{ children: ReactNode }> = ({ children 
 	const [floatingChats, setFloatingChats] = useState<FloatingChatInfo[]>([]);
 	const [friends, setFriends] = useState<Friend[]>([]);
 	const [messages, setMessages] = useState<Record<string, ChatMessage[]>>({});
+	const [activeUser, setActiveUser] = useState<any | null>(null);
 	const [myUserId, setMyUserId] = useState<number | null>(null);
 	const friendsRef = useRef<Friend[]>([]);
+	const [pendingRequests, setPendingRequests] = useState<FriendRequest[]>([]);
+	const [calendarEntries, setCalendarEntries] = useState<CalendarEntries | null>(null);
+
+	const refreshUser = useCallback(async () => {
+        const res = await helpers.getter('/api/v1/users/activeUser', null);
+        if (res.success) {
+            setMyUserId(res.data.id);
+            setActiveUser(res.data); // Salva tutto l'oggetto qui!
+        }
+    }, []);
+
+	const [alertThreshold, setAlertThreshold] = useState<number>(() => 
+	{
+		const saved = localStorage.getItem("projectx_alert_threshold");
+		return saved ? parseInt(saved, 10) : 24;
+  	});
+
+	const updateAlertThreshold = (hours: number) => 
+	{
+		setAlertThreshold(hours);
+		localStorage.setItem("projectx_alert_threshold", hours.toString());
+  	};
+
+	const loadCalendar = useCallback(async () => 
+	{
+		try {
+			const res = await helpers.getter("/api/v1/users/calendarEntries", null);
+			if (res?.success) {
+				setCalendarEntries(res.data);
+			}
+		} catch (e) {
+			console.error("Errore rinfresco calendario:", e);
+		}
+	}, []);
+
+	const loadPending = async () => {
+        const res = await helpers.getter('/api/v1/friends/requests/pending', null);
+        if (res.success) setPendingRequests(res.data.requests);
+    };
+
+	const acceptRequest = async (requestId: number) => 
+	{
+        const res = await helpers.poster(`/api/v1/friends/requests/${requestId}/accept`, {});
+        if (res.success) 
+		{
+            setPendingRequests(prev => prev.filter(r => r.id !== requestId));
+            loadFriends();
+        }
+    };
+
+    const rejectRequest = async (requestId: number) => {
+        const res = await helpers.poster(`/api/v1/friends/requests/${requestId}/reject`, {});
+        if (res.success) {
+            setPendingRequests(prev => prev.filter(r => r.id !== requestId));
+        }
+    };
 
 	useEffect(() => {
 		const fetchMe = async () => {
 			const res = await helpers.getter('/api/v1/users/activeUser', null);
 			if (res.success) setMyUserId(res.data.id);
 		};
+		refreshUser();
 		fetchMe();
 	}, []);
 
@@ -65,12 +148,15 @@ export const WebSocketProvider: React.FC<{ children: ReactNode }> = ({ children 
 		friendsRef.current = friends;
 	}, [friends]);
 
-	useEffect(() => {
+	useEffect(() =>
+	{
 		if (myUserId === null) return;
 
 		const ws = new WebSocket(consts.WS);
 
+		loadCalendar();
 		loadFriends();
+		loadPending();
 
 		ws.onopen = () => {
 			console.log("WS connected via Context");
@@ -78,8 +164,34 @@ export const WebSocketProvider: React.FC<{ children: ReactNode }> = ({ children 
 		};
 
 		ws.onmessage = (event) => {
-			try {
+			try 
+			{
 				const messageData = JSON.parse(event.data);
+
+				if (["task:updated", "task:created", "event:updated", "event:created"].includes(messageData.type)) 
+				{
+        			loadCalendar();
+    			}
+
+				if (messageData.type === "friend:request") 
+				{
+					const newRequest = messageData.payload;
+					setPendingRequests(prev =>
+					{
+						if (prev.find(r => r.id === newRequest.id)) return prev;
+						return [newRequest, ...prev];
+					});
+				}
+
+				if (messageData.type === "friend:request:accepted") 
+				{
+					console.log(messageData)
+					loadFriends();
+					setPendingRequests(prev => prev.filter(r => r.id !== messageData.requestId));
+				}
+
+                if (messageData.type === "friend:request:rejected")
+                    setPendingRequests(prev => prev.filter(r => r.id !== messageData.requestId));
 
 				if (messageData.type === "presence:update") {
 					setFriends(prev => prev.map(f =>
@@ -196,7 +308,16 @@ export const WebSocketProvider: React.FC<{ children: ReactNode }> = ({ children 
 			messages,
 			setMessages,
 			loadHistory,
-			myUserId
+			myUserId,
+            pendingRequests,
+            acceptRequest,
+            rejectRequest,
+			calendarEntries,
+			loadCalendar,
+			alertThreshold, 
+      		updateAlertThreshold,
+			activeUser,
+            refreshUser,
 			}}
 		>
 			{children}

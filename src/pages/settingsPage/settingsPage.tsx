@@ -1,7 +1,7 @@
-// SettingsPage.tsx
-import React, { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import helpers from "../../utilities/helpers";
-import CONSTS from "../../data/consts";
+import { useWebSocket } from "../../utilities/WebSocketContext";
+import { Bell, User, ShieldAlert, CheckCircle } from "lucide-react";
 
 type ProfileData = {
   id?: string;
@@ -17,391 +17,230 @@ type ProfileData = {
   avatar?: string;
 };
 
-type LocalPrefs = {
-  theme: "system" | "light" | "dark";
-  defaultView: "list" | "board" | "calendar";
-  language: string;
-  timezone: string;
-};
+export default function SettingsPage() 
+{
+	const { activeUser, alertThreshold, updateAlertThreshold } = useWebSocket();
+	const [savingProfile, setSavingProfile] = useState(false);
+	const [saveSuccess, setSaveSuccess] = useState(false);
 
-type LocalNotifs = {
-  email: boolean;
-  push: boolean;
-  digest: "daily" | "weekly" | "off";
-};
+	// Stato locale per il form (inizializzato con i dati del websocket)
+	const [profile, setProfile] = useState<ProfileData>({
+		name: activeUser?.name || "",
+		surname: activeUser?.surname || "",
+		email: activeUser?.email || "",
+		jobQualifier: activeUser?.jobQualifier || "",
+		phone: activeUser?.phone || "",
+		city: activeUser?.city || "",
+		address: activeUser?.address || "",
+		cap: activeUser?.cap || "",
+		state: activeUser?.state || "",
+		avatar: activeUser?.avatar || "",
+	});
 
-const PREFS_LS = "settings_prefs_v1";
-const NOTIFS_LS = "settings_notifs_v1";
+	const fileRef = useRef<HTMLInputElement | null>(null);
+	const [avatarPreview, setAvatarPreview] = useState<string | undefined>(activeUser?.avatar);
 
-/**
- * SettingsPage - corrected:
- * - containers: hover-only border (no focus border)
- * - inputs: show border on focus (focus:border-overlay-border-color)
- * - inputs rounded-lg
- * - buttons use exact class provided
- * - change avatar via overlay button on photo
- */
-export default function SettingsPage() {
-  const [loading, setLoading] = useState(true);
-  const [savingProfile, setSavingProfile] = useState(false);
+	useEffect(() => {
+		if (activeUser) {
+		setProfile({
+			name: activeUser.name,
+			surname: activeUser.surname,
+			email: activeUser.email,
+			jobQualifier: activeUser.jobQualifier || "",
+			phone: activeUser.phone || "",
+			city: activeUser.city || "",
+			address: activeUser.address || "",
+			cap: activeUser.cap || "",
+			state: activeUser.state || "",
+			avatar: activeUser.avatar || "",
+		});
+		setAvatarPreview(activeUser.avatar);
+		}
+	}, [activeUser]);
 
-  const [profile, setProfile] = useState<ProfileData>({
-    name: "",
-    surname: "",
-    email: "",
-    jobQualifier: "",
-    phone: "",
-    city: "",
-    address: "",
-    cap: "",
-    state: "",
-    avatar: "",
-  });
+	const handleProfileChange = (k: keyof ProfileData, v: any) => {
+		setProfile((p) => ({ ...p, [k]: v }));
+	};
 
-  const [prefs, setPrefs] = useState<LocalPrefs>({
-    theme: "system",
-    defaultView: "list",
-    language: "en",
-    timezone: Intl.DateTimeFormat().resolvedOptions().timeZone || "UTC",
-  });
+		const handleAvatarFile = (f?: File | null) => 
+		{
+			if (!f) return;
+			const url = URL.createObjectURL(f);
+			setAvatarPreview(url);
+			// Qui andrebbe la logica per caricare l'immagine sul server (FormData)
+		};
 
-  const [notifs, setNotifs] = useState<LocalNotifs>({
-    email: true,
-    push: false,
-    digest: "daily",
-  });
+	const handleSaveProfile = async () => {
+		setSavingProfile(true);
+		try {
+		const res = await helpers.putter("/api/v1/users/modifyUserProfile", profile);
+		if (res?.success) {
+			setSaveSuccess(true);
+			setTimeout(() => setSaveSuccess(false), 3000);
+		}
+		} catch (e) {
+		console.error("Error saving profile", e);
+		} finally {
+		setSavingProfile(false);
+		}
+	};
 
-  const fileRef = useRef<HTMLInputElement | null>(null);
-  const [avatarPreview, setAvatarPreview] = useState<string | undefined>(undefined);
+	// Classi CSS
+	const inputClass = "flex-1 p-2 rounded-lg bg-bg-color text-text-main border border-transparent hover:border-overlay-border-color transition-colors focus:outline-none focus:border-text-main text-sm shadow-sm";
+	const smallInputClass = "w-24 p-2 rounded-lg bg-bg-color text-text-main border border-transparent hover:border-overlay-border-color transition-colors focus:outline-none focus:border-text-main text-sm";
+	const btnClass = "border border-category-bg-color bg-side-bg-color rounded-xl p-2 px-4 text-sm text-text-main cursor-pointer hover:scale-105 hover:border-text-main transition-all flex items-center gap-2 shadow-sm";
 
-  useEffect(() => {
-    (async () => {
-      try {
-        const res = await helpers.getter(`${CONSTS.BE}/api/v1/users/activeUser`, null);
-        if (res?.success && res.data) {
-          setProfile((p) => ({ ...p, ...(res.data as Partial<ProfileData>) }));
-          setAvatarPreview((res.data as any)?.avatar ?? undefined);
-        }
-      } catch (e) {
-        console.warn("Could not fetch profile", e);
-      } finally {
-        try {
-          const rawPrefs = localStorage.getItem(PREFS_LS);
-          const rawNotifs = localStorage.getItem(NOTIFS_LS);
-          if (rawPrefs) setPrefs((prev) => ({ ...prev, ...(JSON.parse(rawPrefs) as Partial<LocalPrefs>) }));
-          if (rawNotifs) setNotifs((prev) => ({ ...prev, ...(JSON.parse(rawNotifs) as Partial<LocalNotifs>) }));
-        } catch (e) {
-          console.warn("Could not parse local settings", e);
-        }
-        setLoading(false);
-      }
-    })();
-  }, []);
+	return (
+		<div className="p-6 w-full h-full custom-scrollbar overflow-y-auto">
+			<h2 className="text-2xl font-semibold text-text-main mb-6">Account Settings</h2>
 
-  const handleProfileChange = (k: keyof ProfileData, v: any) => {
-    setProfile((p) => ({ ...(p ?? {}), [k]: v }));
-  };
+			<div className="grid grid-cols-1 lg:grid-cols-[2fr_1fr] gap-6">
+				
+				{/* COLONNA SINISTRA: Profilo */}
+				<div className="space-y-6">
+				<div className="rounded-2xl p-6 bg-side-bg-color border border-transparent hover:border-overlay-border-color transition-all shadow-sm">
+					<div className="flex items-center justify-between mb-6">
+					<div className="flex items-center gap-2">
+						<User size={20} className="text-owner-color" />
+						<h3 className="text-lg font-medium text-text-main">Profile Information</h3>
+					</div>
 
-  const handleAvatarFile = (f?: File | null) => {
-    if (!f) return;
-    const url = URL.createObjectURL(f);
-    setAvatarPreview(url);
-  };
+					{/* Avatar con Overlay */}
+					<div className="relative w-16 h-16 group">
+						<img 
+							src={avatarPreview || "/placeholder-avatar.png"} 
+							alt="avatar" 
+							className="w-16 h-16 rounded-full object-cover border-2 border-overlay-border-color" 
+						/>
+						<button
+							type="button"
+							onClick={() => fileRef.current?.click()}
+							className="absolute inset-0 flex items-center justify-center rounded-full bg-black/50 text-white opacity-0 group-hover:opacity-100 transition-opacity">
+							<span className="text-xs font-bold text-white">Edit</span>
+						</button>
+						<input
+							ref={fileRef}
+							type="file"
+							accept="image/*"
+							className="hidden"
+							onChange={(e) => handleAvatarFile(e.target.files?.[0])}
+						/>
+					</div>
+				</div>
 
-  const handleSaveProfile = async () => {
-    setSavingProfile(true);
-    try {
-      const payload: Partial<ProfileData> = {
-        name: profile.name,
-        surname: profile.surname,
-        jobQualifier: profile.jobQualifier,
-        phone: profile.phone,
-        city: profile.city,
-        address: profile.address,
-        cap: profile.cap,
-        state: profile.state,
-      };
+				<div className="space-y-4">
+					<div className="flex flex-col md:flex-row gap-4">
+						<div className="flex-1 flex flex-col gap-1">
+							<label className="text-[10px] uppercase text-text-main font-bold ml-1">First Name</label>
+							<input className={inputClass} value={profile.name} onChange={(e) => handleProfileChange("name", e.target.value)} />
+						</div>
+						<div className="flex-1 flex flex-col gap-1">
+							<label className="text-[10px] uppercase text-text-main font-bold ml-1">Last Name</label>
+							<input className={inputClass} value={profile.surname} onChange={(e) => handleProfileChange("surname", e.target.value)} />
+						</div>
+					</div>
 
-      const res = await helpers.putter("/api/v1/users/modifyUserProfile", payload);
-      if (res?.success) {
-        setProfile((p) => ({ ...(p ?? {}), ...(payload as any) }));
-      } else {
-        console.error("Save failed", res);
-      }
-      return res;
-    } catch (e) {
-      console.error("Error saving profile", e);
-      return { success: false, error: e };
-    } finally {
-      setSavingProfile(false);
-    }
-  };
+					<div className="flex flex-col md:flex-row gap-4">
+						<div className="flex-1 flex flex-col gap-1">
+							<label className="text-[10px] uppercase text-text-main font-bold ml-1">Email </label>
+							<input className={inputClass} value={profile.email} readOnly disabled />
+						</div>
+						<div className="flex-1 flex flex-col gap-1">
+							<label className="text-[10px] uppercase text-text-main font-bold ml-1">Profession</label>
+							<input className={inputClass} value={profile.jobQualifier} onChange={(e) => handleProfileChange("jobQualifier", e.target.value)} />
+						</div>
+					</div>
 
-  const handleSavePrefsLocal = (next: Partial<LocalPrefs>) => {
-    const merged = { ...prefs, ...(next as LocalPrefs) };
-    setPrefs(merged);
-    try {
-      localStorage.setItem(PREFS_LS, JSON.stringify(merged));
-    } catch (e) {
-      console.warn("Could not save prefs", e);
-    }
-  };
+					<div className="flex flex-col md:flex-row gap-4">
+						<div className="flex-1 flex flex-col gap-1">
+						<label className="text-[10px] uppercase text-text-main font-bold ml-1">Phone</label>
+						<input className={inputClass} value={profile.phone} onChange={(e) => handleProfileChange("phone", e.target.value)} />
+						</div>
+						<div className="flex-1 flex flex-col gap-1">
+						<label className="text-[10px] uppercase text-text-main font-bold ml-1">City</label>
+						<input className={inputClass} value={profile.city} onChange={(e) => handleProfileChange("city", e.target.value)} />
+						</div>
+					</div>
 
-  const handleSaveNotifsLocal = (next: Partial<LocalNotifs>) => {
-    const merged = { ...notifs, ...(next as LocalNotifs) };
-    setNotifs(merged);
-    try {
-      localStorage.setItem(NOTIFS_LS, JSON.stringify(merged));
-    } catch (e) {
-      console.warn("Could not save notifs", e);
-    }
-  };
+					<div className="flex flex-col gap-1">
+						<label className="text-[10px] uppercase text-text-main font-bold ml-1">Address</label>
+						<input className={inputClass} value={profile.address} onChange={(e) => handleProfileChange("address", e.target.value)} />
+					</div>
 
-  if (loading) {
-    return (
-      <div className="h-full w-full flex items-center justify-center">
-        <span className="text-sm text-text-main">Loading settings…</span>
-      </div>
-    );
-  }
+					<div className="flex flex-col md:flex-row gap-4">
+						<div className="flex flex-col gap-1">
+						<label className="text-[10px] uppercase text-text-main font-bold ml-1">Zip Code</label>
+						<input className={smallInputClass} value={profile.cap} onChange={(e) => handleProfileChange("cap", e.target.value)} />
+						</div>
+						<div className="flex-1 flex flex-col gap-1">
+						<label className="text-[10px] uppercase text-text-main font-bold ml-1">Country/State</label>
+						<input className={inputClass} value={profile.state} onChange={(e) => handleProfileChange("state", e.target.value)} />
+						</div>
+					</div>
 
-  // classes
-  const inputClass =
-    "flex-1 p-2 rounded-lg bg-bg-color text-text-main border border-transparent hover:border-overlay-border-color transition-colors focus:outline-none focus:border-text-main";
-  const smallInputClass =
-    "w-24 p-2 rounded-lg bg-bg-color text-text-main border border-transparent hover:border-overlay-border-color transition-colors focus:outline-none focus:border-text-main";
-  const btnClass =
-    "border border-category-bg-color bg-side-bg-color rounded-xl p-2 !text-text-main cursor-pointer hover:scale-105 hover:border-text-main";
+					<div className="flex items-center gap-3 pt-4">
+						<button onClick={handleSaveProfile} disabled={savingProfile} className={btnClass}>
+						{savingProfile ? "Saving..." : saveSuccess ? "Saved!" : "Save Changes"}
+						{saveSuccess && <CheckCircle size={16} className="text-green-500" />}
+						</button>
+					</div>
+					</div>
+				</div>
+				</div>
 
-  return (
-    <div className="p-4 w-full h-full">
-      <h2 className="text-2xl font-semibold text-text-main ml-2 mb-4">Settings</h2>
+				{/* COLONNA DESTRA: Notifiche e Danger Zone */}
+			<div className="space-y-6">
+				
+				{/* Notifiche con Alert Threshold */}
+				<div className="rounded-2xl p-6 bg-side-bg-color border border-transparent hover:border-overlay-border-color transition-all shadow-sm">
+					<div className="flex items-center gap-2 mb-4">
+					<Bell size={20} className="text-orange-500" />
+					<h3 className="text-lg font-medium text-text-main">Notification Alerts</h3>
+					</div>
+					
+					<p className="text-xs text-zinc-400 mb-6">
+					Choose how early you want to be notified about upcoming deadlines and events.
+					</p>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-        {/* Left column */}
-        <div className="space-y-6">
-          
-          <div className="rounded-lg p-5 bg-side-bg-color shadow-sm hover:border hover:border-overlay-border-color">
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-medium text-text-main">Profile settings</h3>
+					<div className="space-y-4">
+					<div className="flex flex-col gap-2">
+						<label className="text-sm font-medium">Alert Threshold</label>
+						<select
+							value={alertThreshold}
+							onChange={(e) => updateAlertThreshold(Number(e.target.value))}
+							className="w-full p-2 rounded-lg bg-bg-color text-text-main border border-transparent hover:border-overlay-border-color transition-colors focus:outline-none focus:border-text-main text-sm cursor-pointer shadow-sm"
+						>
+						<option value={12}>12 hours before</option>
+						<option value={24}>24 hours before</option>
+						<option value={48}>48 hours before</option>
+						<option value={72}>72 hours before</option>
+						</select>
+					</div>
+					
+					<div className="p-3 bg-main-bg-color/50 rounded-lg border border-dashed border-overlay-border-color">
+						<p className="text-[10px] text-text-main leading-relaxed italic">
+						* Currently applying locally. Changes affect the Notifications Center and Sidebar alerts instantly.
+						</p>
+					</div>
+					</div>
+				</div>
 
-              {/* avatar container with overlay button */}
-              <div className="relative w-10 h-10">
-                <img src={avatarPreview ?? profile.avatar ?? "/placeholder-avatar.png"} alt="avatar" className="w-10 h-10 rounded-full object-cover" />
-                <button
-                  type="button"
-                  onClick={() => fileRef.current?.click()}
-                  className="absolute inset-0 flex items-center justify-center rounded-full bg-black/30 text-white opacity-0 hover:opacity-100 transition-opacity"
-                  aria-label="Change avatar"
-                >
-                  ✎
-                </button>
-                <input
-                  ref={fileRef}
-                  type="file"
-                  accept="image/*"
-                  className="hidden"
-                  onChange={(e) => {
-                    const f = e.target.files?.[0];
-                    if (f) handleAvatarFile(f);
-                  }}
-                />
-              </div>
-            </div>
+				{/* Danger Zone */}
+				<div className="rounded-2xl p-6 bg-side-bg-color border border-transparent hover:border-red-900/30 transition-all shadow-sm">
+					<div className="flex items-center gap-2 mb-4">
+					<ShieldAlert size={20} className="text-red-600" />
+					<h3 className="text-lg font-medium text-text-main">Danger Zone</h3>
+					</div>
+					<p className="text-xs text-slate-400 mb-4">Once you delete your account, there is no going back. Please be certain.</p>
+					<DangerZoneStub />
+				</div>
 
-            <div className="space-y-3 felex flex-col">
-              {/* Row: name / surname */}
-              <div className="flex flex-col md:flex-row gap-3">
-                <input className={inputClass} placeholder="Name" value={profile.name ?? ""} onChange={(e) => handleProfileChange("name", e.target.value)} />
-                <input className={inputClass} placeholder="Surname" value={profile.surname ?? ""} onChange={(e) => handleProfileChange("surname", e.target.value)} />
-              </div>
-
-              {/* Row: email (readonly) / profession */}
-              <div className="flex flex-col md:flex-row gap-3">
-                <input className={inputClass} placeholder="Email" value={profile.email ?? ""} readOnly />
-                <input className={inputClass} placeholder="Profession" value={profile.jobQualifier ?? ""} onChange={(e) => handleProfileChange("jobQualifier", e.target.value)} />
-              </div>
-
-              {/* Row: phone / city */}
-              <div className="flex flex-col md:flex-row gap-3">
-                <input className={inputClass} placeholder="Phone" value={profile.phone ?? ""} onChange={(e) => handleProfileChange("phone", e.target.value)} />
-                <input className={inputClass} placeholder="City" value={profile.city ?? ""} onChange={(e) => handleProfileChange("city", e.target.value)} />
-              </div>
-
-              {/* Row: address */}
-              <div className="flex gap-3">
-                <input className={inputClass} placeholder="Address" value={profile.address ?? ""} onChange={(e) => handleProfileChange("address", e.target.value)} />
-              </div>
-
-              {/* Row: cap / state */}
-              <div className="flex flex-col md:flex-row gap-3">
-                <input className={smallInputClass} placeholder="CAP" value={profile.cap ?? ""} onChange={(e) => handleProfileChange("cap", e.target.value)} />
-                <input className={inputClass} placeholder="State" value={profile.state ?? ""} onChange={(e) => handleProfileChange("state", e.target.value)} />
-                <div />
-              </div>
-
-              {/* Actions */}
-              <div className="flex items-center gap-3 mt-2">
-                <button onClick={handleSaveProfile} disabled={savingProfile} className={btnClass}>
-                  {savingProfile ? "Saving…" : "Save profile"}
-                </button>
-
-                <button
-                  onClick={async () => {
-                    try {
-                      const res = await helpers.getter(`${CONSTS.BE}/api/v1/users/activeUser`, null);
-                      if (res?.success) {
-                        setProfile((p) => ({ ...(p ?? {}), ...(res.data as Partial<ProfileData>) }));
-                        setAvatarPreview((res.data as any)?.avatar ?? undefined);
-                      }
-                    } catch (e) {
-                      console.warn(e);
-                    }
-                  }}
-                  className={btnClass}
-                >
-                  Reset to server
-                </button>
-              </div>
-            </div>
-          </div>
-
-          {/* General settings (local) */}
-          <div className="rounded-lg p-5 bg-side-bg-color shadow-sm hover:border hover:border-overlay-border-color ">
-            <div className="flex items-center justify-between mb-3">
-              <h3 className="text-lg font-medium text-text-main">General settings</h3>
-              <span className="text-xs text-zinc-500">local</span>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-              <label className="flex flex-col text-sm">
-                Theme
-                <select
-                  value={prefs.theme}
-                  onChange={(e) => setPrefs((p) => ({ ...p, theme: e.target.value as LocalPrefs["theme"] }))}
-                  className="mt-1 p-2 rounded-lg bg-bg-color text-text-main border border-transparent hover:border-overlay-border-color transition-colors focus:outline-none focus:border-overlay-border-color"
-                >
-                  <option value="system">System</option>
-                  <option value="light">Light</option>
-                  <option value="dark">Dark</option>
-                </select>
-              </label>
-
-              <label className="flex flex-col text-sm">
-                Default view
-                <select
-                  value={prefs.defaultView}
-                  onChange={(e) => setPrefs((p) => ({ ...p, defaultView: e.target.value as LocalPrefs["defaultView"] }))}
-                  className="mt-1 p-2 rounded-lg bg-bg-color text-text-main border border-transparent hover:border-overlay-border-color transition-colors focus:outline-none focus:border-overlay-border-color"
-                >
-                  <option value="list">List</option>
-                  <option value="board">Board</option>
-                  <option value="calendar">Calendar</option>
-                </select>
-              </label>
-
-              <label className="flex flex-col text-sm">
-                Language
-                <select
-                  value={prefs.language}
-                  onChange={(e) => setPrefs((p) => ({ ...p, language: e.target.value }))}
-                  className="mt-1 p-2 rounded-lg bg-bg-color text-text-main border border-transparent hover:border-overlay-border-color transition-colors focus:outline-none focus:border-overlay-border-color"
-                >
-                  <option value="en">English</option>
-                  <option value="it">Italiano</option>
-                </select>
-              </label>
-
-              <label className="flex flex-col text-sm">
-                Timezone
-                <input
-                  value={prefs.timezone}
-                  onChange={(e) => setPrefs((p) => ({ ...p, timezone: e.target.value }))}
-                  className="mt-1 p-2 rounded-lg bg-bg-color text-text-main border border-transparent hover:border-overlay-border-color transition-colors focus:outline-none focus:border-overlay-border-color"
-                />
-              </label>
-            </div>
-
-            <div className="flex gap-2 mt-4">
-              <button onClick={() => handleSavePrefsLocal(prefs)} className={btnClass}>
-                Save preferences (local)
-              </button>
-              <button
-                onClick={() => {
-                  const raw = localStorage.getItem(PREFS_LS);
-                  if (raw) setPrefs(JSON.parse(raw));
-                  else setPrefs({ theme: "system", defaultView: "list", language: "en", timezone: Intl.DateTimeFormat().resolvedOptions().timeZone || "UTC" });
-                }}
-                className={btnClass}
-              >
-                Load saved
-              </button>
-            </div>
-          </div>
-        </div>
-
-        {/* Right column */}
-        <div className="space-y-6">
-          <div className="rounded-lg p-5 bg-side-bg-color shadow-sm hover:border hover:border-overlay-border-color focus:outline-none">
-            <div className="flex items-center justify-between mb-3">
-              <h3 className="text-lg font-medium text-text-main">Notifications</h3>
-              <span className="text-xs text-zinc-500">local</span>
-            </div>
-
-            <div className="space-y-3">
-              <label className="flex items-center justify-between">
-                <span className="text-sm">Email notifications</span>
-                <input type="checkbox" checked={notifs.email} onChange={(e) => setNotifs((n) => ({ ...n, email: e.target.checked }))} />
-              </label>
-
-              <label className="flex items-center justify-between">
-                <span className="text-sm">Push notifications</span>
-                <input type="checkbox" checked={notifs.push} onChange={(e) => setNotifs((n) => ({ ...n, push: e.target.checked }))} />
-              </label>
-
-              <label className="flex flex-col text-sm">
-                Digest frequency
-                <select
-                  value={notifs.digest}
-                  onChange={(e) => setNotifs((n) => ({ ...n, digest: e.target.value as LocalNotifs["digest"] }))}
-                  className="mt-1 p-2 rounded-lg bg-bg-color text-text-main border border-transparent hover:border-overlay-border-color transition-colors focus:outline-none focus:border-overlay-border-color"
-                >
-                  <option value="daily">Daily</option>
-                  <option value="weekly">Weekly</option>
-                  <option value="off">Off</option>
-                </select>
-              </label>
-
-              <div className="flex gap-2 mt-3">
-                <button onClick={() => handleSaveNotifsLocal(notifs)} className={btnClass}>
-                  Save notifications (local)
-                </button>
-                <button
-                  onClick={() => {
-                    const raw = localStorage.getItem(NOTIFS_LS);
-                    if (raw) setNotifs(JSON.parse(raw));
-                    else setNotifs({ email: true, push: false, digest: "daily" });
-                  }}
-                  className={btnClass}
-                >
-                  Load saved
-                </button>
-              </div>
-            </div>
-          </div>
-
-          <div className="rounded-lg p-5 bg-side-bg-color shadow-sm hover:border hover:border-overlay-border-color">
-            <h3 className="text-lg font-medium text-text-main mb-3">Danger Zone</h3>
-            <p className="text-sm text-slate-400 mb-3">Irreversible actions. Minimal stub.</p>
-            <DangerZoneStub />
-          </div>
-        </div>
-      </div>
-    </div>
-  );
+				</div>
+			</div>
+		</div>
+	);
 }
 
-/* Minimal DangerZone stub */
 function DangerZoneStub() {
   const [confirm, setConfirm] = useState("");
   const [loading, setLoading] = useState(false);
@@ -409,15 +248,10 @@ function DangerZoneStub() {
   const handleDelete = async () => {
     if (confirm !== "DELETE") return;
     setLoading(true);
-    try {
-      setTimeout(() => {
-        setLoading(false);
-        alert("Account deletion flow (stub).");
-      }, 700);
-    } catch (e) {
-      console.error(e);
+    setTimeout(() => {
       setLoading(false);
-    }
+      alert("Account deletion flow initiated.");
+    }, 1000);
   };
 
   return (
@@ -426,13 +260,15 @@ function DangerZoneStub() {
         value={confirm}
         onChange={(e) => setConfirm(e.target.value)}
         placeholder='Type "DELETE" to confirm'
-        className="w-full p-2 rounded-lg bg-bg-color text-text-main border border-transparent hover:border-overlay-border-color focus:outline-none focus:border-overlay-border-color"
+        className="w-full p-2 rounded-lg bg-bg-color text-text-main border border-transparent hover:border-red-900/50 focus:outline-none focus:border-red-600 text-sm"
       />
-      <div className="flex gap-2">
-        <button onClick={handleDelete} disabled={confirm !== "DELETE" || loading} className="px-4 py-2 bg-red-600 text-white rounded">
-          {loading ? "Deleting…" : "Delete account"}
-        </button>
-      </div>
+      <button 
+        onClick={handleDelete} 
+        disabled={confirm !== "DELETE" || loading} 
+        className="w-full px-4 py-2 bg-red-600/10 text-red-600 border border-red-600/20 rounded-xl hover:bg-red-600 hover:text-white transition-all text-xs font-bold disabled:opacity-30 cursor-pointer"
+      >
+        {loading ? "Processing..." : "Permanently Delete Account"}
+      </button>
     </div>
   );
 }

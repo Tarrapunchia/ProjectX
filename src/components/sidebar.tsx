@@ -1,5 +1,4 @@
-import { useEffect, useState } from "react"; // Aggiunto useState e useEffect
-import { useWebSocket } from "../utilities/WebSocketContext"; // Aggiunto
+import { useWebSocket } from "../utilities/WebSocketContext";
 import helpers from "../utilities/helpers";
 import { useNavigate } from "react-router-dom";
 import { 
@@ -19,39 +18,10 @@ interface SidebarProps {
 
 function Sidebar({ setActivePage, className }: SidebarProps) {
     const navigate = useNavigate();
-    const { socket } = useWebSocket();
-    const [hasPending, setHasPending] = useState(false);
+	const { pendingRequests } = useWebSocket(); 
     
-    useEffect(() => {
-        const checkPending = async () => {
-            const res = await helpers.getter('/api/v1/friends/requests/pending', null);
-            if (res.success && res.data?.requests?.length > 0) {
-                setHasPending(true);
-            }
-			else
-				setHasPending(false);
-        };
-        checkPending();
-    }, []);
-
-    useEffect(() => {
-        if (!socket) return;
-
-        const handleWSMessage = (e: MessageEvent) => {
-            try {
-                const data = JSON.parse(e.data);
-
-                if (data.type === 'friend:request') {
-                    setHasPending(true);
-                }
-            } catch (err) {
-                console.error("Sidebar WS error:", err);
-            }
-        };
-
-        socket.addEventListener('message', handleWSMessage);
-        return () => socket.removeEventListener('message', handleWSMessage);
-    }, [socket]);
+    const pendingCount = pendingRequests.length;
+    const hasPending = pendingCount > 0;
 
     const handleLogout = async () => {
         await helpers.poster('/api/v1/users/logout', {});
@@ -74,8 +44,10 @@ function Sidebar({ setActivePage, className }: SidebarProps) {
                 <button title="Dashboard" className={`${btnBase} ${btnHover} ${btnFocus} relative`} onClick={() => setActivePage('dashboard')}>
                     <div className="relative flex items-center justify-center">
                         <LayoutDashboard size={20} className="shrink-0" />
-                        {hasPending && (
-                            <span className="absolute -top-3 -right-1 w-3 h-3 bg-red-600 rounded-full border-2 border-side-bg-color" />
+						{hasPending && (
+                            <span className="absolute -top-2 -right-2 flex items-center justify-center bg-red-600 text-white text-[10px] font-bold min-w-[16px] h-[16px] px-1 rounded-full border-2 border-side-bg-color">
+                                {pendingCount > 9 ? '9+' : pendingCount}
+                            </span>
                         )}
                     </div>
                     <span className="hidden lg:block truncate !text-[18px] !font-light">

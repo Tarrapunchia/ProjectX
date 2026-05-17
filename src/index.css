@@ -53,6 +53,11 @@
 		scrollbar-width: none;
 	}
 
+	.custom-scrollbar 
+	{
+    	scrollbar-gutter: stable; /* Riserva lo spazio per la scrollbar */
+	}
+
 	.custom-scrollbar::-webkit-scrollbar {
         width: 10px;
         height: 10px;
@@ -66,9 +71,11 @@
     .custom-scrollbar::-webkit-scrollbar-thumb {
         background: var(--color-text);
         border-radius: 100vh;
-
+		
 		border-top: 1px solid #000000; 
         border-bottom: 1px solid #000000;
+		border-left: 2px solid #000000; 
+        border-right: 1px solid #000000;
     }
 
     .custom-scrollbar::-webkit-scrollbar-button:single-button {
@@ -90,6 +97,16 @@
         border-width: 8px 5px 0 5px;
         border-color: var(--color-text) transparent transparent transparent;
     }
+
+	.custom-scrollbar::-webkit-scrollbar-button:single-button:horizontal:decrement {
+    border-width: 5px 8px 5px 0;
+    border-color: transparent var(--color-text) transparent transparent;
+	}
+
+	.custom-scrollbar::-webkit-scrollbar-button:single-button:horizontal:increment {
+		border-width: 5px 0 5px 8px;
+		border-color: transparent transparent transparent var(--color-text);
+	}
 }
 
 body {

@@ -72,8 +72,7 @@ export default function DocumentsPage({ selectedProject }: ChatPageProps)
 		try 
 		{
 			const ownerStatus = pData.participants.some(
-			(p: any) => p.user.id === uData.id && (p.role === "OWNER" || p.role === "EDITOR")
-			);
+			(p: any) => p.user.id === uData.id && (p.role === "OWNER" || p.role === "EDITOR"));
 			
 			setIsOwner(ownerStatus);
 		} catch (error) {
@@ -203,7 +202,7 @@ export default function DocumentsPage({ selectedProject }: ChatPageProps)
 								className="hidden"
 							/>
 							<button 
-								className="border border-category-bg-color bg-side-bg-color rounded-lg px-3 py-1 text-m text-text-main cursor-pointer hover:scale-105 hover:border-text-main transition-all"
+								className="flex items-center gap-2 bg-owner-color text-white px-5 py-2.5 rounded-xl hover:scale-105 transition-all shadow-lg text-sm font-bold cursor-pointer active:scale-95"
 								onClick={() => fileInputRef.current?.click()}>
 								📤 Upload Files
 							</button>
@@ -221,9 +220,9 @@ export default function DocumentsPage({ selectedProject }: ChatPageProps)
 
 	return (
 		
-		<div className="min-w-0 custom-scrollbar">
+		<div className="min-w-0 h-full w-full overflow-y-auto custom-scrollbar p-6">
 			{/* INTESTAZIONE CON BOTTONE CONDIZIONALE */}
-			<div className="flex justify-between items-center ">
+			<div className="flex justify-between items-center mb-6">
                 <h1 className="text-xs font-bold text-text-main">Project Documents</h1>
 				{isOwner && (
 					<>
@@ -234,7 +233,7 @@ export default function DocumentsPage({ selectedProject }: ChatPageProps)
 							className="hidden"
 						/>
 						<button 
-							className="border border-category-bg-color bg-side-bg-color rounded-lg px-3 text-m text-text-main cursor-pointer hover:scale-105 hover:border-text-main transition-all"
+							className="flex items-center gap-2 bg-owner-color text-white px-5 py-2.5 rounded-xl hover:scale-105 transition-all shadow-lg text-sm font-bold cursor-pointer active:scale-95"
 							onClick={() => fileInputRef.current?.click()}
 						>
 							📤 Upload Files
@@ -242,10 +241,8 @@ export default function DocumentsPage({ selectedProject }: ChatPageProps)
 					</>
 				)}
 			</div>
-			{/* ==========================================
-				3. GRIGLIA FILE (I QUADRATINI)
-				========================================== */}
-			<div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6 custom-scrollbar">
+
+			<div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 xl:grid-cols-6 gap-4 custom-scrollbar">
 				{files.map((file) => (
 				<div
 					key={file.id}
@@ -254,7 +251,7 @@ export default function DocumentsPage({ selectedProject }: ChatPageProps)
 					overflow-hidden hover:shadow-md border rounded-[14px] border-overlay-border-color hover:border-text-main transition-all hover:scale-105 custom-scrollbar"
 				>
 					{/* AREA ANTEPRIMA (IL QUADRATO) */}
-					<div className="bg-overlay-border-color flex justify-center items-center overflow-hidden max-w-full min-h-[300px] max-h-[300px] relative ">
+					<div className="bg-overlay-border-color flex justify-center items-center overflow-hidden w-full h-[220px] relative">
 					
 						{file.type === "image" ? 
 						(

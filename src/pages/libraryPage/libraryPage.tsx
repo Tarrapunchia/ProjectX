@@ -199,7 +199,7 @@ export default function DocumentsPage({ selectedProject }: ChatPageProps)
 								className="hidden"
 							/>
 							<button 
-								className="border border-category-bg-color bg-side-bg-color rounded-lg px-3 py-1 text-m text-text-main cursor-pointer hover:scale-105 hover:border-text-main transition-all"
+								className="flex items-center gap-2 bg-owner-color text-white px-5 py-2.5 rounded-xl hover:scale-105 transition-all shadow-lg text-sm font-bold cursor-pointer active:scale-95"
 								onClick={() => fileInputRef.current?.click()}
 							>
 								📤 Upload Files
@@ -215,7 +215,7 @@ export default function DocumentsPage({ selectedProject }: ChatPageProps)
 		);
 
     return (
-        <div className="w-full h-full">
+        <div className="w-full h-full overflow-y-auto custom-scrollbar p-4">
             {/* HEADER SUPERIORE */}
             <div className="flex justify-between items-center mb-6">
                 <h1 className="text-base font-bold text-text-main">Project Files</h1>
@@ -223,7 +223,7 @@ export default function DocumentsPage({ selectedProject }: ChatPageProps)
                     <div>
                         <input type="file" ref={fileInputRef} onChange={handleUpload} className="hidden" />
                         <button 
-                            className="border border-category-bg-color bg-side-bg-color rounded-lg px-4 py-2 text-sm text-text-main cursor-pointer hover:scale-105 hover:border-text-main transition-all"
+                            className="flex items-center gap-2 bg-owner-color text-white px-5 py-2.5 rounded-xl hover:scale-105 transition-all shadow-lg text-sm font-bold cursor-pointer active:scale-95"
                             onClick={() => fileInputRef.current?.click()}>
                             📤 Upload New File
                         </button>
