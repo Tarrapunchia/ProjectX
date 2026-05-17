@@ -260,10 +260,65 @@ const rejectRequest: Schema = {
   },
 };
 
+const blockUser: Schema = {
+    description: 'Block a user (creates/updates Friendship as BLOCKED)',
+    tags: ['friends'],
+    body: {
+      type: 'object',
+      properties: {
+        targetUserId: { type: 'number' },
+      },
+      required: ['targetUserId'],
+    },
+    response: {
+      200: {
+        type: 'object',
+        properties: {
+          success: { type: 'boolean' },
+          blockedUserId: { type: 'number' },
+          friendshipId: { type: 'number' },
+          status: { type: 'string' },
+        },
+        required: ['success', 'blockedUserId', 'friendshipId', 'status'],
+      },
+      400: { type: 'object', properties: { error: { type: 'string' } }, required: ['error'] },
+      401: { type: 'object', properties: { error: { type: 'string' } }, required: ['error'] },
+      404: { type: 'object', properties: { error: { type: 'string' } }, required: ['error'] },
+    },
+}
+
+const unblockUser: Schema = {
+  description: 'Unblock a user (removes BLOCKED friendship made by current user)',
+  tags: ['friends'],
+  body: {
+    type: 'object',
+    properties: {
+      targetUserId: { type: 'number' },
+    },
+    required: ['targetUserId'],
+  },
+  response: {
+    200: {
+      type: 'object',
+      properties: {
+        success: { type: 'boolean' },
+        unblockedUserId: { type: 'number' },
+      },
+      required: ['success', 'unblockedUserId'],
+    },
+    400: { type: 'object', properties: { error: { type: 'string' } }, required: ['error'] },
+    401: { type: 'object', properties: { error: { type: 'string' } }, required: ['error'] },
+    404: { type: 'object', properties: { error: { type: 'string' } }, required: ['error'] },
+  },
+}
+
+
 export const friendsSchema = {
     getFriends: getFriends,
     createRequest,
     getPendingRequests,
     acceptRequest,
-    rejectRequest
+    rejectRequest,
+    blockUser,
+    unblockUser,
 };
