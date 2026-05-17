@@ -27,6 +27,42 @@ const getUserEventsSchema: Schema = {
     },
 }
 
+const createEventSchema: Schema = {
+    description: 'Create a new event',
+    tags: ['events'],
+    body: {
+        type: 'object',
+        required: ['name', 'type', 'dueDate'],
+        properties: {
+            name: { type: 'string', minLength: 1 },
+            type: { type: 'string' },
+            dueDate: { type: 'string', format: 'date-time' },
+            description: { type: 'string', nullable: true },
+            participants: { 
+                type: 'array', 
+                items: { type: 'number' }
+            }
+        }
+    },
+    response: {
+        201: {
+            description: 'Event created successfully',
+            type: 'object',
+            properties: {
+                success: { type: 'boolean' },
+                id: { type: 'string' }
+            }
+        },
+        400: {
+            type: 'object',
+            properties: {
+                error: { type: 'string' }
+            }
+        }
+    }
+}
+
 export const eventsSchemas = {
     getUserEventsSchema,
+    createEventSchema
 };

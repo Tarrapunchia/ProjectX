@@ -67,17 +67,13 @@ const Posters: FastifyPluginAsync = async (fastify: FastifyInstance, opts) => {
             status: 'PENDING',
           },
         })
-        // WS realtime verso receiver
-        fastify.wsSendToUser(targetUserId, {
-          type: "friend:request",
-          requestId: fr.id,
-          fromUserId: authUser,
-          status: "PENDING",
-          notificationId: existing.id,
-          ts: Date.now(),
-        });
         }
       }
+
+	const sender = await fastify.prisma.user.findUnique({
+		where: { id: authUser },
+		select: { id: true, name: true, surname: true, email: true }
+	});
 
       try {
         const created = await fastify.prisma.$transaction(async (tx) => {
@@ -105,14 +101,20 @@ const Posters: FastifyPluginAsync = async (fastify: FastifyInstance, opts) => {
         });
 
         // WS realtime verso receiver
-        fastify.wsSendToUser(targetUserId, {
-          type: "friend:request",
-          requestId: created.friendship.id,
-          fromUserId: authUser,
-          status: "PENDING",
-          notificationId: created.notification.id,
-          ts: Date.now(),
-        });
+		fastify.wsSendToUser(targetUserId, {
+			type: "friend:request",
+			payload: {
+				id: created.friendship.id,
+				senderId: authUser,
+				sender: {
+					name: sender?.name,
+					surname: sender?.surname,
+					email: sender?.email
+				},
+				createdAt: new Date().toISOString()
+			},
+			ts: Date.now(),
+		});
 
         reply.code(201);
         return { success: true, friendship: created.friendship };
@@ -187,6 +189,7 @@ const Posters: FastifyPluginAsync = async (fastify: FastifyInstance, opts) => {
           return {
             ok: true as const,
             updatedFriendship,
+			recieverId: friendship.receiverId,
             senderId: friendship.senderId,
             notifyId: notifySender.id,
           };
@@ -197,7 +200,18 @@ const Posters: FastifyPluginAsync = async (fastify: FastifyInstance, opts) => {
           return { error: out.error };
         }
 
-        fastify.wsSendToUser(out.senderId, {
+        fastify.wsSendToUser(out.senderId, 
+		{
+          type: "friend:request:accepted",
+          requestId,
+          acceptedByUserId: authUser,
+          status: "ACCEPTED",
+          notificationId: out.notifyId,
+          ts: Date.now(),
+        });
+
+		fastify.wsSendToUser(out.recieverId, 
+		{
           type: "friend:request:accepted",
           requestId,
           acceptedByUserId: authUser,
@@ -274,6 +288,7 @@ fastify.post<{ Params: { requestId: string } }>(
         return {
           ok: true as const,
           updated,
+          reciverId: friendship.receiverId,
           senderId: friendship.senderId,
           notifyId: notifySender.id,
         };
@@ -286,6 +301,15 @@ fastify.post<{ Params: { requestId: string } }>(
 
       // WS al sender
       fastify.wsSendToUser(out.senderId, {
+        type: "friend:request:rejected",
+        requestId,
+        rejectedByUserId: authUser,
+        status: "REJECTED",
+        notificationId: out.notifyId,
+        ts: Date.now(),
+      });
+
+	  fastify.wsSendToUser(out.reciverId, {
         type: "friend:request:rejected",
         requestId,
         rejectedByUserId: authUser,
