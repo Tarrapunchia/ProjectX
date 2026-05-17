@@ -46,6 +46,7 @@ export const ChatBox = memo(({ isOpen, isDragging, hiddenChatId, pos, friends, g
 			{floatingChats.map((chat) => (
 				chat.type === 'private' ? (
 					<ChatBoxPrivate
+						key={chat.roomId}
 						friends={friends}
 						chat={chat}
 						activeChat={activeChat}
@@ -55,6 +56,7 @@ export const ChatBox = memo(({ isOpen, isDragging, hiddenChatId, pos, friends, g
 					/>
 				) : (
 					<ChatBoxGroup
+						key={chat.roomId}
 						groups={groups}
 						chat={chat}
 						activeChat={activeChat}
