@@ -78,8 +78,39 @@ const putter = async (api: string, body: any): Promise<{ success: boolean, data:
     }
 }
 
+const deleter = async (api: string, body: any = null) => {
+    try 
+	{
+        const headers: Record<string, string> = {
+            'Accept': 'application/json',
+        };
+
+        if (body) {
+            headers['Content-Type'] = 'application/json';
+        }
+
+        const response = await fetch(`${CONSTS.BE}${api}`, {
+            method: 'DELETE',
+            headers: headers,
+            credentials: 'include',
+            body: body ? JSON.stringify(body) : undefined, 
+        });
+
+        return {
+            success: response.ok
+        };
+    } catch (error) {
+        console.error("Helper Deleter Error:", error);
+        return {
+            success: false,
+            data: { error: "Errore di rete" },
+        };
+    }
+};
+
 export default {
     getter,
 	poster,
 	putter,
+	deleter,
 }

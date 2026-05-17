@@ -85,7 +85,7 @@ export const WebSocketProvider: React.FC<{ children: ReactNode }> = ({ children 
         const res = await helpers.getter('/api/v1/users/activeUser', null);
         if (res.success) {
             setMyUserId(res.data.id);
-            setActiveUser(res.data); // Salva tutto l'oggetto qui!
+            setActiveUser(res.data);
         }
     }, []);
 
