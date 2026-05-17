@@ -1,97 +1,101 @@
-// import fastify, { type FastifyInstance, type FastifyPluginAsync } from "fastify";
-// import { getUserIdFromJWT } from "../../../../helpers/cookies.js";
-// import { orgSchemas } from "./projectsSchema.js";
+import fastify, { type FastifyInstance, type FastifyPluginAsync } from "fastify";
+import { getUserIdFromJWT } from "../../../../helpers/cookies.js";
+import { eventsSchemas } from "./eventsSchema.js";
 
-// const Putters: FastifyPluginAsync = async (fastify: FastifyInstance, opts) => {
-// // PUT /api/v1/organizations/modifyOrganizationInfos
-//     fastify.put<{
-//         Body: {
-//             orgId: number
-//             name?: string | null
-//             email?: string | null
-//             phone?: string | null
-//             city?: string | null
-//             address?: string | null
-//             cap?: string | null
-//             state?: string | null
-//         }
-//         }>(
-//         '/modifyOrganizationInfos',
-//         { schema: orgSchemas.modifyOrgInfos },
-//         async (req, res) => {
-//             // Controllo se loggati (vedo se ho JWT nei session token)
-//             let ownerId = getUserIdFromJWT(req, res, fastify)
-//             if (!ownerId) {
-//                 res.code(400)
-//                 return { error: 'You must be logged in in order to modify an Organization' }
-//             }
+const Putters: FastifyPluginAsync = async (fastify: FastifyInstance, opts) => {
+    // PUT /api/v1/events/:id
+    fastify.put<{
+    Params: { id: string }
+    Body: {
+        name?: string
+        type?: string
+        message?: string
+        dueDate?: string
+        participants?: number[] // opzionale: lista completa (senza owner) oppure lista totale, vedi nota
+    }
+    }>(
+    '/:id',
+    { schema: eventsSchemas.updateEventSchema },
+    async (req, reply) => {
+        const userId = getUserIdFromJWT(req, reply, fastify)
+        if (!userId || Number.isNaN(userId)) {
+            reply.code(401)
+            return { error: 'Unauthorized: User not connected' }
+        }
 
-//             const existing = await fastify.prisma.user.findUnique({
-//                 where: { id: ownerId },
-//                 select: { id: true },
-//             })
-//             if (!existing) {
-//                 res.code(404)
-//                 return { error: 'User not found' }
-//             }
+        const eventId = Number(req.params.id)
+        if (Number.isNaN(eventId)) {
+            reply.code(400)
+            return { error: 'invalid event id' }
+        }
 
-//             const {
-//                 orgId,
-//                 name,
-//                 email,
-//                 phone,
-//                 city,
-//                 address,
-//                 cap,
-//                 state,
-//             } = req.body
+        const { name, type, message, dueDate, participants } = req.body
 
-//             const existingOrg = await fastify.prisma.organization.findUnique({
-//                 where: { id: orgId, ownerId: ownerId },
-//                 select: { id: true },
-//             })
-//             if (!existingOrg) {
-//                 res.code(404)
-//                 return { error: 'Organization not found / no rights to modify' }
-//             }
+        // almeno un campo
+        if (
+            name === undefined &&
+            type === undefined &&
+            message === undefined &&
+            dueDate === undefined &&
+            participants === undefined
+        ) {
+            reply.code(400)
+            return { error: 'No fields to update' }
+        }
 
+        try {
+            const out = await fastify.prisma.$transaction(async (tx) => {
+                const existing = await tx.event.findUnique({
+                where: { id: eventId },
+                select: { id: true, ownerId: true },
+                })
+                if (!existing) return { ok: false as const, code: 404, error: 'Event not found' }
+                if (existing.ownerId !== userId) return { ok: false as const, code: 403, error: 'Only owner can update event' }
 
-//             const data: Record<string, any> = {}
-//             if (name !== undefined) data.name = name
-//             if (email !== undefined) data.email = email
-//             if (phone !== undefined) data.phone = phone
-//             if (city !== undefined) data.city = city
-//             if (address !== undefined) data.address = address
-//             if (cap !== undefined) data.cap = cap
-//             if (state !== undefined) data.state = state
+                // update campi event
+                const updated = await tx.event.update({
+                where: { id: eventId },
+                data: {
+                    ...(name !== undefined ? { name } : {}),
+                    ...(type !== undefined ? { type: type.toUpperCase() as any } : {}),
+                    ...(message !== undefined ? { message } : {}),
+                    ...(dueDate !== undefined ? { dueDate: new Date(dueDate) } : {}),
+                },
+                })
 
-//             if (Object.keys(data).length === 0) {
-//                 res.code(400)
-//                 return { error: 'No fields to update' }
-//             }
+                if (participants !== undefined) {
+                const unique = Array.from(new Set(participants.filter((p) => Number.isFinite(p) && p !== userId)))
 
-//             try {
-//                 const org = await fastify.prisma.organization.update({
-//                     where: { id: orgId },
-//                     data,
-//                 })
+                // cancello tutti i participant tranne owner
+                await tx.eventParticipant.deleteMany({
+                    where: { eventId, userId: { not: userId } },
+                })
 
-//                 res.code(200)
-//                 return org
-//             } catch (error: any) {
-//                 fastify.log.error(error)
+                // reinserisco
+                if (unique.length > 0) {
+                    await tx.eventParticipant.createMany({
+                        data: unique.map((uid) => ({ eventId, userId: uid })),
+                    })
+                }
+                }
 
-//                 // nome duplicato
-//                 if (error?.code === 'P2002') {
-//                     res.code(400)
-//                     return { error: 'Name already in use' }
-//                 }
+                return { ok: true as const, updated }
+            })
 
-//                 res.code(400)
-//                 return { error: 'Unable to update organization' }
-//             }
-//         }
-//     )
-// }
+            if (!out.ok) {
+                reply.code(out.code)
+                return { error: out.error }
+            }
 
-// export default Putters
+            reply.code(200)
+            return { success: true, data: out.updated }
+            } catch (err) {
+                fastify.log.error(err)
+                reply.code(500)
+                return { error: 'Internal server error while updating event' }
+            }
+        }
+    )
+}
+
+export default Putters
