@@ -1,6 +1,6 @@
 import { useEffect, useRef } from 'react';
-import { useWebSocket, type FloatingChatInfo, type Friend, type Group } from '../../utilities/WebSocketContext';
-import { menuSize, getFloatingLayout } from './ChatMenu';
+import { useWebSocket, type FloatingChatInfo, type Friend, type Group } from '../../../utilities/WebSocketContext';
+import { menuSize, getFloatingLayout } from '../ChatMenu/ChatMenu';
 import { ChatWindowPrivate } from './ChatWindowPrivate';
 import { ChatWindowGroup } from './ChatWindowGroup';
 
@@ -87,6 +87,7 @@ export const ChatWindow = ({ isOpen, isDragging, pos, activeChat, friends, group
 					scrollRef={scrollRef}
 					inputRef={inputRef}
 					currentMessages={currentMessages}
+					activeChat={activeChat}
 					setActiveChat={setActiveChat}
 				/>
 			)}

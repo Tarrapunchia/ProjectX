@@ -1,4 +1,4 @@
-import { type FloatingChatInfo } from '../../utilities/WebSocketContext';
+import { type FloatingChatInfo } from '../../../utilities/WebSocketContext';
 
 interface ChatBoxPrivateProps {
 	friends: any[];

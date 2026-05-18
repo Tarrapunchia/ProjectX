@@ -110,6 +110,7 @@ export const WebSocketProvider: React.FC<{ children: ReactNode }> = ({ children 
 			try {
 				const messageData = JSON.parse(event.data);
 
+				console.log(`onMessage: ${messageData.type}`);
 				if (messageData.type === "presence:update") {
 					setFriends(prev => prev.map(f =>
 						f.email === messageData.payload.email

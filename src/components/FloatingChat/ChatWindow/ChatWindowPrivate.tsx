@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { useWebSocket, type FloatingChatInfo, type Friend, type ChatMessage } from '../../utilities/WebSocketContext';
+import { useWebSocket, type FloatingChatInfo, type Friend, type ChatMessage } from '../../../utilities/WebSocketContext';
 import { FiChevronLeft, FiSend } from 'react-icons/fi';
 
 interface ChatWindowPrivateProps {

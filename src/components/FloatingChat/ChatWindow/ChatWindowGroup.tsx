@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { useWebSocket, type FloatingChatInfo, type Group, type ChatMessage } from '../../utilities/WebSocketContext';
+import { useState, useEffect } from 'react';
+import { useWebSocket, type FloatingChatInfo, type Group, type ChatMessage } from '../../../utilities/WebSocketContext';
 import { FiChevronLeft, FiSend, FiMenu, FiUserPlus, FiEdit, FiLogOut } from 'react-icons/fi';
 
 interface ChatWindowGroupProps {
@@ -7,10 +7,11 @@ interface ChatWindowGroupProps {
 	scrollRef: any;
 	inputRef: any;
 	currentMessages: any[];
+	activeChat: FloatingChatInfo | null;
 	setActiveChat: (chat: FloatingChatInfo | null) => void;
 }
 
-export const ChatWindowGroup = ({ group, scrollRef, inputRef, currentMessages, setActiveChat }: ChatWindowGroupProps) => {
+export const ChatWindowGroup = ({ group, scrollRef, inputRef, currentMessages, activeChat, setActiveChat }: ChatWindowGroupProps) => {
 	const { myUserId, setMessages, send } = useWebSocket();
 	const [inputText, setInputText] = useState('');
 	const [isOptionsOpen, setIsOptionsOpen] = useState(false);
@@ -20,7 +21,6 @@ export const ChatWindowGroup = ({ group, scrollRef, inputRef, currentMessages, s
 
 		const roomId = group.id;
 		const text = inputText.trim();
-		console.log(roomId);
 		
 		send({
 			type:"room:message",
@@ -42,6 +42,11 @@ export const ChatWindowGroup = ({ group, scrollRef, inputRef, currentMessages, s
 
 		setInputText('');
 	}
+
+	useEffect(() => {
+		if (!activeChat)
+			setIsOptionsOpen(false);
+	}, [activeChat]);
 
 	return (
 		<>
@@ -84,17 +89,23 @@ export const ChatWindowGroup = ({ group, scrollRef, inputRef, currentMessages, s
 			{isOptionsOpen ? (
 				<>
 					<div className="flex justify-center items-center w-full mt-5 gap-12">
-						<button className="border border-overlay-border-color rounded-md p-1 hover:cursor-pointer hover:border-owner-color transition-colors">
-							<FiUserPlus size={40} className="stroke-1"/>
-						</button>
-						<button className="border border-overlay-border-color rounded-md p-1 hover:cursor-pointer hover:border-owner-color transition-colors">
-							<FiEdit size={40} className="stroke-1"/>
-						</button>
-						<button className="border border-overlay-border-color rounded-md p-1 hover:cursor-pointer hover:border-owner-color hover:text-red-700 transition-colors">
-							<FiLogOut size={40} className="stroke-1"/>
-						</button>
+						<div className="shadow-[0_0_10px_rgba(172,134,0,0.7)] rounded-md">
+							<button className="border border-overlay-border-color p-1 rounded-md hover:cursor-pointer hover:border-owner-color hover:scale-110 transition-all">
+								<FiUserPlus size={40} className="stroke-1"/>
+							</button>
+						</div>
+						<div className="shadow-[0_0_10px_rgba(172,134,0,0.7)] rounded-md">
+							<button className="border border-overlay-border-color rounded-md p-1 hover:cursor-pointer hover:border-owner-color hover:scale-110 transition-all">
+								<FiEdit size={40} className="stroke-1"/>
+							</button>
+						</div>
+						<div className="shadow-[0_0_10px_rgba(172,134,0,0.7)] rounded-md">
+							<button className="border border-overlay-border-color rounded-md p-1 hover:cursor-pointer hover:border-owner-color hover:scale-110 hover:text-red-700 transition-all">
+								<FiLogOut size={40} className="stroke-1"/>
+							</button>
+						</div>
 					</div>
-					<div className="flex items-center justify-start w-full p-3 mt-2 font-light">
+					<div className="flex items-center justify-start w-full ml-3 mt-4 font-thin">
 						{group?.participants.length} membri
 					</div>
 					<div className="animate-fadeIn space-y-1">

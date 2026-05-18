@@ -1,4 +1,4 @@
-import { type Group, type FloatingChatInfo } from '../../utilities/WebSocketContext';
+import { type Group, type FloatingChatInfo } from '../../../utilities/WebSocketContext';
 
 interface ChatBoxGroupProps {
 	groups: Group[];

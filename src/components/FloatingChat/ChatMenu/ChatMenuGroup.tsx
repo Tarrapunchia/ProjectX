@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { FiSearch, FiUsers } from 'react-icons/fi';
-import { useWebSocket, type Group, type FloatingChatInfo } from '../../utilities/WebSocketContext';
+import { useWebSocket, type Group, type FloatingChatInfo } from '../../../utilities/WebSocketContext';
 
 interface ChatMenuGroupProps {
 	groups: Group[];
