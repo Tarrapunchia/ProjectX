@@ -90,3 +90,5 @@
 * avatarUrl sui gruppi per personalizzare l'immagine del gruppo
 
 * capire quale id utilizzare per mandare un messaggio e scaricare la history di una chat di gruppo
+
+* capire come utilizzare il poster per aggiungere un membro ad un gruppo

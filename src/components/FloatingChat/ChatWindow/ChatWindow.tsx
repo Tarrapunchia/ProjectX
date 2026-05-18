@@ -84,6 +84,7 @@ export const ChatWindow = ({ isOpen, isDragging, pos, activeChat, friends, group
 			) : (
 				<ChatWindowGroup
 					group={group}
+					friends={friends}
 					scrollRef={scrollRef}
 					inputRef={inputRef}
 					currentMessages={currentMessages}
