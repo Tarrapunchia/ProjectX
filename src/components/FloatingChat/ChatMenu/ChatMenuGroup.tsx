@@ -1,6 +1,7 @@
 import { useState } from 'react';
-import { FiSearch, FiUsers } from 'react-icons/fi';
+import { FiSearch, FiUsers, FiPlusSquare } from 'react-icons/fi';
 import { useWebSocket, type Group, type FloatingChatInfo } from '../../../utilities/WebSocketContext';
+import { ChatMenuGroupCreate } from './ChatMenuGroupCreate';
 
 interface ChatMenuGroupProps {
 	groups: Group[];
@@ -9,6 +10,7 @@ interface ChatMenuGroupProps {
 
 export const ChatMenuGroup = ({ groups, setActiveChat }: ChatMenuGroupProps) => {
 	const { openFloatingChat } = useWebSocket();
+	const [createGroup, setCreateGroup] = useState(false);
 
 	const [searchQuery, setSearchQuery] = useState('');
 	const filteredGroups = groups?.filter(group =>
@@ -16,7 +18,7 @@ export const ChatMenuGroup = ({ groups, setActiveChat }: ChatMenuGroupProps) => 
 	) || [];
 
 	return (
-		<div>
+		<div className="flex flex-col">
 			<div className="px-2 pt-2 bg-bg-color">
 				<div className="relative flex items-center">
 					<FiSearch className="absolute left-3 text-gray-400" size={16} />
@@ -29,7 +31,20 @@ export const ChatMenuGroup = ({ groups, setActiveChat }: ChatMenuGroupProps) => 
 					/>
 				</div>
 			</div>
-			<div className="animate-fadeIn space-y-1 p-2">
+
+			<div 
+				onClick={() => setCreateGroup(true)}
+				className="flex w-full h-15 mt-2 items-center justify-center p-5 gap-2 border-y border-overlay-border-color text-text-main hover:bg-side-bg-color hover:text-owner-color hover:cursor-pointer"
+			>
+				<div className="relative shrink-0">
+					<FiPlusSquare size={36} className="stroke-1"/>
+				</div>
+				<div className="">
+					Crea un nuovo gruppo
+				</div>
+			</div>
+
+			<div className="animate-fadeIn w-full space-y-1 p-2">
 				{filteredGroups.length > 0 ? (
 					filteredGroups.map((group) => (
 						<div
@@ -65,6 +80,10 @@ export const ChatMenuGroup = ({ groups, setActiveChat }: ChatMenuGroupProps) => 
 					</div>
 				)}
 			</div>
+			<ChatMenuGroupCreate
+				createGroup={createGroup}
+				setCreateGroup={setCreateGroup}
+			/>
 		</div>
 	)
 }

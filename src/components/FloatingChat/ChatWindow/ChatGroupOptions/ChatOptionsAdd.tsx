@@ -50,7 +50,7 @@ export const ChatOptionsAdd = ({ setOpenOption, openOption, friends, group }: Ch
 							key={friend.id}
 							className="flex items-center gap-3 p-3 mt-3 rounded-md hover:bg-side-bg-color cursor-pointer transition-colors group/item"
 							onClick={() => {
-								// helper.poster('/api/v1/groups/addPartecipant', friend.id, group?.id)
+								helper.poster('/api/v1/groups/addPartecipant', {userId: friend.id, groupId: group?.id})
 							}}						
 						>
 							<div className="relative shrink-0">		

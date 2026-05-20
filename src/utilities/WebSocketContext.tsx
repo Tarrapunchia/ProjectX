@@ -81,25 +81,59 @@ export const WebSocketProvider: React.FC<{ children: ReactNode }> = ({ children 
 	const [myUserId, setMyUserId] = useState<number | null>(null);
 	const friendsRef = useRef<Friend[]>([]);
 
+	// const loadFriends = async () => {
+	// 	const response = await helpers.getter('/api/v1/friends/ACCEPTED', null);
+	// 	if (response.success)
+	// 		setFriends(response.data.friends);
+	// };
+
+	const loadGroups = async () => {
+		const response = await helpers.getter('/api/v1/groups/joined', null);
+		if (response.success) {
+			const joinedGroups: Group[] = response.data.groups.map((item: any) => item.group);
+			setGroups(joinedGroups);
+		}
+	};
+
+	const openFloatingChat = (chat: FloatingChatInfo) => {
+		setFloatingChats(prev => {
+			if (prev.find(c => c.roomId === chat.roomId)) {
+				prev = prev.filter(c => c.roomId !== chat.roomId)
+				return [chat, ...prev];
+			}
+
+			return [chat, ...prev];
+		});
+	};
+
 	useEffect(() => {
-		const fetchMe = async () => {
+		const fetchMeAndData = async () => {
 			const res = await helpers.getter('/api/v1/users/activeUser', null);
-			if (res.success) setMyUserId(res.data.id);
+			if (res.success) {
+				setMyUserId(res.data.id);
+
+				const friendsRes = await helpers.getter('/api/v1/friends/ACCEPTED', null);
+				if (friendsRes.success) setFriends(friendsRes.data.friends);
+
+				const groupRes = await helpers.getter('/api/v1/groups/joined', null);
+				if (groupRes.success) {
+					const joinedGroups: Group[] = groupRes.data.groups.map((item: any) => item.group);
+					setGroups(joinedGroups);
+				}
+			}
 		};
-		fetchMe();
+		fetchMeAndData();
 	}, []);
 
 	useEffect(() => {
 		friendsRef.current = friends;
 	}, [friends]);
 
+
 	useEffect(() => {
 		if (myUserId === null) return;
 
 		const ws = new WebSocket(consts.WS);
-
-		loadFriends();
-		loadGroups();
 
 		ws.onopen = () => {
 			console.log("WS connected via Context");
@@ -109,12 +143,12 @@ export const WebSocketProvider: React.FC<{ children: ReactNode }> = ({ children 
 		ws.onmessage = (event) => {
 			try {
 				const messageData = JSON.parse(event.data);
-
+				
 				console.log(`onMessage: ${messageData.type}`);
-				if (messageData.type === "presence:update") {
+				if (messageData.type === "presence") {
 					setFriends(prev => prev.map(f =>
-						f.email === messageData.payload.email
-						? { ...f, isLoggedIn: messageData.payload.online }
+						f.id === messageData.payload.userId
+						? { ...f, isLoggedIn: messageData.payload.connected}
 						: f
 					));
 				}
@@ -186,36 +220,11 @@ export const WebSocketProvider: React.FC<{ children: ReactNode }> = ({ children 
 		}
 	};
 
-	const loadFriends = async () => {
-		const response = await helpers.getter('/api/v1/friends/ACCEPTED', null);
-		if (response.success)
-			setFriends(response.data.friends);
-	};
-
-	const loadGroups = async () => {
-		const response = await helpers.getter('/api/v1/groups/joined', null);
-		if (response.success) {
-			const joinedGroups: Group[] = response.data.groups.map((item: any) => item.group);
-			setGroups(joinedGroups);
-		}
-	};
-
 	const send = (data: any) => {
 		if (socket && socket.readyState === WebSocket.OPEN)
 			socket.send(JSON.stringify(data));
 		else
 			console.error("WS not ready. State", socket?.readyState);
-	};
-
-	const openFloatingChat = (chat: FloatingChatInfo) => {
-		setFloatingChats(prev => {
-			if (prev.find(c => c.roomId === chat.roomId)) {
-				prev = prev.filter(c => c.roomId !== chat.roomId)
-				return [chat, ...prev];
-			}
-
-			return [chat, ...prev];
-		});
 	};
 
 	const closeFloatingChat = (roomId: string) => {

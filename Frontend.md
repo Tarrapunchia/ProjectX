@@ -92,3 +92,5 @@
 * capire quale id utilizzare per mandare un messaggio e scaricare la history di una chat di gruppo
 
 * capire come utilizzare il poster per aggiungere un membro ad un gruppo
+
+* sistemare team chat: quando si riceve un messaggio non printa la mail del sender

@@ -72,7 +72,7 @@ export const ChatGroupOptions = ({ group, friends }: ChatGroupOptionsProps) => {
 						</div>
 					</div>
 				))}
-		</div>
+			</div>
 			<ChatOptionsAdd
 				openOption={openOption}
 				setOpenOption={setOpenOption}
