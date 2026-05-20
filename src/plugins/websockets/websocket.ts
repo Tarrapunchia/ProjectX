@@ -143,9 +143,12 @@ const websocketPlugin: FastifyPluginAsync = fp(async (server) => {
             server.wsClientsByUserId.set(userId, set)
         }
         set.add(ws)
-        server.wsBroadcast({
+        server.wsBroadcastExcept(userId, {
             type: "presence",
-            connected: true,
+            payload: {
+                connected: true,
+                userId,
+            }
         })
         server.log.info({ userId, connectionsForUser: set.size }, 'WS connected')
 
@@ -153,7 +156,10 @@ const websocketPlugin: FastifyPluginAsync = fp(async (server) => {
             const curUsr = server.wsClientsByUserId.get(userId)
             server.wsBroadcast({
                 type: "presence",
-                connected: false,
+                payload: {
+                    connected: false,
+                    userId,
+                }
             })
             if (curUsr) {
                 curUsr.delete(ws)
@@ -205,18 +211,6 @@ const websocketPlugin: FastifyPluginAsync = fp(async (server) => {
                             payload: msg.payload ?? null
                         })
                     break;
-                
-                // case "cursor:move":
-                //     server.wsBroadcastExcept(
-                //         ws,
-                //         {
-                //             type: 'cursor:move',
-                //             userId,
-                //             x: msg.x,
-                //             y: msg.y,
-                //             ts: Date.now()
-                //         })
-                //     break;
                 case 'chat:send':
                 {
                     const toUserId = Number(msg.toUserId)
