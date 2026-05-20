@@ -1,8 +1,8 @@
 import { useState, useRef, useEffect } from 'react';
 import { ChatButton } from './ChatButton';
-import { ChatMenu } from './ChatMenu';
-import { ChatBox } from './ChatBox';
-import { ChatWindow } from './ChatWindow';
+import { ChatMenu } from './ChatMenu/ChatMenu';
+import { ChatBox } from './ChatBox/ChatBox';
+import { ChatWindow } from './ChatWindow/ChatWindow';
 import { useWebSocket, type FloatingChatInfo } from '../../utilities/WebSocketContext';
 
 function FloatingChat() {
@@ -204,6 +204,7 @@ function FloatingChat() {
 				pos={pos}
 				activeChat={activeChat}
 				friends={friends || []}
+				groups={groups || []}
 				setActiveChat={setActiveChat}
 			/>
 		</div>

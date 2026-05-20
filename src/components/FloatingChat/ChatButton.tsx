@@ -1,4 +1,4 @@
-import { FiPlus, FiTrash2 } from 'react-icons/fi';
+import { FiMessageSquare, FiX, FiTrash2 } from 'react-icons/fi';
 
 interface ChatButtonProps {
 	isOpen: boolean;
@@ -18,12 +18,12 @@ export const ChatButton = ({ isOpen, isDeleting, onClick }: ChatButtonProps) => 
 		onClick={onClick}
 	>
 		{isDeleting? (
-			<FiTrash2 size={26} />
-		) : (
-			<FiPlus
+			<FiTrash2
 				size={26}
-				className={`transition-transform duration-300 ${isOpen ? 'rotate-45' : 'rotate-0'}`}
+				// className={`transition-transform duration-300`}
 			/>
+		) : (
+			isOpen? ( <FiX size={26} /> ) : ( <FiMessageSquare size={26} /> )
 		)}
 	</button>
 );

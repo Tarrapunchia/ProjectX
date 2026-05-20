@@ -85,4 +85,12 @@
 
 ## Fixes
 
-* Il server non manda un messaggio di broadcast agli amici quando un utente si connette o disconnette
+* Mandare da backend un messaggio a tutta la lista amici quando un utente si connette o disconnette type=presence:update
+
+* avatarUrl sui gruppi per personalizzare l'immagine del gruppo
+
+* capire quale id utilizzare per mandare un messaggio e scaricare la history di una chat di gruppo
+
+* capire come utilizzare il poster per aggiungere un membro ad un gruppo
+
+* sistemare team chat: quando si riceve un messaggio non printa la mail del sender

@@ -1,6 +1,10 @@
 import { FiUsers, FiUser } from 'react-icons/fi';
 import { useState, memo } from 'react';
+<<<<<<< HEAD:src/components/FloatingChat/ChatMenu.tsx
 import { type FloatingChatInfo, type Friend, type Group } from '../../utilities/WebSocketContext';
+=======
+import { type FloatingChatInfo, type Friend, type Group } from '../../../utilities/WebSocketContext';
+>>>>>>> feat/ChatWindowGroup:src/components/FloatingChat/ChatMenu/ChatMenu.tsx
 import { ChatMenuPrivate } from './ChatMenuPrivate';
 import { ChatMenuGroup } from './ChatMenuGroup';
 
