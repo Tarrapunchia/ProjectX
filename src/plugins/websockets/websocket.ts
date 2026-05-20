@@ -143,10 +143,18 @@ const websocketPlugin: FastifyPluginAsync = fp(async (server) => {
             server.wsClientsByUserId.set(userId, set)
         }
         set.add(ws)
+        server.wsBroadcast({
+            type: "presence",
+            connected: true,
+        })
         server.log.info({ userId, connectionsForUser: set.size }, 'WS connected')
 
         ws.on('close', async (code: number, reason: Buffer) => {
             const curUsr = server.wsClientsByUserId.get(userId)
+            server.wsBroadcast({
+                type: "presence",
+                connected: false,
+            })
             if (curUsr) {
                 curUsr.delete(ws)
                 if (curUsr.size == 0) {
