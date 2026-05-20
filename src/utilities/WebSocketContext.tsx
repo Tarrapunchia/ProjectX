@@ -249,6 +249,7 @@ export const WebSocketProvider: React.FC<{ children: ReactNode }> = ({ children 
 				{
 					console.log(messageData)
 					setPendingRequests(prev => prev.filter(r => r.id !== messageData.requestId));
+					loadFriends();
 				}
 
                 if (messageData.type === "friend:request:rejected")

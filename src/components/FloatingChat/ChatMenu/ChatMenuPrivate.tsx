@@ -1,9 +1,5 @@
 import { useState } from 'react';
-<<<<<<< HEAD:src/components/FloatingChat/ChatMenuPrivate.tsx
-import { useWebSocket, type FloatingChatInfo, type Friend } from '../../utilities/WebSocketContext';
-=======
 import { useWebSocket, type FloatingChatInfo, type Friend } from '../../../utilities/WebSocketContext';
->>>>>>> feat/ChatWindowGroup:src/components/FloatingChat/ChatMenu/ChatMenuPrivate.tsx
 import { FiUser, FiSearch } from 'react-icons/fi';
 
 interface ChatMenuPrivateProps {
