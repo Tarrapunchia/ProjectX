@@ -65,6 +65,15 @@ const Deleters: FastifyPluginAsync = async (fastify: FastifyInstance, opts) => {
                     return { ok: true as const, deletedGroup: true, remaining: 0 }
                 }
 
+                fastify.wsRoomBroadcast('group:' + groupId, {
+                    type: 'group:invitation:leave',
+                    groupId,
+                    acceptedByUserId: userId,
+                    ts: Date.now(),
+                    },
+                    userId
+                )
+
                 return { ok: true as const, deletedGroup: false, remaining }
             })
 
