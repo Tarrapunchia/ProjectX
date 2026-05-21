@@ -21,7 +21,7 @@ export const ChatOptionsAdd = ({ setOpenOption, openOption, friends, group }: Ch
 
 	return (
 		<div className={`absolute origin-center w-full h-full z-20 bg-bg-color/90 transition-all duration-400
-						${openOption ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}>
+						${openOption === 'add' ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}>
 			<div className="flex justify-end mt-3 mr-3">
 				<button
 					onClick={() => setOpenOption(null)}
@@ -50,7 +50,8 @@ export const ChatOptionsAdd = ({ setOpenOption, openOption, friends, group }: Ch
 							key={friend.id}
 							className="flex items-center gap-3 p-3 mt-3 rounded-md hover:bg-side-bg-color cursor-pointer transition-colors group/item"
 							onClick={() => {
-								helper.poster('/api/v1/groups/addPartecipant', {userId: friend.id, groupId: group?.id})
+								helper.poster('/api/v1/groups/addPartecipant', {userId: friend.id, groupId: group?.id});
+								setOpenOption(null);
 							}}						
 						>
 							<div className="relative shrink-0">		

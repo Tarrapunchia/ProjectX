@@ -74,6 +74,7 @@ interface WebSocketContextType {
 	closeFloatingChat: (roomId: string) => void;
 	friends: Friend[];
 	groups: Group[];
+	setGroups: (value: Group[]) => void;
 	loadGroups: () => Promise<void>;
 
 	messages: Record<string, ChatMessage[]>;
@@ -230,6 +231,8 @@ export const WebSocketProvider: React.FC<{ children: ReactNode }> = ({ children 
 			{
 				const messageData = JSON.parse(event.data);
 
+				console.log(messageData);
+
 				if (["task:updated", "task:created", "event:updated", "event:created"].includes(messageData.type)) 
 				{
         			loadCalendar();
@@ -351,6 +354,7 @@ export const WebSocketProvider: React.FC<{ children: ReactNode }> = ({ children 
 			closeFloatingChat,
 			friends,
 			groups,
+			setGroups,
 			loadGroups,
 			messages,
 			setMessages,

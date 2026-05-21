@@ -92,6 +92,8 @@ export const ChatWindowGroup = ({ group, friends, scrollRef, inputRef, currentMe
 				<ChatGroupOptions
 					group={group}
 					friends={friends}
+					activeChat={activeChat}
+					setActiveChat={setActiveChat}
 				/>
 			) : (
 				<>

@@ -43,7 +43,18 @@
 	--color-text: rgba(255, 255, 255, 0.87);
 }
 
+@keyframes shake {
+	0%, 100% { transform: translateX(0); }
+	20%, 60% { transform: translateX(-4px); }
+	40%, 80% { transform: translateX(4px); }
+}
+
+
 @layer utilities {
+	.animate-shake {
+		animation: shake 0.3s ease-in-out;
+	}
+
 	.no-scrollbar::-webkit-scrollbar {
 		display: none;
 	}

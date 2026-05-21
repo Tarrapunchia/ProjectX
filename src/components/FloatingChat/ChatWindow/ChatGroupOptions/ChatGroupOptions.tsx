@@ -1,14 +1,17 @@
-import { type Group, type Friend } from '../../../../utilities/WebSocketContext';
+import { type Group, type Friend, type FloatingChatInfo } from '../../../../utilities/WebSocketContext';
 import { FiUserPlus, FiEdit, FiLogOut } from 'react-icons/fi';
 import { ChatOptionsAdd } from './ChatOptionsAdd';
+import { ChatOptionsLeave } from './ChatOptionsLeave';
 import { useState } from 'react';
 
 interface ChatGroupOptionsProps {
 	group?: Group;
 	friends: Friend[];
+	activeChat: FloatingChatInfo | null;
+	setActiveChat: (chat: FloatingChatInfo | null) => void;
 }
 
-export const ChatGroupOptions = ({ group, friends }: ChatGroupOptionsProps) => {
+export const ChatGroupOptions = ({ group, friends, activeChat, setActiveChat }: ChatGroupOptionsProps) => {
 	const [openOption, setOpenOption] = useState< 'add' | 'edit' | 'leave' | null >(null);
 
 	return (
@@ -33,7 +36,7 @@ export const ChatGroupOptions = ({ group, friends }: ChatGroupOptionsProps) => {
 				<div className="shadow-[0_0_10px_rgba(172,134,0,0.7)] rounded-md">
 					<button 
 						onClick={() => setOpenOption('leave')}
-						className="border border-overlay-border-color p-1 rounded-md hover:cursor-pointer hover:border-owner-color hover:scale-110 transition-all"
+						className="border border-overlay-border-color p-1 rounded-md hover:cursor-pointer hover:border-owner-color hover:scale-110 hover:text-red-600 transition-all"
 					>
 						<FiLogOut size={40} className="stroke-1"/>
 					</button>
@@ -78,6 +81,13 @@ export const ChatGroupOptions = ({ group, friends }: ChatGroupOptionsProps) => {
 				setOpenOption={setOpenOption}
 				friends={friends}
 				group={group}
+			/>
+			<ChatOptionsLeave
+				openOption={openOption}
+				setOpenOption={setOpenOption}
+				group={group}
+				activeChat={activeChat}
+				setActiveChat={setActiveChat}
 			/>
 		</>
 	)

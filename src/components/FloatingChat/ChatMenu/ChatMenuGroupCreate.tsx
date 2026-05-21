@@ -1,5 +1,5 @@
 import { FiX, FiCheck } from 'react-icons/fi';
-import { useRef } from 'react';
+import { useRef, useState } from 'react';
 import helper from '../../../utilities/helpers';
 
 interface ChatMenuGroupCreateProps {
@@ -11,8 +11,21 @@ export const ChatMenuGroupCreate = ({ createGroup, setCreateGroup }: ChatMenuGro
 	const groupName = useRef('');
 	const description = useRef('');
 
-	const handleGroupCreation = () => {
-		helper.poster("/api/v1/groups/addGroup", {name: groupName.current, description: description.current})
+	const [isError, setIsError] = useState(false);
+	const [shakeKey, setShakeKey] = useState(0);
+
+	const handleGroupCreation = async () => {
+		if (!groupName.current.trim()) {
+			setIsError(true);
+			setShakeKey(prev => prev + 1);
+			
+			return;
+		}
+
+		setIsError(false);
+		await helper.poster("/api/v1/groups/addGroup", {name: groupName.current.trim(), description: description.current})
+	
+		setCreateGroup(false);
 	}
 
 	return (
@@ -24,11 +37,20 @@ export const ChatMenuGroupCreate = ({ createGroup, setCreateGroup }: ChatMenuGro
 					Nome Gruppo
 				</span>
 				<div className="flex items-center justify-center mt-2">
-					<input 
+					<input
+						key={shakeKey}
 						type="text"
 						placeholder="Inserisci nome gruppo..."
-						onChange={(e) => {groupName.current = e.target.value}}
-						className="flex relative border border-overlay-border-color rounded-full h-10 w-90 pl-3 focus:outline-none focus:border-owner-color"
+						onChange={(e) => {
+							groupName.current = e.target.value;
+							if (isError && e.target.value.trim()) setIsError(false);
+						}}
+						className={`flex relative border border-overlay-border-color rounded-full h-10 w-90 pl-3 focus:outline-none focus:border-owner-color
+								${isError
+									? 'border-red-500 bg-red-50/5 focus:border-red-500'
+									: 'border-overlay-border-color focus:border-owner-color'
+								}
+								${isError && shakeKey > 0 ? 'animate-shake' : ''}`}
 					/>
 				</div>
 			</div>
