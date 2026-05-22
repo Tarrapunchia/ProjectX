@@ -25,7 +25,7 @@ const getFriends: Schema = {
                         email: { type: 'string', format: 'email' },
                         jobQualifier: { type: 'string' },
                         isLoggedIn: { type: 'boolean'},
-                        avatar: { type: 'string' }
+                        avatarUrl: { type: 'string' }
                     }
                 }
             },
