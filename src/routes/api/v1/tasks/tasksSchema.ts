@@ -20,6 +20,7 @@ const getProjTasksSchema: Schema = {
                     description: { type: 'string', nullable: true },
                     createdAt: { type: 'string', format: 'date-time' },
                     closedAt: { type: 'string', format: 'date-time', nullable: true },
+                    projectId: { type: 'string' }
                 }
             }
         },

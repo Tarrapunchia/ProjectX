@@ -39,6 +39,7 @@ const Getters: FastifyPluginAsync = async (fastify: FastifyInstance, opts) => {
                 status: t.status,
                 createdAt: t.createdAt,
                 closedAt: t.closedAt ?? null,
+                projectId: t.projectId
             }))
 
         res.code(200)
