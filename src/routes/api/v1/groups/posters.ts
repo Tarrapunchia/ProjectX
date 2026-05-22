@@ -123,14 +123,19 @@ const Posters: FastifyPluginAsync = async (fastify: FastifyInstance, opts) => {
                     groupId: groupId
                 }
             })
-            fastify.wsRoomBroadcast('group:' + groupId, {
-                type: 'group:invitation:accepted',
+            await fastify.wsRoomBroadcast(`group:${groupId}`, {
+                type: 'group:participant:added',
                 groupId,
-                acceptedByUserId: userId,
+                addedUserId: userId,
+                addedByUserId: activeId,
                 ts: Date.now(),
-                },
-                userId
-            )
+            })
+
+            fastify.wsSendToUser(userId, {
+                type: 'group:joined',
+                groupId,
+                ts: Date.now(),
+            })
             res.code(200)
             return {
                 userId: userId,
