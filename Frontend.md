@@ -104,3 +104,26 @@ export interface Friend {
 	avatarUrl: string;
 }
 
+* Task e progetti dovrebbero ritornare i seguenti valori dalla chiamata API
+
+export type Project = {
+	id: string,
+	name: string,
+	status: 'ACTIVE' | 'COMPLETED' | 'REVIEW' | 'TODO',
+	description: string,
+	createdAt: Date,
+	closedAt: Date | null,
+	tasks: Task[]
+}
+
+export type Task = {
+	id: string,
+	name: string,
+	status: 'ACTIVE' | 'COMPLETED' | 'REVIEW' | 'TODO',
+	description: string,
+	priority: 'NONE' | 'LOW' | 'MEDIUM' | 'HIGH' | 'CRITICAL',
+	createdAt: Date,
+	dueDate: Date | null,
+	closedAt: Date | null,
+	projectId: string,
+}
