@@ -123,6 +123,18 @@ const Posters: FastifyPluginAsync = async (fastify: FastifyInstance, opts) => {
                     groupId: groupId
                 }
             })
+
+            const roomId = `group:${groupId}`
+            let roomSet = fastify.wsRooms.get(roomId)
+            if (!roomSet) {
+            roomSet = new Set()
+            fastify.wsRooms.set(roomId, roomSet)
+            }
+
+            const sockets = fastify.wsClientsByUserId.get(userId) // nuovo membro
+            if (sockets) {
+            for (const ws of sockets) roomSet.add(ws)
+            }
             await fastify.wsRoomBroadcast(`group:${groupId}`, {
                 type: 'group:participant:added',
                 groupId,

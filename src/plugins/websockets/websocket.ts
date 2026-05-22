@@ -44,6 +44,15 @@ export function safeSend(ws: WebSocket, payload: string) {
     }
 }
 
+function joinRoom(server: any, ws: WebSocket, roomId: string) {
+  let set = server.wsRooms.get(roomId)
+  if (!set) {
+    set = new Set<WebSocket>()
+    server.wsRooms.set(roomId, set)
+  }
+  set.add(ws)
+}
+
 const websocketPlugin: FastifyPluginAsync = fp(async (server) => {
     // 1) stato condiviso
     server.decorate('wsClientsByUserId', new Map<number, WsClientSet>())
@@ -143,6 +152,30 @@ const websocketPlugin: FastifyPluginAsync = fp(async (server) => {
             server.wsClientsByUserId.set(userId, set)
         }
         set.add(ws)
+        // AUTO-JOIN group rooms, proj e org dove è membro
+        const myProjects = await server.prisma.projectParticipant.findMany({
+        where: { userId },
+        select: { projectId: true },
+        })
+
+        for (const p of myProjects) {
+        const roomId = `project:${p.projectId}`
+        joinRoom(server, ws, roomId)
+        }
+        const groups = await server.prisma.groupParticipant.findMany({
+        where: { userId },
+        select: { groupId: true },
+        })
+
+        for (const g of groups) {
+        const roomId = `group:${g.groupId}`
+        let roomSet = server.wsRooms.get(roomId)
+        if (!roomSet) {
+            roomSet = new Set<WebSocket>()
+            server.wsRooms.set(roomId, roomSet)
+        }
+        roomSet.add(ws)
+        }
         server.wsBroadcastExcept(userId, {
             type: "presence",
             payload: {
@@ -424,25 +457,3 @@ function generateSocketId(): string {
 }
 
 export default websocketPlugin
-
-// ===== CODICI di CHIUSURA WEBSOCKET =====
-
-// 1000 // Normal closure (tutto ok)
-// 1001 // Going away (client chiude tab)
-// 1006 // Abnormal closure (connessione persa)
-// 1008 // Policy violation (tipo token non valido)
-// 1011 // Internal error
-
-
-// in REACT si fa unmount del component quando cambio la route/chiudo la chat della room
-// useEffect(() => {
-//   // quando entri nella room
-//   ws.send(JSON.stringify({ type: "room:join", roomId }));
-
-//   return () => {
-//     // quando esci (route change/unmount)
-//     if (ws?.readyState === WebSocket.OPEN) {
-//       ws.send(JSON.stringify({ type: "room:leave", roomId }));
-//     }
-//   };
-// }, [roomId]);
