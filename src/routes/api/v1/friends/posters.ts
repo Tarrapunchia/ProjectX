@@ -186,12 +186,38 @@
               },
             });
 
+            const sender = await tx.user.findUnique({
+              where: { id: friendship.senderId },
+              select: {
+                name: true,
+                surname: true,
+                email: true,
+                jobQualifier: true,
+                isLoggedIn: true,
+                avatarUrl: true
+              }
+            })
+
+            const receiver = await tx.user.findUnique({
+              where: { id: friendship.receiverId },
+              select: {
+                name: true,
+                surname: true,
+                email: true,
+                jobQualifier: true,
+                isLoggedIn: true,
+                avatarUrl: true
+              }
+            })
+
             return {
               ok: true as const,
               updatedFriendship,
-        recieverId: friendship.receiverId,
+              recieverId: friendship.receiverId,
               senderId: friendship.senderId,
               notifyId: notifySender.id,
+              senderProfile: sender,
+              receiverProfile: receiver
             };
           });
 
@@ -207,6 +233,7 @@
             acceptedByUserId: authUser,
             status: "ACCEPTED",
             notificationId: out.notifyId,
+            friend: out.receiverProfile,
             ts: Date.now(),
           });
 
@@ -217,6 +244,7 @@
             acceptedByUserId: authUser,
             status: "ACCEPTED",
             notificationId: out.notifyId,
+            friend: out.senderProfile,
             ts: Date.now(),
           });
 
