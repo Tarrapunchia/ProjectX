@@ -1,6 +1,7 @@
 import { FiX, FiCheck } from 'react-icons/fi';
 import { useRef, useState } from 'react';
 import helper from '../../../utilities/helpers';
+// import { useWebSocket, type Group } from '../../../utilities/WebSocketContext';
 
 interface ChatMenuGroupCreateProps {
 	createGroup: boolean;
@@ -8,6 +9,7 @@ interface ChatMenuGroupCreateProps {
 }
 
 export const ChatMenuGroupCreate = ({ createGroup, setCreateGroup }: ChatMenuGroupCreateProps) => {
+	// const { setGroups, groups } = useWebSocket();
 	const groupName = useRef('');
 	const description = useRef('');
 
@@ -24,7 +26,7 @@ export const ChatMenuGroupCreate = ({ createGroup, setCreateGroup }: ChatMenuGro
 
 		setIsError(false);
 		await helper.poster("/api/v1/groups/addGroup", {name: groupName.current.trim(), description: description.current})
-	
+		
 		setCreateGroup(false);
 	}
 

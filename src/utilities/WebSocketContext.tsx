@@ -106,6 +106,7 @@ export const WebSocketProvider: React.FC<{ children: ReactNode }> = ({ children 
 	const [messages, setMessages] = useState<Record<string, ChatMessage[]>>({});
 	const [activeUser, setActiveUser] = useState<any | null>(null);
 	const [myUserId, setMyUserId] = useState<number | null>(null);
+	const [chatNotifications, setChatNotifications] = useState<Record<string, {chatInfo: FloatingChatInfo; count: number}>>({});
 	const friendsRef = useRef<Friend[]>([]);
 	const [pendingRequests, setPendingRequests] = useState<FriendRequest[]>([]);
 	const [calendarEntries, setCalendarEntries] = useState<CalendarEntries | null>(null);
@@ -231,7 +232,7 @@ export const WebSocketProvider: React.FC<{ children: ReactNode }> = ({ children 
 			{
 				const messageData = JSON.parse(event.data);
 
-				console.log(messageData);
+				console.log(messageData.type);
 
 				if (["task:updated", "task:created", "event:updated", "event:created"].includes(messageData.type)) 
 				{
