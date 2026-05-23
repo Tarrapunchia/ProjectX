@@ -58,7 +58,7 @@ export default function DocumentsPage({ selectedProject }: ChatPageProps)
                 {files.map((file) => (
                     <div
                         key={file.id}
-                        onClick={() => setPreview(file)} // setPreview è stabile, non triggera ricalcoli
+                        onClick={() => setPreview(file)}
                         className="group cursor-pointer flex flex-col rounded-lg shadow-sm border border-overlay-border-color overflow-hidden hover:shadow-md hover:border-text-main transition-all hover:scale-105"
                     >
                         {/* AREA ANTEPRIMA */}
@@ -93,7 +93,8 @@ export default function DocumentsPage({ selectedProject }: ChatPageProps)
         );
     }, [files]);
 
-    const loadFiles = useCallback(async (pData: any) => {
+    const loadFiles = useCallback(async (pData: any) => 
+	{
         if (!selectedProject || !pData?.organization?.id) return;
         
         try 
@@ -121,7 +122,8 @@ export default function DocumentsPage({ selectedProject }: ChatPageProps)
         }
     }, [selectedProject]);
 
-    const delete_file = async (fileName: string) => {
+    const delete_file = async (fileName: string) => 
+	{
         if (!selectedProject || !projectData) return;
         if (!confirm(`Are you sure you want to delete ${fileName}?`)) return;
 
@@ -140,7 +142,8 @@ export default function DocumentsPage({ selectedProject }: ChatPageProps)
         }
     };
 
-    const handleUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const handleUpload = async (event: React.ChangeEvent<HTMLInputElement>) => 
+	{
         const file = event.target.files?.[0];
         if (!file || !selectedProject || !activeUser || !projectData) return;
 
@@ -151,7 +154,7 @@ export default function DocumentsPage({ selectedProject }: ChatPageProps)
         formData.append('file', file);
 
         try {
-            const res = await helpers.poster('/api/v1/files', formData);
+            const res = await helpers.uploadFile('/api/v1/files', formData);
             if (res.success) {
                 loadFiles(projectData);
             }
@@ -164,7 +167,8 @@ export default function DocumentsPage({ selectedProject }: ChatPageProps)
 
     useEffect(() => 
 	{
-        if (!selectedProject) return;
+        if (!selectedProject) 
+			return;
 
         const fetchData = async () => 
 		{
@@ -187,11 +191,45 @@ export default function DocumentsPage({ selectedProject }: ChatPageProps)
         </div>
     );
 
+	if (!files.length)
+	return (
+		<div className="relative flex h-full w-full items-center justify-center text-zinc-500">
+			{/* Header: Posizionato in alto, occupa tutta la larghezza */}
+			<div className="absolute top-0 left-0 w-full flex justify-between items-center p-4">
+				<h1 className="hidden md:block text-xs font-bold text-text-main">Project Documents</h1>
+				{isOwner && (
+					<div>
+						<input 
+							type="file" 
+							ref={fileInputRef} 
+							onChange={handleUpload} 
+							className="hidden"
+						/>
+						<button 
+							className="flex items-center justify-center gap-2 bg-owner-color text-white 
+								px-4 py-2.5 rounded-xl hover:scale-105 transition-all shadow-lg 
+								font-bold cursor-pointer active:scale-95
+								/* Adattamento Mobile: riduciamo il padding e nascondiamo il testo */
+								w-12 h-12 md:w-auto md:h-auto md:px-5"
+							onClick={() => fileInputRef.current?.click()}>
+							<span className={""}>📤</span>
+							<span className="hidden md:inline">Upload New File</span>
+						</button>
+					</div>
+				)}
+			</div>
+
+			<p className="text-center">
+				There are no Documents to display for this project.
+			</p>
+		</div>
+	);
+
     return (
 	<div className="h-full w-full">
         <div className="min-w-0 h-full w-full overflow-y-auto custom-scrollbar p-6">
             <div className="flex justify-between items-center mb-6">
-                <h1 className="text-xs font-bold text-text-main">Project Documents</h1>
+                <h1 className="hidden md:block text-xs font-bold text-text-main">Project Documents</h1>
                 {isOwner && (
                     <div>
                         <input 
@@ -200,25 +238,21 @@ export default function DocumentsPage({ selectedProject }: ChatPageProps)
                             onChange={handleUpload} 
                             className="hidden"
                         />
-                        <button 
-                            className="flex items-center gap-2 bg-owner-color text-white px-5 py-2.5 rounded-xl hover:scale-105 transition-all shadow-lg text-sm font-bold cursor-pointer active:scale-95"
-                            onClick={() => fileInputRef.current?.click()}
-                        >
-                            📤 Upload Files
-                        </button>
+						<button 
+							className="flex items-center justify-center gap-2 bg-owner-color text-white 
+								px-4 py-2.5 rounded-xl hover:scale-105 transition-all shadow-lg 
+								font-bold cursor-pointer active:scale-95
+								/* Adattamento Mobile: riduciamo il padding e nascondiamo il testo */
+								w-12 h-12 md:w-auto md:h-auto md:px-5"
+							onClick={() => fileInputRef.current?.click()}>
+							<span className={""}>📤</span>
+							<span className="hidden md:inline">Upload New File</span>
+						</button>
                     </div>
                 )}
             </div>
 
-			{!files.length ? 
-				(
-                    <div className="flex h-full w-full items-center justify-center text-zinc-500">
-                    	<p className="text-center">There are no documents to display for this project.</p>
-					</div>
-                ) :
-				(
-                    memoizedFilesGrid
-                )}
+            {memoizedFilesGrid}
 
             {preview && (
                 <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-[100] p-4" onClick={() => setPreview(null)}>

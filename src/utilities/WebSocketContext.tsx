@@ -52,16 +52,22 @@ export interface ChatMessage {
 	timestamp: string | number;
 }
 
-export interface FriendRequest 
+export interface PendingRequest 
 {
-	id: number;
-	senderId: number;
-	sender: {
-		name: string;
-		surname: string;
-		email: string;
-	};
-	createdAt: string;
+    id: number;
+    reqType: 'friend' | 'org';
+    senderId: number;
+    sender: {
+        name: string;
+        surname: string;
+        email: string;
+    };
+    createdAt: string;
+    // Campi esclusivi per gli inviti org
+    organization?: {
+        id: number;
+        name: string;
+    };
 }
 
 interface WebSocketContextType {
@@ -81,9 +87,9 @@ interface WebSocketContextType {
 	loadHistory: (roomId: string, friendId: number) => Promise<void>;
 	myUserId: number | null;
 
-	pendingRequests: FriendRequest[]; // Nuova lista
-    acceptRequest: (id: number) => Promise<void>;
-    rejectRequest: (id: number) => Promise<void>;
+	pendingRequests: PendingRequest[];
+    acceptRequest: (id: number, reqType: 'friend' | 'org') => Promise<void>;
+    rejectRequest: (id: number, reqType: 'friend' | 'org') => Promise<void>;
 
 	calendarEntries: CalendarEntries | null;
 	loadCalendar: () => Promise<void>;
@@ -106,7 +112,7 @@ export const WebSocketProvider: React.FC<{ children: ReactNode }> = ({ children 
 	const [activeUser, setActiveUser] = useState<any | null>(null);
 	const [myUserId, setMyUserId] = useState<number | null>(null);
 	const friendsRef = useRef<Friend[]>([]);
-	const [pendingRequests, setPendingRequests] = useState<FriendRequest[]>([]);
+	const [pendingRequests, setPendingRequests] = useState<PendingRequest[]>([]);
 	const [calendarEntries, setCalendarEntries] = useState<CalendarEntries | null>(null);
 
 	const refreshUser = useCallback(async () => {
@@ -141,26 +147,56 @@ export const WebSocketProvider: React.FC<{ children: ReactNode }> = ({ children 
 		}
 	}, []);
 
-	const loadPending = async () => {
-        const res = await helpers.getter('/api/v1/friends/requests/pending', null);
-        if (res.success) setPendingRequests(res.data.requests);
-    };
-
-	const acceptRequest = async (requestId: number) => 
+	const loadPending = async () => 
 	{
-        const res = await helpers.poster(`/api/v1/friends/requests/${requestId}/accept`, {});
-        if (res.success) 
-		{
-            setPendingRequests(prev => prev.filter(r => r.id !== requestId));
-            loadFriends();
+        const [friendsRes, orgsRes] = await Promise.all([
+            helpers.getter('/api/v1/friends/requests/pending', null),
+            helpers.getter('/api/v1/organizations/invitations/pending', null)
+        ]);
+
+        let combined: PendingRequest[] = [];
+
+        if (friendsRes.success) {
+            const friends = friendsRes.data.requests.map((r: any) => ({
+                ...r,
+                reqType: 'friend'
+            }));
+            combined = [...combined, ...friends];
+        }
+
+        if (orgsRes.success) {
+            const orgs = orgsRes.data.invitations.map((i: any) => ({
+                ...i,
+                reqType: 'org'
+            }));
+            combined = [...combined, ...orgs];
+        }
+
+        combined.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+        setPendingRequests(combined);
+    };
+
+	const acceptRequest = async (requestId: number, reqType: 'friend' | 'org') => 
+	{
+        setPendingRequests(prev => prev.filter(r => !(r.id === requestId && r.reqType === reqType)));
+
+        if (reqType === 'friend') {
+            const res = await helpers.poster(`/api/v1/friends/requests/${requestId}/accept`, {});
+            if (res.success) loadFriends();
+        } else {
+            const res = await helpers.poster(`/api/v1/organizations/10/invitations/${requestId}/accept`, {});
+            if (res.success) loadGroups();
         }
     };
 
-    const rejectRequest = async (requestId: number) => {
-        const res = await helpers.poster(`/api/v1/friends/requests/${requestId}/reject`, {});
-        if (res.success) {
-            setPendingRequests(prev => prev.filter(r => r.id !== requestId));
-        }
+	const rejectRequest = async (requestId: number, reqType: 'friend' | 'org') => 
+	{
+        setPendingRequests(prev => prev.filter(r => !(r.id === requestId && r.reqType === reqType)));
+
+        if (reqType === 'friend')
+            await helpers.poster(`/api/v1/friends/requests/${requestId}/reject`, {});
+        else
+            await helpers.poster(`/api/v1/invitations/${requestId}/reject`, {});
     };
 
 	const loadFriends = async () => {
@@ -237,13 +273,23 @@ export const WebSocketProvider: React.FC<{ children: ReactNode }> = ({ children 
 
 				if (messageData.type === "friend:request") 
 				{
-					const newRequest = messageData.payload;
-					setPendingRequests(prev =>
-					{
-						if (prev.find(r => r.id === newRequest.id)) return prev;
-						return [newRequest, ...prev];
-					});
-				}
+                    const newRequest = { ...messageData.payload, reqType: 'friend' as const };
+                    
+                    setPendingRequests(prev => {
+                        if (prev.find(r => r.id === newRequest.id && r.reqType === 'friend')) return prev;
+                        return [newRequest, ...prev];
+                    });
+                }
+
+                if (messageData.type === "organization:invitation")
+				{ 
+                    const newInvite = { ...messageData.payload, reqType: 'org' as const };
+                    
+                    setPendingRequests(prev => {
+                        if (prev.find(r => r.id === newInvite.id && r.reqType === 'org')) return prev;
+                        return [newInvite, ...prev];
+                    });
+                }
 
 				if (messageData.type === "friend:request:accepted") 
 				{

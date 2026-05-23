@@ -48,6 +48,34 @@ const poster = async (api: string, body: any)
     }
 }
 
+const uploadFile = async (api: string, body: FormData)
+: Promise<{ success: boolean, data: any }> => {
+    try {
+        const res = await fetch(
+            `${CONSTS.BE + api}`,
+            {
+                method: 'POST',
+                headers: { 
+                    // Chiediamo comunque di ricevere JSON come risposta dal server
+                    "Accept": 'application/json'
+                    // NOTA: Niente "Content-Type" qui! Lo imposta il browser da solo con il boundary corretto.
+                },
+                credentials: 'include',
+                // Passiamo direttamente il FormData senza stringify
+                body: body 
+            }
+        )
+        if (res.ok) {
+            const data = await res.json()
+            return { success: true, data: data }
+        }
+        return { success: false, data: res.statusText }
+    } catch (error) {
+        console.log(error)
+        return { success: false, data: '' }
+    }
+}
+
 const putter = async (api: string, body: any): Promise<{ success: boolean, data: any }> => {
     try {
         const res = await fetch(
@@ -113,4 +141,5 @@ export default {
 	poster,
 	putter,
 	deleter,
+	uploadFile,
 }

@@ -1,6 +1,6 @@
 import { useNavigate } from "react-router-dom";
 import { useRef, useState } from "react";
-import consts from '../../data/consts';
+import helpers from "../../utilities/helpers";
 
 declare global {
   interface Window {
@@ -23,7 +23,7 @@ function SignUp()
 
     async function handleLogin() 
 	{
-		const LOGIN_URL = `${consts.BE}/api/v1/users/adduser`
+		const signUp_URL = "/api/v1/users/adduser";
 		try
 		{
 			const email = emailRef.current?.value
@@ -42,18 +42,11 @@ function SignUp()
                 return;
             }
             
-			const response = await fetch(LOGIN_URL, 
-			{
-				method: "POST",
-                headers: { "Content-Type": "application/json" },
-				body: JSON.stringify({ email, password, name, surname, passwordRepeat, phone, jobQualifier }),
-			});
+			const response = await helpers.poster(signUp_URL, { email, password, name, surname, passwordRepeat, phone, jobQualifier });
 
-			const data = await response.json();
-
-			if (!response.ok) 
+			if (!response.success) 
 			{
-				const errorMessage = data.error || 'Something went wrong';
+				const errorMessage = response.data || 'Something went wrong';
                 setError(errorMessage);
                 return
             }

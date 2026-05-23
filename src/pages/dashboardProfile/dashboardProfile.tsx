@@ -4,7 +4,7 @@ import PriorityChart from "./PriorityChart";
 import Requests from "./requests";
 import helpers from "../../utilities/helpers";
 import type { TaskInfos } from "../../data/types";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import FirstLogin from "../PopUpFirstLogin/firstLoginpage"
 import { Plus } from "lucide-react"
 import CreateEventModal from "../CreateEventModal/CreateEventModal";
@@ -15,6 +15,7 @@ function DashboardProf()
 	const [infoFetched, setInfoFetched] = useState<boolean>(false)
 	const [isPopupOpen, setIsPopupOpen] = useState(false);
 	const location = useLocation();
+	const navigate = useNavigate();
 	const [isEventModalOpen, setIsEventModalOpen] = useState(false);
 
 	const handleProfileUpdate = async (formData: any) =>
@@ -37,7 +38,7 @@ function DashboardProf()
 		if (location.state?.isFirstLogin) 
 		{
 			setIsPopupOpen(true);
-			window.history.replaceState({}, document.title);
+			navigate(location.pathname, { replace: true, state: {} });
 		}
 
 		(async () => 

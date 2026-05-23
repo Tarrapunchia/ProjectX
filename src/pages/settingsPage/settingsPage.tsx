@@ -203,33 +203,33 @@ export default function SettingsPage()
 					</p>
 
 					<div className="space-y-4">
-					<div className="flex flex-col gap-2">
-						<label className="text-sm font-medium">Alert Threshold</label>
-						<select
-							value={alertThreshold}
-							onChange={(e) => updateAlertThreshold(Number(e.target.value))}
-							className="w-full p-2 rounded-lg bg-bg-color text-text-main border border-transparent hover:border-overlay-border-color transition-colors focus:outline-none focus:border-text-main text-sm cursor-pointer shadow-sm"
-						>
-						<option value={12}>12 hours before</option>
-						<option value={24}>24 hours before</option>
-						<option value={48}>48 hours before</option>
-						<option value={72}>72 hours before</option>
-						</select>
-					</div>
-					
-					<div className="p-3 bg-main-bg-color/50 rounded-lg border border-dashed border-overlay-border-color">
-						<p className="text-[10px] text-text-main leading-relaxed italic">
-						* Currently applying locally. Changes affect the Notifications Center and Sidebar alerts instantly.
-						</p>
-					</div>
+						<div className="flex flex-col gap-2">
+							<label className="text-sm font-medium">Alert Threshold</label>
+							<select
+								value={alertThreshold}
+								onChange={(e) => updateAlertThreshold(Number(e.target.value))}
+								className="w-full p-2 rounded-lg bg-bg-color text-text-main border border-transparent hover:border-overlay-border-color transition-colors focus:outline-none focus:border-text-main text-sm cursor-pointer shadow-sm"
+							>
+							<option value={12}>12 hours before</option>
+							<option value={24}>24 hours before</option>
+							<option value={48}>48 hours before</option>
+							<option value={72}>72 hours before</option>
+							</select>
+						</div>
+						
+						<div className="p-3 bg-main-bg-color/50 rounded-lg border border-dashed border-overlay-border-color">
+							<p className="text-[10px] text-text-main leading-relaxed italic">
+							* Currently applying locally. Changes affect the Notifications Center and Sidebar alerts instantly.
+							</p>
+						</div>
 					</div>
 				</div>
 
 				{/* Danger Zone */}
 				<div className="rounded-2xl p-6 bg-side-bg-color border border-transparent hover:border-red-900/30 transition-all shadow-sm">
 					<div className="flex items-center gap-2 mb-4">
-					<ShieldAlert size={20} className="text-red-600" />
-					<h3 className="text-lg font-medium text-text-main">Danger Zone</h3>
+						<ShieldAlert size={20} className="text-red-400" />
+						<h3 className="text-lg font-medium text-text-main">Danger Zone</h3>
 					</div>
 					<p className="text-xs text-slate-400 mb-4">Once you delete your account, there is no going back. Please be certain.</p>
 					<DangerZoneStub />
@@ -265,7 +265,7 @@ function DangerZoneStub() {
       <button 
         onClick={handleDelete} 
         disabled={confirm !== "DELETE" || loading} 
-        className="w-full px-4 py-2 bg-red-600/10 text-red-600 border border-red-600/20 rounded-xl hover:bg-red-600 hover:text-white transition-all text-xs font-bold disabled:opacity-30 cursor-pointer"
+        className="w-full px-4 py-2 bg-trasparent text-text-main border border-red-600 rounded-xl hover:bg-red-600 hover:text-white transition-all text-xs font-bold disabled:opacity-80bash cursor-pointer"
       >
         {loading ? "Processing..." : "Permanently Delete Account"}
       </button>

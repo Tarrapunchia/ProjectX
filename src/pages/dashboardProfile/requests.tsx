@@ -1,10 +1,10 @@
 import { useMemo } from "react";
 import { useWebSocket } from "../../utilities/WebSocketContext";
 import { Bell, UserPlus, Clock, Calendar as CalendarIcon, AlertCircle } from "lucide-react";
-
+import helpers from '../../utilities/helpers';
 export default function NotificationsCenter() 
 {
-    const { pendingRequests, calendarEntries, alertThreshold, updateAlertThreshold, acceptRequest, rejectRequest } = useWebSocket();
+    const { pendingRequests, calendarEntries, alertThreshold, acceptRequest, rejectRequest } = useWebSocket();
 
     const alerts = useMemo(() => {
         if (!calendarEntries) return [];
@@ -52,27 +52,33 @@ export default function NotificationsCenter()
 
             <div className="flex-1 overflow-y-auto space-y-6 pr-1 custom-scrollbar">
                 
-                {/* --- SEZIONE RICHIESTE D'AMICIZIA (Actionable) --- */}
-                {pendingRequests.length > 0 && (
+                {pendingRequests.length > 0 && 
+				(
                     <section>
                         <h3 className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-3 flex items-center gap-2">
-                            <UserPlus size={12} /> Friend Requests
+                            <UserPlus size={12} /> Requests
                         </h3>
                         <div className="space-y-2">
-                            {pendingRequests.map((req) => (
-                                <div key={req.id} className="p-3 rounded-xl bg-side-bg-color border border-overlay-border-color shadow-sm">
+							{pendingRequests.map((req) => (
+                                <div key={`${req.reqType}-${req.id}`} className="p-3 rounded-xl bg-side-bg-color border border-overlay-border-color shadow-sm">
+                                    
+                                    {/* FIX BLINDATO CON OPTIONAL CHAINING (?.) */}
                                     <p className="text-text-main text-xs font-medium mb-2">
-                                        {req.sender.name} {req.sender.surname}
+                                        {req.reqType === 'friend' 
+                                            ? `${req.sender?.name || 'Someone'} ${req.sender?.surname || ''} sent a friend request`
+                                            : `${req.sender?.name || 'Someone'} ${req.sender?.surname || ''} invited you to ${req.organization?.name || 'an organization'}`
+                                        }
                                     </p>
+                                    
                                     <div className="flex gap-2">
                                         <button 
-                                            onClick={() => acceptRequest(req.id)}
+                                            onClick={() => acceptRequest(req.id, req.reqType)}
                                             className="flex-1 py-1.5 text-[10px] bg-green-600/10 text-green-500 border border-green-600/20 rounded-lg hover:bg-green-600 hover:text-white transition cursor-pointer"
                                         >
                                             Accept
                                         </button>
                                         <button 
-                                            onClick={() => rejectRequest(req.id)}
+                                            onClick={() => rejectRequest(req.id, req.reqType)}
                                             className="flex-1 py-1.5 text-[10px] bg-red-600/10 text-red-500 border border-red-600/20 rounded-lg hover:bg-red-600 hover:text-white transition cursor-pointer"
                                         >
                                             Decline

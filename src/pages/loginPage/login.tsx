@@ -1,6 +1,6 @@
 import { useNavigate } from "react-router-dom";
 import { useRef, useState } from "react";
-import consts from '../../data/consts';
+import helpers from "../../utilities/helpers";
 
 declare global {
   interface Window {
@@ -21,24 +21,23 @@ function login()
     async function handleLogin() 
 	{
         setError(null)
-        // const LOGIN_URL = 'https://silver-rotary-phone-g44xxv559r7r2x4q-5000.app.github.dev/api/v1/users/login'
-        const LOGIN_URL = `${consts.BE}/api/v1/users/login`
+        const LOGIN_URL = `/api/v1/users/login`
         const DASHBOARD = '/dashboard'
-        try {
+        try 
+		{
             const email = emailRef.current?.value
             const password = pwRef.current?.value
 
-            const login = await fetch(LOGIN_URL, {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                credentials: "include",
-                body: JSON.stringify({ email, password }),
-            });
-            if (!login.ok) {
-                setError("Email o password errati");
-                return
-            }
-        } catch (error) {
+			const login = await helpers.poster(LOGIN_URL, { email, password });
+
+			if (!login.success) 
+			{
+				setError("Email o password errati");
+				return
+			}
+
+        } catch (error) 
+		{
             console.log(error)
             setError("Errore del server");
             return

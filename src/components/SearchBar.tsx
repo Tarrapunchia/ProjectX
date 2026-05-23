@@ -28,16 +28,25 @@ const SearchBar: React.FC<SearchBarProps> = ({ activeUserId }) => {
         return () => document.removeEventListener('mousedown', handleClickOutside);
     }, []);
 
-    const sendFriendRequest = async (targetUserId: number) => {
-        try {
-            await helpers.poster('/api/v1/friends/requests', { targetUserId });
-            console.log("Friend request sent to user:", targetUserId);
-        } catch (err) {
-            console.error("Error sending friend request:", err);
-        }
-    };
+	const sendFriendRequest = async (targetUserId: number, userEmail: string) => {
+		// 1. Prova a mandare l'amicizia
+		try {
+			await helpers.poster('/api/v1/friends/requests', { targetUserId });
+		} catch (err) {
+			console.error("Errore nell'invio dell'amicizia:", err);
+		}
 
-    useEffect(() => {
+		// 2. Prova a mandare l'invito (indipendentemente da com'è andata sopra)
+		try {
+			const organizationId = 10;
+			await helpers.poster(`/api/v1/organizations/${organizationId}/invitations`, { email: userEmail });
+		} catch (err) {
+			console.error("Errore nell'invio dell'invito org:", err);
+		}
+	};
+
+    useEffect(() => 
+	{
         if (!activeUserId) return;
         const timeoutId = setTimeout(() => {
             if (query.length > 0) {
@@ -51,7 +60,8 @@ const SearchBar: React.FC<SearchBarProps> = ({ activeUserId }) => {
         return () => clearTimeout(timeoutId);
     }, [query, activeUserId]);
 
-	const performSearch = async (searchTerm: string) => {
+	const performSearch = async (searchTerm: string) => 
+	{
 		if (!searchTerm.trim()) {
 			setResults({ users: [], projects: [] });
 			return;
@@ -131,7 +141,7 @@ const SearchBar: React.FC<SearchBarProps> = ({ activeUserId }) => {
 									</div>
 									{user.id !== activeUserId && !isAlreadyFriend && (
 										<button
-											onClick={() => sendFriendRequest(user.id)}
+											onClick={() => sendFriendRequest(user.id, user.email)}
 											className="px-2 py-1 text-xs rounded-lg bg-category-bg-color hover:bg-owner-color hover:text-white transition cursor-pointer"
 										>
 											Add
