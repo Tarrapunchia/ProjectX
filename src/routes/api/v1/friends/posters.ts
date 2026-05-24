@@ -78,6 +78,9 @@
                     status: 'PENDING',
                   },
               })
+                await tx.notification.deleteMany({
+                    where: { friendshipId: friendship.id }
+                });
             }
             else {
               friendship = await tx.friendship.create({
