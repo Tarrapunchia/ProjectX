@@ -503,22 +503,24 @@ const getPendingInvitations: Schema = {
             type: 'object',
             properties: {
               id: { type: 'integer' },
-              organizationId: { type: 'integer' },
-              requesterId: { type: 'integer' },
-              targetUserId: { type: 'integer' },
-              status: { type: 'string', enum: ['PENDING', 'ACCEPTED', 'REJECTED'] },
+              senderId: { type: 'integer' },
+              sender: {
+                type: 'object',
+                properties: {
+                  name: { type: 'string' },
+                  surname: { type: 'string' },
+                  email: { type: 'string', format: 'email' }
+                }
+              },
+              organization: {
+                type: 'object',
+                properties: {
+                  id: { type: 'string' },
+                  name: { type: 'string' }
+                }
+              },
               createdAt: { type: 'string', format: 'date-time' },
-              updatedAt: { type: 'string', format: 'date-time' },
             },
-            required: [
-              'id',
-              'organizationId',
-              'requesterId',
-              'targetUserId',
-              'status',
-              'createdAt',
-              'updatedAt',
-            ],
           },
         },
       },

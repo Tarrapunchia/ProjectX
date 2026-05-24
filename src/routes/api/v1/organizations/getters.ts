@@ -1,6 +1,8 @@
 import fastify, { type FastifyInstance, type FastifyPluginAsync } from "fastify";
 import { orgSchemas } from "./organizationsSchema.js";
 import { getUserIdFromJWT } from "../../../../helpers/cookies.js";
+import type { OrganizationJoinRequest } from "@prisma/client";
+import prismaPlugin from "../../../../plugins/prismaPlugin.js";
 
 const Getters: FastifyPluginAsync = async (fastify: FastifyInstance, opts) => {
     // GET /api/v1/organizations
@@ -196,12 +198,53 @@ const Getters: FastifyPluginAsync = async (fastify: FastifyInstance, opts) => {
         },
         });
 
+        const invitationsDTO = await Promise.all(invitations.map((inv) => getInfos(inv, fastify)))
+        fastify.log.warn(invitations)
         return res.code(200).send({
-        success: true,
-        invitations,
+            success: true,
+            invitations: invitationsDTO,
         });
     }
     );
+}
+
+const getInfos = async (invitation: OrganizationJoinRequest, fastify: FastifyInstance) => {
+
+    const infos = await fastify.prisma.$transaction(async (tx) => {
+        const user = await tx.user.findFirst({
+            where: { id: invitation.requesterId },
+            select: {
+                name: true,
+                surname: true,
+                email: true
+            }
+        })
+
+        const org = await tx.organization.findFirst({
+            where: { id: invitation.organizationId },
+            select: {
+                name: true
+            }
+        })
+
+        return {
+            id: invitation.id,
+            senderId: invitation.requesterId,
+            sender: {
+                name: user?.name ?? 'Someone',
+                surname: user?.surname ?? '',
+                email: user?.email ?? ''
+            },
+            organization: {
+                id: invitation.organizationId,
+                name: org?.name ?? ''
+            },
+            createdAt: invitation.createdAt
+        }
+
+    })
+    return infos ?? {}
+
 }
 
 export default Getters
