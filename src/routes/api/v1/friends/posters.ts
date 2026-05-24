@@ -58,16 +58,6 @@
             reply.code(403);
             return { error: "Friendship is blocked" };
           }
-          if (existing.status === 'REJECTED') {
-          const fr = await fastify.prisma.friendship.update({
-            where: { id: existing.id },
-            data: {
-              senderId: authUser,
-              receiverId: targetUserId,
-              status: 'PENDING',
-            },
-          })
-          }
         }
 
     const sender = await fastify.prisma.user.findUnique({
@@ -77,14 +67,27 @@
 
         try {
           const created = await fastify.prisma.$transaction(async (tx) => {
+            let friendship
             // 1) crea friendship PENDING
-            const friendship = await tx.friendship.create({
-              data: {
-                senderId: authUser,
-                receiverId: targetUserId,
-                status: FriendshipStatus.PENDING,
-              },
-            });
+            if (existing && existing.status === 'REJECTED') {
+                friendship = await fastify.prisma.friendship.update({
+                  where: { id: existing.id },
+                  data: {
+                    senderId: authUser,
+                    receiverId: targetUserId,
+                    status: 'PENDING',
+                  },
+              })
+            }
+            else {
+              friendship = await tx.friendship.create({
+                data: {
+                  senderId: authUser,
+                  receiverId: targetUserId,
+                  status: FriendshipStatus.PENDING,
+                },
+              });
+            }
 
             // 2) crea notification legata alla friendship (friendshipId è UNIQUE → una sola)
             const notification = await tx.notification.create({
