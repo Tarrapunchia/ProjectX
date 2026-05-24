@@ -243,14 +243,30 @@ const Posters: FastifyPluginAsync = async (fastify: FastifyInstance, opts) => {
             },
         });
 
-        fastify.wsSendToUser(user.id, {
-            type: 'organization:invitation',
-            organizationId,
-            requestId: invitation.id,
-            fromUserId: actorId,
-            status: 'PENDING',
-            ts: Date.now(),
+        const actor = await fastify.prisma.user.findUnique({
+            where: { id: actorId },
+            select: { name: true, surname: true, email: true }
         });
+
+        fastify.wsSendToUser(user.id, 
+                {
+                    type: 'organization:invitation',
+                    payload: {
+                        id: invitation.id,
+                        senderId: actorId,
+                        sender: {
+                            name: actor?.name ?? 'Someone',
+                            surname: actor?.surname ?? '',
+                            email: actor?.email ?? ''
+                        },
+                        organization: {
+                            id: org.id,
+                            name: org.name
+                        },
+                        createdAt: new Date().toISOString()
+                    },
+                    ts: Date.now(),
+                });
 
         return res.code(201).send({
             success: true,
