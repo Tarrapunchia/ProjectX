@@ -1,0 +1,367 @@
+import fastify, { type FastifyInstance, type FastifyPluginAsync } from "fastify";
+import { getUserIdFromJWT } from "../../../../helpers/cookies.js";
+import { groupSchemas } from "./groupsSchema.js";
+
+const Posters: FastifyPluginAsync = async (fastify: FastifyInstance, opts) => {
+    // // POST /api/v1/groups/addGroup
+    fastify.post<{
+        Body: { name: string; description?: string }
+    }>(
+    '/addGroup',
+    { schema: groupSchemas.createGroupSchema },
+    async (req, res) => {
+        const ownerId = getUserIdFromJWT(req, res, fastify)
+        if (!ownerId) {
+            res.code(401)
+            return { error: 'You must be logged in in order to create a Group' }
+        }
+
+        const { name, description } = req.body
+
+        if (!name) {
+            res.code(400)
+            return { error: 'Name is required' }
+        }
+
+        // vado ad usare $transaction che mi crea un client prisma ad hoc per la transazione in atto
+        // in modo che tutto quello che viene eseguito viene eseguito atomicamente (se anche solo una
+        // delle query che esegue fallisce fa il rollback, comodo)
+        try {
+            const created = await fastify.prisma.$transaction(async (tx) => {
+                // 1) creo il gruppo
+                const group = await tx.group.create({
+                    data: {
+                        name,
+                        description: description ?? ''
+                    },
+                })
+
+                // 2) aggiunge il creatore come participant
+                await tx.groupParticipant.create({
+                    data: {
+                        groupId: group.id,
+                        userId: ownerId,
+                    },
+                })
+
+                // 3) creo la chatroom collegata
+                await tx.chatRoom.create({
+                    data: {
+                        key: `group:${group.id}`,
+                        type: 'GROUP',
+                        groupId: group.id,
+                    },
+                })
+                return {
+                    id: group.id,
+                    name: group.name,
+                    description: group.description ?? ''
+                }
+            })
+            res.code(201)
+            return created
+        
+        } catch (error: any) {
+            fastify.log.error(error)
+
+            if (error?.code === 'P2002') {
+                res.code(409)
+                return { error: 'Duplicate constraint' }
+            }
+
+            if (error?.code === 'P2003') {
+                res.code(400)
+                return { error: 'Foreign key constraint' }
+            }
+
+            res.code(400)
+            return { error: 'Unable to create group' }
+        }
+        }
+    )
+
+    // POST /api/v1/group/addPartecipant
+    fastify.post<{
+        Body: { userId: number; groupId: number }
+    }>(
+    '/addPartecipant',
+    { schema: groupSchemas.addParticipantSchema },
+    async (req, res) => {
+        const activeId = getUserIdFromJWT(req, res, fastify)
+        if (!activeId) {
+            res.code(401)
+            return { error: 'You must be logged in in order to add a Partecipant' }
+        }
+
+        const { userId, groupId } = req.body
+
+        if (!Number.isFinite(userId) || !Number.isFinite(groupId)) {
+            res.code(400)
+            return { error: 'All fields are required' }
+        }
+
+        // verifico che gruppo esista e che l'utente ne faccia parte
+        const group = await fastify.prisma.group.findFirst({
+            where: {
+                id: groupId,
+                participants: { some: { userId: activeId } },
+            },
+            select: { id: true, name: true },
+        })
+        if (!group) {
+            res.code(404)
+            return { error: 'Group not found' }
+        }
+
+        // vado ad usare $transaction che mi crea un client prisma ad hoc per la transazione in atto
+        // in modo che tutto quello che viene eseguito viene eseguito atomicamente (se anche solo una
+        // delle query che esegue fallisce fa il rollback, comodo)
+        try {
+            const created = await fastify.prisma.groupParticipant.create({
+                data: {
+                    userId: userId,
+                    groupId: groupId
+                }
+            })
+
+            const roomId = `group:${groupId}`
+            let roomSet = fastify.wsRooms.get(roomId)
+            if (!roomSet) {
+            roomSet = new Set()
+            fastify.wsRooms.set(roomId, roomSet)
+            }
+
+            const sockets = fastify.wsClientsByUserId.get(userId) // nuovo membro
+            if (sockets) {
+            for (const ws of sockets) roomSet.add(ws)
+            }
+            await fastify.wsRoomBroadcast(`group:${groupId}`, {
+                type: 'group:participant:added',
+                groupId,
+                addedUserId: userId,
+                addedByUserId: activeId,
+                ts: Date.now(),
+            })
+
+            fastify.wsSendToUser(userId, {
+                type: 'group:joined',
+                groupId,
+                ts: Date.now(),
+            })
+            res.code(200)
+            return {
+                userId: userId,
+                groupId: groupId
+            }
+        } catch (error: any) {
+            fastify.log.error(error)
+
+            if (error?.code === 'P2002') {
+                res.code(409)
+                return { error: 'Duplicate constraint' }
+            }
+
+            if (error?.code === 'P2003') {
+                res.code(400)
+                return { error: 'Foreign key constraint ' }
+            }
+
+            res.code(400)
+            return { error: 'Unable to add member' }
+        }
+        }
+    )
+    
+    // POST 
+    fastify.post(
+    '/:groupId/invitations',
+    {
+        schema: groupSchemas.inviteSchema
+        // preValidation: [fastify.authenticate],
+    },
+    async (req, res) => {
+        const authUser = getUserIdFromJWT(req, res, fastify);
+        const groupId = Number((req.params as { groupId: string }).groupId);
+        const { targetUserId } = req.body as { targetUserId: number };
+        if (Number.isNaN(groupId) || !targetUserId || !authUser) {
+            res.code(400);
+            return { error: 'Invalid groupId or targetUserId' };
+        }
+
+        const group = await fastify.prisma.group.findUnique({
+            where: { id: groupId },
+        });
+
+        if (!group) {
+            res.code(404);
+            return { error: 'Group not found' };
+        }
+
+        const membership = await fastify.prisma.groupParticipant.findUnique({
+            where: {
+                groupId_userId: {
+                groupId,
+                userId: authUser,
+                },
+            },
+        });
+
+        if (!membership) {
+            res.code(403);
+            return { error: 'Not allowed to invite users to this group' };
+        }
+
+        const targetMembership = await fastify.prisma.groupParticipant.findUnique({
+            where: {
+                groupId_userId: {
+                groupId,
+                userId: targetUserId,
+                },
+            },
+        });
+
+        if (targetMembership) {
+            res.code(409);
+            return { error: 'User already in group' };
+        }
+
+        const existing = await fastify.prisma.groupJoinRequest.findFirst({
+        where: {
+            groupId,
+            requesterId: authUser,
+            targetUserId,
+            status: 'PENDING',
+        },
+        });
+
+        if (existing) {
+        res.code(409);
+        return { error: 'Invitation already pending' };
+        }
+
+        const invitation = await fastify.prisma.groupJoinRequest.create({
+        data: {
+            groupId,
+            requesterId: authUser,
+            targetUserId,
+            status: 'PENDING',
+        },
+        });
+
+        fastify.wsSendToUser(targetUserId, {
+            type: 'group:invitation',
+            groupId,
+            reqId: invitation.id,
+            fromUserId: authUser,
+            status: 'PENDING',
+            ts: Date.now(),
+        });
+
+        return res.code(201).send({
+            success: true,
+            invitation,
+        });
+    }
+    );
+
+    fastify.post(
+    '/:groupId/invitations/:requestId/accept',
+    {
+        schema: groupSchemas.acceptSchema,
+        // preValidation: [fastify.authenticate],
+    },
+    async (req, res) => {
+        const authUser = getUserIdFromJWT(req, res, fastify);
+
+        const groupId = Number((req.params as { groupId: string }).groupId);
+        const requestId = Number((req.params as { requestId: string }).requestId);
+
+        if (!authUser || Number.isNaN(groupId) || Number.isNaN(requestId)) {
+            res.code(400);
+            return { error: 'Invalid groupId or requestId' };
+        }
+
+        const invitation = await fastify.prisma.groupJoinRequest.findUnique({
+            where: { id: requestId },
+        });
+
+        if (!invitation) {
+            res.code(404);
+            return { error: 'Invitation not found' };
+        }
+
+        if (invitation.groupId !== groupId) {
+            res.code(400);
+            return { error: 'Invitation does not belong to this group' };
+        }
+
+        if (invitation.targetUserId !== authUser) {
+            res.code(403);
+            return { error: 'You are not allowed to accept this invitation' };
+        }
+
+        if (invitation.status !== 'PENDING') {
+            res.code(409);
+            return { error: `Invitation already ${invitation.status}` };
+        }
+
+        const alreadyMember = await fastify.prisma.groupParticipant.findUnique({
+            where: {
+                groupId_userId: {
+                groupId,
+                userId: authUser,
+                },
+            },
+        });
+
+        if (alreadyMember) {
+            await fastify.prisma.groupJoinRequest.update({
+                where: { id: requestId },
+                data: { status: 'ACCEPTED' },
+            });
+
+            return res.code(200).send({
+                success: true,
+                message: 'User already in group, invitation marked as accepted',
+            });
+        }
+
+        const result = await fastify.prisma.$transaction(async (tx) => {
+            const participant = await tx.groupParticipant.create({
+                data: {
+                    groupId,
+                    userId: authUser,
+                },
+            });
+
+            const updatedInvitation = await tx.groupJoinRequest.update({
+                    where: { id: requestId },
+                    data: {
+                    status: 'ACCEPTED',
+                },
+            });
+
+            return { participant, updatedInvitation };
+        });
+
+        fastify.wsRoomBroadcast('group:' + groupId, {
+            type: 'group:invitation:accepted',
+            requestId: invitation.id,
+            groupId,
+            acceptedByUserId: authUser,
+            ts: Date.now(),
+            },
+            invitation.targetUserId
+        )
+
+        return res.code(200).send({
+            success: true,
+            invitation: result.updatedInvitation,
+            membership: result.participant,
+        });
+    }
+    );
+
+}
+
+export default Posters
