@@ -23,7 +23,6 @@
 
 
 
-
 ### Pagina del progetto
 
 * Dashboard
@@ -32,6 +31,14 @@
 * File download/upload
 
 
+* OVERLAY PROGETTO
+- Specifiche tecniche
+- prerequisiti (best practices, tools)
+- referente progetto
+
+* CREAZIONE PROGETTO
+- modifiche del testo (font-size, colori, ...)
+- immagini(?)
 
 
 
@@ -44,9 +51,54 @@
 * lista amici
 
 
+### Barra di ricerca
+
+* Ricerca di utenti e organizzazioni (eventualmente progetti)
+
+
+### Pagina utente ricercato
+
+* Simile alla pagina profilo personale ma con meno informazioni
+* Tasti: richiesta amicizia/rimuovi amicizia, blocca utente
+
+
+### Settings
+
+* cancellare utente
+
 
 
 
 ## Chat
 
 * chat a "pallini"
+
+// to do: dashboard alla jira
+
+. calendario: deadline task (colore unico, con finestra al hover), eventi (meeting, codereview) in alto a sinistra
+
+. grafico a torta sulla priorità delle task in basso a sinistra
+
+. tutte le nitifiche elencate tutto a destra
+
+
+
+## Fixes
+
+* avatarUrl sui gruppi per personalizzare l'immagine del gruppo
+
+* capire quale id utilizzare per mandare un messaggio e scaricare la history di una chat di gruppo
+
+* sistemare team chat: quando si riceve un messaggio non printa la mail del sender
+
+* aggiungere nel messaggio, che viene mandato ad entrambi gli utenti quando viene accettata la richiesta di amicizia, i dati degli utenti sotto forma di:
+
+export interface Friend {
+	id: number;
+	name: string;
+	surname: string;
+	email: string;
+	jobQualifier: string;
+	isLoggedIn: boolean;
+	avatarUrl: string;
+}
