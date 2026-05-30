@@ -56,12 +56,9 @@ const uploadFile = async (api: string, body: FormData)
             {
                 method: 'POST',
                 headers: { 
-                    // Chiediamo comunque di ricevere JSON come risposta dal server
                     "Accept": 'application/json'
-                    // NOTA: Niente "Content-Type" qui! Lo imposta il browser da solo con il boundary corretto.
                 },
                 credentials: 'include',
-                // Passiamo direttamente il FormData senza stringify
                 body: body 
             }
         )

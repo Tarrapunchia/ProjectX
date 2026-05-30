@@ -42,7 +42,8 @@ export default function DocumentsPage({ selectedProject }: ChatPageProps)
     const [preview, setPreview] = useState<FileItem | null>(null);
     const [projectData, setProjectData] = useState<any>(null);
 
-    const isOwner = useMemo(() => {
+    const isOwner = useMemo(() => 
+	{
         if (!projectData || !activeUser) return false;
         return projectData.participants?.some(
             (p: any) => p.user.id === activeUser.id && (p.role === "OWNER" || p.role === "EDITOR")

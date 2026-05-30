@@ -69,7 +69,7 @@ function Header({ setActivePage, selectedProject, className }: HeaderProps) {
 				className="ml-auto mr-5 p-0! bg-transparent! border-none! cursor-pointer focus:outline-none! focus:border-none! active:border-none!"
 			>
 				<img 
-					src={infoFetched ? `${CONSTS.BE + userInfo.avatar}` : MOCK_USER.avatar} 
+					src={infoFetched ? `${CONSTS.BE}/api/v1/users/${userInfo.id}/avatar` : MOCK_USER.avatar} 
 					alt="Foto profilo" 
 					className="w-12.5 h-12.5 rounded-full object-cover hover:scale-110 transition-transform duration-300 block"
 				/>

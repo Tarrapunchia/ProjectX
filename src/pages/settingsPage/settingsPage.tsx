@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import helpers from "../../utilities/helpers";
 import { useWebSocket } from "../../utilities/WebSocketContext";
 import { Bell, User, ShieldAlert, CheckCircle } from "lucide-react";
+import CONSTS from '../../data/consts';
 
 type ProfileData = {
   id?: string;
@@ -23,7 +24,6 @@ export default function SettingsPage()
 	const [savingProfile, setSavingProfile] = useState(false);
 	const [saveSuccess, setSaveSuccess] = useState(false);
 
-	// Stato locale per il form (inizializzato con i dati del websocket)
 	const [profile, setProfile] = useState<ProfileData>({
 		name: activeUser?.name || "",
 		surname: activeUser?.surname || "",
@@ -41,20 +41,22 @@ export default function SettingsPage()
 	const [avatarPreview, setAvatarPreview] = useState<string | undefined>(activeUser?.avatar);
 
 	useEffect(() => {
-		if (activeUser) {
-		setProfile({
-			name: activeUser.name,
-			surname: activeUser.surname,
-			email: activeUser.email,
-			jobQualifier: activeUser.jobQualifier || "",
-			phone: activeUser.phone || "",
-			city: activeUser.city || "",
-			address: activeUser.address || "",
-			cap: activeUser.cap || "",
-			state: activeUser.state || "",
-			avatar: activeUser.avatar || "",
-		});
-		setAvatarPreview(activeUser.avatar);
+		if (activeUser) 
+		{
+			setProfile({
+				name: activeUser.name,
+				surname: activeUser.surname,
+				email: activeUser.email,
+				jobQualifier: activeUser.jobQualifier || "",
+				phone: activeUser.phone || "",
+				city: activeUser.city || "",
+				address: activeUser.address || "",
+				cap: activeUser.cap || "",
+				state: activeUser.state || "",
+				avatar: activeUser.avatar || "",
+			});
+			console.log(`${CONSTS.BE}/${activeUser.avatar}`);
+			setAvatarPreview(activeUser?.avatar ? `${CONSTS.BE}/api/v1/users/${activeUser.id}/avatar` : undefined);
 		}
 	}, [activeUser]);
 
@@ -62,26 +64,51 @@ export default function SettingsPage()
 		setProfile((p) => ({ ...p, [k]: v }));
 	};
 
-		const handleAvatarFile = (f?: File | null) => 
-		{
-			if (!f) return;
-			const url = URL.createObjectURL(f);
-			setAvatarPreview(url);
-			// Qui andrebbe la logica per caricare l'immagine sul server (FormData)
-		};
+	const handleAvatarFile = async (f?: File | null) => 
+	{
+		if (!f) return;
 
-	const handleSaveProfile = async () => {
-		setSavingProfile(true);
-		try {
-		const res = await helpers.putter("/api/v1/users/modifyUserProfile", profile);
-		if (res?.success) {
-			setSaveSuccess(true);
-			setTimeout(() => setSaveSuccess(false), 3000);
+		const url = URL.createObjectURL(f);
+
+		const formData = new FormData();
+		formData.append("file", f);
+
+		const res = await helpers.uploadFile("/api/v1/files/avatar", formData);
+
+		if (res.success) 
+		{
+			console.log("Upload riuscito:", res.data);
+			
+			const avatarUrl = `${CONSTS.BE}/api/v1/users/${activeUser.id}/avatar`;
+			console.log(avatarUrl);
+			setAvatarPreview(avatarUrl);
+		} 
+		else 
+		{
+			console.error("Upload fallito", res.data);
+			setAvatarPreview(activeUser?.avatar ? `${CONSTS.BE}${activeUser.avatar}` : undefined);
 		}
-		} catch (e) {
-		console.error("Error saving profile", e);
-		} finally {
-		setSavingProfile(false);
+	};
+
+	const handleSaveProfile = async () => 
+	{
+		setSavingProfile(true);
+		try 
+		{
+			const res = await helpers.putter("/api/v1/users/modifyUserProfile", profile);
+			if (res?.success) 
+			{
+				setSaveSuccess(true);
+				setTimeout(() => setSaveSuccess(false), 3000);
+			}
+		} 
+		catch (e) 
+		{
+			console.error("Error saving profile", e);
+		} 
+		finally 
+		{
+			setSavingProfile(false);
 		}
 	};
 
@@ -108,14 +135,14 @@ export default function SettingsPage()
 					{/* Avatar con Overlay */}
 					<div className="relative w-16 h-16 group">
 						<img 
-							src={avatarPreview || "/placeholder-avatar.png"} 
+							src={avatarPreview || "/placeholder-avatar.png"}
 							alt="avatar" 
 							className="w-16 h-16 rounded-full object-cover border-2 border-overlay-border-color" 
 						/>
 						<button
 							type="button"
 							onClick={() => fileRef.current?.click()}
-							className="absolute inset-0 flex items-center justify-center rounded-full bg-black/50 text-white opacity-0 group-hover:opacity-100 transition-opacity">
+							className="absolute inset-0 flex items-center justify-center rounded-full bg-black/50 text-white opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer">
 							<span className="text-xs font-bold text-white">Edit</span>
 						</button>
 						<input

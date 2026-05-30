@@ -8,7 +8,8 @@ interface SearchBarProps {
     activeUserId: string | number | null;
 }
 
-const SearchBar: React.FC<SearchBarProps> = ({ activeUserId }) => {
+const SearchBar: React.FC<SearchBarProps> = ({ activeUserId }) => 
+{
     const [query, setQuery] = useState('');
     const [results, setResults] = useState<{ users: any[], projects: any[] }>({ users: [], projects: [] });
     const [loading, setLoading] = useState(false);
@@ -17,7 +18,8 @@ const SearchBar: React.FC<SearchBarProps> = ({ activeUserId }) => {
     
     const searchWrapperRef = useRef<HTMLDivElement>(null);
 
-    useEffect(() => {
+    useEffect(() => 
+	{
         const handleClickOutside = (event: MouseEvent) => {
             if (searchWrapperRef.current && !searchWrapperRef.current.contains(event.target as Node)) {
                 setShowDropdown(false);
@@ -28,7 +30,8 @@ const SearchBar: React.FC<SearchBarProps> = ({ activeUserId }) => {
         return () => document.removeEventListener('mousedown', handleClickOutside);
     }, []);
 
-	const sendFriendRequest = async (targetUserId: number, userEmail: string) => {
+	const sendFriendRequest = async (targetUserId: number, userEmail: string) => 
+	{
 		// 1. Prova a mandare l'amicizia
 		try {
 			await helpers.poster('/api/v1/friends/requests', { targetUserId });
@@ -116,11 +119,12 @@ const SearchBar: React.FC<SearchBarProps> = ({ activeUserId }) => {
                     if (query.length > 0) setShowDropdown(true);
                 }}
                 placeholder="Search..."
-                className="w-[70%] pl-10 pr-4 py-2 bg-bg-color border border-overlay-border-color rounded-full text-sm text-text-main 
+                className="w-[50%] pl-10 pr-4 py-2 bg-bg-color border border-overlay-border-color rounded-full text-sm text-text-main 
                 placeholder-slate-500 focus:outline-none focus:border-border-focus focus:w-full transition-all duration-200"
             />
 
-            {showDropdown && query.length > 0 && (
+            {showDropdown && query.length > 0 && 
+			(
                 <div className="absolute top-full mt-2 w-full bg-bg-color border border-overlay-border-color rounded-xl shadow-lg z-50 max-h-80 overflow-y-auto p-2 no-scrollbar">
                     
                     {/* Sezione Utenti */}

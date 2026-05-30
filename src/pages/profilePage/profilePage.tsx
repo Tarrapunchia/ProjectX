@@ -29,7 +29,7 @@ const ProfilePage: React.FC = () => {
 	return (
 		<div className="profile-container">
 			<div className="profile-header">
-				<img src={infoFetched ? `${CONSTS.BE+userInfo.avatar}` : AVATAR} alt="Foto profilo" className="profile-avatar"/>
+				<img src={infoFetched ? `${CONSTS.BE}/api/v1/users/${userInfo.id}/avatar` : AVATAR} alt="Foto profilo" className="profile-avatar"/>
 				<div className="profile-info">
 					<h1>{userInfo?.name} {userInfo?.surname}</h1>
 					<div className="profile-details">

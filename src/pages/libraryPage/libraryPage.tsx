@@ -3,6 +3,7 @@ import type { ProjectInfo } from "../../data/types";
 import helpers from "../../utilities/helpers";
 import consts from "../../data/consts";
 import { useWebSocket } from "../../utilities/WebSocketContext";
+import { formatters } from "../../utilities/formatters";
 
 const getFileType = (fileName: string): "image" | "pdf" | "doc" | "zip" | "text" | "video" => {
   const extension = fileName.split('.').pop()?.toLowerCase();
@@ -31,8 +32,10 @@ type FileItem = {
     view_url: string;
     download_url: string;
     type: "image" | "pdf" | "doc" | "zip" | "text" | "video";
-    size?: string;
+    size?: number;
     createdAt?: string;
+	userFullName?: string;
+    uploaderId: number;
 };
 
 interface ChatPageProps {
@@ -82,12 +85,12 @@ export default function LibraryPage({ selectedProject }: ChatPageProps)
                         </div>
 
 						<div className="hidden md:contents">
-							<div className="col-span-2 text-center text-sm text-zinc-500">Ansi Osmenaj</div>
-							<div className="col-span-2 text-center text-sm text-zinc-500">May 10, 2026</div>
+							<div className="col-span-2 text-center text-sm text-zinc-500">{file.userFullName}</div>
+							<div className="col-span-2 text-center text-sm text-zinc-500">{file.createdAt}</div>
 							<div className="col-span-2 text-center">
 								<span className="text-[10px] px-2 py-1 bg-overlay-border-color rounded uppercase">{file.type}</span>
 							</div>
-							<div className="col-span-2 text-right text-sm text-zinc-500">1.2 MB</div>
+							<div className="col-span-2 text-right text-sm text-zinc-500">{file.size || "N/A"}</div>
 						</div>
 						
 						<div className="md:hidden flex justify-between text-[10px] text-zinc-500 mt-2">
@@ -108,19 +111,20 @@ export default function LibraryPage({ selectedProject }: ChatPageProps)
         try {
             const orgId = pData.organization.id;
             const projId = selectedProject.id;
-
-            const BASE_URL = `${consts.BE}/api/v1/files/files/preview/${orgId}/${projId}`;
-            const download_url = `${consts.BE}/api/v1/files/files/${orgId}/${projId}`;
-            const files_url = `/api/v1/files/${orgId}/${projId}`;
+            const files_url = `/api/v1/files/${orgId}/${projId}/user`;
 
             const res = await helpers.getter(files_url, null);
             if (res.success) {
-                const formatted = res.data.files.map((name: string, i: number) => ({
+                const formatted = res.data.files.map((file: any, i: number) => ({
                     id: String(i + 1),
-                    name: name,
-                    view_url: `${BASE_URL}/${name}`,
-                    download_url: `${download_url}/${name}`,
-                    type: getFileType(name)
+                    name: file.filename,
+                	uploaderId: file.uploaderId,
+					view_url: `${consts.BE}/api/v1/files/files/preview/${orgId}/${projId}/user/${file.uploaderId}/${file.filename}`,
+                	download_url: `${consts.BE}/api/v1/files/files/${orgId}/${projId}/user/${file.uploaderId}/${file.filename}`,
+                    userFullName: (file.uploaderFullName.toUpperCase()),
+					type: getFileType(file.filename),
+					createdAt: formatters.dateOnly(file.createdAt),
+    				size: formatters.fileSize(file.size),
                 }));
                 setFiles(formatted);
             }
@@ -129,31 +133,33 @@ export default function LibraryPage({ selectedProject }: ChatPageProps)
         }
     }, [selectedProject]);
 
-    const handleUpload = async (event: React.ChangeEvent<HTMLInputElement>) => 
-    {
-        const file = event.target.files?.[0];
-        if (!file || !selectedProject || !activeUser || !projectData) return;
+	const handleUpload = async (event: React.ChangeEvent<HTMLInputElement>) => 
+	{
+		const file = event.target.files?.[0];
+		if (!file || !selectedProject || !activeUser || !projectData) return;
 
-        const formData = new FormData();
-        formData.append('userId', activeUser.id.toString());
-        formData.append('organizationId', projectData.organization.id);
-        formData.append('projectId', selectedProject.id.toString());
-        formData.append('file', file);
+		const formData = new FormData();
 
-        try {
-            const res = await helpers.uploadFile('/api/v1/files', formData);
-            if (res.success) {
-                console.log("Caricato con successo!", res.data);
-                loadFiles(projectData);
-            } else {
-                console.error("Errore durante l'upload:", res.data);
-            }
-        } catch (error) {
-            console.error("Errore di rete:", error);
-        } finally {
-            if (event.target) event.target.value = "";
-        }
-    };
+		formData.append('organizationId', projectData.organization.id.toString());
+		formData.append('projectId', selectedProject.id.toString());
+		formData.append('userId', activeUser.id.toString());
+		formData.append('file', file);
+
+		try
+		{
+			const res = await helpers.uploadFile('/api/v1/files/user', formData);
+			if (res.success) {
+				console.log("Caricato con successo!", res.data);
+				loadFiles(projectData);
+			} else {
+				console.error("Errore durante l'upload:", res.data);
+			}
+		} catch (error) {
+			console.error("Errore di rete:", error);
+		} finally {
+			if (event.target) event.target.value = "";
+		}
+	};
 
     const delete_file = async (fileName: string) => {
         if (!selectedProject || !projectData) return;
