@@ -55,6 +55,20 @@ const previewFile = (baseDir: string, filename: string, reply: FastifyReply) => 
   return reply.send(fs.createReadStream(resolvedFile))
 }
 
+const getFullName = async (id: number, fastify: FastifyInstance) => {
+    try {
+        const name = await fastify.prisma.user.findUnique({
+            where: { id: id },
+            select: { name: true, surname: true }
+        })
+
+        if (!name) return ''
+        return (`${name.name} ${name.surname}`)
+    } catch (error) {
+        return ``        
+    }
+}
+
 const FilesGetters: FastifyPluginAsync = async (fastify: FastifyInstance) => {
   fastify.get('/:organizationId/:projectId', async (req, reply) => {
     const { organizationId, projectId } = req.params as { organizationId: string; projectId: string }
@@ -120,7 +134,7 @@ const FilesGetters: FastifyPluginAsync = async (fastify: FastifyInstance) => {
       .map((d) => d.name)
       .filter((name) => /^\d+$/.test(name))
 
-    const out: Array<{ uploaderId: number; filename: string; relativePath: string }> = []
+    const out: Array<{ uploaderId: number; filename: string; relativePath: string, uploaderFullName: string }> = []
 
     for (const dirName of userDirs) {
       const uploaderId = Number(dirName)
@@ -136,6 +150,7 @@ const FilesGetters: FastifyPluginAsync = async (fastify: FastifyInstance) => {
         out.push({
           uploaderId,
           filename,
+          uploaderFullName: await getFullName(uploaderId, fastify),
           relativePath: `${dirName}/${filename}`,
         })
       }
