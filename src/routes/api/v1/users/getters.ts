@@ -1,6 +1,29 @@
 import fastify, { type FastifyInstance, type FastifyPluginAsync } from "fastify";
 import { userSchemas } from "./usersSchemas.js";
 import { getUserIdFromJWT } from "../../../../helpers/cookies.js";
+import fs from 'fs'
+import path from 'path'
+
+const getMimeType = (filename: string) => {
+  const ext = path.extname(filename).toLowerCase()
+  const m: Record<string, string> = {
+    '.png': 'image/png',
+    '.jpg': 'image/jpeg',
+    '.jpeg': 'image/jpeg',
+    '.webp': 'image/webp',
+    '.gif': 'image/gif',
+  }
+  return m[ext] ?? 'application/octet-stream'
+}
+
+function safeResolveFromPublic(rootDir: string, avatarUrl: string) {
+  const clean = avatarUrl.split('?')[0].replace(/^\/+/, '')
+  const base = path.resolve(rootDir)
+  const full = path.resolve(base, clean)
+
+  if (!full.startsWith(base + path.sep)) return null
+  return full
+}
 
 const Getters: FastifyPluginAsync = async (fastify: FastifyInstance, opts) => {
     fastify.get('/', { schema: userSchemas.getAllUsers },  async (req, res) => {
@@ -172,61 +195,124 @@ const Getters: FastifyPluginAsync = async (fastify: FastifyInstance, opts) => {
                 }
         })
 
-        // GET /api/v1/users/activeUserAvatar
-        fastify.get(
-            '/activeUserAvatar',
-            { schema: {
-                description: 'Fetch a user\'s avatar url',
-                tags: ['users'],
-                response: {
-                    200: {
-                        type: 'object',
-                        properties: {
-                            email: { type: 'string', format: 'email' },
-                            avatar: { type: 'string' }
-                        },
-                        required: ['email', 'avatar'],
-                    },
-                    404: {
-                        type: 'object',
-                        properties: {
-                            error: { type: 'string' },
-                        },
-                        required: ['error'],
-                    },
-                    400: {
-                        type: 'object',
-                        properties: {
-                            error: { type: 'string' },
-                        },
-                        required: ['error'],
-                    }
-                }
-            } },
-            async (req, res) => {
-                const id = getUserIdFromJWT(req, res, fastify)
-                if (Number.isNaN(id) || !id) {
-                    res.code(400)
-                    return { error: 'User not connected' }
-                }
-                try {
-                    const user = await fastify.prisma.user.findUnique({
-                        where: { id },
-                        select: { email: true, avatarUrl: true }
-                    })
-                    if (!user) {
-                        res.code(404)
-                        return { error: 'User not found' }
-                    }
-                    return {
-                        email: user.email,
-                        avatar: user.avatarUrl
-                    }
-                } catch (error) {
-                    res.code(400)
-                    return res.send({ error: error})
-                }
+        // // GET /api/v1/users/activeUserAvatar
+        // fastify.get(
+        //     '/activeUserAvatar',
+        //     { schema: {
+        //         description: 'Fetch a user\'s avatar url',
+        //         tags: ['users'],
+        //         response: {
+        //             200: {
+        //                 type: 'object',
+        //                 properties: {
+        //                     email: { type: 'string', format: 'email' },
+        //                     avatar: { type: 'string' }
+        //                 },
+        //                 required: ['email', 'avatar'],
+        //             },
+        //             404: {
+        //                 type: 'object',
+        //                 properties: {
+        //                     error: { type: 'string' },
+        //                 },
+        //                 required: ['error'],
+        //             },
+        //             400: {
+        //                 type: 'object',
+        //                 properties: {
+        //                     error: { type: 'string' },
+        //                 },
+        //                 required: ['error'],
+        //             }
+        //         }
+        //     } },
+        //     async (req, res) => {
+        //         const id = getUserIdFromJWT(req, res, fastify)
+        //         if (Number.isNaN(id) || !id) {
+        //             res.code(400)
+        //             return { error: 'User not connected' }
+        //         }
+        //         try {
+        //             const user = await fastify.prisma.user.findUnique({
+        //                 where: { id },
+        //                 select: { email: true, avatarUrl: true }
+        //             })
+        //             if (!user) {
+        //                 res.code(404)
+        //                 return { error: 'User not found' }
+        //             }
+        //             return {
+        //                 email: user.email,
+        //                 avatar: user.avatarUrl
+        //             }
+        //         } catch (error) {
+        //             res.code(400)
+        //             return res.send({ error: error})
+        //         }
+        // })
+
+    // GET /api/v1/users/:id/avatar
+    fastify.get<{ Params: { id: string } }>(
+        '/:id/avatar',
+        {
+        schema: {
+            description: 'Get user avatar as a file stream',
+            tags: ['users'],
+            params: {
+            type: 'object',
+            properties: { id: { type: 'string' } },
+            required: ['id'],
+            },
+            response: {
+            200: { type: 'string', description: 'Binary image stream' },
+            400: { type: 'object', properties: { error: { type: 'string' } }, required: ['error'] },
+            404: { type: 'object', properties: { error: { type: 'string' } }, required: ['error'] },
+            },
+        },
+        },
+        async (req, reply) => {
+        const userId = Number(req.params.id)
+        if (Number.isNaN(userId)) {
+            reply.code(400)
+            return { error: 'invalid user id' }
+        }
+
+        const user = await fastify.prisma.user.findUnique({
+            where: { id: userId },
+            select: { avatarUrl: true },
         })
+
+        if (!user) {
+            reply.code(404)
+            return { error: 'User not found' }
+        }
+
+        const avatarUrl = user.avatarUrl || '/avatar/default.png'
+
+        const publicRoot = path.join(process.cwd(), 'dist', 'public')
+
+        const fullPath = safeResolveFromPublic(publicRoot, avatarUrl)
+        if (!fullPath) {
+            reply.code(400)
+            return { error: 'invalid avatarUrl path' }
+        }
+
+        if (!fs.existsSync(fullPath) || !fs.statSync(fullPath).isFile()) {
+            const fallback = safeResolveFromPublic(publicRoot, '/avatar/default.png')
+            if (!fallback || !fs.existsSync(fallback)) {
+            reply.code(404)
+            return { error: 'Avatar file not found' }
+            }
+            reply.type(getMimeType(fallback))
+            reply.header('Cache-Control', 'public, max-age=3600')
+            return reply.send(fs.createReadStream(fallback))
+        }
+
+        reply.type(getMimeType(fullPath))
+        reply.header('Cache-Control', 'public, max-age=3600')
+        return reply.send(fs.createReadStream(fullPath))
+        }
+    )
 
         // GET /api/v1/users/search?username=foo
         fastify.get<{
