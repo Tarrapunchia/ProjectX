@@ -3,7 +3,15 @@ import { useWebSocket } from "../../utilities/WebSocketContext";
 import helpers from "../../utilities/helpers";
 import { X, Search } from "lucide-react";
 
-export default function CreateEventModal({ onClose }: { onClose: () => void }) {
+const getMinDateTime = () => 
+{
+    const now = new Date();
+    now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
+    return now.toISOString().slice(0, 16);
+};
+
+export default function CreateEventModal({ onClose }: { onClose: () => void }) 
+{
     const { loadCalendar, friends } = useWebSocket();
     const [loading, setLoading] = useState(false);
     const [selectedFriends, setSelectedFriends] = useState<number[]>([]);
@@ -97,6 +105,7 @@ export default function CreateEventModal({ onClose }: { onClose: () => void }) {
                             <input 
                                 required
                                 type="datetime-local"
+								min={getMinDateTime()}
                                 className="p-3 rounded-xl bg-bg-color border border-transparent outline-none shadow-sm [&::-webkit-calendar-picker-indicator]:cursor-pointer"
                                 onChange={e => setFormData({...formData, dueDate: e.target.value})}
                             />

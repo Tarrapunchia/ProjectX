@@ -6,47 +6,54 @@ import interactionPlugin from "@fullcalendar/interaction";
 import itLocale from "@fullcalendar/core/locales/it";
 import type { CalendarEntries, ProjectTasks, Event as ApiEvent, SelectedEvent, FCEvent } from "../../data/types";
 import { useWebSocket } from "../../utilities/WebSocketContext";
-import helpers from "../../utilities/helpers";
+import ModifyEventModal from "../EventModal/ModifyEventModal";
 
 const taskColors = [
   "cornflowerblue", "steelblue", "royalblue", "seagreen", "forestgreen",
   "goldenrod", "darkorange", "tomato", "slategray", "mediumpurple",
 ];
 
-function mapCalendarEntriesToFullCalendar(entries: CalendarEntries): FCEvent[] {
-  const taskEvents: FCEvent[] = (entries.tasks ?? []).map((t: ProjectTasks, i) => ({
-    id: `task:${t.id}`,
-    title: `🧩 ${t.name}`,
-    start: t.dueDate ?? t.createdAt,
-    end: t.dueDate ?? undefined,
-    color: taskColors[i % 10],
-    extendedProps: {
-      kind: "task", status: t.status, priority: t.priority,
-      description: t.description, projectId: t.projectId,
-    },
-  }));
+function mapCalendarEntriesToFullCalendar(entries: CalendarEntries): FCEvent[] 
+{
+	const taskEvents: FCEvent[] = (entries.tasks ?? []).map((t: ProjectTasks, i) => ({
+		id: `task:${t.id}`,
+		title: `🧩 ${t.name}`,
+		start: t.dueDate ?? t.createdAt,
+		end: t.dueDate ?? undefined,
+		color: taskColors[i % 10],
+		extendedProps: {
+		kind: "task", status: t.status, priority: t.priority,
+		description: t.description, projectId: t.projectId,
+		},
+	}));
 
-  const calendarEvents: FCEvent[] = (entries.events ?? []).map((e: ApiEvent) => ({
-    id: `event:${e.id}`,
-    title: `📅 ${e.name}`,
-    start: e.dueDate,
-    end: undefined,
-    color: 'blue',
-    extendedProps: {
-      kind: "event", type: e.type, description: e.description, ownerId: e.ownerId,
-    },
-  }));
+	const calendarEvents: FCEvent[] = (entries.events ?? []).map((e: ApiEvent, i) => ({
+		id: `event:${e.id}`,
+		title: `📅 ${e.name}`,
+		start: e.dueDate,
+		color: taskColors[i % 75],
+		extendedProps: 
+		{
+			kind: "event", 
+			type: e.type, 
+			description: e.description,
+			ownerId: e.ownerId,
+			participants: e.participants
+		},
+}));
 
-  return [...taskEvents, ...calendarEvents];
+return [...taskEvents, ...calendarEvents];
 }
 
 function Calendar() 
 {
-	const { calendarEntries, loadCalendar } = useWebSocket()
+	const { activeUser } = useWebSocket();
+	const { calendarEntries } = useWebSocket()
 	const [selectedEvent, setSelectedEvent] = useState<SelectedEvent | null>(null);
 	const modalRef = useRef<HTMLDivElement | null>(null);
 	const [isClosing, setIsClosing] = useState(false);
 	const [isMobile, setIsMobile] = useState(typeof window !== "undefined" ? window.innerWidth < 768 : false);
+	const [isModifyOpen, setIsModifyOpen] = useState(false);
 
 	useEffect(() => 
 	{
@@ -66,17 +73,21 @@ function Calendar()
 		setIsClosing(true);
 		setTimeout(() => {
 		setSelectedEvent(null);
+		setIsModifyOpen(false);
 		setIsClosing(false);
 		}, 180);
 	}
 
-	useEffect(() => {
-		function handleClickOutside(e: MouseEvent) {
-		if (modalRef.current && !modalRef.current.contains(e.target as Node)) closeModal();
-		}
-		if (selectedEvent) document.addEventListener("mousedown", handleClickOutside);
-		return () => document.removeEventListener("mousedown", handleClickOutside);
-	}, [selectedEvent]);
+	useEffect(() => 
+	{
+        function handleClickOutside(e: MouseEvent) 
+		{
+            if (isModifyOpen) return; 
+            if (modalRef.current && !modalRef.current.contains(e.target as Node)) closeModal();
+        }
+        if (selectedEvent) document.addEventListener("mousedown", handleClickOutside);
+        return () => document.removeEventListener("mousedown", handleClickOutside);
+    }, [selectedEvent, isModifyOpen]);
 
 	return (
 		<div className="relative h-full w-full
@@ -136,37 +147,75 @@ function Calendar()
 			})}
 			events={fcEvents}
 			eventClick={(info) => {
-			const ext = info.event.extendedProps as any;
-			setSelectedEvent({
-				id: String(info.event.id),
-				name: info.event.title,
-				start: info.event.start?.toLocaleString() ?? "",
-				end: info.event.end?.toLocaleString(),
-				type: ext?.type,
-				description: ext?.description,
-				status: ext?.status,
-			});
-			}}
+                const ext = info.event.extendedProps as any;
+                setSelectedEvent({
+                    id: String(info.event.id),
+                    name: info.event.title,
+                    start: info.event.start?.toLocaleString() ?? "",
+                    rawStart: info.event.start?.toISOString() ?? "",
+                    type: ext?.type,
+                    description: ext?.description,
+                    status: ext?.status,
+                    ownerId: ext?.ownerId,
+                    participants: ext?.participants || []
+                } as any);
+            }}
 			editable
 			selectable
 		/>
 
-		{selectedEvent && (
-			<div className={`absolute inset-0 bg-black/70 z-[100] flex items-center justify-center p-4
-				${isClosing ? "animate-fadeZoomOut" : "animate-fadeZoomIn"}`}>
-			<div ref={modalRef} className="rounded-lg bg-zinc-900 p-6 w-full max-w-md shadow-2xl border border-zinc-700">
-				<h2 className="text-xl font-semibold text-white">{selectedEvent.name}</h2>
-				<p className="text-green-300 mt-3 text-sm"><b>Inizio:</b> {selectedEvent.start}</p>
-				<p className="text-red-300 mt-1 text-sm"><b>Fine:</b> {selectedEvent.end ?? "-"}</p>
-				{selectedEvent.status && <p className="text-white/80 mt-2 text-sm"><b>Status:</b> {selectedEvent.status}</p>}
-				{selectedEvent.type && <p className="text-white/80 mt-1 text-sm"><b>Type:</b> {selectedEvent.type}</p>}
-				{selectedEvent.description && <p className="text-white/80 mt-2 text-sm text-pretty"><b>Description:</b> {selectedEvent.description}</p>}
-				<button className="mt-5 w-full md:w-auto px-4 py-2 text-xs border border-white/20 rounded hover:bg-white/10 text-white transition-colors" onClick={closeModal}>
-				Chiudi
-				</button>
-			</div>
-			</div>
-		)}
+		{/* MODAL DI VISUALIZZAZIONE */}
+        {selectedEvent && (
+            <div className={`absolute inset-0 bg-black/70 z-[100] flex items-center justify-center p-4 ${isClosing ? "animate-fadeZoomOut" : "animate-fadeZoomIn"}`}>
+                <div ref={modalRef} className="rounded-lg bg-zinc-900 p-6 w-full max-w-md shadow-2xl border border-zinc-700">
+                    <h2 className="text-xl font-semibold text-white">{selectedEvent.name}</h2>
+                    <p className="text-green-300 mt-3 text-sm"><b>Inizio:</b> {selectedEvent.start}</p>
+                    {selectedEvent.status && <p className="text-white/80 mt-2 text-sm"><b>Status:</b> {selectedEvent.status}</p>}
+                    {selectedEvent.type && <p className="text-white/80 mt-1 text-sm"><b>Type:</b> {selectedEvent.type}</p>}
+                    {selectedEvent.description && <p className="text-white/80 mt-2 text-sm text-pretty"><b>Description:</b> {selectedEvent.description}</p>}
+                    
+                    <div className="flex gap-2 mt-5">
+                        {/* 2. CONTROLLO OWNER: Mostra "Modifica" solo se l'evento è un 'event:' E l'utente attivo è l'owner */}
+                        {String(selectedEvent.id).startsWith("event:") && String(activeUser?.id) === String(selectedEvent.ownerId) && (
+                            <button 
+                                className="px-4 py-2 text-xs bg-owner-color text-white rounded font-bold hover:scale-105 active:scale-95 transition-all shadow-lg cursor-pointer"
+                                onClick={() => setIsModifyOpen(true)}
+                            >
+                                Modifica
+                            </button>
+                        )}
+                        <button 
+                            className="px-4 py-2 text-xs border border-white/20 rounded hover:bg-white/10 text-white transition-colors cursor-pointer" 
+                            onClick={closeModal}
+                        >
+                            Chiudi
+                        </button>
+                    </div>
+                </div>
+            </div>
+        )}
+
+        {/* MODAL DI MODIFICA */}
+        {isModifyOpen && selectedEvent && (
+            <ModifyEventModal 
+                event={selectedEvent} 
+                onClose={(updatedData?: any) => {
+                    setIsModifyOpen(false);
+                    
+                    // Se abbiamo ricevuto dati aggiornati, aggiorniamo il modal di visualizzazione!
+                    if (updatedData) {
+                        setSelectedEvent(prev => prev ? {
+                            ...prev,
+                            name: `📅 ${updatedData.name}`, // Rimettiamo l'icona se la usi
+                            type: updatedData.type,
+                            description: updatedData.message, // Ricorda che nel payload lo chiami 'message'
+                            start: new Date(updatedData.dueDate).toLocaleString() // Aggiorniamo la data formattata
+                        } : null);
+                    }
+                    // NOTA: Non chiamiamo closeModal() qui, così il modal di visualizzazione resta aperto!
+                }} 
+            />
+        )}
 		</div>
 	);
 }

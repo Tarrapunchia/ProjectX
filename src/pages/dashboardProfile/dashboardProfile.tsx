@@ -7,7 +7,7 @@ import type { TaskInfos } from "../../data/types";
 import { useLocation, useNavigate } from "react-router-dom";
 import FirstLogin from "../PopUpFirstLogin/firstLoginpage"
 import { Plus } from "lucide-react"
-import CreateEventModal from "../CreateEventModal/CreateEventModal";
+import CreateEventModal from "../EventModal/CreateEventModal";
 
 function DashboardProf() 
 {

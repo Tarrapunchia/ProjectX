@@ -141,6 +141,8 @@ export type SelectedEvent = {
   type?: string;
   description?: string;
   status?: string;
+  ownerId?: string;
+  participants: number[]
 };
 
 export type FCEvent = {
@@ -152,14 +154,16 @@ export type FCEvent = {
   extendedProps?: Record<string, any>;
 };
 
-export interface Event {
+export interface Event 
+{
 	id: string,
 	name: string,
 	createdAt: Date,
 	dueDate: Date,
 	type: 'NONE' | 'CALL' | 'MEETING' | 'CONFERENCE' | 'GENERIC'
 	description: string,
-	ownerId: string
+	ownerId: string,
+	participants: number[]
 }
 
 export type CalendarEntries = {
