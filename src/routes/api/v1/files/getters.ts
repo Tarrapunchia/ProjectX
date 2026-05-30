@@ -3,6 +3,7 @@ import path from 'path'
 import fs from 'fs'
 import auth from '../../../../helpers/auth.js'
 import { getUserIdFromJWT } from '../../../../helpers/cookies.js'
+import fileSchema from './fileSchemas.js'
 
 const getMimeType = (filename: string) => {
   const ext = path.extname(filename).toLowerCase()
@@ -103,7 +104,9 @@ const FilesGetters: FastifyPluginAsync = async (fastify: FastifyInstance) => {
     return reply.code(200).send({ files })
   })
 
-  fastify.get('/:organizationId/:projectId/user', async (req, reply) => {
+  fastify.get('/:organizationId/:projectId/user',
+    { schema: fileSchema.getProjectUserFilesSchema },
+    async (req, reply) => {
     const { organizationId, projectId } = req.params as { organizationId: string; projectId: string }
     const orgId = Number(organizationId)
     const projId = Number(projectId)
@@ -134,28 +137,41 @@ const FilesGetters: FastifyPluginAsync = async (fastify: FastifyInstance) => {
       .map((d) => d.name)
       .filter((name) => /^\d+$/.test(name))
 
-    const out: Array<{ uploaderId: number; filename: string; relativePath: string, uploaderFullName: string }> = []
+    const out: Array<{
+        uploaderId: number
+        filename: string
+        relativePath: string
+        uploaderFullName: string
+        size: number
+        createdAt: string
+    }> = []
 
     for (const dirName of userDirs) {
-      const uploaderId = Number(dirName)
-      const uDir = path.join(baseDir, dirName)
-      if (!fs.existsSync(uDir)) continue
+        const uploaderId = Number(dirName)
+        const uDir = path.join(baseDir, dirName)
+        if (!fs.existsSync(uDir)) continue
 
-      const files = fs
-        .readdirSync(uDir, { withFileTypes: true })
-        .filter((d) => d.isFile())
-        .map((d) => d.name)
+        const entries = fs
+            .readdirSync(uDir, { withFileTypes: true })
+            .filter((d) => d.isFile())
 
-      for (const filename of files) {
-        out.push({
-          uploaderId,
-          filename,
-          uploaderFullName: await getFullName(uploaderId, fastify),
-          relativePath: `${dirName}/${filename}`,
-        })
-      }
+        const uploaderFullName = await getFullName(uploaderId, fastify) // evita N chiamate
+
+        for (const ent of entries) {
+            const filename = ent.name
+            const fullPath = path.join(uDir, filename)
+            const st = fs.statSync(fullPath)
+
+            out.push({
+                uploaderId,
+                filename,
+                uploaderFullName,
+                relativePath: `${dirName}/${filename}`,
+                size: st.size,
+                createdAt: st.birthtime.toISOString(),
+            })
+        }
     }
-
     return reply.code(200).send({ files: out })
   })
 
