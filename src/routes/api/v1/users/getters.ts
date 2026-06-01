@@ -565,7 +565,7 @@ const Getters: FastifyPluginAsync = async (fastify: FastifyInstance, opts) => {
                 res.code(400)
                 res.send({ error: error })
             }
-        }
+    }
     )
 }
 
