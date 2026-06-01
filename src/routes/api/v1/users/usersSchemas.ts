@@ -494,7 +494,7 @@ const getCalendarEntries: Schema = {
                 }
             }
         },
-        events: {
+		events: {
             type: 'array',
             items: {
                 type: 'object',
@@ -504,8 +504,12 @@ const getCalendarEntries: Schema = {
                     dueDate: { type: 'string', format: 'date-time' },
                     createdAt: { type: 'string', format: 'date-time' },
                     type: { type: 'string' },
-                    message: { type: 'string' },
+                    description: { type: 'string', nullable: true }, 
                     ownerId: { type: 'string' },
+                    participants: { 
+                        type: 'array', 
+                        items: { type: 'number' } 
+                    }
                 }
             }
         }
