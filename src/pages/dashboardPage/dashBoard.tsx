@@ -37,7 +37,7 @@ function DashboardPage() {
 		<WebSocketProvider>
 			<div className="grid h-screen overflow-hidden grid-cols-[75px_1fr] md:grid-cols-[11vw_1fr] grid-rows-[auto_1fr_auto] [grid-template-areas:'sidebar_header''sidebar_main''sidebar_footer']">
 				<Header className="[grid-area:header]" setActivePage={setActivePage} selectedProject={selectedProject}/>
-				<Sidebar className="[grid-area:sidebar]" setActivePage={setActivePage} />
+				<Sidebar className="[grid-area:sidebar]" activePage={activePage} setActivePage={setActivePage}/>
 				<main className="[grid-area:main] p-[20px] overflow-y-auto h-full min-w-0">
 					{ activePage === 'dashboard' && <DashboardProfile /> }
 					{ activePage === 'documents' && <DocumentsPage selectedProject={selectedProject}/> }

@@ -181,14 +181,14 @@ function Calendar()
                                 className="px-4 py-2 text-xs bg-owner-color text-white rounded font-bold hover:scale-105 active:scale-95 transition-all shadow-lg cursor-pointer"
                                 onClick={() => setIsModifyOpen(true)}
                             >
-                                Modifica
+                                Modify
                             </button>
                         )}
                         <button 
                             className="px-4 py-2 text-xs border border-white/20 rounded hover:bg-white/10 text-white transition-colors cursor-pointer" 
                             onClick={closeModal}
                         >
-                            Chiudi
+                            Close
                         </button>
                     </div>
                 </div>

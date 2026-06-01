@@ -2,6 +2,7 @@ import React, { useState, useMemo} from "react";
 import { useWebSocket } from "../../utilities/WebSocketContext";
 import helpers from "../../utilities/helpers";
 import { X, Search } from "lucide-react";
+import CONSTS from '../../data/consts';
 
 export default function ModifyEventModal({ event, onClose }: { event: any, onClose: (updatedData?: any) => void }) 
 {
@@ -181,7 +182,13 @@ export default function ModifyEventModal({ event, onClose }: { event: any, onClo
 										const friend = friends.find(f => f.id === id);
 										return (
 											<div key={id} className="flex items-center gap-2 bg-owner-color/20 border border-owner-color/30 pl-1 pr-2 py-1 rounded-lg animate-in fade-in zoom-in duration-200">
-												<img src={friend?.avatarUrl || "/placeholder-avatar.png"} className="w-5 h-5 rounded-full object-cover" />
+												<div className="w-8 h-8 rounded-full bg-side-bg-color overflow-hidden shrink-0 border border-overlay-border-color">
+													<img 
+														src={`${CONSTS.BE}/api/v1/users/${friend?.id}/avatar`} 
+														alt={`${friend?.name} avatar`}
+														className="w-full h-full object-cover"
+													/>
+												</div>
 												<span className="text-[11px] text-text-main font-medium">{friend?.name || `User ${id}`}</span>
 												<button 
 													type="button" 

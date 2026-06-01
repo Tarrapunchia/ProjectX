@@ -19,19 +19,36 @@ function DashboardProf()
 	const [isEventModalOpen, setIsEventModalOpen] = useState(false);
 
 	const handleProfileUpdate = async (formData: any) =>
-	{
-		console.log("Dati ricevuti dal Modal:", formData);
-		
-		const { success } = await helpers.putter('/api/v1/users/modifyUserProfile', formData);
+    {
+        const { avatarFile, ...profileData } = formData;
 
-		if (success) {
-			console.log("Profilo aggiornato!");
-			
-		} else {
-			console.error("Errore durante l'aggiornamento:");
-		}
-		setIsPopupOpen(false);
-	};
+        try {
+            if (avatarFile) {
+                const fileUploadData = new FormData();
+                fileUploadData.append("file", avatarFile);
+
+                const avatarRes = await helpers.uploadFile("/api/v1/files/avatar", fileUploadData);
+
+                if (avatarRes.success) {
+                    console.log("Upload avatar riuscito!");
+                } else {
+                    console.error("Upload avatar fallito:", avatarRes);
+                }
+            }
+
+            const { success } = await helpers.putter('/api/v1/users/modifyUserProfile', profileData);
+
+            if (success) {
+                console.log("Profilo aggiornato!");
+            } else {
+                console.error("Errore durante l'aggiornamento dei dati del profilo.");
+            }
+        } catch (error) {
+            console.error("Errore di rete o di esecuzione:", error);
+        } finally {
+            setIsPopupOpen(false);
+        }
+    };
 
 	useEffect(() => 
 	{
