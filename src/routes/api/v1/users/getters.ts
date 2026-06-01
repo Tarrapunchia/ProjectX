@@ -17,7 +17,7 @@ const getMimeType = (filename: string) => {
 }
 
 function safeResolveFromPublic(rootDir: string, avatarUrl: string) {
-  const clean = avatarUrl.split('?')[0].replace(/^\/+/, '')
+  const clean = avatarUrl.split('?')[0]?.replace(/^\/+/, '') ?? ''
   const base = path.resolve(rootDir)
   const full = path.resolve(base, clean)
 
@@ -251,66 +251,89 @@ const Getters: FastifyPluginAsync = async (fastify: FastifyInstance, opts) => {
         //         }
         // })
 
-    // GET /api/v1/users/:id/avatar
-    fastify.get<{ Params: { id: string } }>(
+    const getMimeType = (filename: string) => {
+        const ext = path.extname(filename).toLowerCase()
+        const m: Record<string, string> = {
+            '.png': 'image/png',
+            '.jpg': 'image/jpeg',
+            '.jpeg': 'image/jpeg',
+            '.webp': 'image/webp',
+            '.gif': 'image/gif',
+        }
+        return m[ext] ?? 'application/octet-stream'
+        }
+
+        function safeResolve(baseDir: string, rel: string) {
+        const base = path.resolve(baseDir)
+        const full = path.resolve(base, rel)
+        if (!full.startsWith(base + path.sep)) return null
+        return full
+        }
+
+        fastify.get<{ Params: { id: string } }>(
         '/:id/avatar',
         {
-        schema: {
-            description: 'Get user avatar as a file stream',
+            schema: {
+            description: 'Get user avatar as binary image',
             tags: ['users'],
             params: {
-            type: 'object',
-            properties: { id: { type: 'string' } },
-            required: ['id'],
+                type: 'object',
+                properties: { id: { type: 'string' } },
+                required: ['id'],
             },
-            response: {
-            200: { type: 'string', description: 'Binary image stream' },
-            400: { type: 'object', properties: { error: { type: 'string' } }, required: ['error'] },
-            404: { type: 'object', properties: { error: { type: 'string' } }, required: ['error'] },
             },
-        },
         },
         async (req, reply) => {
-        const userId = Number(req.params.id)
-        if (Number.isNaN(userId)) {
-            reply.code(400)
-            return { error: 'invalid user id' }
-        }
+            const userId = Number(req.params.id)
+            if (Number.isNaN(userId)) return reply.code(400).send({ error: 'invalid user id' })
 
-        const user = await fastify.prisma.user.findUnique({
+            const user = await fastify.prisma.user.findUnique({
             where: { id: userId },
             select: { avatarUrl: true },
-        })
+            })
+            if (!user) return reply.code(404).send({ error: 'User not found' })
 
-        if (!user) {
-            reply.code(404)
-            return { error: 'User not found' }
-        }
+            const AVATAR_ROOT = path.join(process.cwd(), 'avatar')  // ✅ <projectFolder>/avatar
+            const DEFAULT_REL = path.join('default.png')            // ✅ <projectFolder>/avatar/default.png
 
-        const avatarUrl = user.avatarUrl || '/avatar/default.png'
+            // avatarUrl può essere:
+            // - null/empty -> default.png
+            // - "/avatar/26/foto CV.jpg"  (path relativo "avatar/..")
+            // - "foto CV.jpg"             (solo filename)
+            // - "26/foto CV.jpg"          (rel user folder)
+            let relPath = DEFAULT_REL
 
-        const publicRoot = path.join(process.cwd(), 'dist', 'public')
-
-        const fullPath = safeResolveFromPublic(publicRoot, avatarUrl)
-        if (!fullPath) {
-            reply.code(400)
-            return { error: 'invalid avatarUrl path' }
-        }
-
-        if (!fs.existsSync(fullPath) || !fs.statSync(fullPath).isFile()) {
-            const fallback = safeResolveFromPublic(publicRoot, '/avatar/default.png')
-            if (!fallback || !fs.existsSync(fallback)) {
-            reply.code(404)
-            return { error: 'Avatar file not found' }
+            const raw = (user.avatarUrl ?? '').trim()
+            if (raw) {
+            // normalizza: togli leading "/"
+            const cleaned = raw.replace(/^\/+/, '')
+            if (cleaned.startsWith('avatar/')) {
+                // es: "avatar/26/foto CV.jpg" -> relativo ad AVATAR_ROOT? togli "avatar/"
+                relPath = cleaned.slice('avatar/'.length)
+            } else if (cleaned.includes('/')) {
+                // es: "26/foto CV.jpg"
+                relPath = cleaned
+            } else {
+                // es: "foto CV.jpg" -> assume avatar/<userId>/<filename>
+                relPath = path.join(String(userId), cleaned)
             }
-            reply.type(getMimeType(fallback))
-            reply.header('Cache-Control', 'public, max-age=3600')
-            return reply.send(fs.createReadStream(fallback))
-        }
+            } else {
+            relPath = DEFAULT_REL
+            }
 
-        reply.type(getMimeType(fullPath))
-        reply.header('Cache-Control', 'public, max-age=3600')
-        return reply.send(fs.createReadStream(fullPath))
+            const fullPath = safeResolve(AVATAR_ROOT, relPath)
+            const fallbackPath = safeResolve(AVATAR_ROOT, DEFAULT_REL)
+
+            const chosen =
+            fullPath && fs.existsSync(fullPath) && fs.statSync(fullPath).isFile()
+                ? fullPath
+                : (fallbackPath && fs.existsSync(fallbackPath) ? fallbackPath : null)
+
+            if (!chosen) return reply.code(404).send({ error: 'Avatar file not found' })
+
+            reply.type(getMimeType(chosen))
+            reply.header('Cache-Control', 'no-store')
+            return reply.send(fs.createReadStream(chosen))
         }
     )
 
