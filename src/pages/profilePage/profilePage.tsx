@@ -9,14 +9,31 @@ const ProfilePage: React.FC = () => {
 	const [userInfo, setUserInfo] = useState<userInfos>(MOCK_USER)
 	const [friendsInfo, setFriendsInfo] = useState<FriendList>(MOCK_FRIENDS)
 	const [infoFetched, setInfoFetched] = useState<boolean>(false)
+	const [avatarSrc, setAvatarSrc] = useState<string>(AVATAR)
 
 	useEffect(() => {
+		let	avatarObjectUrl: string | null = null;
+
 		(async () => {
 			const data = await Helpers.getUserInfos()
 			if (data.success) {
 				setUserInfo(data.usr)
 				setInfoFetched(true)
 				console.log(userInfo.avatar)
+
+				try {
+					const r = await fetch(`${CONSTS.BE}/api/v1/users/${data.usr.id}/avatar`, {
+						method: 'GET',
+						credentials: 'include', // <-- andava fatta la fetch con le credentials
+					})
+					if (!r.ok) throw new Error(`avatar http ${r.status}`)
+
+					const blob = await r.blob()
+					avatarObjectUrl = URL.createObjectURL(blob)
+					setAvatarSrc(avatarObjectUrl)
+				} catch {
+					setAvatarSrc(AVATAR)
+				}
 			}
 			const friends = await Helpers.getUserFriends();
 			if (friends.success) {
@@ -24,12 +41,14 @@ const ProfilePage: React.FC = () => {
 				// setInfoFetched(true)
 			}
 		})()
-		return () => {};
+		return () => {
+			if (avatarObjectUrl) URL.revokeObjectURL(avatarObjectUrl)
+		};
 	}, []);
 	return (
 		<div className="profile-container">
 			<div className="profile-header">
-				<img src={infoFetched ? `${CONSTS.BE}/api/v1/users/${userInfo.id}/avatar` : AVATAR} alt="Foto profilo" className="profile-avatar"/>
+				<img src={avatarSrc} alt="Foto profilo" className="profile-avatar"/>
 				<div className="profile-info">
 					<h1>{userInfo?.name} {userInfo?.surname}</h1>
 					<div className="profile-details">
