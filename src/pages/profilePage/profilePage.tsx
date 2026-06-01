@@ -24,7 +24,7 @@ const ProfilePage: React.FC = () => {
 				try {
 					const r = await fetch(`${CONSTS.BE}/api/v1/users/${data.usr.id}/avatar`, {
 						method: 'GET',
-						credentials: 'include', // <-- andava fatta la fetch con le credentials
+						credentials: 'include', // <-- andava fatta la fetch con le credentials osme xD
 					})
 					if (!r.ok) throw new Error(`avatar http ${r.status}`)
 
