@@ -306,6 +306,14 @@
             return { error: 'File too large' };
           }
           savedFilename = safeFilename;
+          const user = await fastify.prisma.user.findUnique({
+            where: { id: userId },
+            select: { avatarUrl: true }
+          })
+          if (user && user?.avatarUrl && user?.avatarUrl != "/avatar/default.png") {
+            await fs.promises.unlink(user.avatarUrl)
+          }
+
           await fastify.prisma.user.update({
             where: { id: userId },
             data: { avatarUrl: uploadPath },
