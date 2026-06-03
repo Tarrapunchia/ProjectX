@@ -167,7 +167,7 @@ export default function LibraryPage({ selectedProject }: ChatPageProps)
 
         try {
             const orgId = projectData.organization.id;
-            const res = await helpers.deleter(`/api/v1/files/${orgId}/${selectedProject.id}/${fileName}`, null);
+            const res = await helpers.deleter(`/api/v1/files/${orgId}/${selectedProject.id}/user/${fileName}`, null);
 
             if (res.success) {
                 setPreview(null);
