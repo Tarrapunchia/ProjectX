@@ -449,7 +449,7 @@ const Getters: FastifyPluginAsync = async (fastify: FastifyInstance, opts) => {
             }
         )
 
-        // GET /api/v1/users/activeUserProjects
+        // GET /api/v1/users/ activeUserProjects
         fastify.get(
             '/activeUsersProjects',
             { schema: userSchemas.getProjects },
