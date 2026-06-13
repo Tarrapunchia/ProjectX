@@ -115,6 +115,7 @@ export interface FriendList {
 	count: number,
 	friends: Friend[]
 }
+
 export interface TaskInfos {
 	tasks: {
 		id: string,
