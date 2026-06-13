@@ -465,7 +465,13 @@ const Getters: FastifyPluginAsync = async (fastify: FastifyInstance, opts) => {
                     include: {
                         project: {
                             include: {
-                                tasks: true
+                                tasks: {
+                                    include: {
+                                        participants: {
+                                            select: { userId: true }
+                                        }
+                                    }
+                                }
                             },
                         },
                         role: { select: { name: true } }, // RoleName enum
@@ -493,6 +499,9 @@ const Getters: FastifyPluginAsync = async (fastify: FastifyInstance, opts) => {
                             createdAt: t.createdAt,
                             closedAt: t.closedAt,
                             description: t.description,
+                            participants: t.participants.map((tp) => ({
+                                participantId: tp.userId
+                            }))
                         })),
                     },
                 }))

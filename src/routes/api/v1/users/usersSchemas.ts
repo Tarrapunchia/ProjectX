@@ -408,6 +408,15 @@ const getUserProjects: Schema = {
                     createdAt: { type: 'string', format: 'date-time' },
                     closedAt: { type: 'string', format: 'date-time', nullable: true },
                     description: { type: 'string', nullable: true },
+                    participants: {
+                        type: 'array',
+                        items: {
+                            type: 'object',
+                            properties: {
+                                participantId: { type: "string" }
+                            }
+                        }
+                    }
                   },
                   required: ['id', 'projectId', 'name', 'status', 'priority', 'createdAt'],
                 },
