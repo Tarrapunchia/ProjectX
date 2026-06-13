@@ -1,0 +1,215 @@
+.docs-page,
+.markdown-page,
+.howto-page {
+  min-height: 100vh;
+  background: var(--color-bg);
+  color: var(--color-text);
+}
+
+.docs-navbar,
+.markdown-navbar,
+.howto-navbar {
+  min-height: 72px;
+  padding: 0 7vw;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: var(--color-side-bg);
+  border-bottom: 1px solid var(--color-overlay-border);
+}
+
+.docs-logo,
+.markdown-logo,
+.howto-logo {
+  color: var(--color-owner) !important;
+  font-weight: 900;
+  letter-spacing: 0.22em;
+}
+
+.docs-navbar nav,
+.markdown-navbar nav,
+.howto-navbar nav {
+  display: flex;
+  gap: 18px;
+}
+
+.docs-navbar a,
+.markdown-navbar a,
+.howto-navbar a {
+  color: var(--color-text);
+}
+
+.docs-main,
+.markdown-main,
+.howto-main {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 56px 20px 80px;
+}
+
+.docs-hero,
+.markdown-header,
+.howto-hero {
+  margin-bottom: 32px;
+}
+
+.docs-eyebrow,
+.markdown-eyebrow,
+.howto-eyebrow {
+  color: var(--color-owner);
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 0.16em;
+  font-size: 0.78rem;
+}
+
+.docs-hero h1,
+.markdown-header h1,
+.howto-hero h1 {
+  margin: 0 0 14px;
+  font-size: clamp(2.2rem, 5vw, 4.4rem);
+  letter-spacing: -0.05em;
+}
+
+.docs-hero p,
+.markdown-header p,
+.howto-hero p {
+  max-width: 760px;
+  color: color-mix(in srgb, var(--color-text) 72%, transparent);
+}
+
+.docs-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 18px;
+}
+
+.docs-card {
+  min-height: 220px;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  padding: 24px;
+  border-radius: 18px;
+  border: 1px solid var(--color-overlay-border);
+  background:
+    radial-gradient(circle at 15% 10%, color-mix(in srgb, var(--color-owner) 22%, transparent), transparent 35%),
+    var(--color-side-bg);
+  color: var(--color-text) !important;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.docs-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 18px 45px rgba(0, 0, 0, 0.18);
+}
+
+.docs-card span {
+  color: var(--color-owner);
+  font-size: 0.72rem;
+  font-weight: 900;
+  letter-spacing: 0.18em;
+}
+
+.docs-card h2 {
+  margin: 10px 0;
+}
+
+.docs-card p {
+  margin: 0;
+  color: color-mix(in srgb, var(--color-text) 72%, transparent);
+}
+
+@media (max-width: 760px) {
+  .docs-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .docs-navbar,
+  .markdown-navbar,
+  .howto-navbar {
+    padding: 0 18px;
+  }
+}
+
+.markdown-body {
+  padding: 30px;
+  border-radius: 18px;
+  border: 1px solid var(--color-overlay-border);
+  background: var(--color-side-bg);
+  overflow-x: auto;
+}
+
+.markdown-body h1,
+.markdown-body h2,
+.markdown-body h3 {
+  color: var(--color-text);
+  margin-top: 1.4em;
+}
+
+.markdown-body h1:first-child,
+.markdown-body h2:first-child {
+  margin-top: 0;
+}
+
+.markdown-body p,
+.markdown-body li {
+  color: color-mix(in srgb, var(--color-text) 78%, transparent);
+  line-height: 1.7;
+}
+
+.markdown-body a {
+  color: var(--color-owner);
+}
+
+.markdown-body code {
+  padding: 2px 6px;
+  border-radius: 6px;
+  background: color-mix(in srgb, var(--color-text) 10%, transparent);
+  color: var(--color-text);
+}
+
+.markdown-body pre {
+  padding: 18px;
+  border-radius: 12px;
+  overflow-x: auto;
+  background: #111827;
+  color: #f8fafc;
+}
+
+.markdown-body pre code {
+  padding: 0;
+  background: transparent;
+  color: inherit;
+}
+
+.markdown-body blockquote {
+  margin: 20px 0;
+  padding: 12px 18px;
+  border-left: 4px solid var(--color-owner);
+  background: color-mix(in srgb, var(--color-owner) 10%, transparent);
+}
+
+.markdown-body table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 20px 0;
+}
+
+.markdown-body th,
+.markdown-body td {
+  border: 1px solid var(--color-overlay-border);
+  padding: 10px;
+}
+
+.markdown-body th {
+  background: var(--color-category-bg);
+}
+
+.markdown-error,
+.markdown-loading {
+  padding: 18px;
+  border-radius: 12px;
+  border: 1px solid var(--color-overlay-border);
+  background: var(--color-overlay-bg);
+}

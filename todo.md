@@ -1,0 +1,2 @@
+- [ ] la get del avatar da sempre default
+- [ ] deleter per i file degli user, e in teoria si dovrebbe mandare anche una notifica al upload e al delte dei file

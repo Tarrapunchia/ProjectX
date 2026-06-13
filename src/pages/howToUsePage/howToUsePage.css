@@ -1,0 +1,36 @@
+.howto-steps {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 18px;
+}
+
+.howto-step,
+.howto-tip {
+  padding: 24px;
+  border-radius: 18px;
+  border: 1px solid var(--color-overlay-border);
+  background: var(--color-side-bg);
+}
+
+.howto-step h2,
+.howto-tip h2 {
+  margin: 0 0 10px;
+  color: var(--color-owner);
+}
+
+.howto-step p,
+.howto-tip p {
+  margin: 0;
+  color: color-mix(in srgb, var(--color-text) 74%, transparent);
+  line-height: 1.65;
+}
+
+.howto-tip {
+  margin-top: 24px;
+}
+
+@media (max-width: 760px) {
+  .howto-steps {
+    grid-template-columns: 1fr;
+  }
+}
