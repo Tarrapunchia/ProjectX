@@ -3,6 +3,25 @@ import consts from '../data/consts';
 import helpers from '../utilities/helpers';
 import type { CalendarEntries } from "../data/types";
 
+export interface User {
+	id: number;
+	name: string;
+	surname: string;
+	email: string;
+	phone: string;
+	jobQualifier: string;
+	isLoggedIn: boolean;
+	createdAt: Date;
+	updatedAt: Date;
+	avatar: string;
+	organizations: void;
+	projects: void;
+	city: string;
+	address: string;
+	cap: string;
+	state: string;
+}
+
 export interface Friend {
 	id: number;
 	name: string;
@@ -33,7 +52,7 @@ export interface Group {
 	id: string;
 	name: string;
 	description: string;
-	createdAt: Date;
+	createdAt: Date | null;
 	closedAt: string | null;
 	participants: Participant[];
 }
@@ -265,6 +284,88 @@ export const WebSocketProvider: React.FC<{ children: ReactNode }> = ({ children 
 						? { ...f, isLoggedIn: messageData.payload.connected}
 						: f
 					));
+				}
+
+				if (messageData.type === "group:participant:added" && messageData.addedUserId !== myUserId)
+				{
+					const { groupId, addedUserId } = messageData;
+
+					if (groupId && addedUserId) {
+						(async () => {
+							try {
+								const response = await helpers.getter(`/api/v1/users/${addedUserId}/profile`, null);
+
+								if (response && response.success) {
+									const userData: User = response.data;
+
+									const newGroupUser: GroupUser = {
+										id: userData.id,
+										name: userData.name,
+										surname: userData.surname,
+										email: userData.email,
+										avatarUrl: userData.avatar,
+										isLoggedIn: userData.isLoggedIn
+									};
+
+									const newParticipant: Participant = {
+										userId: userData.id,
+										groupId: Number(groupId),
+										createdAt: new Date().toISOString(),
+										user: newGroupUser
+									};
+
+									setGroups(prevGroups => {
+										return prevGroups.map(g => {
+											if (g.id === groupId) {
+												if (g.participants.some(p => p.userId === addedUserId))
+													return g;
+												
+												return {
+													...g,
+													participants: [...g.participants, newParticipant]
+												};
+											}
+											return g;
+										});
+									});
+								}
+							} catch (err) {
+								console.error("Error in adding participant via WS", err);
+							}
+						})();
+					}
+				}
+
+				if (messageData.type === "group:joined")
+				{
+					const groupId = messageData.groupId;
+
+					if (groupId) {
+						(async () => {
+							try {
+								const response = await helpers.getter(`/api/v1/groups/${groupId}`, null);
+
+								if (response && response.success) {
+									const newGroup: Group = response.data;
+
+									setGroups(prev => {
+										if (prev.some(g => g.id === newGroup.id))
+											return prev;
+
+										return [...prev, newGroup];
+									});
+								}
+							} catch (err) {
+								console.error("Error in adding new group to list", err);
+							}
+						})();
+					}
+				}
+
+				if (messageData.type === "group:invitation:leave")
+				{
+					console.log('Leave:')
+					console.log(messageData);
 				}
 
 				if (messageData.type === "chat:message") {

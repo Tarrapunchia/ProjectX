@@ -91,6 +91,7 @@ export const ChatWindowGroup = ({ group, friends, scrollRef, inputRef, currentMe
 
 			{isOptionsOpen ? (
 				<ChatGroupOptions
+					// key={group?.participants.length || 0}
 					group={group}
 					friends={friends}
 					activeChat={activeChat}

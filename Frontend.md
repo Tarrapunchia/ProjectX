@@ -127,3 +127,99 @@ export type Task = {
 	closedAt: Date | null,
 	projectId: string,
 }
+
+
+
+
+
+
+* le API groups/joined e groups/{id} ritornano 2 valori diversi
+
+	- groups/joined:
+
+	{
+	"success": true,
+	"groups": [
+		{
+		"userId": 0,
+		"groupId": 0,
+		"createdAt": "2026-06-21T17:26:41.536Z",
+		"group": {
+			"id": 0,
+			"name": "string",
+			"description": "Unknown Type: null,string",
+			"createdAt": "2026-06-21T17:26:41.536Z",
+			"closedAt": "Unknown Type: null,string",
+			"participants": [
+			{
+				"userId": 0,
+				"groupId": 0,
+				"createdAt": "2026-06-21T17:26:41.536Z",
+				"user": {
+				"id": 0,
+				"name": "string",
+				"surname": "string",
+				"email": "user@example.com",
+				"avatarUrl": "string",
+				"isLoggedIn": true
+				}
+			}
+			]
+		}
+		}
+	]
+	}
+
+
+
+	- groups/{id}:
+
+	{
+	"id": 0,
+	"name": "string",
+	"participants": [
+		{
+		"id": 0,
+		"name": "string",
+		"surname": "string",
+		"email": "string",
+		"joinedAt": "2026-06-21T17:28:45.618Z"
+		}
+	],
+	"chatRoom": {
+		"id": "string",
+		"key": "string",
+		"type": "string"
+	}
+	}
+
+
+
+	- Cosa dovrebbero ritornare entrambe
+
+	{
+	"success": true,
+	"groups": [
+		{
+		"group": {
+			"id": 0,
+			"name": "string",
+			"description": "Unknown Type: null,string",
+			"createdAt": "2026-06-21T17:26:41.536Z",
+			"participants": [
+			{
+				"joinedAt": "2026-06-21T17:26:41.536Z",
+				"user": {
+				"id": 0,
+				"name": "string",
+				"surname": "string",
+				"email": "user@example.com",
+				"avatarUrl": "string",
+				"isLoggedIn": true
+				}
+			}
+			]
+		}
+		}
+	]
+	}
