@@ -1,5 +1,4 @@
-import consts from './consts';
-import type { ProfileUser, Projects, Friend, ProjectInfo, ProjectTasks, userInfos, FriendList, TaskInfos } from './types';
+import type { Friend, ProjectInfo, ProjectTasks, userInfos, FriendList, TaskInfos } from './types';
 
 export const AVATAR = 'https://picsum.photos/id/64/150/150'
 

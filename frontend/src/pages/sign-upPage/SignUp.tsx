@@ -63,7 +63,7 @@ function SignUp()
 
     function handleGoogleLogin()
 	{
-		window.location.href = "https://localhost:5000/auth/google";
+		window.location.href = "/auth/google";
 	}
 
     return (

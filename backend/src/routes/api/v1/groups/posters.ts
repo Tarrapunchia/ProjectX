@@ -58,6 +58,17 @@ const Posters: FastifyPluginAsync = async (fastify: FastifyInstance, opts) => {
                     description: group.description ?? ''
                 }
             })
+            const roomId = `group:${created.id}`
+            let roomSet = fastify.wsRooms.get(roomId)
+            if (!roomSet) {
+                roomSet = new Set()
+                fastify.wsRooms.set(roomId, roomSet)
+            }
+
+            const sockets = fastify.wsClientsByUserId.get(ownerId) // nuovo membro
+            if (sockets) {
+                for (const ws of sockets) roomSet.add(ws)
+            }
             res.code(201)
             return created
         

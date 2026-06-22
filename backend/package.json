@@ -27,7 +27,7 @@
     "@fastify/swagger-ui": "^5.2.3",
     "@fastify/websocket": "^11.2.0",
     "@prisma/adapter-better-sqlite3": "^7.0.0",
-    "@prisma/client": "^6.19.0",
+    "@prisma/client": "^6.19.3",
     "axios": "^1.13.2",
     "bcrypt-ts": "^8.0.1",
     "chart.js": "^4.5.1",
@@ -36,8 +36,8 @@
     "fastify-metrics": "^13.2.0",
     "fastify-plugin": "^5.1.0",
     "jwt-decode": "^4.0.0",
-    "uuid": "^13.0.0",
-    "prisma": "^6.19.0"
+    "prisma": "^6.19.0",
+    "uuid": "^13.0.0"
   },
   "devDependencies": {
     "@tailwindcss/cli": "^4.1.17",

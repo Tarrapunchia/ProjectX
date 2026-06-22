@@ -1,5 +1,5 @@
 import { memo } from 'react';
-import { menuSize } from './ChatMenu';
+import { menuSize } from './ChatMenu/ChatMenu';
 import { buttonSize } from './ChatButton';
 import { useWebSocket, type FloatingChatInfo } from '../../utilities/WebSocketContext';
 import { ChatBoxPrivate } from './ChatBoxPrivate';
