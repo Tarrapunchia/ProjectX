@@ -24,13 +24,13 @@ dev:
 	@echo $$USAGE_BODY
 
 docker:
-	./init_certs.sh
+	npm i
+	npx prisma migrate dev --name init
 	docker build -t backend:latest .
-	docker run HTTPS=true --name backend -p 5000:5000 backend:latest
+	docker run --name backend -p 5000:5000 backend:latest
 
 docker-dev:
-	./init_certs.sh
-	docker build -t backend:latest .
+	docker build -t backend:latest dockerfile_dev
 	docker run --name backend -p 5000:5000 backend:latest 
 
 fclean:
