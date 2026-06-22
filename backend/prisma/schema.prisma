@@ -1,0 +1,427 @@
+// schema.prisma
+// PER CHI LEGGE:
+//    le relazioni sembrano un bordello ma in realta' il concetto e' semplice
+//      In Prisma una relazione è composta da:
+//        1) relation fields (campi “oggetto/array”)
+//          - es: organization Organization oppure members User[]
+//          - non esistono “nel DB” come colonne: Prisma li usa per navigare.
+//        2) scalar FK fields (le colonne reali nel DB)
+//          - es: organizationId Int
+//          - e questo è ciò che sta nel database.
+//        3) l’attributo @relation(...) dove si dice a Prisma:
+//          - quali campi sono FK (fields: [...])
+//          - a quali colonne puntano (references: [...])
+//          - (opzionale) il nome della relazione quando c’è ambiguità
+
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id           Int      @id @default(autoincrement())
+  name         String
+  surname      String
+  email        String   @unique
+  phone        String?
+  city         String?
+  address      String?
+  cap          String?
+  state        String?
+  jobQualifier String?
+
+  avatarUrl    String   @default("/avatar/default.png")
+
+  // avatar       Bytes
+
+  hashedPw     String?          // queste tre sono mutualmente opzionali: se si fa reg con google non serve pw e viceversa
+  googleId     String?
+  googleSecret String?
+
+  // Organizations
+  ownedOrganizations  Organization[] @relation("OrgOwner")
+  ownedEvents         Event[] @relation("EventOwner")
+  memberships         OrganizationMember[]
+  projectParticipants ProjectParticipant[]
+  tasksParticipants   TaskParticipant[]
+  eventParticipants   EventParticipant[]
+  groupMember         GroupParticipant[]
+
+  // Friendships (self relation via table)
+  friendshipsSent     Friendship[] @relation("FriendshipSender")
+  friendshipsReceived Friendship[] @relation("FriendshipReceiver")
+
+  // Notifications
+  notifications       Notification[] @relation("Receiver")
+  notificationsSent   Notification[] @relation("Sender")
+
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  isLoggedIn   Boolean  @default(false)
+
+  dmConversationsA DirectConversation[] @relation("DMUserA")
+  dmConversationsB DirectConversation[] @relation("DMUserB")
+  dmSent          DirectMessage[] @relation("DMSender")
+  dmReceived      DirectMessage[] @relation("DMReceiver")
+
+  roomMessages    RoomMessage[]
+}
+
+enum NotificationType {
+  NONE
+  MESSAGE
+  FRIEND_REQUEST
+  JOIN_REQUEST
+  SYSTEM
+}
+
+model Notification {
+  id              Int   @id @default(autoincrement())
+
+  userId          Int
+  user            User @relation("Receiver", fields: [userId], references: [id])
+
+  senderId        Int?
+  sender          User? @relation("Sender", fields: [senderId], references: [id])
+
+  // Friendship Request
+  friendshipId    Int? @unique
+  friendship      Friendship? @relation("FriendshipRequest", fields: [friendshipId], references: [id])
+
+  type            NotificationType @default(NONE)
+  message         String
+  createdAt       DateTime @default(now())
+}
+
+enum EventType {
+  NONE
+  CALL
+  MEETING
+  CONFERENCE
+  GENERIC
+}
+
+model Event {
+  id              Int   @id @default(autoincrement())
+  name            String
+  type            EventType @default(NONE)
+  message         String @default("")
+
+  ownerId         Int
+  owner           User @relation("EventOwner", fields: [ownerId], references: [id])
+
+  participants    EventParticipant[]
+
+  createdAt       DateTime @default(now())
+  dueDate         DateTime
+}
+
+model EventParticipant {  // TABELLA PONTE
+  eventId   Int
+  userId    Int
+
+  event     Event   @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  user      User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+
+  @@id([eventId, userId])
+}
+
+model Organization {
+  id          Int    @id @default(autoincrement())
+  name        String @unique
+  email       String 
+  phone       String
+  city        String?
+  address     String?
+  cap         String?
+  state       String?
+  description String?
+
+  // owner (User 1 -> N Organization)
+  ownerId Int
+  owner   User @relation("OrgOwner", fields: [ownerId], references: [id])
+
+  // members (N <-> N via join?)
+  members OrganizationMember[]
+
+  // projects (1 -> N)
+  projects Project[]
+
+  chatRooms ChatRoom[]
+}
+
+model OrganizationMember { // TABELLA PONTE
+  organizationId Int
+  userId         Int
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  user         User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  // opzionale: ruoli dentro org, data iscrizione, ecc.
+  createdAt DateTime @default(now())
+
+  @@id([organizationId, userId]) // impedisce doppioni
+}
+
+model OrganizationJoinRequest {
+  id           Int      @id @default(autoincrement())
+  organizationId Int
+  requesterId  Int      // chi invita
+  targetUserId Int      // chi riceve l'invito
+  status       String   // PENDING / ACCEPTED / REJECTED
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@unique([organizationId, requesterId, targetUserId])
+}
+
+enum Status {
+  TODO
+  ACTIVE
+  REVIEW
+  CLOSED
+}
+
+enum Priority {
+  NONE
+  LOW
+  MEDIUM
+  HIGH
+  CRITICAL
+}
+
+model Task {
+  id             Int    @id @default(autoincrement())
+  name           String @unique
+
+  projectId      Int
+  project        Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  status         Status
+  priority       Priority @default(NONE)
+  description    String?
+
+  participants   TaskParticipant[]
+  // chatRooms      ChatRoom[]
+
+  createdAt      DateTime @default(now())
+  dueDate        DateTime?
+  closedAt       DateTime?
+}
+
+model TaskParticipant {  // TABELLA PONTE
+  taskId    Int
+  userId    Int
+
+  task      Task    @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  user      User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+
+  @@id([taskId, userId]) // un utente compare una volta per task
+}
+
+model Group {
+  id             Int    @id @default(autoincrement())
+  name           String
+  description    String?
+
+  participants   GroupParticipant[]
+  chatRoom       ChatRoom?
+
+  createdAt      DateTime @default(now())
+  closedAt       DateTime?
+}
+
+model GroupParticipant {  // TABELLA PONTE
+  userId    Int
+  groupId   Int
+
+  group   Group   @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+
+  @@id([groupId, userId]) // un utente compare una volta per chat di gruppo
+}
+
+model GroupJoinRequest {
+  id           Int      @id @default(autoincrement())
+  groupId      Int
+  requesterId  Int      // chi chiede / chi invita
+  targetUserId Int      // chi riceve la richiesta
+  status       String   // PENDING / ACCEPTED / REJECTED
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@unique([groupId, requesterId, targetUserId])
+}
+
+model Project {
+  id             Int    @id @default(autoincrement())
+  name           String
+
+  organizationId Int
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  status         Status
+  description    String?
+
+  participants   ProjectParticipant[]
+  chatRooms      ChatRoom[]
+  // task (1 -> N)
+  tasks          Task[]
+
+  createdAt      DateTime @default(now())
+  closedAt       DateTime?
+}
+
+model ProjectParticipant {  // TABELLA PONTE
+  projectId Int
+  userId    Int
+  roleId    Int
+
+  project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  role    Role    @relation(fields: [roleId], references: [id])
+
+  createdAt DateTime @default(now())
+
+  @@id([projectId, userId]) // un utente compare una volta per progetto
+}
+
+enum RoleName {
+  OWNER
+  EDITOR
+  VIEWER
+}
+
+model Role {
+  id            Int    @id @default(autoincrement())
+  name          RoleName @unique
+
+  // 1-1 con Permission
+  permissionsId Int    @unique
+  permissions   Permission @relation(fields: [permissionsId], references: [id])
+
+  participants  ProjectParticipant[]
+}
+
+model Permission {
+  id              Int     @id @default(autoincrement())
+  bOwner          Boolean @default(false)               // god mode
+  bModPermissions Boolean @default(false)
+  bCreateTask     Boolean @default(false)
+  bEditTask       Boolean @default(false)
+  bCloseTask      Boolean @default(false)
+  bInvite         Boolean @default(false)
+  bRemoveUser     Boolean @default(false)
+  // permessi da vedere. poi si decidono
+
+  role        Role? // lo vuole per la relazione, si puo' anche non usare
+}
+
+// messaggi room
+model ChatRoom {
+  id        Int      @id @default(autoincrement())
+  key       String   @unique  // es: "org:12" oppure "proj:12:5"
+  type      ChatRoomType
+  orgId     Int?
+  projectId Int?
+  groupId   Int?    @unique
+
+  organization Organization? @relation(fields: [orgId], references: [id], onDelete: Cascade)
+  project      Project?      @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  group        Group?        @relation(fields: [groupId], references: [id], onDelete: Cascade)
+
+  messages  RoomMessage[]
+
+  createdAt DateTime @default(now())
+}
+
+model RoomMessage {
+  id        Int      @id @default(autoincrement())
+  roomId    Int
+  senderId  Int
+  content   String
+
+  room    ChatRoom @relation(fields: [roomId], references: [id], onDelete: Cascade)
+  sender  User     @relation(fields: [senderId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+
+  @@index([roomId, createdAt])
+  @@index([senderId, createdAt])
+}
+
+enum ChatRoomType {
+  ORG
+  PROJECT
+  GROUP
+}
+
+// messaggi pvt
+model DirectConversation {
+  id        Int      @id @default(autoincrement())
+  userAId   Int
+  userBId   Int
+
+  userA     User @relation("DMUserA", fields: [userAId], references: [id], onDelete: Cascade)
+  userB     User @relation("DMUserB", fields: [userBId], references: [id], onDelete: Cascade)
+
+  messages  DirectMessage[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([userAId, userBId]) // IMPORTANT: salva sempre in ordine (min,max)
+  @@index([updatedAt])
+}
+
+model DirectMessage {
+  id             Int      @id @default(autoincrement())
+  conversationId Int
+  senderId       Int
+  receiverId     Int
+  content        String
+
+  conversation DirectConversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  sender       User               @relation("DMSender", fields: [senderId], references: [id], onDelete: Cascade)
+  receiver     User               @relation("DMReceiver", fields: [receiverId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+
+  @@index([conversationId, createdAt])
+  @@index([receiverId, createdAt])
+}
+
+model Friendship {
+  id         Int @id @default(autoincrement())
+  senderId   Int
+  receiverId Int
+
+  sender   User @relation("FriendshipSender", fields: [senderId], references: [id])
+  receiver User @relation("FriendshipReceiver", fields: [receiverId], references: [id])
+
+  request  Notification? @relation("FriendshipRequest")
+
+  status    FriendshipStatus @default(PENDING)
+  createdAt DateTime         @default(now())
+
+  @@unique([senderId, receiverId])
+  @@index([receiverId])
+}
+
+enum FriendshipStatus {
+  PENDING
+  ACCEPTED
+  BLOCKED
+  REJECTED
+}

@@ -1,0 +1,199 @@
+import React, { useEffect, useState } from 'react';
+import Helpers from './helpers';
+import { type FriendList } from '../../data/types';
+import CONSTS from '../../data/consts';
+import { Mail, Phone, Briefcase, User, MapPin } from 'lucide-react';
+import { useWebSocket } from '../../utilities/WebSocketContext';
+import UserProfileModal, { type ModalUser } from '../userProfilePageModal/userProfilePageModal';
+
+interface ProfileData {
+    name: string;
+    surname: string;
+    email: string;
+    jobQualifier: string;
+    phone: string;
+    city: string;
+    address: string;
+    cap: string;
+    state: string;
+    avatar: string;
+}
+
+const ProfilePage: React.FC = () => {
+    const { activeUser } = useWebSocket();
+
+    const [profile, setProfile] = useState<ProfileData>({
+        name: activeUser?.name || "",
+        surname: activeUser?.surname || "",
+        email: activeUser?.email || "",
+        jobQualifier: activeUser?.jobQualifier || "",
+        phone: activeUser?.phone || "",
+        city: activeUser?.city || "",
+        address: activeUser?.address || "",
+        cap: activeUser?.cap || "",
+        state: activeUser?.state || "",
+        avatar: activeUser?.avatar || "",
+    });
+
+    const [friendsInfo, setFriendsInfo] = useState<FriendList>({ count: 0, friends: [] });
+    const [isLoading, setIsLoading] = useState<boolean>(true);
+
+    // Stati per gestire il Modal
+    const [selectedFriend, setSelectedFriend] = useState<ModalUser | null>(null);
+    const [isModalOpen, setIsModalOpen] = useState(false);
+
+    useEffect(() => {
+        (async () => {
+            setIsLoading(true);
+            
+            if (activeUser) {
+                setProfile({
+                    name: activeUser.name || "",
+                    surname: activeUser.surname || "",
+                    email: activeUser.email || "",
+                    jobQualifier: activeUser.jobQualifier || "",
+                    phone: activeUser.phone || "",
+                    city: activeUser.city || "",
+                    address: activeUser.address || "",
+                    cap: activeUser.cap || "",
+                    state: activeUser.state || "",
+                    avatar: activeUser.avatar || "",
+                });
+            }
+
+            const friends = await Helpers.getUserFriends();
+            if (friends.success) {
+                setFriendsInfo(friends.friends);
+            }
+            
+            setIsLoading(false);
+        })();
+    }, [activeUser]);
+
+    // Funzione finta per onAddFriend (non serve qui perché sono già amici, ma la prop è richiesta dal modal)
+    const handleAddFriend = (userId: number) => {
+        console.log("Già amico:", userId);
+    };
+
+    const handleFriendClick = (friend: any) => {
+        setSelectedFriend(friend);
+        setIsModalOpen(true);
+    };
+
+    if (isLoading) {
+        return (
+            <div className="flex items-center justify-center h-full w-full bg-main-bg-color text-zinc-400">
+                Loading profile...
+            </div>
+        );
+    }
+
+    const displayedFriends = friendsInfo?.friends || [];
+    const fullAddress = [profile.address, profile.city, profile.state, profile.cap]
+        .filter(Boolean)
+        .join(", ");
+
+    return (
+        <div className="flex flex-col h-full w-full p-6 bg-main-bg-color overflow-y-auto custom-scrollbar relative">
+            <h1 className="text-2xl font-bold text-text-main mb-8 shrink-0">My Profile</h1>
+
+            {/* SEZIONE HEADER PROFILO */}
+            <div className="flex flex-col md:flex-row gap-6 mb-12 shrink-0 items-start">
+                <div className="shrink-0 mx-auto md:mx-0">
+                    <div className="w-28 h-28 md:w-32 md:h-32 rounded-full overflow-hidden flex items-center justify-center">
+                        <img 
+                            src={`${CONSTS.BE}/api/v1/users/${activeUser?.id}/avatar`} 
+                            alt="Profile Picture" 
+                            className="w-full h-full object-cover"
+                        />
+                    </div>
+                </div>
+
+                <div className="flex flex-col flex-1 text-center md:text-left mt-2">
+                    <h2 className="text-3xl font-bold text-text-main mb-1">
+                        {profile.name} {profile.surname}
+                    </h2>
+                    
+                    <div className="flex items-center justify-center md:justify-start gap-2 text-owner-color mb-6">
+                        <Briefcase size={16} />
+                        <p className="text-sm font-medium">
+                            {profile.jobQualifier || "No role specified"}
+                        </p>
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-y-4 gap-x-8 max-w-2xl text-sm">
+                        <div className="flex items-center gap-3">
+                            <Mail className="text-zinc-500 shrink-0" size={18} />
+                            <span className="text-text-main truncate">{profile.email || "N/A"}</span>
+                        </div>
+
+                        <div className="flex items-center gap-3">
+                            <Phone className="text-zinc-500 shrink-0" size={18} />
+                            <span className="text-text-main truncate">{profile.phone || "N/A"}</span>
+                        </div>
+
+                        <div className="flex items-center gap-3 sm:col-span-2">
+                            <MapPin className="text-zinc-500 shrink-0" size={18} />
+                            <span className="text-text-main truncate">
+                                {fullAddress || "No address provided"}
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <hr className="border-overlay-border-color mb-8 shrink-0" />
+
+            {/* SEZIONE AMICI */}
+            <div className="flex flex-col shrink-0">
+                <div className="flex items-center gap-2 mb-6">
+                    <User className="text-text-main" size={20} />
+                    <h2 className="text-xl font-bold text-text-main">Friends</h2>
+                    <span className="bg-side-bg-color border border-overlay-border-color text-zinc-400 text-xs px-2 py-0.5 rounded-full ml-2">
+                        {displayedFriends.length}
+                    </span>
+                </div>
+
+                {displayedFriends.length > 0 ? (
+                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3">
+                        {displayedFriends.map((friend) => (
+                            <div 
+                                key={friend.id}
+                                onClick={() => handleFriendClick(friend)} 
+                                className="flex items-center gap-3 p-2.5 bg-side-bg-color border border-overlay-border-color rounded-xl hover:border-text-main transition-colors shadow-sm group cursor-pointer"
+                            >
+                                <div className="w-10 h-10 rounded-full overflow-hidden border border-overlay-border-color bg-side-bg-color shrink-0 flex items-center justify-center">
+                                    <img 
+                                        src={`${CONSTS.BE}/api/v1/users/${friend?.id}/avatar`} 
+                                        alt={`${friend?.name} avatar`}
+                                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                                    />
+                                </div>
+                                <span className="text-sm font-medium text-text-main truncate transition-colors">
+                                    {friend.name + " " + friend.surname}
+                                </span>
+                            </div>
+                        ))}
+                    </div>
+                ) : (
+                    <div className="flex flex-col items-center justify-center py-12 px-4 bg-side-bg-color border border-overlay-border-color border-dashed rounded-2xl text-zinc-500">
+                        <User size={32} className="mb-2 opacity-50" />
+                        <p>No friends found.</p>
+                    </div>
+                )}
+            </div>
+
+            {/* MODAL PROFILO AMICO */}
+            <UserProfileModal 
+                isOpen={isModalOpen}
+                onClose={() => setIsModalOpen(false)}
+                user={selectedFriend}
+                isFriend={true} // Se sono in questa lista, sono sicuramente amici
+                onAddFriend={handleAddFriend} 
+            />
+
+        </div>
+    );
+};
+
+export default ProfilePage;

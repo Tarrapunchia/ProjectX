@@ -3,7 +3,7 @@ version: '3.9'
 services:
   backend:
     build:
-      context: .
+      context: ./backend
       dockerfile: ./backend/Dockerfile
     environment:
       # DATABASE_URL punta al file SQLite
@@ -27,7 +27,7 @@ services:
       - ./.env:/app/.env
   frontend:
     build:
-      context: .
+      context: ./backend
       dockerfile: ./frontend/Dockerfile
     ports:
       - "80:80"

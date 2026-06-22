@@ -1,1 +1,0 @@
-// tiene traccia dei "documenti" aperti (come ConnectionManager e RoomManager mantiene lo stato del sistema)
