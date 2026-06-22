@@ -10,7 +10,7 @@ interface ChatBoxGroupProps {
 }
 
 export const ChatBoxGroup = ({ groups, chat, activeChat, hiddenChatId, setActiveChat, onAvatarDragStart }: ChatBoxGroupProps) => {
-	const group = groups.find(g => g.id === chat.roomId);
+	const group = groups.find(g => String(g.id) === String(chat.roomId));
 	const isActive = activeChat?.roomId === chat.roomId;
 
 	return (

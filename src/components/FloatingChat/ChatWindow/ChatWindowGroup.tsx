@@ -21,14 +21,14 @@ export const ChatWindowGroup = ({ group, friends, scrollRef, inputRef, currentMe
 	const handleSendMessage = () => {
 		if (!inputText.trim() || !myUserId || !group) return;
 
-		const roomId = group.id;
+		const roomId = group.chatRoom.key;
 		console.log(`send room id: ${roomId}`);
 		const text = inputText.trim();
 		
 		send({
-			type:"chat:message",
+			type:"room:message",
 			roomId:roomId,
-			payload:text
+			payload:{text:text}
 		});
 
 		const newMessage: ChatMessage = {

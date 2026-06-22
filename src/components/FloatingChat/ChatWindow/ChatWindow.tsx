@@ -24,7 +24,7 @@ export const ChatWindow = ({ isOpen, isDragging, pos, activeChat, friends, group
 	const chatToDisplay = activeChat || lastChatRef.current;
 	const roomId = chatToDisplay?.roomId;
 	const friend = friends?.find(friend => friend.email === chatToDisplay?.senderMail);
-	const group = groups?.find(group => group.id === chatToDisplay?.roomId)
+	const group = groups?.find(group => String(group.id) === chatToDisplay?.roomId)
 	const currentMessages = roomId ? (messages[roomId] || []) : [];
 
 	const origins = {

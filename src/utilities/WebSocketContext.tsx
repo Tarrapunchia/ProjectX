@@ -64,6 +64,7 @@ export interface Group {
 
 export interface FloatingChatInfo {
 	roomId: string;
+	roomKey: string|null;
 	senderMail: string;
 	type: 'private' | 'group';
 }
@@ -71,6 +72,8 @@ export interface FloatingChatInfo {
 export interface ChatMessage {
 	id: number | string;
 	senderId: number;
+	senderName?: string;
+	senderSurname?: string;
 	senderMail?: string;
 	content: string;
 	timestamp: string | number;
@@ -132,6 +135,7 @@ export const WebSocketProvider: React.FC<{ children: ReactNode }> = ({ children 
 	const [myUserId, setMyUserId] = useState<number | null>(null);
 	const [chatNotifications, setChatNotifications] = useState<Record<string, {chatInfo: FloatingChatInfo; count: number}>>({});
 	const friendsRef = useRef<Friend[]>([]);
+	const groupsRef = useRef<Group[]>([]);
 	const [pendingRequests, setPendingRequests] = useState<FriendRequest[]>([]);
 	const [calendarEntries, setCalendarEntries] = useState<CalendarEntries | null>(null);
 
@@ -200,10 +204,12 @@ export const WebSocketProvider: React.FC<{ children: ReactNode }> = ({ children 
 		if (response.success) {
 			const joinedGroups: Group[] = response.data.groups;
 			setGroups(joinedGroups);
+			console.log("load groups response success");
 		}
 	};
 
 	const openFloatingChat = (chat: FloatingChatInfo) => {
+		console.log(chat);
 		setFloatingChats(prev => {
 			if (prev.find(c => c.roomId === chat.roomId)) {
 				prev = prev.filter(c => c.roomId !== chat.roomId)
@@ -240,6 +246,10 @@ export const WebSocketProvider: React.FC<{ children: ReactNode }> = ({ children 
 	}, [friends]);
 
 	useEffect(() => {
+		groupsRef.current = groups;
+	}, [groups]);
+
+	useEffect(() => {
 		if (myUserId === null) return;
 
 		const ws = new WebSocket(consts.WS);
@@ -257,7 +267,7 @@ export const WebSocketProvider: React.FC<{ children: ReactNode }> = ({ children 
 			{
 				const messageData = JSON.parse(event.data);
 
-				console.log(messageData.type);
+				// console.log(messageData.type);
 
 				if (["task:updated", "task:created", "event:updated", "event:created"].includes(messageData.type)) 
 				{
@@ -402,6 +412,7 @@ export const WebSocketProvider: React.FC<{ children: ReactNode }> = ({ children 
 					if (friend) {
 						openFloatingChat({
 							roomId,
+							roomKey: null,
 							senderMail: friend.email,
 							type: 'private'
 						});
@@ -418,6 +429,35 @@ export const WebSocketProvider: React.FC<{ children: ReactNode }> = ({ children 
 						...prev,
 						[roomId]: [...(prev[roomId] || []), newMessage]
 					}));
+				}
+
+				if (messageData.type === "room:message") {
+					console.log(messageData)
+					const roomKey = messageData.roomId;
+					const fromUserId = messageData.fromUserId;
+
+					if (roomKey && fromUserId) {
+						const roomId = roomKey.split(":")[1];
+						const group = groupsRef.current.find(g => Number(g.id) === Number(roomId));
+
+						(async () => {
+							try {
+								const response = await helpers.getter(`/api/v1/users/${fromUserId}/profile`, null);
+
+								if (response && response.success && group) {
+									const newChat: FloatingChatInfo = {
+										roomId,
+										roomKey,
+										senderMail: group.name,
+										type: 'group'
+									}
+									openFloatingChat(newChat);
+								}
+							} catch (err) {
+								console.error("Error in retrieving chat room messages", err);
+							}
+						})();
+					}
 				}
 
 			} catch (err) {
@@ -455,6 +495,7 @@ export const WebSocketProvider: React.FC<{ children: ReactNode }> = ({ children 
 	};
 
 	const send = (data: any) => {
+		console.log(data);
 		if (socket && socket.readyState === WebSocket.OPEN)
 			socket.send(JSON.stringify(data));
 		else
