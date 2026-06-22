@@ -27,9 +27,15 @@ export interface Friend {
 	name: string;
 	surname: string;
 	email: string;
-	jobQualifier: string;
-	isLoggedIn: boolean;
+	joinedAt: Date|null;
 	avatarUrl: string;
+	isLoggedIn: boolean;
+}
+
+export interface chatRoom {
+	id: number;
+	key: string;
+	type: string;
 }
 
 export interface GroupUser {
@@ -42,9 +48,6 @@ export interface GroupUser {
 }
 
 export interface Participant {
-	userId: number;
-	groupId: number;
-	createdAt: string;
 	user: GroupUser;
 }
 
@@ -54,7 +57,9 @@ export interface Group {
 	description: string;
 	createdAt: Date | null;
 	closedAt: string | null;
+	joinedAt: Date | null;
 	participants: Participant[];
+	chatRoom: chatRoom;
 }
 
 export interface FloatingChatInfo {
@@ -193,7 +198,7 @@ export const WebSocketProvider: React.FC<{ children: ReactNode }> = ({ children 
 	const loadGroups = async () => {
 		const response = await helpers.getter('/api/v1/groups/joined', null);
 		if (response.success) {
-			const joinedGroups: Group[] = response.data.groups.map((item: any) => item.group);
+			const joinedGroups: Group[] = response.data.groups;
 			setGroups(joinedGroups);
 		}
 	};
@@ -220,8 +225,9 @@ export const WebSocketProvider: React.FC<{ children: ReactNode }> = ({ children 
 
 				const groupRes = await helpers.getter('/api/v1/groups/joined', null);
 				if (groupRes.success) {
-					const joinedGroups: Group[] = groupRes.data.groups.map((item: any) => item.group);
+					const joinedGroups: Group[] = groupRes.data.groups;
 					setGroups(joinedGroups);
+					console.log(groups);
 				}
 			}
 		};
@@ -308,16 +314,13 @@ export const WebSocketProvider: React.FC<{ children: ReactNode }> = ({ children 
 									};
 
 									const newParticipant: Participant = {
-										userId: userData.id,
-										groupId: Number(groupId),
-										createdAt: new Date().toISOString(),
 										user: newGroupUser
 									};
 
 									setGroups(prevGroups => {
 										return prevGroups.map(g => {
 											if (g.id === groupId) {
-												if (g.participants.some(p => p.userId === addedUserId))
+												if (g.participants.some(p => p.user.id === addedUserId))
 													return g;
 												
 												return {
@@ -364,8 +367,24 @@ export const WebSocketProvider: React.FC<{ children: ReactNode }> = ({ children 
 
 				if (messageData.type === "group:invitation:leave")
 				{
-					console.log('Leave:')
+					const { groupId, acceptedByUserId } = messageData;
+
 					console.log(messageData);
+					console.log(groupId);
+					console.log(acceptedByUserId);
+					if (groupId && acceptedByUserId) {
+						setGroups(prev => {
+							return prev.map(g => {
+								if (g.id === groupId){
+									return {
+										...g,
+										participants: g.participants.filter(p => Number(p.user.id) !== Number(acceptedByUserId))
+									}
+								}
+								return g;
+							})
+						})
+					}
 				}
 
 				if (messageData.type === "chat:message") {
