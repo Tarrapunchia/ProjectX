@@ -36,7 +36,7 @@ const Getters: FastifyPluginAsync = async (fastify: FastifyInstance, opts) => {
                 participants: {
                     include: {
                         user: {
-                            select: { id: true, name: true, surname: true, email: true },
+                            select: { id: true, name: true, surname: true, email: true, avatarUrl: true, isLoggedIn: true },
                         },
                     },
                 },
@@ -56,17 +56,21 @@ const Getters: FastifyPluginAsync = async (fastify: FastifyInstance, opts) => {
         const result = {
             id: group.id,
             name: group.name,
-            participants: group.participants.map((pp) => ({
-                id: pp.user.id,
-                name: pp.user.name,
-                surname: pp.user.surname,
-                email: pp.user.email,
-                joinedAt: pp.createdAt,
-            })),
-            chatRoom: group.chatRoom,
             description: group.description ?? '',
+            chatRoom: group.chatRoom,
             createdAt: group.createdAt,
-            closedAt: group.closedAt ?? null
+            closedAt: group.closedAt ?? null,
+            participants: group.participants.map((pp) => ({
+                user: {
+                    id: pp.user.id,
+                    joinedAt: pp.createdAt,
+                    name: pp.user.name,
+                    surname: pp.user.surname,
+                    email: pp.user.email,
+                    avatarUrl: pp.user.avatarUrl,
+				    isLoggedIn: pp.user.isLoggedIn
+                }
+            })),
         }
 
         res.code(200)
@@ -110,51 +114,75 @@ const Getters: FastifyPluginAsync = async (fastify: FastifyInstance, opts) => {
         });
     })
 
-    // // GET /api/v1/groups/joined
-    fastify.get(
-        '/joined',
-        { schema: groupSchemas.getJoinedGroupsSchema }, 
-        async (req, res) => {
+// GET /api/v1/groups/joined
+fastify.get(
+  '/joined',
+  { schema: groupSchemas.getJoinedGroupsSchema },
+  async (req, res) => {
+    const authUser = getUserIdFromJWT(req, res, fastify)
 
-         const authUser = getUserIdFromJWT(req, res, fastify);
+    if (!authUser) {
+      res.code(401)
+      return { error: 'Unauthorized' }
+    }
 
-        if (!authUser) {
-            res.code(401);
-            return { error: 'Unauthorized' };
-        }
-
-        const groups = await fastify.prisma.groupParticipant.findMany({
-            where: { userId: authUser },
-            include: {
-                group: {
-                    include: {
-                        participants: {
-                            include: {
-                                user: {
-                                    select: {
-                                        id: true,
-                                        name: true,
-                                        surname: true,
-                                        email: true,
-                                        avatarUrl: true,
-                                        isLoggedIn: true
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
+    const rows = await fastify.prisma.groupParticipant.findMany({
+      where: { userId: authUser },
+      include: {
+        group: {
+          include: {
+            participants: {
+              include: {
+                user: {
+                  select: {
+                    id: true,
+                    name: true,
+                    surname: true,
+                    email: true,
+                    avatarUrl: true,
+                    isLoggedIn: true,
+                  },
+                },
+              },
             },
-            orderBy: {
-                createdAt: 'desc',
+            chatRoom: {
+              select: { id: true, key: true, type: true },
             },
-        });
+          },
+        },
+      },
+      orderBy: {
+        createdAt: 'desc',
+      },
+    })
 
-        return res.code(200).send({
-            success: true,
-            groups,
-        });
-    })    
+    const groups = rows.map((row) => ({
+      id: row.group.id,
+      name: row.group.name,
+      description: row.group.description ?? '',
+      chatRoom: row.group.chatRoom,
+      createdAt: row.group.createdAt,
+      closedAt: row.group.closedAt ?? null,
+      joinedAt: row.createdAt,
+      participants: row.group.participants.map((pp) => ({
+        user: {
+          id: pp.user.id,
+          name: pp.user.name,
+          surname: pp.user.surname,
+          email: pp.user.email,
+          avatarUrl: pp.user.avatarUrl,
+          isLoggedIn: pp.user.isLoggedIn,
+          joinedAt: pp.createdAt,
+        },
+      })),
+    }))
+
+    return res.code(200).send({
+      success: true,
+      groups,
+    })
+  }
+) 
 
 
     // // // GET /api/v1/projects/summary/:id

@@ -1,119 +1,5 @@
 type Schema = Record<string, any>
 
-const orgMini = {
-    type: 'object',
-    properties: {
-        id: { type: 'number' },
-        name: { type: 'string' },
-    },
-    required: ['id', 'name'],
-}
-
-const userMini = {
-    type: 'object',
-    properties: {
-        id: { type: 'number' },
-        name: { type: 'string' },
-        surname: { type: 'string' },
-        email: { type: 'string', format: 'email' },
-    },
-    required: ['id', 'name', 'surname', 'email'],
-}
-
-const participant = {
-    type: 'object',
-    properties: {
-        user: userMini,
-        role: { type: 'string' },
-        joinedAt: { type: 'string', format: 'date-time' },
-    },
-    required: ['user', 'role', 'joinedAt'],
-}
-
-const projResponse = {
-    type: 'object',
-    properties: {
-        id: { type: 'number' },
-        name: { type: 'string' },
-        organization: orgMini,
-        status: { type: 'string' },
-        description: { type: 'string' },
-        participants: {
-            type: 'array',
-            items: participant,
-        },
-        createdAt: { type: 'string', format: 'date-time'},
-        closedAt: { type: 'string', format: 'date-time'}
-    },
-    required: ['id', 'name', 'organization', 'participants', 'status', 'description'],
-}
-
-const getAllProjectsSchema: Schema = {
-    description: 'Get all projects with participants',
-    tags: ['projects'],
-    response: {
-        200: {
-            type: 'array',
-            items: projResponse,
-        },
-    },
-}
-
-const getProjectByIdSchema: Schema = {
-    description: 'Get a single project with participants',
-    tags: ['projects'],
-    response: {
-        200: projResponse,
-    },
-}
-
-const getProjectRoom: Schema = {
-    description: 'Get the room id for the given project',
-    tags: ['projects'],
-    response: {
-        200: {
-            type: 'object',
-            properties: {
-                roomId: { type: 'string' },
-            }
-        },
-    },
-}
-
-const getOrgProjectsByNameSchema: Schema = {
-    description: 'Search projects by organizationId and optional name substring. Leaving the name empty returns all the projects of an Organization.',
-    tags: ['projects'],
-    querystring: {
-        type: 'object',
-        properties: {
-        organizationId: { type: 'string', description: 'Organization id (required)' },
-        name: { type: 'string', description: 'Optional search term (contains, case-insensitive)' },
-        },
-        required: ['organizationId'],
-    },
-    response: {
-        200: {
-        type: 'object',
-        properties: {
-            organizationId: { type: 'number' },
-            query: { type: 'string', nullable: true },
-            count: { type: 'number' },
-            projects: {
-            type: 'array',
-            items: projResponse,
-            },
-        },
-        required: ['organizationId', 'query', 'count', 'projects'],
-        },
-        400: {
-        type: 'object',
-        properties: { error: { type: 'string' } },
-        required: ['error'],
-        },
-    },
-}
-
-
 const addParticipantSchema: Schema = {
     description: 'Add a user as member the group',
     tags: ['groups'],
@@ -132,7 +18,7 @@ const addParticipantSchema: Schema = {
                 userId: { type: 'number' },
                 groupId: { type: 'number' },
             },
-            required: ['id', 'name'],
+            required: ['userId', 'groupId'],
         },
         400: {
             type: 'object',
@@ -209,39 +95,95 @@ const leaveGroupSchema: Schema = {
     },
 }
 
-const getGroupByIdSchema: Schema = {
-    description: 'Get a single group with participants',
-    tags: ['groups'],
-    response: {
-        200: {
-            type: 'object',
-            properties: {
-                id: { type: 'number' },
-                name: { type: 'string' },
-                participants: {
-                    type: 'array',
-                    items: {
-                        type: 'object',
-                        properties: {
-                            id: { type: 'number' },
-                            name: { type: 'string' },
-                            surname: { type: 'string' },
-                            email: { type: 'string' },
-                            joinedAt: { type: 'string', format: 'date-time' }
-                        }
-                    }
-                },
-                chatRoom: {
-                    type: 'object',
-                    properties: {
-                        id: { type: 'string' },
-                        key: { type: 'string' },
-                        type: { type: 'string' },
-                    }
-                }
-            }
+const GroupRetRes = {
+  id: { type: 'number' },
+  name: { type: 'string' },
+  description: { type: 'string' },
+  createdAt: { type: 'string', format: 'date-time' },
+  closedAt: { type: 'string', format: 'date-time', nullable: true },
+  joinedAt: { type: 'string', format: 'date-time', nullable: true },
+
+  participants: {
+    type: 'array',
+    items: {
+      type: 'object',
+      properties: {
+        user: {
+          type: 'object',
+          properties: {
+            id: { type: 'number' },
+            name: { type: 'string' },
+            surname: { type: 'string' },
+            email: { type: 'string' },
+            joinedAt: { type: 'string', format: 'date-time' },
+            avatarUrl: { type: 'string' },
+            isLoggedIn: { type: 'boolean' },
+          },
+          required: [
+            'id',
+            'name',
+            'surname',
+            'email',
+            'joinedAt',
+            'avatarUrl',
+            'isLoggedIn',
+          ],
         },
+      },
+      required: ['user'],
     },
+  },
+
+  chatRoom: {
+    type: 'object',
+    nullable: true,
+    properties: {
+      id: { type: 'number' },
+      key: { type: 'string' },
+      type: { type: 'string' },
+    },
+    required: ['id', 'key', 'type'],
+  },
+}
+
+const getGroupByIdSchema: Schema = {
+  description: 'Get a single group with participants',
+  tags: ['groups'],
+  response: {
+    200: {
+      type: 'object',
+      properties: GroupRetRes,
+      required: [
+        'id',
+        'name',
+        'description',
+        'participants',
+        'chatRoom',
+        'createdAt',
+        'closedAt',
+      ],
+    },
+    400: {
+      type: 'object',
+      properties: { error: { type: 'string' } },
+      required: ['error'],
+    },
+    401: {
+      type: 'object',
+      properties: { error: { type: 'string' } },
+      required: ['error'],
+    },
+    403: {
+      type: 'object',
+      properties: { error: { type: 'string' } },
+      required: ['error'],
+    },
+    404: {
+      type: 'object',
+      properties: { error: { type: 'string' } },
+      required: ['error'],
+    },
+  },
 }
 
 const updateGroupSchema: Schema = {
@@ -508,7 +450,6 @@ const getJoinedGroupsSchema: Schema = {
   summary: 'Get joined groups',
   response: {
     200: {
-      description: 'Joined groups retrieved successfully',
       type: 'object',
       properties: {
         success: { type: 'boolean' },
@@ -516,88 +457,34 @@ const getJoinedGroupsSchema: Schema = {
           type: 'array',
           items: {
             type: 'object',
-            properties: {
-              userId: { type: 'integer' },
-              groupId: { type: 'integer' },
-              createdAt: { type: 'string', format: 'date-time' },
-              group: {
-                type: 'object',
-                properties: {
-                  id: { type: 'integer' },
-                  name: { type: 'string' },
-                  description: { type: ['string', 'null'] },
-                  createdAt: { type: 'string', format: 'date-time' },
-                  closedAt: { type: ['string', 'null'], format: 'date-time' },
-                  participants: {
-                    type: 'array',
-                    items: {
-                      type: 'object',
-                      properties: {
-                        userId: { type: 'integer' },
-                        groupId: { type: 'integer' },
-                        createdAt: { type: 'string', format: 'date-time' },
-                        user: {
-                          type: 'object',
-                          properties: {
-                            id: { type: 'integer' },
-                            name: { type: 'string' },
-                            surname: { type: 'string' },
-                            email: { type: 'string', format: 'email' },
-                            avatarUrl: { type: 'string' },
-                            isLoggedIn: { type: 'boolean' },
-                          },
-                          required: [
-                            'id',
-                            'name',
-                            'surname',
-                            'email',
-                            'avatarUrl',
-                            'isLoggedIn',
-                          ],
-                        },
-                      },
-                      required: [
-                        'userId',
-                        'groupId',
-                        'createdAt',
-                        'user',
-                      ],
-                    },
-                  },
-                },
-                required: [
-                  'id',
-                  'name',
-                  'description',
-                  'createdAt',
-                  'closedAt',
-                  'participants',
-                ],
-              },
-            },
+            properties: GroupRetRes,
             required: [
-              'userId',
-              'groupId',
+              'id',
+              'name',
+              'description',
+              'participants',
+              'chatRoom',
               'createdAt',
-              'group',
+              'closedAt',
+              'joinedAt',
             ],
           },
         },
       },
       required: ['success', 'groups'],
     },
-    401: {
-      description: 'Unauthorized',
+    400: {
       type: 'object',
-      properties: {
-        error: { type: 'string' },
-      },
+      properties: { error: { type: 'string' } },
+      required: ['error'],
+    },
+    401: {
+      type: 'object',
+      properties: { error: { type: 'string' } },
       required: ['error'],
     },
   },
-};
-
-export default getJoinedGroupsSchema;
+}
 
 export const groupSchemas = {
     addParticipantSchema,
