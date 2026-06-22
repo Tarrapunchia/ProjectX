@@ -4,8 +4,7 @@ import type { Participation, ProjectInfo, ProjectTasks } from '../../data/types'
 import Category from './category';
 import ProgressBar from './progressBar';
 import TaskCard from './taskCard';
-
-const BE_HOSTNAME = 'http://localhost:5000'
+import consts from '../../data/consts';
 
 interface ProjectsPageProps {
 	setActivePage: (page: string) => void;
@@ -35,7 +34,7 @@ const ProjectsPage: React.FC<ProjectsPageProps> = ({ setActivePage, setSelectedP
 		(async () => {
 			try {
 				const res = await fetch(
-					`${BE_HOSTNAME}/api/v1/users/activeUsersProjects`, {
+					`${consts.BE}/api/v1/users/activeUsersProjects`, {
 						method: 'GET',
 						headers: { "Content-Type": "application/json" },
 						credentials: "include",

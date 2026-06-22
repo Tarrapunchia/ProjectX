@@ -1,7 +1,8 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
 import './chat.css';
 import type { ProjectInfo } from '../../data/types';
 import Connections from './connection'
+import consts from '../../data/consts';
 
 type Message = {
     id: number,
@@ -17,7 +18,6 @@ interface chatProps {
 
 const chat: React.FC<chatProps> = ({ selectedProject }) => {
     
-    const [serverUrl, setServerUrl] = React.useState('https://localhost:5000') // backend:5000
     const [chatHistory, setChatHistory] = React.useState<Array<Message>>([]);
     const [roomId, setRoomId] = React.useState<string>('');
 
@@ -26,12 +26,12 @@ const chat: React.FC<chatProps> = ({ selectedProject }) => {
         if (selectedProject) {
             (async () => {
                 try {
-                    const id = await Connections.getRoomId(serverUrl, selectedProject);
+                    const id = await Connections.getRoomId(consts.BE, selectedProject);
                     if (!cancelled) setRoomId(id);
                     // console.log(`PRIMA ${id}`)
                     // if (!cancelled) setRoomId(`proj:7:19`);
                     
-                    const data = await Connections.getRoomHistory(serverUrl, id)
+                    const data = await Connections.getRoomHistory(consts.BE, id)
                     if (data.count != 0) {
                         const msgs = data.messages
                         setChatHistory(msgs)
@@ -44,7 +44,7 @@ const chat: React.FC<chatProps> = ({ selectedProject }) => {
         }
 
         return () => { cancelled = true; };
-    }, [serverUrl, selectedProject?.id]);
+    }, [consts.BE, selectedProject?.id]);
 
     return (
         <>

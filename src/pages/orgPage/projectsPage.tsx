@@ -5,12 +5,11 @@ import type { Organization, ProjectInfo, ProjectTasks } from '../../data/types';
 import Category from './category';
 import ProgressBar from './progressBar';
 import TaskCard from './taskCard';
+import consts from '../../data/consts';
 // import helpers from './helpers';
 
 // per ora forzo orgId = 2
 const orgId = 2
-
-const BE_HOSTNAME = 'https://localhost:5000'
 
 interface ProjectsPageProps {
 	setActivePage: (page: string) => void;
@@ -41,7 +40,7 @@ const ProjectsPage: React.FC<ProjectsPageProps> = ({ setActivePage, setSelectedP
 		(async () => {
 			try {
 				const res = await fetch(
-					`${BE_HOSTNAME}/api/v1/organizations/${orgId}/organization`, {
+					`${consts.BE}/api/v1/organizations/${orgId}/organization`, {
 						method: 'GET',
 						headers: { "Content-Type": "application/json" },
 						credentials: "include",

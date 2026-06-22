@@ -1,7 +1,8 @@
 // poi andra' in .env
 
-const BE = 'http://localhost:5000';
-const WS = 'ws://localhost:5000/ws';
+const BE = '';
+const WS_PROTOCOL = window.location.protocol === 'https:' ? 'wss' : 'ws';
+const WS = `${WS_PROTOCOL}://${window.location.host}/ws`;
 
 export default {
     BE: BE,

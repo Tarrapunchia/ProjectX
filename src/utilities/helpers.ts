@@ -1,6 +1,6 @@
 import CONSTS from '../data/consts'
 
-const getter = async (api: string, params: any | null)
+const getter = async (api: string, _params: any | null)
 : Promise<{ success: boolean, data: any }> => {
     try {
         const res = await fetch(
