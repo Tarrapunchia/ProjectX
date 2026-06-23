@@ -10,7 +10,6 @@ COPY . .
 RUN npx prisma generate
 RUN npm run build
 
-# Fastify static cerca dist/public
 RUN mkdir -p dist/public && cp -r src/public/. dist/public/
 
 
@@ -31,11 +30,8 @@ COPY --from=build /app/prisma ./prisma
 COPY --from=build /app/avatar ./avatar
 COPY --from=build /app/deploy.sh ./deploy.sh
 
-# Cartelle runtime usate dal progetto
 RUN mkdir -p certs uploads avatar/users
 
-# Genera il Prisma Client nello stage finale, così evitiamo
-# di trascinarci roba interna da node_modules del builder.
 RUN npx prisma generate
 
 RUN chmod +x ./deploy.sh
