@@ -20,11 +20,11 @@ services:
 
   frontend:
     build:
-      context: .
-      dockerfile: ./frontend/Dockerfile
+      context: ./frontend
+      dockerfile: Dockerfile
     container_name: frontend-proxy
     depends_on:
       - backend
     ports:
       - "8443:443"
-    restart: unless-stopped
+    restart: unless-stopped 
