@@ -186,36 +186,40 @@ const websocketPlugin: FastifyPluginAsync = fp(async (server) => {
         server.log.info({ userId, connectionsForUser: set.size }, 'WS connected')
 
         ws.on('close', async (code: number, reason: Buffer) => {
-            const curUsr = server.wsClientsByUserId.get(userId)
-            if (curUsr) {
-                curUsr.delete(ws)
-                if (curUsr.size == 0) {
-                    server.wsClientsByUserId.delete(userId)
-                    server.wsBroadcast({
-                        type: "presence",
-                        payload: {
-                            connected: false,
-                            userId,
-                        }
-                    })
-                    
-                    await server.prisma.user.update({
-                        where: { id: userId },
-                        data: { isLoggedIn: false },
-                    })
-
-                    // rimuove ws da tutte le rooms
-                    for (const [roomId, roomSet] of server.wsRooms) {
-                        if (roomSet.delete(ws) && roomSet.size === 0) {
-                            server.wsRooms.delete(roomId)
+            try {
+                const curUsr = server.wsClientsByUserId.get(userId)
+                if (curUsr) {
+                    curUsr.delete(ws)
+                    if (curUsr.size == 0) {
+                        server.wsClientsByUserId.delete(userId)
+                        server.wsBroadcast({
+                            type: "presence",
+                            payload: {
+                                connected: false,
+                                userId,
+                            }
+                        })
+                        
+                        await server.prisma.user.updateMany({
+                            where: { id: userId },
+                            data: { isLoggedIn: false },
+                        })
+    
+                        // rimuove ws da tutte le rooms
+                        for (const [roomId, roomSet] of server.wsRooms) {
+                            if (roomSet.delete(ws) && roomSet.size === 0) {
+                                server.wsRooms.delete(roomId)
+                            }
                         }
                     }
+    
+                }
+                server.log.info({userId, code, reason: reason?.toString?.(), remainingWs: curUsr?.size ?? 0}, 'ws closed')
+                } catch (err) {
+                    server.log.error(err, 'websocket close cleanup failed')
                 }
 
-            }
 
-
-            server.log.info({userId, code, reason: reason?.toString?.(), remainingWs: curUsr?.size ?? 0}, 'ws closed')
         })
 
         ws.on('message', async (raw: any) => {
