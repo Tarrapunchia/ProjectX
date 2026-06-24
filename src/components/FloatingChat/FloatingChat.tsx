@@ -23,7 +23,8 @@ function FloatingChat() {
 	const avatarHasMoved = useRef(false);
 	const hiddenChatId = showTrash && draggedChat ? draggedChat.roomId : null;
 	const draggedFriend = friends?.find(f => f.email === draggedChat?.senderMail);
-	const draggedGroup = groups?.find(g => g.id === draggedChat?.roomId);
+	const draggedGroup = null;
+	// const draggedGroup = groups?.find(g => g.id === draggedChat?.roomId);
 
 	useEffect(() => {
 		const handleMouseMove = (e: MouseEvent) => {
