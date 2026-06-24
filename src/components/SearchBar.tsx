@@ -18,7 +18,7 @@ const SearchBar: React.FC<SearchBarProps> = ({ activeUserId }) =>
     const [results, setResults] = useState<{ users: any[], projects: any[] }>({ users: [], projects: [] });
     const [loading, setLoading] = useState(false);
     const [showDropdown, setShowDropdown] = useState(false);
-    const { friends } = useWebSocket();
+    const { friends, blockedUsers } = useWebSocket();
     
     const searchWrapperRef = useRef<HTMLDivElement>(null);
 
@@ -76,7 +76,11 @@ const SearchBar: React.FC<SearchBarProps> = ({ activeUserId }) =>
 
             // Escludiamo l'utente attivo dai risultati della ricerca
             const allUsers = usersRes.data || [];
-            const filteredUsers = allUsers.filter((user: any) => user.id !== activeUserId);
+            const filteredUsers = allUsers.filter((user: any) => {
+                const isMe = user.id === activeUserId;
+                const isBlocked = blockedUsers.some((b: any) => b.id === user.id);
+                return !isMe && !isBlocked;
+            });
 
             const allProjectsData = projectsRes.data || [];
             const filteredProjects = allProjectsData

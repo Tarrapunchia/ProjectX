@@ -158,11 +158,11 @@ export default function SettingsPage()
                     <div className="flex flex-col md:flex-row gap-4">
                         <div className="flex-1 flex flex-col gap-1">
                             <label className="text-[10px] uppercase text-text-main font-bold ml-1">First Name</label>
-                            <input className={inputClass} value={profile.name} onChange={(e) => handleProfileChange("name", e.target.value)} />
+                            <input className={inputClass} value={profile.name} onChange={(e) => handleProfileChange("name", e.target.value)} autoComplete="off"/>
                         </div>
                         <div className="flex-1 flex flex-col gap-1">
                             <label className="text-[10px] uppercase text-text-main font-bold ml-1">Last Name</label>
-                            <input className={inputClass} value={profile.surname} onChange={(e) => handleProfileChange("surname", e.target.value)} />
+                            <input className={inputClass} value={profile.surname} onChange={(e) => handleProfileChange("surname", e.target.value)} autoComplete="off"/>
                         </div>
                     </div>
 
@@ -173,34 +173,34 @@ export default function SettingsPage()
                         </div>
                         <div className="flex-1 flex flex-col gap-1">
                             <label className="text-[10px] uppercase text-text-main font-bold ml-1">Profession</label>
-                            <input className={inputClass} value={profile.jobQualifier} onChange={(e) => handleProfileChange("jobQualifier", e.target.value)} />
+                            <input className={inputClass} value={profile.jobQualifier} onChange={(e) => handleProfileChange("jobQualifier", e.target.value)} autoComplete="off"/>
                         </div>
                     </div>
 
                     <div className="flex flex-col md:flex-row gap-4">
                         <div className="flex-1 flex flex-col gap-1">
                         <label className="text-[10px] uppercase text-text-main font-bold ml-1">Phone</label>
-                        <input className={inputClass} value={profile.phone} onChange={(e) => handleProfileChange("phone", e.target.value)} />
+                        <input className={inputClass} value={profile.phone} onChange={(e) => handleProfileChange("phone", e.target.value)} autoComplete="off"/>
                         </div>
                         <div className="flex-1 flex flex-col gap-1">
                         <label className="text-[10px] uppercase text-text-main font-bold ml-1">City</label>
-                        <input className={inputClass} value={profile.city} onChange={(e) => handleProfileChange("city", e.target.value)} />
+                        <input className={inputClass} value={profile.city} onChange={(e) => handleProfileChange("city", e.target.value)} autoComplete="off"/>
                         </div>
                     </div>
 
                     <div className="flex flex-col gap-1">
                         <label className="text-[10px] uppercase text-text-main font-bold ml-1">Address</label>
-                        <input className={inputClass} value={profile.address} onChange={(e) => handleProfileChange("address", e.target.value)} />
+                        <input className={inputClass} value={profile.address} onChange={(e) => handleProfileChange("address", e.target.value)} autoComplete="off"/>
                     </div>
 
                     <div className="flex flex-col md:flex-row gap-4">
                         <div className="flex flex-col gap-1">
 							<label className="text-[10px] uppercase text-text-main font-bold ml-1">Zip Code</label>
-							<input className={smallInputClass} value={profile.cap} onChange={(e) => handleProfileChange("cap", e.target.value)} />
+							<input className={smallInputClass} value={profile.cap} onChange={(e) => handleProfileChange("cap", e.target.value)} autoComplete="off"/>
                         </div>
                         <div className="flex-1 flex flex-col gap-1">
 							<label className="text-[10px] uppercase text-text-main font-bold ml-1">Country/State</label>
-							<input className={inputClass} value={profile.state} onChange={(e) => handleProfileChange("state", e.target.value)} />
+							<input className={inputClass} value={profile.state} onChange={(e) => handleProfileChange("state", e.target.value)} autoComplete="off"/>
                         </div>
                     </div>
 
@@ -256,7 +256,7 @@ export default function SettingsPage()
 							<h3 className="text-lg font-medium text-text-main">Danger Zone</h3>
 						</div>
 						<p className="text-xs text-slate-400 mb-4">Once you delete your account, there is no going back. Please be certain.</p>
-						<DangerZoneStub />
+						<DangerZoneStub userEmail={activeUser?.email} />
 					</div>
                 </div>
             </div>
@@ -264,34 +264,81 @@ export default function SettingsPage()
     );
 }
 
-function DangerZoneStub() {
-  const [confirm, setConfirm] = useState("");
-  const [loading, setLoading] = useState(false);
+function DangerZoneStub({ userEmail }: { userEmail?: string }) 
+{
+    const [email, setEmail] = useState("");
+    const [password, setPassword] = useState("");
+    const [loading, setLoading] = useState(false);
+    const [errorMsg, setErrorMsg] = useState("");
 
-  const handleDelete = async () => {
-    if (confirm !== "DELETE") return;
-    setLoading(true);
-    setTimeout(() => {
-      setLoading(false);
-      alert("Account deletion flow initiated.");
-    }, 1000);
-  };
+    const handleDelete = async () => {
+        if (!email || !password) {
+            setErrorMsg("Both email and password are required.");
+            return;
+        }
 
-  return (
-    <div className="space-y-3">
-      <input
-        value={confirm}
-        onChange={(e) => setConfirm(e.target.value)}
-        placeholder='Type "DELETE" to confirm'
-        className="w-full p-2 rounded-lg bg-bg-color text-text-main border border-transparent hover:border-red-900/50 focus:outline-none focus:border-red-600 text-sm"
-      />
-      <button 
-        onClick={handleDelete} 
-        disabled={confirm !== "DELETE" || loading} 
-        className="w-full px-4 py-2 bg-trasparent text-text-main border border-red-600 rounded-xl hover:bg-red-600 hover:text-white transition-all text-xs font-bold disabled:opacity-80bash cursor-pointer"
-      >
-        {loading ? "Processing..." : "Permanently Delete Account"}
-      </button>
-    </div>
-  );
+        if (email !== userEmail) {
+            setErrorMsg("The email does not match your account.");
+            return;
+        }
+        
+        setLoading(true);
+        setErrorMsg("");
+
+        try 
+		{
+            const res = await helpers.deleter("/api/v1/users/delete", { password });
+            
+            if (res.success) {
+                window.location.href = "/";
+            } else {
+                setErrorMsg(res.data?.error || "Failed to delete account. Please try again.");
+            }
+        } catch (error) {
+            console.error("Deletion error:", error);
+            setErrorMsg("An unexpected error occurred.");
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    return (
+        <div className="space-y-3">
+            <input
+                type="email"
+                autoComplete="username email"
+                value={email}
+                onChange={(e) => {
+                    setEmail(e.target.value);
+                    setErrorMsg("");
+                }}
+                placeholder="Confirm your email"
+                className="w-full p-2 rounded-lg bg-bg-color text-text-main border border-transparent hover:border-red-900/50 focus:outline-none focus:border-red-600 text-sm shadow-sm"
+            />
+
+            <input
+                type="password"
+                autoComplete="current-password"
+                value={password}
+                onChange={(e) => {
+                    setPassword(e.target.value);
+                    setErrorMsg("");
+                }}
+                placeholder="Enter your password"
+                className="w-full p-2 rounded-lg bg-bg-color text-text-main border border-transparent hover:border-red-900/50 focus:outline-none focus:border-red-600 text-sm shadow-sm"
+            />
+            
+            {errorMsg && (
+                <p className="text-red-500 text-xs font-medium px-1">{errorMsg}</p>
+            )}
+
+            <button 
+                onClick={handleDelete} 
+                disabled={!email || !password || loading} 
+                className="w-full px-4 py-2 bg-transparent text-text-main border border-red-600 rounded-xl hover:bg-red-600 hover:text-white transition-all text-xs font-bold disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer mt-2"
+            >
+                {loading ? "Processing..." : "Permanently Delete Account"}
+            </button>
+        </div>
+    );
 }

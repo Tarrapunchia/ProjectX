@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
-import { X, Mail, Phone, Briefcase, MapPin, UserPlus, Ban, Loader2 } from 'lucide-react';
+import { X, Mail, Phone, Briefcase, MapPin, UserPlus, Ban, Unlock, Loader2 } from 'lucide-react';
 import CONSTS from '../../data/consts';
+import helpers from "../../utilities/helpers";
 
 export interface ModalUser {
     id: number;
@@ -20,8 +21,9 @@ interface UserProfileModalProps {
     onClose: () => void;
     user: ModalUser | null;
     isFriend: boolean;
+    isBlockedByMe?: boolean;
     onAddFriend: (userId: number) => void;
-    // onBlockUser RIMOSSO: gestiamo tutto qui dentro
+    onRefresh?: () => void | Promise<void>;
 }
 
 const UserProfileModal: React.FC<UserProfileModalProps> = ({ 
@@ -29,10 +31,11 @@ const UserProfileModal: React.FC<UserProfileModalProps> = ({
     onClose, 
     user, 
     isFriend, 
-    onAddFriend 
+    isBlockedByMe = false,
+    onAddFriend,
+    onRefresh
 }) => {
-    // Stato per gestire il caricamento durante la chiamata API
-    const [isBlocking, setIsBlocking] = useState(false);
+    const [isActionLoading, setIsActionLoading] = useState(false);
 
     if (!isOpen || !user) return null;
 
@@ -42,46 +45,47 @@ const UserProfileModal: React.FC<UserProfileModalProps> = ({
 
     const hasValidString = (str?: string) => str && str.trim().length > 0;
 
-    // --- FUNZIONE PER BLOCCARE L'UTENTE ---
     const handleBlockUser = async () => {
         if (!user) return;
         
         try {
-            setIsBlocking(true);
+            setIsActionLoading(true);
+            const res = await helpers.poster('/api/v1/friends/block', { targetUserId: user.id });
 
-            // Sostituisci il path con quello esatto del tuo router se diverso (es. /api/v1/friends/block)
-            const response = await fetch(`${CONSTS.BE}/api/v1/friends/block`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    "Accept": 'application/json',
-                    // Aggiungi qui l'header di autorizzazione se non usi i cookie/sessioni automatiche
-                    // 'Authorization': `Bearer ${tuoToken}`
-                },
-                credentials: 'include',
-                body: JSON.stringify({ targetUserId: user.id }),
-            });
-
-            const data = await response.json();
-
-            if (!response.ok) {
-                throw new Error(data.error || 'Failed to block user');
+            if (!res.success) {
+                throw new Error(res.data?.error || 'Failed to block user');
             }
 
-            // Blocco avvenuto con successo
-            console.log("Utente bloccato con successo:", data);
-            
-            // Chiudiamo il modale
+            console.log("Utente bloccato con successo:", res.data);
             onClose();
-            
-            // NOTA: Qui potresti voler scatenare un evento globale o fare un refresh 
-            // per aggiornare la lista amici nel componente padre.
+            if (onRefresh) onRefresh();
             
         } catch (error) {
             console.error("Errore durante il blocco dell'utente:", error);
-            // Qui potresti inserire un toast o un alert per notificare l'errore all'utente
         } finally {
-            setIsBlocking(false);
+            setIsActionLoading(false);
+        }
+    };
+
+    const handleUnblockUser = async () => {
+        if (!user) return;
+        
+        try {
+            setIsActionLoading(true);
+            const res = await helpers.poster('/api/v1/friends/unblock', { targetUserId: user.id });
+
+            if (!res.success) {
+                throw new Error(res.data?.error || 'Failed to unblock user');
+            }
+
+            console.log("Utente sbloccato con successo:", res.data);
+            onClose();
+            if (onRefresh) onRefresh();
+            
+        } catch (error) {
+            console.error("Errore durante lo sblocco dell'utente:", error);
+        } finally {
+            setIsActionLoading(false);
         }
     };
 
@@ -96,7 +100,7 @@ const UserProfileModal: React.FC<UserProfileModalProps> = ({
             >
                 <button 
                     onClick={onClose} 
-                    disabled={isBlocking}
+                    disabled={isActionLoading}
                     className="absolute top-5 right-5 p-1.5 text-text-main rounded-full hover:scale-105 hover:border hover:border-text-main cursor-pointer disabled:opacity-50"
                 >
                     <X size={22} />
@@ -109,6 +113,9 @@ const UserProfileModal: React.FC<UserProfileModalProps> = ({
                             src={`${CONSTS.BE}/api/v1/users/${user.id}/avatar`} 
                             alt={`${user.name} avatar`} 
                             className="w-full h-full object-cover"
+                            onError={(e) => {
+                                (e.target as HTMLImageElement).src = '/default-avatar.png';
+                            }}
                         />
                     </div>
 
@@ -126,7 +133,27 @@ const UserProfileModal: React.FC<UserProfileModalProps> = ({
                         )}
                     </div>
 
-                    {isFriend ? (
+                    {/* CONDIZIONE 1: L'UTENTE È BLOCCATO DA ME */}
+                    {isBlockedByMe ? (
+                        <div className="w-full flex flex-col items-center mt-2 text-center max-w-sm">
+                            <div className="bg-red-500/10 border border-red-500/20 rounded-xl p-4 mb-6 w-full text-red-400">
+                                <Ban size={24} className="mx-auto mb-2 opacity-80" />
+                                <p className="text-sm font-medium">You have blocked this user.</p>
+                                <p className="text-xs mt-1 opacity-70">They cannot interact with you.</p>
+                            </div>
+                            <button
+                                onClick={handleUnblockUser}
+                                disabled={isActionLoading}
+                                className="flex items-center justify-center w-full gap-2 bg-text-main text-side-bg-color px-5 py-2.5 rounded-xl hover:scale-105 transition-all shadow-sm text-sm font-bold cursor-pointer active:scale-95 disabled:opacity-50"
+                            >
+                                {isActionLoading ? <Loader2 size={19} className="animate-spin" /> : <Unlock size={19} />}
+                                Unblock User
+                            </button>
+                        </div>
+                    ) : 
+                    
+                    /* CONDIZIONE 2: L'UTENTE È MIO AMICO */
+                    isFriend ? (
                         <div className="w-full flex flex-col gap-y-4 text-sm text-text-main bg-bg-color p-8 rounded-2xl border border-overlay-border-color shadow-inner">
                             
                             {hasValidString(user.email) && (
@@ -156,40 +183,36 @@ const UserProfileModal: React.FC<UserProfileModalProps> = ({
                                 </p>
                             )}
                             
-                            {/* BOTTONE BLOCCO CON STATO DI CARICAMENTO */}
+                            {/* BOTTONE BLOCCO (Visibile solo per gli amici) */}
                             <div className="mt-4 flex justify-center w-full">
                                 <button
                                     onClick={handleBlockUser}
-                                    disabled={isBlocking}
-                                    className="flex items-center justify-center w-full gap-2 bg-red-500/10 text-red-500 border border-red-500/20 px-5 py-2.5 rounded-xl hover:bg-red-500 hover:text-white transition-all shadow-sm text-sm font-bold cursor-pointer active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
+                                    disabled={isActionLoading}
+                                    className="flex items-center justify-center w-full gap-2 bg-red-500/30 text-white border border-red-500/20 px-5 py-2.5 rounded-xl hover:bg-red-500 hover:text-white transition-all shadow-sm text-sm font-bold cursor-pointer active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
                                 >
-                                    {isBlocking ? (
-                                        <>
-                                            <Loader2 size={19} className="animate-spin" />
-                                            Blocking...
-                                        </>
-                                    ) : (
-                                        <>
-                                            <Ban size={19} />
-                                            Block User
-                                        </>
-                                    )}
+                                    {isActionLoading ? <Loader2 size={19} className="animate-spin" /> : <Ban size={19} />}
+                                    Block User
                                 </button>
                             </div>
 
                         </div>
-                    ) : (
+                    ) : 
+                    
+                    /* CONDIZIONE 3: L'UTENTE NON È NÉ MIO AMICO NÉ BLOCCATO */
+                    (
                         <div className="w-full flex flex-col items-center mt-2 text-center max-w-sm">
                             <p className="text-base text-zinc-400 mb-8 leading-relaxed">
                                 You are not friends with <span className="text-text-main font-medium">{user.name}</span>. <br/>
                                 Send a request to see their full contact details!
                             </p>
+                            
                             <button
                                 onClick={() => {
                                     onAddFriend(user.id);
                                     onClose();
                                 }}
-                                className="flex items-center gap-2 bg-owner-color text-white px-5 py-2.5 rounded-xl hover:scale-105 transition-all shadow-lg text-sm font-bold cursor-pointer active:scale-95"
+                                disabled={isActionLoading}
+                                className="flex items-center justify-center w-full gap-2 bg-owner-color text-white px-5 py-2.5 rounded-xl hover:scale-105 transition-all shadow-lg text-sm font-bold cursor-pointer active:scale-95 disabled:opacity-50"
                             >
                                 <UserPlus size={19} />
                                 Send Friend Request

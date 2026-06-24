@@ -97,6 +97,9 @@ interface WebSocketContextType {
   	updateAlertThreshold: (hours: number) => void;
 	activeUser: any | null; // L'oggetto profilo completo
     refreshUser: () => Promise<void>;
+
+	blockedUsers: Friend[]; // <--- NUOVO
+    loadBlockedUsers: () => Promise<void>;
 }
 
 
@@ -114,6 +117,7 @@ export const WebSocketProvider: React.FC<{ children: ReactNode }> = ({ children 
 	const friendsRef = useRef<Friend[]>([]);
 	const [pendingRequests, setPendingRequests] = useState<PendingRequest[]>([]);
 	const [calendarEntries, setCalendarEntries] = useState<CalendarEntries | null>(null);
+	const [blockedUsers, setBlockedUsers] = useState<Friend[]>([]);
 
 	const refreshUser = useCallback(async () => {
         const res = await helpers.getter('/api/v1/users/activeUser', null);
@@ -213,6 +217,14 @@ export const WebSocketProvider: React.FC<{ children: ReactNode }> = ({ children 
 		}
 	};
 
+	const loadBlockedUsers = async () => {
+        // Presupponendo che la tua API accetti lo status 'BLOCKED' come parametro
+        const response = await helpers.getter('/api/v1/friends/BLOCKED', null);
+        if (response.success) {
+            setBlockedUsers(response.data.friends || response.data.blocked || []);
+        }
+    };
+
 	const openFloatingChat = (chat: FloatingChatInfo) => {
 		setFloatingChats(prev => {
 			if (prev.find(c => c.roomId === chat.roomId)) {
@@ -232,6 +244,12 @@ export const WebSocketProvider: React.FC<{ children: ReactNode }> = ({ children 
 
 				const friendsRes = await helpers.getter('/api/v1/friends/ACCEPTED', null);
 				if (friendsRes.success) setFriends(friendsRes.data.friends);
+
+				const blockedRes = await helpers.getter('/api/v1/friends/BLOCKED', null);
+                if (blockedRes.success) {
+                    // Dipende da come l'API chiama l'array nel JSON, adatta se serve
+                    setBlockedUsers(blockedRes.data.friends || blockedRes.data.blocked || []); 
+                }
 
 				const groupRes = await helpers.getter('/api/v1/groups/joined', null);
 				if (groupRes.success) {
@@ -411,6 +429,8 @@ export const WebSocketProvider: React.FC<{ children: ReactNode }> = ({ children 
       		updateAlertThreshold,
 			activeUser,
             refreshUser,
+			blockedUsers,
+			loadBlockedUsers,
 			}}
 		>
 			{children}

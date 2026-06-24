@@ -1,8 +1,9 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import Helpers from './helpers';
+import helpers from "../../utilities/helpers";
 import { type FriendList } from '../../data/types';
 import CONSTS from '../../data/consts';
-import { Mail, Phone, Briefcase, User, MapPin } from 'lucide-react';
+import { Mail, Phone, Briefcase, User, MapPin, Ban } from 'lucide-react'; // <-- Aggiunto Ban
 import { useWebSocket } from '../../utilities/WebSocketContext';
 import UserProfileModal, { type ModalUser } from '../userProfilePageModal/userProfilePageModal';
 
@@ -36,47 +37,71 @@ const ProfilePage: React.FC = () => {
     });
 
     const [friendsInfo, setFriendsInfo] = useState<FriendList>({ count: 0, friends: [] });
+    const [blockedUsers, setBlockedUsers] = useState<any[]>([]); // <-- Stato per i bloccati
     const [isLoading, setIsLoading] = useState<boolean>(true);
 
     // Stati per gestire il Modal
-    const [selectedFriend, setSelectedFriend] = useState<ModalUser | null>(null);
+    const [selectedUser, setSelectedUser] = useState<ModalUser | null>(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
+    const [modalMode, setModalMode] = useState<'friend' | 'blocked'>('friend'); // <-- Per sapere cosa passare al modale
 
-    useEffect(() => {
-        (async () => {
-            setIsLoading(true);
-            
-            if (activeUser) {
-                setProfile({
-                    name: activeUser.name || "",
-                    surname: activeUser.surname || "",
-                    email: activeUser.email || "",
-                    jobQualifier: activeUser.jobQualifier || "",
-                    phone: activeUser.phone || "",
-                    city: activeUser.city || "",
-                    address: activeUser.address || "",
-                    cap: activeUser.cap || "",
-                    state: activeUser.state || "",
-                    avatar: activeUser.avatar || "",
-                });
+    // Funzione isolata per caricare le liste (così possiamo richiamarla dopo un blocco/sblocco)
+	const loadRelations = useCallback(async () => {
+        if (!activeUser) return;
+
+        try {
+            const [friendsRes, blockedRes] = await Promise.all([
+                Helpers.getUserFriends(),
+                helpers.getter('/api/v1/friends/BLOCKED', null) 
+            ]);
+
+            if (friendsRes.success) {
+                setFriendsInfo(friendsRes.friends);
             }
 
-            const friends = await Helpers.getUserFriends();
-            if (friends.success) {
-                setFriendsInfo(friends.friends);
+            if (blockedRes.success) {
+                // Il backend ci sta già dando l'array di utenti pulito dentro "friends"!
+                const blockedUsersList = blockedRes.data.friends || [];
+                setBlockedUsers(blockedUsersList);
             }
-            
-            setIsLoading(false);
-        })();
+        } catch (error) {
+            console.error("Errore nel caricamento delle relazioni:", error);
+        }
     }, [activeUser]);
 
-    // Funzione finta per onAddFriend (non serve qui perché sono già amici, ma la prop è richiesta dal modal)
+    useEffect(() => {
+        if (activeUser) {
+            setProfile({
+                name: activeUser.name || "",
+                surname: activeUser.surname || "",
+                email: activeUser.email || "",
+                jobQualifier: activeUser.jobQualifier || "",
+                phone: activeUser.phone || "",
+                city: activeUser.city || "",
+                address: activeUser.address || "",
+                cap: activeUser.cap || "",
+                state: activeUser.state || "",
+                avatar: activeUser.avatar || "",
+            });
+        }
+
+        setIsLoading(true);
+        loadRelations().finally(() => setIsLoading(false));
+    }, [activeUser, loadRelations]);
+
     const handleAddFriend = (userId: number) => {
-        console.log("Già amico:", userId);
+        console.log("Azione non necessaria qui:", userId);
     };
 
     const handleFriendClick = (friend: any) => {
-        setSelectedFriend(friend);
+        setSelectedUser(friend);
+        setModalMode('friend');
+        setIsModalOpen(true);
+    };
+
+    const handleBlockedClick = (user: any) => {
+        setSelectedUser(user);
+        setModalMode('blocked');
         setIsModalOpen(true);
     };
 
@@ -100,7 +125,7 @@ const ProfilePage: React.FC = () => {
             {/* SEZIONE HEADER PROFILO */}
             <div className="flex flex-col md:flex-row gap-6 mb-12 shrink-0 items-start">
                 <div className="shrink-0 mx-auto md:mx-0">
-                    <div className="w-28 h-28 md:w-32 md:h-32 rounded-full overflow-hidden flex items-center justify-center">
+                    <div className="w-28 h-28 md:w-32 md:h-32 rounded-full overflow-hidden flex items-center justify-center border-4 border-side-bg-color shadow-lg">
                         <img 
                             src={`${CONSTS.BE}/api/v1/users/${activeUser?.id}/avatar`} 
                             alt="Profile Picture" 
@@ -145,7 +170,7 @@ const ProfilePage: React.FC = () => {
             <hr className="border-overlay-border-color mb-8 shrink-0" />
 
             {/* SEZIONE AMICI */}
-            <div className="flex flex-col shrink-0">
+            <div className="flex flex-col shrink-0 mb-8">
                 <div className="flex items-center gap-2 mb-6">
                     <User className="text-text-main" size={20} />
                     <h2 className="text-xl font-bold text-text-main">Friends</h2>
@@ -183,13 +208,49 @@ const ProfilePage: React.FC = () => {
                 )}
             </div>
 
-            {/* MODAL PROFILO AMICO */}
+            {/* SEZIONE BLOCCATI (Visibile solo se ce ne sono) */}
+            {blockedUsers.length > 0 && (
+                <div className="flex flex-col shrink-0">
+                    <div className="flex items-center gap-2 mb-6">
+                        <Ban className="text-red-500/80" size={20} />
+                        <h2 className="text-xl font-bold text-red-500/80">Blocked Users</h2>
+                        <span className="bg-red-500/10 border border-red-500/20 text-red-500 text-xs px-2 py-0.5 rounded-full ml-2">
+                            {blockedUsers.length}
+                        </span>
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3">
+                        {blockedUsers.map((user) => (
+                            <div 
+                                key={user.id}
+                                onClick={() => handleBlockedClick(user)} 
+                                className="flex items-center gap-3 p-2.5 bg-side-bg-color/50 border border-red-500/20 rounded-xl hover:border-red-500/50 transition-colors shadow-sm group cursor-pointer opacity-70 hover:opacity-100"
+                            >
+                                <div className="w-10 h-10 rounded-full overflow-hidden border border-red-500/30 bg-side-bg-color shrink-0 flex items-center justify-center grayscale group-hover:grayscale-0 transition-all duration-300">
+                                    <img 
+                                        src={`${CONSTS.BE}/api/v1/users/${user?.id}/avatar`} 
+                                        alt={`${user?.name} avatar`}
+                                        className="w-full h-full object-cover"
+                                    />
+                                </div>
+                                <span className="text-sm font-medium text-text-main/80 truncate transition-colors">
+                                    {user.name + " " + user.surname}
+                                </span>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            )}
+
+            {/* MODAL PROFILO UTENTE */}
             <UserProfileModal 
                 isOpen={isModalOpen}
                 onClose={() => setIsModalOpen(false)}
-                user={selectedFriend}
-                isFriend={true} // Se sono in questa lista, sono sicuramente amici
+                user={selectedUser}
+                isFriend={modalMode === 'friend'} 
+                isBlockedByMe={modalMode === 'blocked'} // <-- Passa il flag al modale!
                 onAddFriend={handleAddFriend} 
+                onRefresh={loadRelations}
             />
 
         </div>
