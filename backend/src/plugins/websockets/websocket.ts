@@ -145,6 +145,11 @@ const websocketPlugin: FastifyPluginAsync = fp(async (server) => {
             return
         }
 
+        await server.prisma.user.update({
+            where: { id: userId },
+            data: { isLoggedIn: true },
+        })
+        
         // faccio l'add alla mappa
         let set = server.wsClientsByUserId.get(userId)
         if (!set) {
