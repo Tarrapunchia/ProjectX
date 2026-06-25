@@ -16,7 +16,7 @@ export const ChatGroupOptions = ({ group, friends, activeChat, setActiveChat }: 
 
 	return (
 		<>
-			<div className="flex justify-center items-center w-full mt-5 gap-12">
+			<div className="flex justify-center items-center w-full mt-5 gap-32">
 				<div className="shadow-[0_0_10px_rgba(172,134,0,0.7)] rounded-md">
 					<button 
 						onClick={() => setOpenOption('add')}
@@ -25,14 +25,14 @@ export const ChatGroupOptions = ({ group, friends, activeChat, setActiveChat }: 
 						<FiUserPlus size={40} className="stroke-1"/>
 					</button>
 				</div>
-				<div className="shadow-[0_0_10px_rgba(172,134,0,0.7)] rounded-md">
+				{/* <div className="shadow-[0_0_10px_rgba(172,134,0,0.7)] rounded-md">
 					<button 
 						onClick={() => setOpenOption('edit')}
 						className="border border-overlay-border-color p-1 rounded-md hover:cursor-pointer hover:border-owner-color hover:scale-110 transition-all"
 					>
 						<FiEdit size={40} className="stroke-1"/>
 					</button>
-				</div>
+				</div> */}
 				<div className="shadow-[0_0_10px_rgba(172,134,0,0.7)] rounded-md">
 					<button 
 						onClick={() => setOpenOption('leave')}

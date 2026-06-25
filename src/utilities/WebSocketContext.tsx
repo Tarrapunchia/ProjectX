@@ -234,7 +234,8 @@ export const WebSocketProvider: React.FC<{ children: ReactNode }> = ({ children 
 				const groupRes = await helpers.getter('/api/v1/groups/joined', null);
 				if (groupRes.success) {
 					const joinedGroups: Group[] = groupRes.data.groups;
-					console.log(groupRes.data.groups)
+					console.log("AAAAAAAAAAAAAA");
+					console.log(groupRes.data.groups);
 					setGroups(joinedGroups);
 					console.log(groups);
 				}
@@ -270,7 +271,7 @@ export const WebSocketProvider: React.FC<{ children: ReactNode }> = ({ children 
 			{
 				const messageData = JSON.parse(event.data);
 
-				// console.log(messageData.type);
+				console.log(messageData.type);
 
 				if (["task:updated", "task:created", "event:updated", "event:created"].includes(messageData.type)) 
 				{
@@ -298,11 +299,33 @@ export const WebSocketProvider: React.FC<{ children: ReactNode }> = ({ children 
                     setPendingRequests(prev => prev.filter(r => r.id !== messageData.requestId));
 				
 				if (messageData.type === "presence") {
+					const targetUserId = messageData.payload.userId;
+					const isConnected = messageData.payload.connected;
+
 					setFriends(prev => prev.map(f =>
-						f.id === messageData.payload.userId
-						? { ...f, isLoggedIn: messageData.payload.connected}
+						Number(f.id) === Number(targetUserId)
+						? { ...f, isLoggedIn: isConnected}
 						: f
 					));
+
+					setGroups(prev => prev.map(g => {
+						const updatedParticipants = g.participants.map(p => {
+							if (Number(p.user.id) === Number(targetUserId)) {
+								return {
+									...p,
+									user: {
+										...p.user,
+										isLoggedIn: isConnected
+									}
+								};
+							}
+							return p;
+						});
+						return {
+							...g,
+							participants: updatedParticipants
+						};
+					}));
 				}
 
 				if (messageData.type === "group:participant:added" && messageData.addedUserId !== myUserId)
@@ -464,7 +487,8 @@ export const WebSocketProvider: React.FC<{ children: ReactNode }> = ({ children 
 										content: messageData.payload.text,
 										timestamp: messageData.ts,
 										senderName: senderUser.name,
-										senderSurname: senderUser.surname
+										senderSurname: senderUser.surname,
+										senderMail: senderUser.email
 									}
 
 									setMessages(prev => ({

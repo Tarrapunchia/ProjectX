@@ -16,7 +16,7 @@ interface ChatWindowGroupProps {
 }
 
 export const ChatWindowGroup = ({ isOpen, group, friends, scrollRef, inputRef, activeChat, setActiveChat, loadedRooms }: ChatWindowGroupProps) => {
-	const { myUserId, setMessages, send, messages, loadGroupHistory } = useWebSocket();
+	const { myUserId, setMessages, send, messages, loadGroupHistory, activeUser } = useWebSocket();
 	const [inputText, setInputText] = useState('');
 	const [isOptionsOpen, setIsOptionsOpen] = useState(false);
 	const roomId = activeChat?.roomId;
@@ -38,6 +38,7 @@ export const ChatWindowGroup = ({ isOpen, group, friends, scrollRef, inputRef, a
 		const newMessage: ChatMessage = {
 			id: `temp-${Date.now()}`,
 			senderId: myUserId,
+			senderMail: activeUser.email,
 			content: text,
 			timestamp: Date.now()
 		};
@@ -121,9 +122,9 @@ export const ChatWindowGroup = ({ isOpen, group, friends, scrollRef, inputRef, a
 								return (
 									<div key={msg.id} className={`flex flex-col
 										${isMe ? 'items-end' : 'items-start'}`}>
-										{!isMe && msg.senderName && msg.senderSurname && (
+										{!isMe && (
 											<div className="text-[10px] ml-2 mb-1 text-text-main/60">
-												{msg.senderName} {msg.senderSurname.charAt(0)}.
+												{msg.senderMail}
 											</div>
 										)}
 										<div className={`w-fit max-w-[80%] px-3 py-2 rounded-2xl text-xs
