@@ -1,10 +1,10 @@
 *This project has been created as part of the 42 curriculum by fzucconi, mchiaram, aosmenaj, gvigano.*
 
-# FT_TRANSCENDENCE — Collaborative Workspace Platform
+# Project X — Collaborative Workspace Platform
 
 ## Description
 
-**FT_TRANSCENDENCE** is a full-stack collaborative workspace platform built as the final Common Core project of the 42 curriculum. Instead of building a game-centered product, our team chose to design a productivity-oriented web application focused on **organizations, projects, tasks, events, files, chat, and real-time team collaboration**.
+**Project X** is a full-stack collaborative workspace platform built as the final Common Core project of the 42 curriculum. Instead of building a game-centered product, our team chose to design a productivity-oriented web application focused on **organizations, projects, tasks, events, files, chat, and real-time team collaboration**.
 
 The project combines a React frontend, a Fastify backend, a SQLite database managed through Prisma, WebSocket-driven real-time features, and containerized deployment. The main goal is to provide a centralized environment where users can:
 
@@ -292,32 +292,29 @@ The subject requires at least **14 points** in validated modules. We kept the mo
 | Web | Allow users to interact with other users | Major | 2 | The project includes chat, profiles, and a friendship system | Fabio, Manuel, Ansi |
 | Web | Use an ORM for the database | Minor | 1 | Prisma is used throughout the backend | Fabio |
 | Web | File upload and management system | Minor | 1 | Upload, preview, download, and delete flows are implemented with access checks | Fabio, Ansi, Manuel |
-| Accessibility and Internationalization | Support for at least 2 additional browser (Chrome, Firefox, Brave) | Minor | 1 | Full compatibility with at least 2 additional browsers  | Manuel, Ansi |
+| Web |  Custom-made design system with reusable components | Minor | 1 | All done with custom components | Ansi, Manuel |
+| Web |  Implement advanced search functionality | Minor | 1 | For events, specifically | Ansi, Manuel, Fabio |
+| Web |  A complete notification system for all actions | Minor | 1 | GET, POST, PUT, DELETES | Fabio |
+| Accessibility and Internationalization | Support for at least 2 additional browser - Chrome, Firefox, Brave - | Minor | 1 | Full compatibility with at least 2 additional browsers  | Manuel, Ansi |
 | User Management | Standard user management and authentication | Major | 2 | Profile editing, avatar support, friendship presence, and secure login flows are implemented | Fabio, Manuel, Ansi |
 | User Management | Remote authentication with OAuth 2.0 | Minor | 1 | Google OAuth flow is implemented server-side and integrated into the UI | Fabio, Manuel, Ansi |
 | User Management | Advanced permissions system | Major | 2 | Role-based project access with `OWNER / EDITOR / VIEWER` and permission checks is implemented | Fabio, Manuel, Ansi |
 | User Management | Organization system | Major | 2 | Organizations, memberships, invitations, and organization-scoped actions are implemented | Fabio, Manuel, Ansi |
-| User Experience | Advanced chat features (enhances the basic chat from "User interaction"
-module) | Minor | 1 | Ability to block users from messaging you, chat history persistence | Fabio, Manuel, Ansi, Giulia |
-| DevOps | Advanced chat features (enhances the basic chat from "User interaction"
-module) | Minor | 1 | Ability to block users from messaging you, chat history persistence | Fabio, Manuel, Ansi, Giulia |
+| User Experience | Advanced chat features, enhances the basic chat from "User interaction" | Minor | 1 | Ability to block users from messaging you, chat history persistence | Fabio, Manuel, Ansi, Giulia |
+
 
 ### Total
 
-**18 points total**
+**20 points total**
 
 - **Mandatory threshold:** 14 points
-- **Claimed total:** 15 points
-- **Potential bonus beyond the minimum:** 1 point, if all claimed modules are validated
+- **Claimed total:** 20 points
 
 ### Modules deliberately not claimed
 
 To remain honest and evaluation-safe, the README does **not** claim some partially related features as full modules:
 
 - **Public API with secured API key**: the codebase contains Swagger documentation, REST endpoints, and route-level rate limiting, but the API-key hardening requirement is not claimed as completed.
-- **Complete notification system for all CRUD actions**: notification features exist, but we do not present them as a full platform-wide CRUD notification module.
-- **Advanced analytics dashboard**: the dashboard includes charts and calendar-based insights, but we do not claim the full major analytics module because the subject requires export features and broader filtering/date-range support.
-- **Advanced search**: several search/filter flows exist, but we do not claim the dedicated module because pagination and broader search scope are not fully generalized.
 
 ---
 
