@@ -1,9 +1,10 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, type RefObject } from 'react';
 import { useWebSocket, type FloatingChatInfo, type Group, type Friend, type ChatMessage } from '../../../utilities/WebSocketContext';
 import { FiChevronLeft, FiSend, FiMenu } from 'react-icons/fi';
 import { ChatGroupOptions } from './ChatGroupOptions/ChatGroupOptions';
 
 interface ChatWindowGroupProps {
+	isOpen: boolean;
 	group?: Group;
 	friends: Friend[];
 	scrollRef: any;
@@ -11,23 +12,26 @@ interface ChatWindowGroupProps {
 	currentMessages: any[];
 	activeChat: FloatingChatInfo | null;
 	setActiveChat: (chat: FloatingChatInfo | null) => void;
+	loadedRooms: React.RefObject<Set<string>>;
 }
 
-export const ChatWindowGroup = ({ group, friends, scrollRef, inputRef, currentMessages, activeChat, setActiveChat }: ChatWindowGroupProps) => {
-	const { myUserId, setMessages, send } = useWebSocket();
+export const ChatWindowGroup = ({ isOpen, group, friends, scrollRef, inputRef, activeChat, setActiveChat, loadedRooms }: ChatWindowGroupProps) => {
+	const { myUserId, setMessages, send, messages, loadGroupHistory } = useWebSocket();
 	const [inputText, setInputText] = useState('');
 	const [isOptionsOpen, setIsOptionsOpen] = useState(false);
+	const roomId = activeChat?.roomId;
+	const currentMessages = roomId ? (messages[roomId] || []) : [];
 	
 	const handleSendMessage = () => {
 		if (!inputText.trim() || !myUserId || !group) return;
 
-		const roomId = group.chatRoom.key;
+		const roomKey = group.chatRoom.key;
 		console.log(`send room id: ${roomId}`);
 		const text = inputText.trim();
 		
 		send({
 			type:"room:message",
-			roomId:roomId,
+			roomId:roomKey,
 			payload:{text:text}
 		});
 
@@ -38,13 +42,22 @@ export const ChatWindowGroup = ({ group, friends, scrollRef, inputRef, currentMe
 			timestamp: Date.now()
 		};
 
-		setMessages(prev => ({
-			...prev,
-			[roomId]: [...(prev[roomId] || []), newMessage]
-		}));
+		if (roomId) {
+			setMessages(prev => ({
+				...prev,
+				[roomId]: [...(prev[roomId] || []), newMessage]
+			}));
+		}
 
 		setInputText('');
 	}
+
+	useEffect(() => {
+		if (isOpen && activeChat && activeChat.roomKey && group && !loadedRooms.current.has(activeChat.roomKey)) {
+			loadGroupHistory(activeChat.roomKey, activeChat.roomId);
+			loadedRooms.current.add(activeChat.roomKey);
+		}
+	}, [activeChat, isOpen, group]);
 
 	useEffect(() => {
 		if (!activeChat)
@@ -91,7 +104,6 @@ export const ChatWindowGroup = ({ group, friends, scrollRef, inputRef, currentMe
 
 			{isOptionsOpen ? (
 				<ChatGroupOptions
-					// key={group?.participants.length || 0}
 					group={group}
 					friends={friends}
 					activeChat={activeChat}
@@ -107,8 +119,14 @@ export const ChatWindowGroup = ({ group, friends, scrollRef, inputRef, currentMe
 								const isMe = msg.senderId === myUserId;
 
 								return (
-									<div key={msg.id} className={`flex ${isMe ? 'justify-end' : 'justify-start'}`}>
-										<div className={`max-w-[80%] px-3 py-2 rounded-2xl text-xs
+									<div key={msg.id} className={`flex flex-col
+										${isMe ? 'items-end' : 'items-start'}`}>
+										{!isMe && msg.senderName && msg.senderSurname && (
+											<div className="text-[10px] ml-2 mb-1 text-text-main/60">
+												{msg.senderName} {msg.senderSurname.charAt(0)}.
+											</div>
+										)}
+										<div className={`w-fit max-w-[80%] px-3 py-2 rounded-2xl text-xs
 														${isMe ? 'bg-owner-color text-white' : 'bg-side-bg-color border border-overlay-border-color'}`}>
 											{msg.content}
 										</div>

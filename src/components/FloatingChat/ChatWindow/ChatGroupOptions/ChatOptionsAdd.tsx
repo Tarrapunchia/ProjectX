@@ -11,7 +11,7 @@ interface ChatOptionsAddProps {
 }
 
 export const ChatOptionsAdd = ({ setOpenOption, openOption, friends, group }: ChatOptionsAddProps) => {
-	const participantIds = group?.participants.map(p => p.userId) || [];
+	const participantIds = group?.participants.map(p => p.user.id) || [];
 	const friendsNotInGroup = friends.filter(f => !participantIds?.includes(f.id));
 	
 	const [searchQuery, setSearchQuery] = useState('');

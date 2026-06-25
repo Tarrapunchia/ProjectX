@@ -11,7 +11,7 @@ interface ChatOptionsLeaveProps {
 }
 
 export const ChatOptionsLeave = ({openOption, setOpenOption, group, activeChat, setActiveChat}: ChatOptionsLeaveProps) => {
-	const { groups, setGroups, closeFloatingChat } = useWebSocket();
+	const { groups, setGroups, closeFloatingChat} = useWebSocket();
 
 	return (
 		<div className={`absolute origin-center h-full w-full bg-bg-color/90 transition-all duration-300 font-light

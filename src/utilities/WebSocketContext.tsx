@@ -107,6 +107,7 @@ interface WebSocketContextType {
 	messages: Record<string, ChatMessage[]>;
 	setMessages: React.Dispatch<React.SetStateAction<Record<string, ChatMessage[]>>>;
 	loadHistory: (roomId: string, friendId: number) => Promise<void>;
+	loadGroupHistory: (roomKey: string, roomId: string) => Promise<void>;
 	myUserId: number | null;
 
 	pendingRequests: FriendRequest[]; // Nuova lista
@@ -203,6 +204,7 @@ export const WebSocketProvider: React.FC<{ children: ReactNode }> = ({ children 
 		const response = await helpers.getter('/api/v1/groups/joined', null);
 		if (response.success) {
 			const joinedGroups: Group[] = response.data.groups;
+			console.log(joinedGroups);
 			setGroups(joinedGroups);
 			console.log("load groups response success");
 		}
@@ -232,6 +234,7 @@ export const WebSocketProvider: React.FC<{ children: ReactNode }> = ({ children 
 				const groupRes = await helpers.getter('/api/v1/groups/joined', null);
 				if (groupRes.success) {
 					const joinedGroups: Group[] = groupRes.data.groups;
+					console.log(groupRes.data.groups)
 					setGroups(joinedGroups);
 					console.log(groups);
 				}
@@ -445,6 +448,8 @@ export const WebSocketProvider: React.FC<{ children: ReactNode }> = ({ children 
 								const response = await helpers.getter(`/api/v1/users/${fromUserId}/profile`, null);
 
 								if (response && response.success && group) {
+									const senderUser: User = response.data;
+
 									const newChat: FloatingChatInfo = {
 										roomId,
 										roomKey,
@@ -452,6 +457,20 @@ export const WebSocketProvider: React.FC<{ children: ReactNode }> = ({ children 
 										type: 'group'
 									}
 									openFloatingChat(newChat);
+
+									const newMessage: ChatMessage = {
+										id: Date.now(),
+										senderId: senderUser.id,
+										content: messageData.payload.text,
+										timestamp: messageData.ts,
+										senderName: senderUser.name,
+										senderSurname: senderUser.surname
+									}
+
+									setMessages(prev => ({
+										...prev,
+										[roomId]: [...(prev[roomId] || []), newMessage]
+									}));
 								}
 							} catch (err) {
 								console.error("Error in retrieving chat room messages", err);
@@ -477,6 +496,39 @@ export const WebSocketProvider: React.FC<{ children: ReactNode }> = ({ children 
 				ws.close();
 		};
 	}, [myUserId]);
+
+	const loadGroupHistory = async (roomKey: string, roomId: string) => {
+		if (!roomId) return;
+
+		const responseHistory = await helpers.getter(`/api/v1/messages/roomHistory?roomKey=${roomKey}`, null);
+
+		console.log(responseHistory);
+		if (responseHistory.success && responseHistory.data) {
+			const rawMessages: any[] = responseHistory.data.messages || [];
+
+			const currentGroup = groupsRef.current.find(g => Number(g.id) === Number(roomId));
+			const participants = currentGroup?.participants || [];
+
+			const formattedMessages: ChatMessage[] = rawMessages.map(msg => {
+				const member = participants.find(p => Number(p.user.id) === Number(msg.senderId));
+
+				return {
+					id: msg.id,
+					senderId: msg.senderId,
+					senderMail: msg.senderMail,
+					content: msg.content,
+					timestamp: msg.timestamp,
+					senderName: member ? member.user.name : '',
+					senderSurname: member ? member.user.surname : ''
+				};
+			});
+
+			setMessages(prev => ({
+				...prev,
+				[roomId]: formattedMessages
+			}));
+		}
+	};
 
 	const loadHistory = async (roomId: string, friendId: number) => {
 		if (!myUserId) return;
@@ -521,6 +573,7 @@ export const WebSocketProvider: React.FC<{ children: ReactNode }> = ({ children 
 			messages,
 			setMessages,
 			loadHistory,
+			loadGroupHistory,
 			myUserId,
             pendingRequests,
             acceptRequest,

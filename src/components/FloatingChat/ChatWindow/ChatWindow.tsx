@@ -83,13 +83,15 @@ export const ChatWindow = ({ isOpen, isDragging, pos, activeChat, friends, group
 				/>
 			) : (
 				<ChatWindowGroup
+					isOpen={isOpen}
 					group={group}
 					friends={friends}
 					scrollRef={scrollRef}
 					inputRef={inputRef}
 					currentMessages={currentMessages}
-					activeChat={activeChat}
+					activeChat={chatToDisplay}
 					setActiveChat={setActiveChat}
+					loadedRooms={loadedRooms}
 				/>
 			)}
 		</div>
