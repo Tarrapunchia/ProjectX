@@ -115,9 +115,10 @@ await server.register(cookie, {
 //   secret: process.env.COOKIE_SECRET, // opzionale, se si vuol usare signed cookies
 })
 
-await server.register(fastifyMetrics.default ?? fastifyMetrics, {
-  endpoint: '/metrics'
-})
+import status from "./helpers/status.js"
+await server.register(status)
+
+
 
 await server.register(formBody)
 await server.register(prismaPlugin)
