@@ -9,6 +9,7 @@ const allowedDocs: Record<string, string> = {
   frontend: "Frontend README",
   containers: "Containers README",
   database: "Database README",
+  main: "Main README",
 };
 
 function MarkdownDocPage() {
