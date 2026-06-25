@@ -1,7 +1,7 @@
 import { Link } from "react-router-dom";
 import "./docsPage.css";
 
-const docs = [
+const techDocs = [
   {
     slug: "backend",
     title: "Backend README",
@@ -13,13 +13,61 @@ const docs = [
     text: "React structure, routing, dashboard, components, and API calls.",
   },
   {
-    slug: "websocket",
-    title: "WebSocket README",
-    text: "Realtime chat, rooms, notifications, direct messages, and connection handling.",
+    slug: "containers",
+    title: "Containers README",
+    text: "How the project was containerized.",
   },
   {
     slug: "database",
     title: "Database README",
+    text: "Prisma models, relations, organizations, projects, tasks, chat, and files.",
+  },
+];
+
+const secDocs = [
+  {
+    slug: "description",
+    title: "Description README",
+    text: "Fastify architecture, Prisma, authentication, REST APIs, and data management.",
+  },
+  {
+    slug: "instructions",
+    title: "Instructions README",
+    text: "React structure, routing, dashboard, components, and API calls.",
+  },
+  {
+    slug: "resources",
+    title: "Resources README",
+    text: "How the project was containerized.",
+  },
+  {
+    slug: "teamInfo",
+    title: "Team Infos README",
+    text: "Prisma models, relations, organizations, projects, tasks, chat, and files.",
+  },
+  {
+    slug: "projManagemente",
+    title: "Project Management README",
+    text: "Prisma models, relations, organizations, projects, tasks, chat, and files.",
+  },
+  {
+    slug: "techStack",
+    title: "Technical Stack README",
+    text: "Prisma models, relations, organizations, projects, tasks, chat, and files.",
+  },
+  {
+    slug: "features",
+    title: "Features README",
+    text: "Prisma models, relations, organizations, projects, tasks, chat, and files.",
+  },
+  {
+    slug: "modules",
+    title: "Modules README",
+    text: "Prisma models, relations, organizations, projects, tasks, chat, and files.",
+  },
+  {
+    slug: "contributions",
+    title: "Individual Contributions README",
     text: "Prisma models, relations, organizations, projects, tasks, chat, and files.",
   },
 ];
@@ -46,7 +94,7 @@ function DocsPage() {
         </section>
 
         <section className="docs-grid">
-          {docs.map((doc) => (
+          {techDocs.map((doc) => (
             <Link key={doc.slug} to={`/docs/${doc.slug}`} className="docs-card">
               <span>README</span>
               <h2>{doc.title}</h2>
@@ -54,6 +102,24 @@ function DocsPage() {
             </Link>
           ))}
         </section>
+        <section className="docs-hero">
+            <br></br>
+            <h1>Sections README files</h1>
+            <p>
+                Here you can access the documentation pages rendered from Markdown files
+                stored inside the <code>public/docs</code> folder.
+            </p>
+        </section>
+
+        {/* <section className="docs-grid">
+          {docs.map((doc) => (
+            <Link key={doc.slug} to={`/docs/${doc.slug}`} className="docs-card">
+              <span>README</span>
+              <h2>{doc.title}</h2>
+              <p>{doc.text}</p>
+            </Link>
+          ))}
+        </section> */}
       </main>
     </div>
   );
