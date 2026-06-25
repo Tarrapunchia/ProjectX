@@ -1,10 +1,10 @@
 *This project has been created as part of the 42 curriculum by fzucconi, mchiaram, aosmenaj, gvigano.*
 
-# FT_TRANSCENDENCE — Collaborative Workspace Platform
+# Project X — Collaborative Workspace Platform
 
 ## Description
 
-**FT_TRANSCENDENCE** is a full-stack collaborative workspace platform built as the final Common Core project of the 42 curriculum. Instead of building a game-centered product, our team chose to design a productivity-oriented web application focused on **organizations, projects, tasks, events, files, chat, and real-time team collaboration**.
+**Project X** is a full-stack collaborative workspace platform built as the final Common Core project of the 42 curriculum. Instead of building a game-centered product, our team chose to design a productivity-oriented web application focused on **organizations, projects, tasks, events, files, chat, and real-time team collaboration**.
 
 The project combines a React frontend, a Fastify backend, a SQLite database managed through Prisma, WebSocket-driven real-time features, and containerized deployment. The main goal is to provide a centralized environment where users can:
 
