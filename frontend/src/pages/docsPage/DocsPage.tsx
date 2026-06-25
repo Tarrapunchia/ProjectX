@@ -1,7 +1,7 @@
 import { Link } from "react-router-dom";
 import "./docsPage.css";
 
-const docs = [
+const techDocs = [
   {
     slug: "backend",
     title: "Backend README",
@@ -13,14 +13,19 @@ const docs = [
     text: "React structure, routing, dashboard, components, and API calls.",
   },
   {
-    slug: "websocket",
-    title: "WebSocket README",
-    text: "Realtime chat, rooms, notifications, direct messages, and connection handling.",
+    slug: "containers",
+    title: "Containers README",
+    text: "How the project was containerized.",
   },
   {
     slug: "database",
     title: "Database README",
     text: "Prisma models, relations, organizations, projects, tasks, chat, and files.",
+  },
+  {
+    slug: "main",
+    title: "Project README",
+    text: "All in one.",
   },
 ];
 
@@ -46,13 +51,21 @@ function DocsPage() {
         </section>
 
         <section className="docs-grid">
-          {docs.map((doc) => (
+          {techDocs.map((doc) => (
             <Link key={doc.slug} to={`/docs/${doc.slug}`} className="docs-card">
               <span>README</span>
               <h2>{doc.title}</h2>
               <p>{doc.text}</p>
             </Link>
           ))}
+        </section>
+        <section className="docs-hero">
+            <br></br>
+            <h1>Sections README files</h1>
+            <p>
+                Here you can access the documentation pages rendered from Markdown files
+                stored inside the <code>public/docs</code> folder.
+            </p>
         </section>
       </main>
     </div>

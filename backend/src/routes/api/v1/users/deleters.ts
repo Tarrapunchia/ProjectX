@@ -66,6 +66,7 @@ const Deleters: FastifyPluginAsync = async (fastify: FastifyInstance) => {
       }
 
       try {
+        fastify.wsDisconnectUser?.(userId)
         await fastify.prisma.$transaction(async (tx) => {
           const friendshipIds = await tx.friendship.findMany({
             where: {

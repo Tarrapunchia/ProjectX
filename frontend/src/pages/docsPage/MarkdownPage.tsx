@@ -7,8 +7,9 @@ import "./docsPage.css";
 const allowedDocs: Record<string, string> = {
   backend: "Backend README",
   frontend: "Frontend README",
-  websocket: "WebSocket README",
+  containers: "Containers README",
   database: "Database README",
+  main: "Main README",
 };
 
 function MarkdownDocPage() {
@@ -84,7 +85,7 @@ function MarkdownDocPage() {
           {error && <div className="markdown-error">{error}</div>}
 
           {!error && !content && (
-            <div className="markdown-loading">Caricamento documento...</div>
+            <div className="markdown-loading">Loading...</div>
           )}
 
           {!error && content && (

@@ -5,8 +5,8 @@ import type { FriendshipStatus } from "@prisma/client";
 
 const Getters: FastifyPluginAsync = async (fastify: FastifyInstance, opts) => {
 
-        // GET /api/v1/friends
-        fastify.get<{
+    // GET /api/v1/friends
+    fastify.get<{
             Params: { status: FriendshipStatus }
         }>(
         '/:status',
@@ -19,7 +19,7 @@ const Getters: FastifyPluginAsync = async (fastify: FastifyInstance, opts) => {
                 return res.send({ error: 'You must be connected in order to see your friends list.'})
             } 
 
-            const [sent, received] = await Promise.all([
+            let [sent, received] = await Promise.all([
             fastify.prisma.friendship.findMany({
                 where: { senderId: userId, status: status },
                 include: {
@@ -33,6 +33,10 @@ const Getters: FastifyPluginAsync = async (fastify: FastifyInstance, opts) => {
                 },
             }),
             ])
+
+			if (status === 'BLOCKED') {
+                received = []; // Azzeriamo i blocchi subiti
+            }
 
             // deduplico
             const map = new Map<number, any>()

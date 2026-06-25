@@ -338,7 +338,7 @@ const Getters: FastifyPluginAsync = async (fastify: FastifyInstance, opts) => {
     )
 
         // GET /api/v1/users/search?username=foo
-        fastify.get<{
+fastify.get<{
             Querystring: { 'username': string; }
         }>(
         '/search',
@@ -355,17 +355,36 @@ const Getters: FastifyPluginAsync = async (fastify: FastifyInstance, opts) => {
                 })
             }
 
+            // 1. TROVA CHI MI HA BLOCCATO
+            // Cerchiamo le righe dove status Ã¨ BLOCKED e IO sono la vittima (receiverId)
+            const blocksReceived = await fastify.prisma.friendship.findMany({
+                where: {
+                    status: 'BLOCKED',
+                    receiverId: userId
+                },
+                select: { senderId: true }
+            })
+
+            // Array di ID delle persone che mi hanno bloccato
+            const usersWhoBlockedMe = blocksReceived.map((b) => b.senderId)
+
+            // 2. CERCA UTENTI
             const users = await fastify.prisma.user.findMany({
-                where: terms.length
-                ? {
-                    AND: terms.map((t) => ({
-                    OR: [
-                        { name: { startsWith: t } },
-                        { surname: { startsWith: t } },
-                        // { email: { contains: t } },
-                    ],
-                    })),
-                } : {}
+                where: {
+                    // ESCLUDI ME STESSO E CHI MI HA BLOCCATO
+                    id: { notIn: [userId, ...usersWhoBlockedMe] },
+                    
+                    // ... e aggiungi i termini di ricerca solo se ci sono
+                    ...(terms.length > 0 ? {
+                        AND: terms.map((t) => ({
+                        OR: [
+                            { name: { startsWith: t } },
+                            { surname: { startsWith: t } },
+                            // { email: { contains: t } },
+                        ],
+                        })),
+                    } : {})
+                }
             })
     
             const result = users?.map((u: any) => ({
