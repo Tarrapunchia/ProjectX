@@ -124,7 +124,8 @@ interface WebSocketContextType {
 	loadCalendar: () => Promise<void>;
 	alertThreshold: number; // Soglia in ore
   	updateAlertThreshold: (hours: number) => void;
-	activeUser: any | null; // L'oggetto profilo completo
+	activeUser: User | null; // L'oggetto profilo completo
+	setActiveUser: () => User | null;
     refreshUser: () => Promise<void>;
 
 	blockedUsers: Friend[]; // <--- NUOVO
@@ -141,7 +142,7 @@ export const WebSocketProvider: React.FC<{ children: ReactNode }> = ({ children 
 	const [friends, setFriends] = useState<Friend[]>([]);
 	const [groups, setGroups] = useState<Group[]>([]);
 	const [messages, setMessages] = useState<Record<string, ChatMessage[]>>({});
-	const [activeUser, setActiveUser] = useState<any | null>(null);
+	const [activeUser, setActiveUser] = useState<User | null>(null);
 	const [myUserId, setMyUserId] = useState<number | null>(null);
 	// const [chatNotifications, setChatNotifications] = useState<Record<string, {chatInfo: FloatingChatInfo; count: number}>>({});
 	const friendsRef = useRef<Friend[]>([]);
@@ -567,6 +568,10 @@ export const WebSocketProvider: React.FC<{ children: ReactNode }> = ({ children 
 					}
 				}
 
+				if (messageData.type === "user:blocked") {
+					setFriends(prev => prev.filter(f => f.id !== messageData.blockedById));
+				}
+
 			} catch (err) {
 				console.error("ws message error:", err);
 			}
@@ -671,6 +676,7 @@ export const WebSocketProvider: React.FC<{ children: ReactNode }> = ({ children 
 			alertThreshold, 
       		updateAlertThreshold,
 			activeUser,
+			setActiveUser,
             refreshUser,
 			blockedUsers,
 			loadBlockedUsers,
