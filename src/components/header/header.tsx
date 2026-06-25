@@ -1,10 +1,10 @@
-import { MOCK_USER } from '../data/mockData';
-import type { ProjectInfo } from '../data/types';
+import { MOCK_USER } from '../../data/mockData';
+import type { ProjectInfo } from '../../data/types';
 import { FiRepeat } from 'react-icons/fi';
 import { useEffect, useState } from 'react';
-import CONSTS from '../data/consts';
+import CONSTS from '../../data/consts';
 import SearchBar from './SearchBar';
-import ThemeToggle from './ThemeToggle';
+import { ProfileMenu } from './profileMenu';
 
 interface HeaderProps {
 	className?: string;
@@ -19,6 +19,7 @@ function Header({ setActivePage, selectedProject, className }: HeaderProps) {
     avatar: MOCK_USER.avatar 
 });
 	const [infoFetched, setInfoFetched] = useState<boolean>(false)
+	const [profileMenuOpen, setProfileMenuOpen] = useState(false);
 
 	useEffect(() => {
 		(async () => {
@@ -62,18 +63,24 @@ function Header({ setActivePage, selectedProject, className }: HeaderProps) {
 			<h1 className="flex-1 text-text-main min-w-0 truncate m-0 mr-12.5 text-[35px] font-bold leading-tight">
 				{selectedProject ? selectedProject.name : 'Dashboard'}
 			</h1>
-			<ThemeToggle />
 			<SearchBar activeUserId={userInfo.id}/>
-			<button 
-				onClick={() => setActivePage('profile')}
-				className="ml-auto mr-5 p-0! bg-transparent! border-none! cursor-pointer focus:outline-none! focus:border-none! active:border-none!"
-			>
-				<img 
-					src={infoFetched ? `${CONSTS.BE}/api/v1/users/${userInfo.id}/avatar` : MOCK_USER.avatar} 
-					alt="Foto profilo" 
-					className="w-12.5 h-12.5 rounded-full object-cover hover:scale-110 transition-transform duration-300 block"
-				/>
-			</button>
+			<div className="relative mr-2">
+				<button 
+					onClick={() => setProfileMenuOpen(!profileMenuOpen)}
+					className="flex items-center justify-center p-0! bg-transparent! border-none! cursor-pointer focus:outline-none! focus:border-none! active:border-none!"
+				>
+					<img 
+						src={infoFetched ? `${CONSTS.BE}/api/v1/users/${userInfo.id}/avatar` : MOCK_USER.avatar} 
+						alt="Foto profilo" 
+						className="w-12.5 h-12.5 rounded-full object-cover hover:scale-110 transition-transform duration-300 block"
+					/>
+				</button>
+				{ profileMenuOpen &&
+					<ProfileMenu
+						setActivePage={setActivePage}
+					/> 
+				}
+			</div>
 		</header>
 	);
 }

@@ -1,9 +1,9 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { FiSearch, FiFolder, FiLoader } from 'react-icons/fi';
-import helpers from '../utilities/helpers';
-import { useWebSocket } from "../utilities/WebSocketContext";
-import CONSTS from '../data/consts';
-import UserProfileModal, { type ModalUser } from '../pages/userProfilePageModal/userProfilePageModal';
+import helpers from '../../utilities/helpers';
+import { useWebSocket } from "../../utilities/WebSocketContext";
+import CONSTS from '../../data/consts';
+import UserProfileModal, { type ModalUser } from '../../pages/userProfilePageModal/userProfilePageModal';
 
 interface SearchBarProps {
     activeUserId: string | number | null;

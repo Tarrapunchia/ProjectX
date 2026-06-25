@@ -3,14 +3,39 @@ import consts from '../data/consts';
 import helpers from '../utilities/helpers';
 import type { CalendarEntries } from "../data/types";
 
+export interface User {
+	id: number;
+	name: string;
+	surname: string;
+	email: string;
+	phone: string;
+	jobQualifier: string;
+	isLoggedIn: boolean;
+	createdAt: Date;
+	updatedAt: Date;
+	avatar: string;
+	organizations: void;
+	projects: void;
+	city: string;
+	address: string;
+	cap: string;
+	state: string;
+}
+
 export interface Friend {
 	id: number;
 	name: string;
 	surname: string;
 	email: string;
-	jobQualifier: string;
-	isLoggedIn: boolean;
+	joinedAt: Date|null;
 	avatarUrl: string;
+	isLoggedIn: boolean;
+}
+
+export interface chatRoom {
+	id: number;
+	key: string;
+	type: string;
 }
 
 export interface GroupUser {
@@ -23,9 +48,6 @@ export interface GroupUser {
 }
 
 export interface Participant {
-	userId: number;
-	groupId: number;
-	createdAt: string;
 	user: GroupUser;
 }
 
@@ -33,13 +55,16 @@ export interface Group {
 	id: string;
 	name: string;
 	description: string;
-	createdAt: Date;
+	createdAt: Date | null;
 	closedAt: string | null;
+	joinedAt: Date | null;
 	participants: Participant[];
+	chatRoom: chatRoom;
 }
 
 export interface FloatingChatInfo {
 	roomId: string;
+	roomKey: string|null;
 	senderMail: string;
 	type: 'private' | 'group';
 }
@@ -47,6 +72,8 @@ export interface FloatingChatInfo {
 export interface ChatMessage {
 	id: number | string;
 	senderId: number;
+	senderName?: string;
+	senderSurname?: string;
 	senderMail?: string;
 	content: string;
 	timestamp: string | number;
@@ -80,11 +107,13 @@ interface WebSocketContextType {
 	closeFloatingChat: (roomId: string) => void;
 	friends: Friend[];
 	groups: Group[];
+	setGroups: (value: Group[]) => void;
 	loadGroups: () => Promise<void>;
 
 	messages: Record<string, ChatMessage[]>;
 	setMessages: React.Dispatch<React.SetStateAction<Record<string, ChatMessage[]>>>;
 	loadHistory: (roomId: string, friendId: number) => Promise<void>;
+	loadGroupHistory: (roomKey: string, roomId: string) => Promise<void>;
 	myUserId: number | null;
 
 	pendingRequests: PendingRequest[];
@@ -114,8 +143,10 @@ export const WebSocketProvider: React.FC<{ children: ReactNode }> = ({ children 
 	const [messages, setMessages] = useState<Record<string, ChatMessage[]>>({});
 	const [activeUser, setActiveUser] = useState<any | null>(null);
 	const [myUserId, setMyUserId] = useState<number | null>(null);
+	// const [chatNotifications, setChatNotifications] = useState<Record<string, {chatInfo: FloatingChatInfo; count: number}>>({});
 	const friendsRef = useRef<Friend[]>([]);
-	const [pendingRequests, setPendingRequests] = useState<PendingRequest[]>([]);
+	const groupsRef = useRef<Group[]>([]);
+	const [pendingRequests, setPendingRequests] = useState<FriendRequest[]>([]);
 	const [calendarEntries, setCalendarEntries] = useState<CalendarEntries | null>(null);
 	const [blockedUsers, setBlockedUsers] = useState<Friend[]>([]);
 
@@ -212,8 +243,10 @@ export const WebSocketProvider: React.FC<{ children: ReactNode }> = ({ children 
 	const loadGroups = async () => {
 		const response = await helpers.getter('/api/v1/groups/joined', null);
 		if (response.success) {
-			const joinedGroups: Group[] = response.data.groups.map((item: any) => item.group);
+			const joinedGroups: Group[] = response.data.groups;
+			console.log(joinedGroups);
 			setGroups(joinedGroups);
+			console.log("load groups response success");
 		}
 	};
 
@@ -226,6 +259,7 @@ export const WebSocketProvider: React.FC<{ children: ReactNode }> = ({ children 
     };
 
 	const openFloatingChat = (chat: FloatingChatInfo) => {
+		console.log(chat);
 		setFloatingChats(prev => {
 			if (prev.find(c => c.roomId === chat.roomId)) {
 				prev = prev.filter(c => c.roomId !== chat.roomId)
@@ -253,8 +287,11 @@ export const WebSocketProvider: React.FC<{ children: ReactNode }> = ({ children 
 
 				const groupRes = await helpers.getter('/api/v1/groups/joined', null);
 				if (groupRes.success) {
-					const joinedGroups: Group[] = groupRes.data.groups.map((item: any) => item.group);
+					const joinedGroups: Group[] = groupRes.data.groups;
+					console.log("AAAAAAAAAAAAAA");
+					console.log(groupRes.data.groups);
 					setGroups(joinedGroups);
+					console.log(groups);
 				}
 			}
 		};
@@ -265,6 +302,10 @@ export const WebSocketProvider: React.FC<{ children: ReactNode }> = ({ children 
 	useEffect(() => {
 		friendsRef.current = friends;
 	}, [friends]);
+
+	useEffect(() => {
+		groupsRef.current = groups;
+	}, [groups]);
 
 	useEffect(() => {
 		if (myUserId === null) return;
@@ -283,6 +324,8 @@ export const WebSocketProvider: React.FC<{ children: ReactNode }> = ({ children 
 			try 
 			{
 				const messageData = JSON.parse(event.data);
+
+				console.log(messageData.type);
 
 				if (["task:updated", "task:created", "event:updated", "event:created"].includes(messageData.type)) 
 				{
@@ -320,11 +363,128 @@ export const WebSocketProvider: React.FC<{ children: ReactNode }> = ({ children 
                     setPendingRequests(prev => prev.filter(r => r.id !== messageData.requestId));
 				
 				if (messageData.type === "presence") {
+					const targetUserId = messageData.payload.userId;
+					const isConnected = messageData.payload.connected;
+
 					setFriends(prev => prev.map(f =>
-						f.id === messageData.payload.userId
-						? { ...f, isLoggedIn: messageData.payload.connected}
+						Number(f.id) === Number(targetUserId)
+						? { ...f, isLoggedIn: isConnected}
 						: f
 					));
+
+					setGroups(prev => prev.map(g => {
+						const updatedParticipants = g.participants.map(p => {
+							if (Number(p.user.id) === Number(targetUserId)) {
+								return {
+									...p,
+									user: {
+										...p.user,
+										isLoggedIn: isConnected
+									}
+								};
+							}
+							return p;
+						});
+						return {
+							...g,
+							participants: updatedParticipants
+						};
+					}));
+				}
+
+				if (messageData.type === "group:participant:added" && messageData.addedUserId !== myUserId)
+				{
+					const { groupId, addedUserId } = messageData;
+
+					if (groupId && addedUserId) {
+						(async () => {
+							try {
+								const response = await helpers.getter(`/api/v1/users/${addedUserId}/profile`, null);
+
+								if (response && response.success) {
+									const userData: User = response.data;
+
+									const newGroupUser: GroupUser = {
+										id: userData.id,
+										name: userData.name,
+										surname: userData.surname,
+										email: userData.email,
+										avatarUrl: userData.avatar,
+										isLoggedIn: userData.isLoggedIn
+									};
+
+									const newParticipant: Participant = {
+										user: newGroupUser
+									};
+
+									setGroups(prevGroups => {
+										return prevGroups.map(g => {
+											if (g.id === groupId) {
+												if (g.participants.some(p => p.user.id === addedUserId))
+													return g;
+												
+												return {
+													...g,
+													participants: [...g.participants, newParticipant]
+												};
+											}
+											return g;
+										});
+									});
+								}
+							} catch (err) {
+								console.error("Error in adding participant via WS", err);
+							}
+						})();
+					}
+				}
+
+				if (messageData.type === "group:joined")
+				{
+					const groupId = messageData.groupId;
+
+					if (groupId) {
+						(async () => {
+							try {
+								const response = await helpers.getter(`/api/v1/groups/${groupId}`, null);
+
+								if (response && response.success) {
+									const newGroup: Group = response.data;
+
+									setGroups(prev => {
+										if (prev.some(g => g.id === newGroup.id))
+											return prev;
+
+										return [...prev, newGroup];
+									});
+								}
+							} catch (err) {
+								console.error("Error in adding new group to list", err);
+							}
+						})();
+					}
+				}
+
+				if (messageData.type === "group:invitation:leave")
+				{
+					const { groupId, acceptedByUserId } = messageData;
+
+					console.log(messageData);
+					console.log(groupId);
+					console.log(acceptedByUserId);
+					if (groupId && acceptedByUserId) {
+						setGroups(prev => {
+							return prev.map(g => {
+								if (g.id === groupId){
+									return {
+										...g,
+										participants: g.participants.filter(p => Number(p.user.id) !== Number(acceptedByUserId))
+									}
+								}
+								return g;
+							})
+						})
+					}
 				}
 
 				if (messageData.type === "chat:message") {
@@ -342,6 +502,7 @@ export const WebSocketProvider: React.FC<{ children: ReactNode }> = ({ children 
 					if (friend) {
 						openFloatingChat({
 							roomId,
+							roomKey: null,
 							senderMail: friend.email,
 							type: 'private'
 						});
@@ -358,6 +519,52 @@ export const WebSocketProvider: React.FC<{ children: ReactNode }> = ({ children 
 						...prev,
 						[roomId]: [...(prev[roomId] || []), newMessage]
 					}));
+				}
+
+				if (messageData.type === "room:message") {
+					console.log(messageData)
+					const roomKey = messageData.roomId;
+					const fromUserId = messageData.fromUserId;
+
+					if (roomKey && fromUserId) {
+						const roomId = roomKey.split(":")[1];
+						const group = groupsRef.current.find(g => Number(g.id) === Number(roomId));
+
+						(async () => {
+							try {
+								const response = await helpers.getter(`/api/v1/users/${fromUserId}/profile`, null);
+
+								if (response && response.success && group) {
+									const senderUser: User = response.data;
+
+									const newChat: FloatingChatInfo = {
+										roomId,
+										roomKey,
+										senderMail: group.name,
+										type: 'group'
+									}
+									openFloatingChat(newChat);
+
+									const newMessage: ChatMessage = {
+										id: Date.now(),
+										senderId: senderUser.id,
+										content: messageData.payload.text,
+										timestamp: messageData.ts,
+										senderName: senderUser.name,
+										senderSurname: senderUser.surname,
+										senderMail: senderUser.email
+									}
+
+									setMessages(prev => ({
+										...prev,
+										[roomId]: [...(prev[roomId] || []), newMessage]
+									}));
+								}
+							} catch (err) {
+								console.error("Error in retrieving chat room messages", err);
+							}
+						})();
+					}
 				}
 
 			} catch (err) {
@@ -378,6 +585,39 @@ export const WebSocketProvider: React.FC<{ children: ReactNode }> = ({ children 
 		};
 	}, [myUserId]);
 
+	const loadGroupHistory = async (roomKey: string, roomId: string) => {
+		if (!roomId) return;
+
+		const responseHistory = await helpers.getter(`/api/v1/messages/roomHistory?roomKey=${roomKey}`, null);
+
+		console.log(responseHistory);
+		if (responseHistory.success && responseHistory.data) {
+			const rawMessages: any[] = responseHistory.data.messages || [];
+
+			const currentGroup = groupsRef.current.find(g => Number(g.id) === Number(roomId));
+			const participants = currentGroup?.participants || [];
+
+			const formattedMessages: ChatMessage[] = rawMessages.map(msg => {
+				const member = participants.find(p => Number(p.user.id) === Number(msg.senderId));
+
+				return {
+					id: msg.id,
+					senderId: msg.senderId,
+					senderMail: msg.senderMail,
+					content: msg.content,
+					timestamp: msg.timestamp,
+					senderName: member ? member.user.name : '',
+					senderSurname: member ? member.user.surname : ''
+				};
+			});
+
+			setMessages(prev => ({
+				...prev,
+				[roomId]: formattedMessages
+			}));
+		}
+	};
+
 	const loadHistory = async (roomId: string, friendId: number) => {
 		if (!myUserId) return;
 
@@ -395,6 +635,7 @@ export const WebSocketProvider: React.FC<{ children: ReactNode }> = ({ children 
 	};
 
 	const send = (data: any) => {
+		console.log(data);
 		if (socket && socket.readyState === WebSocket.OPEN)
 			socket.send(JSON.stringify(data));
 		else
@@ -415,10 +656,12 @@ export const WebSocketProvider: React.FC<{ children: ReactNode }> = ({ children 
 			closeFloatingChat,
 			friends,
 			groups,
+			setGroups,
 			loadGroups,
 			messages,
 			setMessages,
 			loadHistory,
+			loadGroupHistory,
 			myUserId,
             pendingRequests,
             acceptRequest,

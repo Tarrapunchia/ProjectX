@@ -84,21 +84,10 @@
 
 
 ## Fixes
+* sistemare team chat: quando si riceve un messaggio non printa la mail del sender
+
+## Per Fabio
 
 * avatarUrl sui gruppi per personalizzare l'immagine del gruppo
 
-* capire quale id utilizzare per mandare un messaggio e scaricare la history di una chat di gruppo
-
-* sistemare team chat: quando si riceve un messaggio non printa la mail del sender
-
-* aggiungere nel messaggio, che viene mandato ad entrambi gli utenti quando viene accettata la richiesta di amicizia, i dati degli utenti sotto forma di:
-
-export interface Friend {
-	id: number;
-	name: string;
-	surname: string;
-	email: string;
-	jobQualifier: string;
-	isLoggedIn: boolean;
-	avatarUrl: string;
-}
+* senderName e senderSurname all'interno dei messaggi di gruppo salvati sul server
