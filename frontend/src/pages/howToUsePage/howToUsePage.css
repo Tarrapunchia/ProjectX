@@ -25,6 +25,134 @@
   line-height: 1.65;
 }
 
+.howto-page {
+  min-height: 100vh;
+  background: var(--color-bg);
+  color: var(--color-text);
+}
+
+/* HEADER / NAVBAR */
+
+.howto-page .howto-navbar {
+  min-height: 72px;
+  padding: 0 7vw;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: var(--color-side-bg);
+  border-bottom: 1px solid var(--color-overlay-border);
+}
+
+.howto-page .howto-logo {
+  color: var(--color-owner);
+  font-weight: 900;
+  letter-spacing: 0.22em;
+  text-decoration: none;
+}
+
+.howto-page .howto-navbar nav {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+}
+
+.howto-page .howto-navbar a {
+  color: var(--color-text);
+  text-decoration: none;
+}
+
+.howto-page .howto-navbar a:hover {
+  color: var(--color-owner);
+}
+
+/* MAIN */
+
+.howto-page .howto-main {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 56px 20px 80px;
+}
+
+/* HERO */
+
+.howto-page .howto-hero {
+  margin-bottom: 32px;
+}
+
+.howto-page .howto-eyebrow {
+  color: var(--color-owner);
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 0.16em;
+  font-size: 0.78rem;
+  margin-bottom: 12px;
+}
+
+.howto-page .howto-hero h1 {
+  margin: 0 0 14px;
+  font-size: clamp(2.2rem, 5vw, 4.4rem);
+  letter-spacing: -0.05em;
+  line-height: 1.05;
+  color: var(--color-text);
+}
+
+.howto-page .howto-hero p {
+  max-width: 760px;
+  color: color-mix(in srgb, var(--color-text) 72%, transparent);
+  line-height: 1.6;
+}
+
+/* STEPS */
+
+.howto-page .howto-steps {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 18px;
+}
+
+.howto-page .howto-step,
+.howto-page .howto-tip {
+  padding: 24px;
+  border-radius: 18px;
+  border: 1px solid var(--color-overlay-border);
+  background: var(--color-side-bg);
+}
+
+.howto-page .howto-step h2,
+.howto-page .howto-tip h2 {
+  margin: 0 0 10px;
+  color: var(--color-owner);
+}
+
+.howto-page .howto-step p,
+.howto-page .howto-tip p {
+  margin: 0;
+  color: color-mix(in srgb, var(--color-text) 74%, transparent);
+  line-height: 1.65;
+}
+
+.howto-page .howto-tip {
+  margin-top: 24px;
+}
+
+@media (max-width: 760px) {
+  .howto-page .howto-navbar {
+    padding: 0 18px;
+  }
+
+  .howto-page .howto-navbar nav {
+    gap: 12px;
+  }
+
+  .howto-page .howto-main {
+    padding: 40px 18px 64px;
+  }
+
+  .howto-page .howto-steps {
+    grid-template-columns: 1fr;
+  }
+}
+
 .howto-tip {
   margin-top: 24px;
 }

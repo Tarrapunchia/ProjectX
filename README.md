@@ -292,7 +292,6 @@ The subject requires at least **14 points** in validated modules. We kept the mo
 | Web | Allow users to interact with other users | Major | 2 | The project includes chat, profiles, and a friendship system | Fabio, Manuel, Ansi |
 | Web | Use an ORM for the database | Minor | 1 | Prisma is used throughout the backend | Fabio |
 | Web | File upload and management system | Minor | 1 | Upload, preview, download, and delete flows are implemented with access checks | Fabio, Ansi, Manuel |
-| Web |  Custom-made design system with reusable components | Minor | 1 | All done with custom components | Ansi, Manuel |
 | Web |  Implement advanced search functionality | Minor | 1 | For events, specifically | Ansi, Manuel, Fabio |
 | Web |  A complete notification system for all actions | Minor | 1 | GET, POST, PUT, DELETES | Fabio |
 | Accessibility and Internationalization | Support for at least 2 additional browser - Chrome, Firefox, Brave - | Minor | 1 | Full compatibility with at least 2 additional browsers  | Manuel, Ansi |
@@ -305,10 +304,8 @@ The subject requires at least **14 points** in validated modules. We kept the mo
 
 ### Total
 
-**20 points total**
+**19 points total**
 
-- **Mandatory threshold:** 14 points
-- **Claimed total:** 20 points
 
 ### Modules deliberately not claimed
 

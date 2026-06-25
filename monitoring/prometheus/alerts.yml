@@ -1,0 +1,29 @@
+groups:
+  - name: backend-alerts
+    rules:
+      - alert: BackendDown
+        expr: up{job="backend"} == 0
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Backend down"
+          description: "Prometheus cannot reache the backend since 1 minute ago."
+
+      - alert: BackendHighMemory
+        expr: process_resident_memory_bytes{job="backend"} > 300000000
+        for: 2m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Backend memory usage high"
+          description: "Backend is using more than 300Mb for more than two minutes."
+
+      - alert: BackendEventLoopLagHigh
+        expr: nodejs_eventloop_lag_seconds{job="backend"} > 0.2
+        for: 1m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Event loop lag high"
+          description: "The response from the nodejs server takes more than 0.2 for more than 1 minute."

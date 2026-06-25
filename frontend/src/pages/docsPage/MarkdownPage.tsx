@@ -5,11 +5,10 @@ import remarkGfm from "remark-gfm";
 import "./docsPage.css";
 
 const allowedDocs: Record<string, string> = {
+  main: "Main README",
   backend: "Backend README",
   frontend: "Frontend README",
   containers: "Containers README",
-  database: "Database README",
-  main: "Main README",
 };
 
 function MarkdownDocPage() {
