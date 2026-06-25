@@ -90,4 +90,7 @@
 
 * avatarUrl sui gruppi per personalizzare l'immagine del gruppo
 
-* senderName e senderSurname all'interno dei messaggi di gruppo salvati sul server
+* Quando un utente viene bloccato mandare dal server un messaggio all'utente bloccato: type: user:blocked, data: blockedById (id dell'utente bloccante)
+if (messageData.type === "user:blocked") {
+					setFriends(prev => prev.filter(f => f.id !== messageData.blockedById));
+				}
