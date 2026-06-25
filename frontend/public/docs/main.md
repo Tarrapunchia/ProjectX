@@ -300,8 +300,7 @@ The subject requires at least **14 points** in validated modules. We kept the mo
 | User Management | Remote authentication with OAuth 2.0 | Minor | 1 | Google OAuth flow is implemented server-side and integrated into the UI | Fabio, Manuel, Ansi |
 | User Management | Advanced permissions system | Major | 2 | Role-based project access with `OWNER / EDITOR / VIEWER` and permission checks is implemented | Fabio, Manuel, Ansi |
 | User Management | Organization system | Major | 2 | Organizations, memberships, invitations, and organization-scoped actions are implemented | Fabio, Manuel, Ansi |
-| User Experience | Advanced chat features, enhances the basic chat from "User interaction"
-module | Minor | 1 | Ability to block users from messaging you, chat history persistence | Fabio, Manuel, Ansi, Giulia |
+| User Experience | Advanced chat features, enhances the basic chat from "User interaction" | Minor | 1 | Ability to block users from messaging you, chat history persistence | Fabio, Manuel, Ansi, Giulia |
 
 
 ### Total
@@ -316,9 +315,6 @@ module | Minor | 1 | Ability to block users from messaging you, chat history per
 To remain honest and evaluation-safe, the README does **not** claim some partially related features as full modules:
 
 - **Public API with secured API key**: the codebase contains Swagger documentation, REST endpoints, and route-level rate limiting, but the API-key hardening requirement is not claimed as completed.
-- **Complete notification system for all CRUD actions**: notification features exist, but we do not present them as a full platform-wide CRUD notification module.
-- **Advanced analytics dashboard**: the dashboard includes charts and calendar-based insights, but we do not claim the full major analytics module because the subject requires export features and broader filtering/date-range support.
-- **Advanced search**: several search/filter flows exist, but we do not claim the dedicated module because pagination and broader search scope are not fully generalized.
 
 ---
 
