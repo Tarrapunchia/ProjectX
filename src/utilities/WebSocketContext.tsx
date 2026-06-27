@@ -327,6 +327,7 @@ export const WebSocketProvider: React.FC<{ children: ReactNode }> = ({ children 
 				const messageData = JSON.parse(event.data);
 
 				console.log(messageData.type);
+				console.log(JSON.stringify(messageData, null, 2));
 
 				if (["task:updated", "task:created", "event:updated", "event:created"].includes(messageData.type)) 
 				{
@@ -395,13 +396,12 @@ export const WebSocketProvider: React.FC<{ children: ReactNode }> = ({ children 
 
 				if (messageData.type === "group:participant:added" && messageData.addedUserId !== myUserId)
 				{
-					const { groupId, addedUserId } = messageData;
+					const { groupId, addedUserId, addedByUserId } = messageData;
 
 					if (groupId && addedUserId) {
 						(async () => {
 							try {
 								const response = await helpers.getter(`/api/v1/users/${addedUserId}/profile`, null);
-
 								if (response && response.success) {
 									const userData: User = response.data;
 
@@ -418,6 +418,8 @@ export const WebSocketProvider: React.FC<{ children: ReactNode }> = ({ children 
 										user: newGroupUser
 									};
 
+									const currentGroup = groupsRef.current.find(g => g.id === groupId);
+									const adder = currentGroup?.participants.find(p => Number(p.user.id) === Number(addedByUserId));
 									setGroups(prevGroups => {
 										return prevGroups.map(g => {
 											if (g.id === groupId) {
@@ -432,6 +434,19 @@ export const WebSocketProvider: React.FC<{ children: ReactNode }> = ({ children 
 											return g;
 										});
 									});
+
+									if (adder) {
+										const newMessage: ChatMessage = {
+											id: Date.now(),
+											senderId: 0,
+											content: `${adder.user.name} ${adder.user.surname.charAt(0)}. ha aggiunto ${newGroupUser.name} ${newGroupUser.surname}`,
+											timestamp: Date.now()
+										}
+										setMessages(prev => ({
+											...prev,
+											[groupId]: [...(prev[groupId] || []), newMessage]
+										}));
+									}
 								}
 							} catch (err) {
 								console.error("Error in adding participant via WS", err);
@@ -470,10 +485,27 @@ export const WebSocketProvider: React.FC<{ children: ReactNode }> = ({ children 
 				{
 					const { groupId, acceptedByUserId } = messageData;
 
-					console.log(messageData);
-					console.log(groupId);
-					console.log(acceptedByUserId);
 					if (groupId && acceptedByUserId) {
+						(async () => {
+							try {
+								const targetUser = await helpers.getter(`/api/v1/users/${acceptedByUserId}/profile`, null);
+								if (targetUser && targetUser.success) {
+									const newMessage: ChatMessage = {
+										id: Date.now(),
+										senderId: 0,
+										content: `${targetUser.data.name} ${targetUser.data.surname} ha lasciato il gruppo`,
+										timestamp: Date.now()
+									}
+									setMessages(prev => ({
+										...prev,
+										[groupId]: [...(prev[groupId] || []), newMessage]
+									}));
+								}
+							} catch (err) {
+								console.error("Error in retrieving user", err);
+							}
+						})();
+
 						setGroups(prev => {
 							return prev.map(g => {
 								if (g.id === groupId){
@@ -484,7 +516,7 @@ export const WebSocketProvider: React.FC<{ children: ReactNode }> = ({ children 
 								}
 								return g;
 							})
-						})
+						});
 					}
 				}
 

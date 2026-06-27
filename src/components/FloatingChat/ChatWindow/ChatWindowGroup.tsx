@@ -38,7 +38,7 @@ export const ChatWindowGroup = ({ isOpen, group, friends, scrollRef, inputRef, a
 		const newMessage: ChatMessage = {
 			id: `temp-${Date.now()}`,
 			senderId: myUserId,
-			senderMail: activeUser.email,
+			senderMail: activeUser?.email,
 			content: text,
 			timestamp: Date.now()
 		};
@@ -118,8 +118,11 @@ export const ChatWindowGroup = ({ isOpen, group, friends, scrollRef, inputRef, a
 						{currentMessages.length > 0 ? (
 							currentMessages.map((msg) => {
 								const isMe = msg.senderId === myUserId;
-
-								return (
+								return msg.senderId === 0 ? (
+									<div key={msg.id} className="flex items-center justify-center w-full text-sm text-text-main/70">
+										{msg.content}
+									</div>
+								) : (
 									<div key={msg.id} className={`flex flex-col
 										${isMe ? 'items-end' : 'items-start'}`}>
 										{!isMe && (
@@ -132,7 +135,7 @@ export const ChatWindowGroup = ({ isOpen, group, friends, scrollRef, inputRef, a
 											{msg.content}
 										</div>
 									</div>
-								);
+								)
 							})
 						) : (
 							<div className="flex flex-col items-center justify-center h-full opacity-20 text-center">
