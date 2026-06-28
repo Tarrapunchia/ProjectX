@@ -32,17 +32,13 @@ function SignUp()
 			const surname = surnameRef.current?.value
 			const passwordRepeat = reapetedpwRef.current?.value
             const isTermsAccepted = termsRef.current?.checked;
-            //Segnalare che sono obbligatori anche se non dovrebbero
-			const rand2 = Math.floor(Math.random() * 90) + 10;
-            const phone = `+1234567${rand2}`;
-			const jobQualifier = "developer"
 
             if (!isTermsAccepted) {
                 setError("Please accept our terms and conditions");
                 return;
             }
             
-			const response = await helpers.poster(signUp_URL, { email, password, name, surname, passwordRepeat, phone, jobQualifier });
+			const response = await helpers.poster(signUp_URL, { email, password, name, surname, passwordRepeat});
 
 			if (!response.success) 
 			{
