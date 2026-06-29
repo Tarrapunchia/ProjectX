@@ -10,8 +10,8 @@ const Posters: FastifyPluginAsync = async (fastify: FastifyInstance, opts) => {
             name: string
             surname: string
             email: string
-            phone?: string | null
-            jobQualifier?: string | null
+            phone: string
+            jobQualifier: string
             password: string
             passwordRepeat: string
             city?: string | null
@@ -38,7 +38,7 @@ const Posters: FastifyPluginAsync = async (fastify: FastifyInstance, opts) => {
             } = req.body
 
             // validazione (minima)
-            if (!name || !surname || !email || !password || !passwordRepeat) {
+            if (!name || !surname || !email || !phone || !jobQualifier || !password || !passwordRepeat) {
             res.code(400)
             return { error: 'All fields are required' }
             }
@@ -58,8 +58,8 @@ const Posters: FastifyPluginAsync = async (fastify: FastifyInstance, opts) => {
                 name,
                 surname,
                 email,
-                phone: phone ?? null,
-                jobQualifier: jobQualifier ?? null,
+                phone,
+                jobQualifier,
                 hashedPw,
                 city: city ?? null,
                 address: address ?? null,

@@ -233,9 +233,9 @@ const createUser: Schema = {
         properties: {
         name: { type: 'string', description: 'first name' },
         surname: { type: 'string', description: 'last name' },
-        email: { type: 'string', format: 'email', description: 'email'},
-        phone: { type: 'string', description: 'phone number', nullable: true  },
-        jobQualifier: { type: 'string', description: 'job qualifier', nullable: true },
+        email: { type: 'string', format: 'email', description: 'email' },
+        phone: { type: 'string', description: 'phone number' },
+        jobQualifier: { type: 'string', description: 'job qualifier' },
 
         password: { type: 'string', description: 'password (plain for now, you hash it server-side)' },
         passwordRepeat: { type: 'string', description: 'repeat password' },
