@@ -20,12 +20,18 @@
     "@schedule-x/react": "^4.1.0",
     "@schedule-x/theme-default": "^4.3.1",
     "chart.js": "^4.5.1",
+    "date-fns": "^4.4.0",
+    "i18next": "^26.3.3",
+    "i18next-browser-languagedetector": "^8.2.1",
+    "i18next-http-backend": "^4.0.0",
     "lucide-react": "^1.20.0",
     "moment": "^2.30.1",
     "react": "^19.2.0",
     "react-big-calendar": "^1.19.4",
     "react-chartjs-2": "^5.3.1",
+    "react-datepicker": "^9.1.0",
     "react-dom": "^19.2.0",
+    "react-i18next": "^17.0.8",
     "react-icons": "^5.5.0"
   },
   "devDependencies": {

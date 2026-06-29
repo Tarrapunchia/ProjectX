@@ -1,0 +1,256 @@
+{
+  "calendar": {
+    "loading": "Cargando calendario...",
+    "modal": {
+      "start": "Inicio",
+      "status": "Estado",
+      "type": "Tipo",
+      "description": "Descripción",
+      "modify": "Modificar",
+      "delete": "Eliminar",
+      "deleting": "Eliminando...",
+      "close": "Cerrar"
+    }
+  },
+
+  "dashboard": {
+    "create_event": "Crear Evento",
+    "loading": "Cargando...",
+    "error_fetching": "Error al cargar las tareas",
+    "profile_updated": "¡Perfil actualizado!",
+    "avatar_upload_success": "¡Carga de avatar exitosa!",
+    "avatar_upload_failed": "Error al cargar el avatar"
+  },
+
+  "priority_chart": {
+    "title": "Distribución de Prioridad",
+    "empty": "Nada que mostrar todavía.",
+    "status": "Estado",
+    "no_description": "Sin descripción.",
+    "priority": "Prioridad",
+    "no_tasks": "No hay tareas para estas prioridades"
+  },
+
+  "notifications": {
+    "title": "Notificaciones",
+    "requests": "Solicitudes",
+    "activity": "Actividad y Alertas",
+    "friend_request": "{{name}} {{surname}} te envió una solicitud de amistad",
+    "org_invite": "{{name}} {{surname}} te invitó a {{orgName}}",
+    "someone": "Alguien",
+    "an_org": "una organización",
+    "accept": "Aceptar",
+    "decline": "Rechazar",
+    "deadline_title": "Fecha límite próxima",
+    "deadline_msg": "¡La tarea \"{{name}}\" vence pronto!",
+    "event_title": "Evento próximo",
+    "event_msg": "¡El evento \"{{name}}\" está por comenzar!",
+    "no_alerts": "No hay alertas urgentes por ahora."
+  },
+
+  "documents": {
+    "select_project": "Selecciona un proyecto.",
+    "project_documents": "Documentos del Proyecto",
+    "upload_file": "Subir Nuevo Archivo",
+    "no_preview": "Sin vista previa",
+    "no_documents": "No hay documentos para mostrar en este proyecto.",
+    "delete_confirm": "¿Estás seguro de que quieres eliminar {{fileName}}?",
+    "delete_error": "Error durante la eliminación",
+    "delete_button": "Eliminar Archivo",
+    "download_button": "Descargar Archivo"
+  },
+
+  "create_event_modal": {
+    "title": "Nuevo Evento",
+    "placeholder_title": "Título del evento",
+    "type_none": "Ninguno 😶",
+    "type_meeting": "Reunión 🤝",
+    "type_call": "Llamada 📞",
+    "type_conference": "Conferencia 🏛️",
+    "type_generic": "Genérico 📅",
+    "description": "Descripción...",
+    "search_friend": "Buscar amigo por nombre...",
+    "no_friends": "No se encontraron amigos...",
+    "participants": "Participantes ({{count}})",
+    "no_participants": "Selecciona amigos usando la barra de búsqueda de arriba",
+    "creating": "Creando...",
+    "create": "Crear Evento",
+    "error": "Error: ",
+	"select_date": "Seleccionar fecha y hora"
+  },
+
+  "modify_event_modal": {
+    "title": "Modificar Evento",
+    "placeholder_title": "Título del evento",
+    "type_none": "Ninguno 😶",
+    "type_meeting": "Reunión 🤝",
+    "type_call": "Llamada 📞",
+    "type_conference": "Conferencia 🏛️",
+    "type_generic": "Genérico 📅",
+    "description": "Descripción...",
+    "search_friend": "Buscar amigo por nombre...",
+    "no_friends": "No se encontraron amigos...",
+    "participants": "Participantes ({{count}})",
+    "no_participants": "Selecciona amigos usando la barra de búsqueda de arriba",
+    "updating": "Actualizando...",
+    "update": "Actualizar Evento",
+    "error": "Error: "
+  },
+
+  "library": {
+    "select_project": "Selecciona un proyecto.",
+    "project_files": "Archivos del Proyecto",
+    "upload_file": "Subir Nuevo Archivo",
+    "no_files": "No hay archivos para mostrar en este proyecto.",
+    "file_name": "Nombre del Archivo",
+    "created_by": "Creado por",
+    "date_created": "Fecha de Creación",
+    "extension": "Extensión",
+    "size": "Tamaño",
+    "delete_confirm": "¿Estás seguro de que quieres eliminar {{fileName}}?",
+    "delete_error": "Error durante la eliminación",
+    "delete_button": "Eliminar Archivo",
+    "download_button": "Descargar Archivo"
+  },
+
+  "login": {
+    "title": "¡Inicia sesión in tu cuenta!",
+    "google_btn": "Iniciar sesión con Google",
+    "or": "O",
+    "placeholder_email": "Correo electrónico",
+    "placeholder_password": "Contraseña",
+    "forgot_password": "¿Has olvidado tu contraseña?",
+    "not_member": "¿Aún no eres miembro?",
+    "signup_link": "¡Regístrate!",
+    "login_btn": "Iniciar sesión",
+    "err_wrong_credentials": "Correo electrónico o contraseña incorrectos",
+    "err_server": "Error del servidor"
+  },
+
+  "profile_completion": {
+    "welcome": "¡Bienvenido!",
+    "title": "Finaliza tu perfil profesional",
+    "subtitle": "Por favor, proporciona los siguientes detalles para mejorar tu experiencia.",
+    "step_counter": "Paso {{current}} de {{total}}",
+    "avatar_click_info": "Haz clic en la imagen para subir una foto de perfil",
+    "btn_back": "Atrás",
+    "btn_save": "Guardar y continuar",
+    "btn_skip": "Omitir",
+    "btn_next": "Siguiente paso",
+    "labels": {
+      "avatarFile": "Foto de Perfil",
+      "jobQualifier": "Profesión",
+      "phone": "Número de Teléfono",
+      "city": "Ciudad",
+      "address": "Dirección de Residencia",
+      "cap": "Código Postal",
+      "state": "Estado"
+    },
+    "placeholders": {
+      "jobQualifier": "ej. Software Engineer, Designer...",
+      "phone": "ej. +39 333 1234567",
+      "city": "ej. Madrid",
+      "address": "ej. Calle Mayor 123",
+      "cap": "ej. 28001",
+      "state": "ej. España"
+    }
+  },
+
+  "profile": {
+    "page_title": "Mi Perfil",
+    "loading": "Cargando perfil...",
+    "no_role": "Ningún rol especificado",
+    "no_address": "No se proporcionó dirección",
+    "friends_title": "Amigos",
+    "no_friends": "No se encontraron amigos.",
+    "blocked_title": "Usuarios Bloqueados",
+    "not_available": "N/A"
+  },
+
+  "settings": {
+    "page_title": "Ajustes de la Cuenta",
+    "profile_info": "Información del Perfil",
+    "first_name": "Nombre",
+    "last_name": "Apellido",
+    "email": "Correo electrónico",
+    "profession": "Profesión",
+    "phone": "Teléfono",
+    "city": "Ciudad",
+    "address": "Dirección",
+    "zip_code": "Código Postal",
+    "country_state": "País/Estado",
+    "saving": "Guardando...",
+    "saved": "¡Guardado!",
+    "save_changes": "Guardar Cambios",
+    "notif_alerts": "Alertas de Notificación",
+    "notif_subtitle": "Elija con cuánta anticipación desea ser notificado sobre las próximas fechas límites y eventos.",
+    "alert_threshold": "Umbral de Alerta",
+    "hours_before": "{{hours}} horas antes",
+    "local_notice": "* Se aplica localmente. Los cambios afectan el Centro de Notificaciones y las alertas de la barra lateral al instante.",
+    "danger_zone": "Zona de Peligro",
+    "danger_subtitle": "Una vez que elimines tu cuenta, no hay marcha atrás. Por favor, estate seguro.",
+    "confirm_email": "Confirma tu correo electrónico",
+    "enter_password": "Introduce tu contraseña",
+    "processing": "Procesando...",
+    "delete_btn": "Eliminar Cuenta Permanentemente",
+    "err_required": "Tanto el correo electrónico como la contraseña son obligatorios.",
+    "err_mismatch": "El correo electrónico no coincide con tu cuenta.",
+    "err_failed": "Error al eliminar la cuenta. Por favor, inténtelo de nuevo.",
+    "err_unexpected": "Ocurrió un error inesperado."
+  },
+
+  "signup": {
+    "title": "¡Crea tu cuenta!",
+    "google_btn": "Regístrate con Google",
+    "or": "O",
+    "placeholder_name": "Nombre",
+    "placeholder_surname": "Apellido",
+    "placeholder_email": "Correo electrónico",
+    "placeholder_password": "Contraseña",
+    "placeholder_confirm_password": "Confirmar contraseña",
+    "accept_text": "Acepto los",
+    "terms_link": "¡Términos y condiciones!",
+    "signup_btn": "Registrarse",
+    "err_terms": "Por favor, acepta nuestros términos y condiciones",
+    "err_server": "Error del servidor"
+  },
+
+  "tasks_library": {
+    "page_title": "Biblioteca de Tareas",
+    "loading": "Cargando tareas...",
+    "filter_projects": "Filtrar Proyectos ({{count}})",
+    "select_all": "(Seleccionar Todo)",
+    "only_owned": "Solo Proyectos Propios",
+    "sort_label": "Ordenar: {{type}}",
+    "no_description": "Sin descripción.",
+    "created_at": "Creado: {{date}}",
+    "due_date": "Vence: {{date}}",
+    "no_tasks": "No se encontraron tareas con los filtros seleccionados.",
+    "sort_options": {
+      "dueDate": "Fecha de Vencimiento",
+      "priority": "Prioridad",
+      "alphabetical": "Alfabético"
+    }
+  },
+
+  "user_profile_modal": {
+    "blocked_title": "Has bloqueado a este usuario.",
+    "blocked_subtitle": "No puede interactuar contigo.",
+    "btn_unblock": "Desbloquear Usuario",
+    "btn_block": "Bloquear Usuario",
+    "no_contact_info": "No se proporcionó información de contacto.",
+    "not_friends_msg": "No eres amigo de {{name}}.",
+    "not_friends_sub": "¡Envía una solicitud para ver sus datos de contacto completos!",
+    "btn_send_request": "Enviar Solicitud de Amistad"
+  },
+
+  "searchbar": {
+    "placeholder": "Buscar...",
+    "users_title": "Usuarios",
+    "projects_title": "Proyectos",
+    "no_users": "Ningún usuario encontrado",
+    "no_projects": "Ningún proyecto encontrado",
+    "friend_badge": "Amigo"
+  }
+
+}

@@ -4,7 +4,10 @@ import dayGridPlugin from "@fullcalendar/daygrid";
 import timeGridPlugin from "@fullcalendar/timegrid";
 import interactionPlugin from "@fullcalendar/interaction";
 import itLocale from "@fullcalendar/core/locales/it";
+import enLocale from "@fullcalendar/core/locales/en-gb";
+import esLocale from "@fullcalendar/core/locales/es";
 import { Loader2, Trash2 } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import type { CalendarEntries, ProjectTasks, Event as ApiEvent, SelectedEvent, FCEvent } from "../../data/types";
 import { useWebSocket } from "../../utilities/WebSocketContext";
 import ModifyEventModal from "../EventModal/ModifyEventModal";
@@ -15,7 +18,8 @@ const taskColors = [
   "goldenrod", "darkorange", "tomato", "slategray", "mediumpurple",
 ];
 
-function mapCalendarEntriesToFullCalendar(entries: CalendarEntries): FCEvent[] {
+function mapCalendarEntriesToFullCalendar(entries: CalendarEntries): FCEvent[] 
+{
     const taskEvents: FCEvent[] = (entries.tasks ?? []).map((t: ProjectTasks, i) => ({
         id: `task:${t.id}`,
         title: `🧩 ${t.name}`,
@@ -45,14 +49,22 @@ function mapCalendarEntriesToFullCalendar(entries: CalendarEntries): FCEvent[] {
     return [...taskEvents, ...calendarEvents];
 }
 
-function Calendar() {
+const locales = {
+  it: itLocale,
+  en: enLocale,
+  es: esLocale
+};
+
+function Calendar() 
+{
+	const { t, i18n } = useTranslation();
     const { activeUser, calendarEntries } = useWebSocket();
     const [selectedEvent, setSelectedEvent] = useState<SelectedEvent | null>(null);
     const modalRef = useRef<HTMLDivElement | null>(null);
     const [isClosing, setIsClosing] = useState(false);
     const [isMobile, setIsMobile] = useState(typeof window !== "undefined" ? window.innerWidth < 768 : false);
     const [isModifyOpen, setIsModifyOpen] = useState(false);
-    const [isDeleting, setIsDeleting] = useState(false); // <-- Stato per il caricamento dell'eliminazione
+    const [isDeleting, setIsDeleting] = useState(false);
 
     useEffect(() => {
         const handleResize = () => {
@@ -85,14 +97,14 @@ function Calendar() {
         return () => document.removeEventListener("mousedown", handleClickOutside);
     }, [selectedEvent, isModifyOpen]);
 
-	const handleDeleteEvent = async () => 
-	{
+    const handleDeleteEvent = async () => 
+    {
         if (!selectedEvent) return;
 
         const eventId = String(selectedEvent.id).replace("event:", "");
 
         try 
-		{
+        {
             setIsDeleting(true);
 
             const response = await helpers.deleter(`/api/v1/events/${eventId}`);
@@ -161,7 +173,7 @@ function Calendar() {
             right: isMobile ? "timeGridDay,dayGridMonth" : "dayGridMonth,timeGridWeek,timeGridDay",
             }}
             initialDate={new Date().toISOString().split("T")[0]}
-            locale={itLocale}
+            locale={locales[i18n.language as keyof typeof locales] || itLocale}
             height="100%"
             aspectRatio={isMobile ? 0.8 : 2}
             dayHeaderContent={(args) => ({
@@ -191,30 +203,28 @@ function Calendar() {
             <div className={`absolute inset-0 bg-black/70 z-[100] flex items-center justify-center p-4 ${isClosing ? "animate-fadeZoomOut" : "animate-fadeZoomIn"}`}>
                 <div ref={modalRef} className="rounded-lg bg-zinc-900 p-6 w-full max-w-md shadow-2xl border border-zinc-700 relative">
                     <h2 className="text-xl font-semibold text-white">{selectedEvent.name}</h2>
-                    <p className="text-green-300 mt-3 text-sm"><b>Inizio:</b> {selectedEvent.start}</p>
-                    {selectedEvent.status && <p className="text-white/80 mt-2 text-sm"><b>Status:</b> {selectedEvent.status}</p>}
-                    {selectedEvent.type && <p className="text-white/80 mt-1 text-sm"><b>Type:</b> {selectedEvent.type}</p>}
-                    {selectedEvent.description && <p className="text-white/80 mt-2 text-sm text-pretty"><b>Description:</b> {selectedEvent.description}</p>}
+                    <p className="text-green-300 mt-3 text-sm"><b>{t('calendar.modal.start')}:</b> {selectedEvent.start}</p>
+                    {selectedEvent.status && <p className="text-white/80 mt-2 text-sm"><b>{t('calendar.modal.status')}:</b> {selectedEvent.status}</p>}
+                    {selectedEvent.type && <p className="text-white/80 mt-1 text-sm"><b>{t('calendar.modal.type')}:</b> {selectedEvent.type}</p>}
+                    {selectedEvent.description && <p className="text-white/80 mt-2 text-sm text-pretty"><b>{t('calendar.modal.description')}:</b> {selectedEvent.description}</p>}
                     
                     <div className="flex gap-2 mt-5">
-                        {/* CONTROLLO OWNER: Mostra "Modifica" e "Elimina" solo se l'evento è un 'event:' E l'utente attivo è l'owner */}
                         {String(selectedEvent.id).startsWith("event:") && String(activeUser?.id) === String(selectedEvent.ownerId) && (
                             <>
                                 <button 
                                     className="px-4 py-2 text-xs bg-owner-color text-white rounded font-bold hover:scale-105 active:scale-95 transition-all shadow-lg cursor-pointer"
                                     onClick={() => setIsModifyOpen(true)}
                                 >
-                                    Modify
+                                    {t('calendar.modal.modify')}
                                 </button>
                                 
-                                {/* NUOVO BOTTONE ELIMINA */}
                                 <button 
-                                    className="flex items-center gap-1 px-4 py-2 text-xs bg-red-600/20 text-white border border-red-600/30 rounded font-bold hover:bg-red-600 hover:text-white active:scale-95 transition-all shadow-lg cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed hover:scale-105"
+                                    className="flex items-center gap-1 px-4 py-2 text-xs bg-red-600/20 text-white border border-red-600/30 rounded font-bold hover:bg-red-600 hover:text-white hover:scale-105 active:scale-95 transition-all shadow-lg cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
                                     onClick={handleDeleteEvent}
                                     disabled={isDeleting}
                                 >
                                     {isDeleting ? <Loader2 size={14} className="animate-spin" /> : <Trash2 size={14} />}
-                                    {isDeleting ? "Deleting..." : "Delete"}
+                                    {isDeleting ? t('calendar.modal.deleting') : t('calendar.modal.delete')}
                                 </button>
                             </>
                         )}
@@ -222,7 +232,7 @@ function Calendar() {
                             className="px-4 py-2 text-xs border border-white/20 rounded hover:bg-white/10 text-white transition-colors cursor-pointer ml-auto" 
                             onClick={closeModal}
                         >
-                            Close
+                            {t('calendar.modal.close')}
                         </button>
                     </div>
                 </div>

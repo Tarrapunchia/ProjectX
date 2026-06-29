@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef, useCallback, useMemo } from "react";
+import { useTranslation } from "react-i18next";
 import type { ProjectInfo } from "../../data/types";
 import helpers from "../../utilities/helpers";
 import consts from "../../data/consts";
@@ -35,6 +36,7 @@ interface ChatPageProps {
 
 export default function DocumentsPage({ selectedProject }: ChatPageProps) 
 {
+    const { t } = useTranslation();
     const fileInputRef = useRef<HTMLInputElement>(null);
     const { activeUser } = useWebSocket();
     const [loading, setLoading] = useState(true);
@@ -43,15 +45,15 @@ export default function DocumentsPage({ selectedProject }: ChatPageProps)
     const [projectData, setProjectData] = useState<any>(null);
 
     const isOwner = useMemo(() => 
-	{
+    {
         if (!projectData || !activeUser) return false;
         return projectData.participants?.some(
             (p: any) => p.user.id === activeUser.id && (p.role === "OWNER" || p.role === "EDITOR")
         );
     }, [projectData, activeUser]);
 
-	const memoizedFilesGrid = useMemo(() => 
-	{
+    const memoizedFilesGrid = useMemo(() => 
+    {
         if (!files.length) return null;
 
         return (
@@ -62,7 +64,6 @@ export default function DocumentsPage({ selectedProject }: ChatPageProps)
                         onClick={() => setPreview(file)}
                         className="group cursor-pointer flex flex-col rounded-lg shadow-sm border border-overlay-border-color overflow-hidden hover:shadow-md hover:border-text-main transition-all hover:scale-105"
                     >
-                        {/* AREA ANTEPRIMA */}
                         <div className="bg-overlay-border-color flex justify-center items-center overflow-hidden w-full h-[220px] relative">
                             {file.type === "image" ? (
                                 <img src={file.view_url} alt={file.name} className="w-full h-full object-contain pointer-events-none" />
@@ -78,12 +79,10 @@ export default function DocumentsPage({ selectedProject }: ChatPageProps)
                                         {file.type === "zip" && "🗂️"}
                                         {file.type === "video" && "🎬"}
                                     </span>
-                                    <p className="text-gray-100 text-xs">No preview</p>
+                                    <p className="text-gray-100 text-xs">{t("documents.no_preview")}</p>
                                 </div>
                             )}
                         </div>
-
-                        {/* INFO FILE */}
                         <div className="p-3 bg-category-bg-color">
                             <p className="text-sm font-semibold text-text-main truncate" title={file.name}>{file.name}</p>
                             <p className="text-[10px] text-gray-400 uppercase font-bold mt-1">{file.type}</p>
@@ -92,14 +91,14 @@ export default function DocumentsPage({ selectedProject }: ChatPageProps)
                 ))}
             </div>
         );
-    }, [files]);
+    }, [files, t]);
 
     const loadFiles = useCallback(async (pData: any) => 
-	{
+    {
         if (!selectedProject || !pData?.organization?.id) return;
         
         try 
-		{
+        {
             const orgId = pData.organization.id;
             const projId = selectedProject.id;
 
@@ -124,9 +123,9 @@ export default function DocumentsPage({ selectedProject }: ChatPageProps)
     }, [selectedProject]);
 
     const delete_file = async (fileName: string) => 
-	{
+    {
         if (!selectedProject || !projectData) return;
-        if (!confirm(`Are you sure you want to delete ${fileName}?`)) return;
+        if (!confirm(t("documents.delete_confirm", { fileName }))) return;
 
         try {
             const orgId = projectData.organization.id;
@@ -136,7 +135,7 @@ export default function DocumentsPage({ selectedProject }: ChatPageProps)
                 setPreview(null);
                 loadFiles(projectData);
             } else {
-                alert("Errore durante l'eliminazione");
+                alert(t("documents.delete_error"));
             }
         } catch (error) {
             console.error("Errore di rete:", error);
@@ -144,7 +143,7 @@ export default function DocumentsPage({ selectedProject }: ChatPageProps)
     };
 
     const handleUpload = async (event: React.ChangeEvent<HTMLInputElement>) => 
-	{
+    {
         const file = event.target.files?.[0];
         if (!file || !selectedProject || !activeUser || !projectData) return;
 
@@ -167,133 +166,96 @@ export default function DocumentsPage({ selectedProject }: ChatPageProps)
     };
 
     useEffect(() => 
-	{
-        if (!selectedProject) 
-			return;
+    {
+        if (!selectedProject) return;
 
         const fetchData = async () => 
-		{
+        {
             const res = await helpers.getter(`/api/v1/projects/${selectedProject.id}`, null);
             if (res.success) {
                 setProjectData(res.data);
                 await loadFiles(res.data);
             }
-			setLoading(false);
+            setLoading(false);
         };
-		fetchData();
+        fetchData();
     }, [selectedProject, loadFiles]);
 
     if (!selectedProject)
-        return (<div className="flex h-full items-center justify-center text-zinc-500">Select a project.</div>);
+        return (<div className="flex h-full items-center justify-center text-zinc-500">{t("documents.select_project")}</div>);
 
-	if (loading) return (
+    if (loading) return (
         <div className="h-full w-full flex items-center justify-center">
             <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-owner-color"></div>
         </div>
     );
 
-	if (!files.length)
-	return (
-		<div className="relative flex h-full w-full items-center justify-center text-zinc-500">
-			{/* Header: Posizionato in alto, occupa tutta la larghezza */}
-			<div className="absolute top-0 left-0 w-full flex justify-between items-center p-4">
-				<h1 className="hidden md:block text-xs font-bold text-text-main">Project Documents</h1>
-				{isOwner && (
-					<div>
-						<input 
-							type="file" 
-							ref={fileInputRef} 
-							onChange={handleUpload} 
-							className="hidden"
-						/>
-						<button 
-							className="flex items-center justify-center gap-2 bg-owner-color text-white 
-								px-4 py-2.5 rounded-xl hover:scale-105 transition-all shadow-lg 
-								font-bold cursor-pointer active:scale-95
-								/* Adattamento Mobile: riduciamo il padding e nascondiamo il testo */
-								w-12 h-12 md:w-auto md:h-auto md:px-5"
-							onClick={() => fileInputRef.current?.click()}>
-							<span className={""}>📤</span>
-							<span className="hidden md:inline">Upload New File</span>
-						</button>
-					</div>
-				)}
-			</div>
-
-			<p className="text-center">
-				There are no Documents to display for this project.
-			</p>
-		</div>
-	);
-
     return (
-	<div className="h-full w-full">
-        <div className="min-w-0 h-full w-full overflow-y-auto custom-scrollbar p-6">
-            <div className="flex justify-between items-center mb-6">
-                <h1 className="hidden md:block text-xs font-bold text-text-main">Project Documents</h1>
-                {isOwner && (
-                    <div>
-                        <input 
-                            type="file" 
-                            ref={fileInputRef} 
-                            onChange={handleUpload} 
-                            className="hidden"
-                        />
-						<button 
-							className="flex items-center justify-center gap-2 bg-owner-color text-white 
-								px-4 py-2.5 rounded-xl hover:scale-105 transition-all shadow-lg 
-								font-bold cursor-pointer active:scale-95
-								/* Adattamento Mobile: riduciamo il padding e nascondiamo il testo */
-								w-12 h-12 md:w-auto md:h-auto md:px-5"
-							onClick={() => fileInputRef.current?.click()}>
-							<span className={""}>📤</span>
-							<span className="hidden md:inline">Upload New File</span>
-						</button>
+        <div className="h-full w-full">
+            <div className="min-w-0 h-full w-full overflow-y-auto custom-scrollbar p-6">
+                <div className="flex justify-between items-center mb-6">
+                    <h1 className="hidden md:block text-xs font-bold text-text-main">{t("documents.project_documents")}</h1>
+                    {isOwner && (
+                        <div>
+                            <input 
+                                type="file" 
+                                ref={fileInputRef} 
+                                onChange={handleUpload} 
+                                className="hidden"
+                            />
+                            <button 
+                                className="flex items-center justify-center gap-2 bg-owner-color text-white px-4 py-2.5 rounded-xl hover:scale-105 transition-all shadow-lg font-bold cursor-pointer active:scale-95 w-12 h-12 md:w-auto md:h-auto md:px-5"
+                                onClick={() => fileInputRef.current?.click()}>
+                                <span className={""}>📤</span>
+                                <span className="hidden md:inline">{t("documents.upload_file")}</span>
+                            </button>
+                        </div>
+                    )}
+                </div>
+
+                {files.length === 0 ? (
+                    <p className="text-center text-zinc-500">{t("documents.no_documents")}</p>
+                ) : (
+                    memoizedFilesGrid
+                )}
+
+                {preview && (
+                    <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-[100] p-4" onClick={() => setPreview(null)}>
+                        <div className="bg-category-bg-color border-text-main rounded-2xl shadow-2xl max-w-6xl w-full max-h-[90vh] overflow-hidden flex flex-col" onClick={(e) => e.stopPropagation()}>
+                            <div className="p-4 border-b border-overlay-border-color flex justify-between items-center">
+                                <h2 className="text-lg font-bold text-text-main">{preview.name}</h2>
+                                <button onClick={() => setPreview(null)} className="bg-side-bg-color rounded-full w-8 h-8 text-text-main hover:scale-105 border border-transparent hover:border-text-main transition-all cursor-pointer">✕</button>
+                            </div>
+                            
+                            <div className="bg-overlay-border-color flex justify-center items-center h-[70vh]">
+                                {preview.type === "image" && <img src={preview.view_url} className="max-w-full max-h-full object-contain" />}
+                                {preview.type === "pdf" && <iframe src={`${preview.view_url}#view=FitH`} className="w-full h-full" />}
+                                {preview.type === "text" && <iframe src={preview.view_url} className="w-full h-full bg-white" />}
+                                {preview.type === "video" && <video controls className="max-w-full max-h-full"><source src={preview.view_url} /></video>}
+                                {["zip", "doc"].includes(preview.type) && <span className="text-8xl">{preview.type === "zip" ? "🗂️" : "📄"}</span>}
+                            </div>
+                            
+                            <div className="p-4 border-t border-overlay-border-color flex justify-between">
+                                {isOwner && (
+                                    <button 
+                                        onClick={() => delete_file(preview.name)} 
+                                        className="border border-category-bg-color bg-side-bg-color rounded-xl p-2 !text-text-main cursor-pointer hover:scale-105 hover:border-text-main transition-all"
+                                    >
+                                        {t("documents.delete_button")}
+                                    </button>
+                                )}
+                                <a 
+                                    href={preview.download_url} 
+                                    download 
+                                    className="border border-category-bg-color bg-side-bg-color rounded-xl p-2 !text-text-main cursor-pointer hover:scale-105 hover:border-text-main transition-all"
+                                >
+                                    {t("documents.download_button")}
+                                </a>
+                            </div>
+                        </div>
                     </div>
                 )}
             </div>
-
-            {memoizedFilesGrid}
-
-            {preview && (
-                <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-[100] p-4" onClick={() => setPreview(null)}>
-                    <div className="bg-category-bg-color border-text-main rounded-2xl shadow-2xl max-w-6xl w-full max-h-[90vh] overflow-hidden flex flex-col" onClick={(e) => e.stopPropagation()}>
-                        <div className="p-4 border-b border-overlay-border-color flex justify-between items-center">
-                            <h2 className="text-lg font-bold text-text-main">{preview.name}</h2>
-                            <button onClick={() => setPreview(null)} className="bg-side-bg-color rounded-full w-8 h-8 text-text-main hover:scale-105 border border-transparent hover:border-text-main transition-all cursor-pointer">✕</button>
-                        </div>
-                        
-                        <div className="bg-overlay-border-color flex justify-center items-center h-[70vh]">
-                            {preview.type === "image" && <img src={preview.view_url} className="max-w-full max-h-full object-contain" />}
-                            {preview.type === "pdf" && <iframe src={`${preview.view_url}#view=FitH`} className="w-full h-full" />}
-                            {preview.type === "text" && <iframe src={preview.view_url} className="w-full h-full bg-white" />}
-                            {preview.type === "video" && <video controls className="max-w-full max-h-full"><source src={preview.view_url} /></video>}
-                            {["zip", "doc"].includes(preview.type) && <span className="text-8xl">{preview.type === "zip" ? "🗂️" : "📄"}</span>}
-                        </div>
-                        
-                        <div className="p-4 border-t border-overlay-border-color flex justify-between">
-                            {isOwner && (
-                                <button 
-                                    onClick={() => delete_file(preview.name)} 
-                                    className="border border-category-bg-color bg-side-bg-color rounded-xl p-2 !text-text-main cursor-pointer hover:scale-105 hover:border-text-main transition-all"
-                                >
-                                    Delete File
-                                </button>
-                            )}
-                            
-                            {/* FIX BLU: Ho rimesso !text-text-main e border-category-bg-color */}
-                            <a 
-                                href={preview.download_url} 
-                                download 
-                                className="border border-category-bg-color bg-side-bg-color rounded-xl p-2 !text-text-main cursor-pointer hover:scale-105 hover:border-text-main transition-all"
-                            >
-                                Download File
-                            </a>
-                        </div>
-                    </div>
-                </div>
-            )}
         </div>
-	</div>
     );
 }

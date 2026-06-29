@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from "react";
+import { useTranslation } from "react-i18next";
 
 export interface ExtraProfileData 
 {
@@ -20,17 +21,18 @@ interface Props
 
 const STEPS = 
 [
-    { id: "avatarFile", label: "Profile Picture", placeholder: "", type: "avatar" },
-    { id: "jobQualifier", label: "Profession", placeholder: "e.g. Software Engineer, Designer...", type: "text" },
-    { id: "phone", label: "Phone Number", placeholder: "e.g. +39 333 1234567", type: "tel" },
-    { id: "city", label: "City", placeholder: "e.g. London", type: "text" },
-    { id: "address", label: "Residential Address", placeholder: "e.g. 123 Baker St", type: "text" },
-    { id: "cap", label: "Cap", placeholder: "e.g. 51234", type: "text" },
-    { id: "state", label: "State", placeholder: "e.g. Italy", type: "text" },
+    { id: "avatarFile", type: "avatar" },
+    { id: "jobQualifier", type: "text" },
+    { id: "phone", type: "tel" },
+    { id: "city", type: "text" },
+    { id: "address", type: "text" },
+    { id: "cap", type: "text" },
+    { id: "state", type: "text" },
 ];
 
 export default function ProfileCompletionModal({ isOpen, onClose, onSave }: Props) 
 {
+    const { t } = useTranslation();
     const [shouldRender, setShouldRender] = useState(false);
     const [isExiting, setIsExiting] = useState(false);
     const [currentStep, setCurrentStep] = useState(0);
@@ -143,16 +145,16 @@ export default function ProfileCompletionModal({ isOpen, onClose, onSave }: Prop
                     </button>
                 </div>
                 <div className="flex items-center justify-center mb-1">
-                    <h1 className="bg-gradient-to-r from-pink-400 via-sky-400 to-purple-500 text-3xl font-bold tracking-tight text-text-main bg-clip-text text-transparent">Welcome!</h1>
+                    <h1 className="bg-gradient-to-r from-pink-400 via-sky-400 to-purple-500 text-3xl font-bold tracking-tight text-text-main bg-clip-text text-transparent">{t("profile_completion.welcome")}</h1>
                 </div>
                 <h2 className="text-2xl font-bold text-text-main tracking-tight">
-                    Finalize your professional profile
+                    {t("profile_completion.title")}
                 </h2>
                 <p className="text-zinc-500 text-sm mt-1 italic">
-                    Please provide the following details to enhance your experience.
+                    {t("profile_completion.subtitle")}
                 </p>
                 <p className="text-zinc-500 text-sm mt-1 italic">
-                    Step {currentStep + 1} of {STEPS.length}
+                    {t("profile_completion.step_counter", { current: currentStep + 1, total: STEPS.length })}
                 </p>
             </div>
 
@@ -167,7 +169,7 @@ export default function ProfileCompletionModal({ isOpen, onClose, onSave }: Prop
 
                 <div className="flex flex-col gap-4 min-h-[140px] step-transition">
                     <label className="text-zinc-500 text-[10px] uppercase font-bold tracking-widest">
-                        {currentStepData.label}
+                        {t(`profile_completion.labels.${currentStepData.id}`)}
                     </label>
                     
                     {currentStepData.type === "avatar" ? (
@@ -192,13 +194,13 @@ export default function ProfileCompletionModal({ isOpen, onClose, onSave }: Prop
                                     onChange={(e) => handleAvatarFile(e.target.files?.[0])}
                                 />
                             </div>
-                            <p className="text-xs text-zinc-400 italic">Click the image to upload a profile picture</p>
+                            <p className="text-xs text-zinc-400 italic">{t("profile_completion.avatar_click_info")}</p>
                         </div>
                     ) : currentStepData.type === "textarea" ? (
                         <textarea 
                             rows={4}
                             autoFocus
-                            placeholder={currentStepData.placeholder}
+                            placeholder={t(`profile_completion.placeholders.${currentStepData.id}`)}
                             className="text-white p-3 rounded-lg bg-transparent border border-overlay-border-color focus:border-owner-color focus:ring-1 focus:ring-owner-color outline-none transition-all resize-none placeholder:text-zinc-400"
                             value={formData[currentStepData.id as keyof ExtraProfileData] as string}
                             onChange={(e) => setFormData({...formData, [currentStepData.id]: e.target.value})}
@@ -207,7 +209,7 @@ export default function ProfileCompletionModal({ isOpen, onClose, onSave }: Prop
                         <input 
                             type={currentStepData.type}
                             autoFocus
-                            placeholder={currentStepData.placeholder}
+                            placeholder={t(`profile_completion.placeholders.${currentStepData.id}`)}
                             className="text-white p-3 rounded-lg bg-transparent border border-overlay-border-color focus:border-owner-color focus:ring-1 focus:ring-owner-color outline-none transition-all placeholder:text-zinc-400"
                             value={formData[currentStepData.id as keyof ExtraProfileData] as string}
                             onChange={(e) => setFormData({...formData, [currentStepData.id]: e.target.value})}
@@ -224,7 +226,7 @@ export default function ProfileCompletionModal({ isOpen, onClose, onSave }: Prop
                             onClick={handleBack} 
                             className="border border-category-bg-color bg-side-bg-color rounded-xl p-2 !text-text-main cursor-pointer hover:scale-105 hover:border-text-main"
                         >
-                            Back
+                            {t("profile_completion.btn_back")}
                         </button>
                     )}
                     
@@ -232,7 +234,7 @@ export default function ProfileCompletionModal({ isOpen, onClose, onSave }: Prop
                         onClick={handleNext}
                         className="border border-category-bg-color bg-side-bg-color rounded-xl p-2 !text-text-main cursor-pointer hover:scale-105 hover:border-text-main shadow-lg ml-auto"
                     >
-                        {isLastStep ? "Save and continue" : (currentStepData.type === "avatar" && !avatarPreview ? "Skip" : "Next step")}
+                        {isLastStep ? t("profile_completion.btn_save") : (currentStepData.type === "avatar" && !avatarPreview ? t("profile_completion.btn_skip") : t("profile_completion.btn_next"))}
                     </button>
                 </div>
             </div>

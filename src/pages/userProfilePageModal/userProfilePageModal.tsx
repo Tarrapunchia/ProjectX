@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { X, Mail, Phone, Briefcase, MapPin, UserPlus, Ban, Unlock, Loader2 } from 'lucide-react';
 import CONSTS from '../../data/consts';
 import helpers from "../../utilities/helpers";
@@ -35,6 +36,7 @@ const UserProfileModal: React.FC<UserProfileModalProps> = ({
     onAddFriend,
     onRefresh
 }) => {
+    const { t } = useTranslation();
     const [isActionLoading, setIsActionLoading] = useState(false);
 
     if (!isOpen || !user) return null;
@@ -138,8 +140,8 @@ const UserProfileModal: React.FC<UserProfileModalProps> = ({
                         <div className="w-full flex flex-col items-center mt-2 text-center max-w-sm">
                             <div className="bg-red-500/10 border border-red-500/20 rounded-xl p-4 mb-6 w-full text-red-400">
                                 <Ban size={24} className="mx-auto mb-2 opacity-80" />
-                                <p className="text-sm font-medium">You have blocked this user.</p>
-                                <p className="text-xs mt-1 opacity-70">They cannot interact with you.</p>
+                                <p className="text-sm font-medium">{t("user_profile_modal.blocked_title")}</p>
+                                <p className="text-xs mt-1 opacity-70">{t("user_profile_modal.blocked_subtitle")}</p>
                             </div>
                             <button
                                 onClick={handleUnblockUser}
@@ -147,7 +149,7 @@ const UserProfileModal: React.FC<UserProfileModalProps> = ({
                                 className="flex items-center justify-center w-full gap-2 bg-text-main text-side-bg-color px-5 py-2.5 rounded-xl hover:scale-105 transition-all shadow-sm text-sm font-bold cursor-pointer active:scale-95 disabled:opacity-50"
                             >
                                 {isActionLoading ? <Loader2 size={19} className="animate-spin" /> : <Unlock size={19} />}
-                                Unblock User
+                                {t("user_profile_modal.btn_unblock")}
                             </button>
                         </div>
                     ) : 
@@ -179,7 +181,7 @@ const UserProfileModal: React.FC<UserProfileModalProps> = ({
 
                             {!hasValidString(user.email) && !hasValidString(user.phone) && !hasValidString(fullAddress) && (
                                 <p className="text-zinc-500 text-center italic w-full">
-                                    No contact information provided.
+                                    {t("user_profile_modal.no_contact_info")}
                                 </p>
                             )}
                             
@@ -191,7 +193,7 @@ const UserProfileModal: React.FC<UserProfileModalProps> = ({
                                     className="flex items-center justify-center w-full gap-2 bg-red-500/30 text-white border border-red-500/20 px-5 py-2.5 rounded-xl hover:bg-red-500 hover:text-white transition-all shadow-sm text-sm font-bold cursor-pointer active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
                                 >
                                     {isActionLoading ? <Loader2 size={19} className="animate-spin" /> : <Ban size={19} />}
-                                    Block User
+                                    {t("user_profile_modal.btn_block")}
                                 </button>
                             </div>
 
@@ -202,8 +204,8 @@ const UserProfileModal: React.FC<UserProfileModalProps> = ({
                     (
                         <div className="w-full flex flex-col items-center mt-2 text-center max-w-sm">
                             <p className="text-base text-zinc-400 mb-8 leading-relaxed">
-                                You are not friends with <span className="text-text-main font-medium">{user.name}</span>. <br/>
-                                Send a request to see their full contact details!
+                                {t("user_profile_modal.not_friends_msg", { name: user.name })} <br/>
+                                {t("user_profile_modal.not_friends_sub")}
                             </p>
                             
                             <button
@@ -215,7 +217,7 @@ const UserProfileModal: React.FC<UserProfileModalProps> = ({
                                 className="flex items-center justify-center w-full gap-2 bg-owner-color text-white px-5 py-2.5 rounded-xl hover:scale-105 transition-all shadow-lg text-sm font-bold cursor-pointer active:scale-95 disabled:opacity-50"
                             >
                                 <UserPlus size={19} />
-                                Send Friend Request
+                                {t("user_profile_modal.btn_send_request")}
                             </button>
                         </div>
                     )}
