@@ -48,6 +48,7 @@ export const ProfileMenu = ({ setActivePage }: ProfileMenuProps) => {
 			{createOpen && (
 				<CreateOrganization
 					setCreateOpen={setCreateOpen}
+					activeUser={activeUser}
 				/>
 			)}
 		</div>
