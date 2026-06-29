@@ -1,4 +1,6 @@
+import { useState } from 'react'
 import ThemeToggle from './ThemeToggle';
+import { CreateOrganization } from './createOrganization';
 import { FiPlusCircle } from 'react-icons/fi';
 import { useWebSocket } from '../../utilities/WebSocketContext'
 
@@ -7,7 +9,8 @@ interface ProfileMenuProps {
 }
 
 export const ProfileMenu = ({ setActivePage }: ProfileMenuProps) => {
-	const { activeUser } = useWebSocket();
+	const { activeUser, organizations } = useWebSocket();
+	const [ createOpen, setCreateOpen ] = useState(false);
 
 	return (
 		<div className="absolute w-80 h-80 z-50 right-0 top-14 no-scrollbar bg-side-bg-color border border-owner-color rounded-md text-text-main ">
@@ -26,16 +29,27 @@ export const ProfileMenu = ({ setActivePage }: ProfileMenuProps) => {
 				>
 					Visualizza profilo
 				</button>
-				<div className="flex flex-col overflow-y-auto no-scrollbar bg-category-bg-color w-[90%] h-[55%] border rounded-md border-overlay-border-color">
+				<div 
+					onClick={ () => setCreateOpen(true) }
+					className="flex flex-col overflow-y-auto no-scrollbar bg-category-bg-color w-[90%] h-[55%] border rounded-md border-overlay-border-color">
 					<button className="flex p-2 gap-2 items-center justify-center border-b border-overlay-border-color hover:text-owner-color hover:cursor-pointer">
 						<FiPlusCircle size={24}/>
 						<span>
 							Aggiungi organizzazione
 						</span>
 					</button>
-
+					<div>
+						{organizations.map(o => 
+							o.name
+						)}
+					</div>
 				</div>
 			</div>
+			{createOpen && (
+				<CreateOrganization
+					setCreateOpen={setCreateOpen}
+				/>
+			)}
 		</div>
 	)
 }

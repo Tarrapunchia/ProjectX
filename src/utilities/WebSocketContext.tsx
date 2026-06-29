@@ -154,6 +154,9 @@ interface WebSocketContextType {
 
 	blockedUsers: Friend[]; // <--- NUOVO
     loadBlockedUsers: () => Promise<void>;
+
+	organizations: Organization[];
+	setOrganization: () => Organization | null;
 }
 
 
@@ -174,6 +177,7 @@ export const WebSocketProvider: React.FC<{ children: ReactNode }> = ({ children 
 	const [pendingRequests, setPendingRequests] = useState<FriendRequest[]>([]);
 	const [calendarEntries, setCalendarEntries] = useState<CalendarEntries | null>(null);
 	const [blockedUsers, setBlockedUsers] = useState<Friend[]>([]);
+	const [organizations, setOrganizations] = useState<Organization[]>([]);
 
 	const refreshUser = useCallback(async () => {
         const res = await helpers.getter('/api/v1/users/activeUser', null);
@@ -736,6 +740,8 @@ export const WebSocketProvider: React.FC<{ children: ReactNode }> = ({ children 
             refreshUser,
 			blockedUsers,
 			loadBlockedUsers,
+			organizations,
+			setOrganizations
 			}}
 		>
 			{children}
