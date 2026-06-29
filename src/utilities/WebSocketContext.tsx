@@ -97,6 +97,30 @@ export interface PendingRequest
     };
 }
 
+export interface Project
+{
+	id: number,
+	name: string,
+	status: string,
+	description: string,
+	createdAt: Date,
+	closedAt: Date
+}
+
+export interface Organization
+{
+	id: number,
+	name: string,
+	email: string,
+	phone: string,
+	city: string,
+	address: string,
+	cap: string,
+	state: string,
+	ownerId: number,
+	projects: Project[]
+}
+
 interface WebSocketContextType {
 	socket: WebSocket | null;
 	isReady: boolean;
