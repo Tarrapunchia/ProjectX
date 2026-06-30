@@ -156,7 +156,7 @@ interface WebSocketContextType {
     loadBlockedUsers: () => Promise<void>;
 
 	organizations: Organization[];
-	setOrganization: () => Organization | null;
+	setOrganization: React.Dispatch<React.SetStateAction<Organization[]>>;
 }
 
 
