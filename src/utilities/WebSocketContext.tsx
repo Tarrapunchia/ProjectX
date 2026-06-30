@@ -131,7 +131,7 @@ interface WebSocketContextType {
 	closeFloatingChat: (roomId: string) => void;
 	friends: Friend[];
 	groups: Group[];
-	setGroups: (value: Group[]) => void;
+	setGroups: React.Dispatch<React.SetStateAction<Group[]>>;
 	loadGroups: () => Promise<void>;
 
 	messages: Record<string, ChatMessage[]>;
@@ -149,7 +149,7 @@ interface WebSocketContextType {
 	alertThreshold: number; // Soglia in ore
   	updateAlertThreshold: (hours: number) => void;
 	activeUser: User | null; // L'oggetto profilo completo
-	setActiveUser: () => User | null;
+	setActiveUser: React.Dispatch<React.SetStateAction<User | null>>;
     refreshUser: () => Promise<void>;
 
 	blockedUsers: Friend[]; // <--- NUOVO
