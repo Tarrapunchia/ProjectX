@@ -1,97 +1,463 @@
-// import fastify, { type FastifyInstance, type FastifyPluginAsync } from "fastify";
-// import { getUserIdFromJWT } from "../../../../helpers/cookies.js";
-// import { orgSchemas } from "./projectsSchema.js";
+import fastify, { type FastifyInstance, type FastifyPluginAsync } from "fastify";
+import { getUserIdFromJWT } from "../../../../helpers/cookies.js";
+import { projectSchemas } from "./projectsSchema.js";
 
-// const Putters: FastifyPluginAsync = async (fastify: FastifyInstance, opts) => {
-// // PUT /api/v1/organizations/modifyOrganizationInfos
-//     fastify.put<{
-//         Body: {
-//             orgId: number
-//             name?: string | null
-//             email?: string | null
-//             phone?: string | null
-//             city?: string | null
-//             address?: string | null
-//             cap?: string | null
-//             state?: string | null
-//         }
-//         }>(
-//         '/modifyOrganizationInfos',
-//         { schema: orgSchemas.modifyOrgInfos },
-//         async (req, res) => {
-//             // Controllo se loggati (vedo se ho JWT nei session token)
-//             let ownerId = getUserIdFromJWT(req, res, fastify)
-//             if (!ownerId) {
-//                 res.code(400)
-//                 return { error: 'You must be logged in in order to modify an Organization' }
-//             }
+async function canManageProject(
+  userId: number,
+  projectId: number,
+  tx: any
+) {
+  const project = await tx.project.findUnique({
+    where: { id: projectId },
+    select: {
+      id: true,
+      organizationId: true,
+      organization: {
+        select: {
+          ownerId: true,
+        },
+      },
+      participants: {
+        where: {
+          userId,
+        },
+        include: {
+          role: true,
+        },
+      },
+    },
+  })
 
-//             const existing = await fastify.prisma.user.findUnique({
-//                 where: { id: ownerId },
-//                 select: { id: true },
-//             })
-//             if (!existing) {
-//                 res.code(404)
-//                 return { error: 'User not found' }
-//             }
+  if (!project) {
+    return {
+      ok: false as const,
+      code: 404,
+      error: 'Project not found',
+    }
+  }
 
-//             const {
-//                 orgId,
-//                 name,
-//                 email,
-//                 phone,
-//                 city,
-//                 address,
-//                 cap,
-//                 state,
-//             } = req.body
+  const isOrganizationOwner = project.organization.ownerId === userId
 
-//             const existingOrg = await fastify.prisma.organization.findUnique({
-//                 where: { id: orgId, ownerId: ownerId },
-//                 select: { id: true },
-//             })
-//             if (!existingOrg) {
-//                 res.code(404)
-//                 return { error: 'Organization not found / no rights to modify' }
-//             }
+  const isProjectOwner = project.participants.some((p: any) => {
+    return p.role.name === 'OWNER'
+  })
 
+  if (!isOrganizationOwner && !isProjectOwner) {
+    return {
+      ok: false as const,
+      code: 403,
+      error: 'Only project owner or organization owner can modify this project',
+    }
+  }
 
-//             const data: Record<string, any> = {}
-//             if (name !== undefined) data.name = name
-//             if (email !== undefined) data.email = email
-//             if (phone !== undefined) data.phone = phone
-//             if (city !== undefined) data.city = city
-//             if (address !== undefined) data.address = address
-//             if (cap !== undefined) data.cap = cap
-//             if (state !== undefined) data.state = state
+  return {
+    ok: true as const,
+    project,
+  }
+}
 
-//             if (Object.keys(data).length === 0) {
-//                 res.code(400)
-//                 return { error: 'No fields to update' }
-//             }
+const Putters: FastifyPluginAsync = async (fastify: FastifyInstance, opts) => {
+    // PUT /api/v1/projects/:projectId
+    // body is like
+    // {
+    //   "name": "Nuovo nome progetto",
+    //   "description": "Nuova descrizione",
+    //   "status": "ACTIVE"
+    // }
+    fastify.put<{
+    Params: { projectId: string }
+    Body: {
+        name?: string
+        description?: string | null
+        status?: 'TODO' | 'ACTIVE' | 'REVIEW' | 'CLOSED'
+    }
+    }>(
+    '/:projectId',
+    { schema: projectSchemas.updateProjectSchema },
+    async (req, reply) => {
+        const authUserId = getUserIdFromJWT(req, reply, fastify)
 
-//             try {
-//                 const org = await fastify.prisma.organization.update({
-//                     where: { id: orgId },
-//                     data,
-//                 })
+        if (!authUserId) {
+        reply.code(401)
+        return { error: 'You must be logged in' }
+        }
 
-//                 res.code(200)
-//                 return org
-//             } catch (error: any) {
-//                 fastify.log.error(error)
+        const projectId = Number(req.params.projectId)
 
-//                 // nome duplicato
-//                 if (error?.code === 'P2002') {
-//                     res.code(400)
-//                     return { error: 'Name already in use' }
-//                 }
+        if (Number.isNaN(projectId)) {
+        reply.code(400)
+        return { error: 'Invalid project id' }
+        }
 
-//                 res.code(400)
-//                 return { error: 'Unable to update organization' }
-//             }
-//         }
-//     )
-// }
+        const { name, description, status } = req.body
 
-// export default Putters
+        if (
+        name === undefined &&
+        description === undefined &&
+        status === undefined
+        ) {
+        reply.code(400)
+        return { error: 'Provide at least one field to update' }
+        }
+
+        const allowedStatus = ['TODO', 'ACTIVE', 'REVIEW', 'CLOSED']
+
+        if (status !== undefined && !allowedStatus.includes(status)) {
+        reply.code(400)
+        return { error: 'Invalid project status' }
+        }
+
+        try {
+        const result = await fastify.prisma.$transaction(async (tx) => {
+            const permission = await canManageProject(authUserId, projectId, tx)
+
+            if (!permission.ok) {
+            return permission
+            }
+
+            const data: any = {}
+
+            if (name !== undefined) {
+            const cleanName = name.trim()
+
+            if (!cleanName) {
+                return {
+                ok: false as const,
+                code: 400,
+                error: 'Project name cannot be empty',
+                }
+            }
+
+            data.name = cleanName
+            }
+
+            if (description !== undefined) {
+            data.description = description ?? ''
+            }
+
+            if (status !== undefined) {
+            data.status = status
+
+            if (status === 'CLOSED') {
+                data.closedAt = new Date()
+            } else {
+                data.closedAt = null
+            }
+            }
+
+            const updatedProject = await tx.project.update({
+            where: { id: projectId },
+            data,
+            select: {
+                id: true,
+                name: true,
+                description: true,
+                status: true,
+                organizationId: true,
+                createdAt: true,
+                closedAt: true,
+            },
+            })
+
+            return {
+            ok: true as const,
+            project: updatedProject,
+            }
+        })
+
+        if (!result.ok) {
+            reply.code(result.code)
+            return { error: result.error }
+        }
+
+        reply.code(200)
+        return {
+            success: true,
+            project: result.project,
+        }
+        } catch (error: any) {
+        fastify.log.error(error)
+
+        if (error?.code === 'P2002') {
+            reply.code(409)
+            return { error: 'Project name already exists' }
+        }
+
+        reply.code(500)
+        return { error: 'Unable to update project' }
+        }
+    }
+    )
+
+    // PUT /api/v1/projects/:projectId/participants
+    // {
+    //   "participants": [
+    //         { "userId": 26, "role": "OWNER" },
+    //         { "userId": 31, "role": "EDITOR" },
+    //         { "userId": 45, "role": "VIEWER" }
+    //     ]
+    // }
+    fastify.put<{
+    Params: { projectId: string }
+    Body: {
+        participants: Array<{
+        userId: number
+        role: 'OWNER' | 'EDITOR' | 'VIEWER'
+        }>
+    }
+    }>(
+    '/:projectId/participants',
+    { schema: projectSchemas.updateProjectParticipantsSchema },
+    async (req, reply) => {
+        const authUserId = getUserIdFromJWT(req, reply, fastify)
+
+        if (!authUserId) {
+        reply.code(401)
+        return { error: 'You must be logged in' }
+        }
+
+        const projectId = Number(req.params.projectId)
+
+        if (Number.isNaN(projectId)) {
+        reply.code(400)
+        return { error: 'Invalid project id' }
+        }
+
+        const { participants } = req.body
+
+        if (!Array.isArray(participants) || participants.length === 0) {
+        reply.code(400)
+        return { error: 'participants array is required' }
+        }
+
+        const allowedRoles = ['OWNER', 'EDITOR', 'VIEWER'] as const
+
+        const invalid = participants.find((p) => {
+        return (
+            !p ||
+            typeof p.userId !== 'number' ||
+            Number.isNaN(p.userId) ||
+            !allowedRoles.includes(p.role as any)
+        )
+        })
+
+        if (invalid) {
+        reply.code(400)
+        return { error: 'Invalid participants payload' }
+        }
+
+        const uniqueParticipants = Array.from(
+        new Map(participants.map((p) => [p.userId, p])).values()
+        )
+
+        const hasOwner = uniqueParticipants.some((p) => p.role === 'OWNER')
+
+        if (!hasOwner) {
+        reply.code(400)
+        return { error: 'Project must have at least one OWNER' }
+        }
+
+        try {
+        const result = await fastify.prisma.$transaction(async (tx) => {
+            const permission = await canManageProject(authUserId, projectId, tx)
+
+            if (!permission.ok) {
+            return permission
+            }
+
+            const organizationId = permission.project.organizationId
+
+            const userIds = uniqueParticipants.map((p) => p.userId)
+
+            const users = await tx.user.findMany({
+            where: {
+                id: {
+                in: userIds,
+                },
+            },
+            select: {
+                id: true,
+            },
+            })
+
+            const existingUserIds = new Set(users.map((u: any) => u.id))
+
+            const missingUser = uniqueParticipants.find((p) => {
+            return !existingUserIds.has(p.userId)
+            })
+
+            if (missingUser) {
+            return {
+                ok: false as const,
+                code: 404,
+                error: `User ${missingUser.userId} not found`,
+            }
+            }
+
+            const orgMembers = await tx.organizationMember.findMany({
+            where: {
+                organizationId,
+                userId: {
+                in: userIds,
+                },
+            },
+            select: {
+                userId: true,
+            },
+            })
+
+            const orgMemberIds = new Set(orgMembers.map((m: any) => m.userId))
+
+            const notOrgMember = uniqueParticipants.find((p) => {
+            return !orgMemberIds.has(p.userId)
+            })
+
+            if (notOrgMember) {
+            return {
+                ok: false as const,
+                code: 403,
+                error: `User ${notOrgMember.userId} is not a member of the organization`,
+            }
+            }
+
+            const roles = await Promise.all(
+            allowedRoles.map((roleName) =>
+                tx.role.upsert({
+                where: { name: roleName },
+                update: {},
+                create: {
+                    name: roleName,
+                    permissions: {
+                    create:
+                        roleName === 'OWNER'
+                        ? {
+                            bOwner: true,
+                            bModPermissions: true,
+                            bCreateTask: true,
+                            bEditTask: true,
+                            bCloseTask: true,
+                            bInvite: true,
+                            bRemoveUser: true,
+                            }
+                        : roleName === 'EDITOR'
+                            ? {
+                                bCreateTask: true,
+                                bEditTask: true,
+                                bCloseTask: true,
+                                bInvite: true,
+                            }
+                            : {},
+                    },
+                },
+                })
+            )
+            )
+
+            const roleByName = new Map(roles.map((r: any) => [r.name, r]))
+
+            await tx.projectParticipant.deleteMany({
+            where: {
+                projectId,
+                userId: {
+                notIn: userIds,
+                },
+            },
+            })
+
+            for (const p of uniqueParticipants) {
+            const role = roleByName.get(p.role)
+
+            if (!role) {
+                return {
+                ok: false as const,
+                code: 400,
+                error: `Invalid role ${p.role}`,
+                }
+            }
+
+            await tx.projectParticipant.upsert({
+                where: {
+                projectId_userId: {
+                    projectId,
+                    userId: p.userId,
+                },
+                },
+                update: {
+                roleId: role.id,
+                },
+                create: {
+                projectId,
+                userId: p.userId,
+                roleId: role.id,
+                },
+            })
+            }
+
+            const updatedParticipants = await tx.projectParticipant.findMany({
+            where: { projectId },
+            include: {
+                user: {
+                select: {
+                    id: true,
+                    name: true,
+                    surname: true,
+                    email: true,
+                },
+                },
+                role: {
+                select: {
+                    name: true,
+                },
+                },
+            },
+            orderBy: {
+                createdAt: 'asc',
+            },
+            })
+
+            return {
+            ok: true as const,
+            participants: updatedParticipants.map((p: any) => ({
+                user: {
+                id: p.user.id,
+                name: p.user.name,
+                surname: p.user.surname,
+                email: p.user.email,
+                },
+                role: p.role.name,
+                joinedAt: p.createdAt,
+            })),
+            }
+        })
+
+        if (!result.ok) {
+            reply.code(result.code)
+            return { error: result.error }
+        }
+
+        reply.code(200)
+        return {
+            success: true,
+            participants: result.participants,
+        }
+        } catch (error: any) {
+        fastify.log.error(error)
+
+        if (error?.code === 'P2002') {
+            reply.code(409)
+            return { error: 'Duplicate project participant' }
+        }
+
+        if (error?.code === 'P2003') {
+            reply.code(400)
+            return { error: 'Foreign key constraint failed' }
+        }
+
+        reply.code(500)
+        return { error: 'Unable to update project participants' }
+        }
+    }
+    )
+}
+
+export default Putters

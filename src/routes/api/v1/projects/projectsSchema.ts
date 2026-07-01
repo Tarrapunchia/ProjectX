@@ -251,6 +251,189 @@ export const addProjectParticipantsSchema: Schema = {
 }
 
 
+export const updateProjectSchema: Schema = {
+  description: 'Update project information',
+  tags: ['projects'],
+  params: {
+    type: 'object',
+    properties: {
+      projectId: { type: 'string' },
+    },
+    required: ['projectId'],
+  },
+  body: {
+    type: 'object',
+    properties: {
+      name: { type: 'string' },
+      description: { type: 'string', nullable: true },
+      status: {
+        type: 'string',
+        enum: ['TODO', 'ACTIVE', 'REVIEW', 'CLOSED'],
+      },
+    },
+    additionalProperties: false,
+  },
+  response: {
+    200: {
+      type: 'object',
+      properties: {
+        success: { type: 'boolean' },
+        project: {
+          type: 'object',
+          properties: {
+            id: { type: 'number' },
+            name: { type: 'string' },
+            description: { type: 'string' },
+            status: { type: 'string' },
+            organizationId: { type: 'number' },
+            createdAt: { type: 'string', format: 'date-time' },
+            closedAt: { type: 'string', format: 'date-time', nullable: true },
+          },
+          required: [
+            'id',
+            'name',
+            'description',
+            'status',
+            'organizationId',
+            'createdAt',
+            'closedAt',
+          ],
+        },
+      },
+      required: ['success', 'project'],
+    },
+    400: {
+      type: 'object',
+      properties: { error: { type: 'string' } },
+      required: ['error'],
+    },
+    401: {
+      type: 'object',
+      properties: { error: { type: 'string' } },
+      required: ['error'],
+    },
+    403: {
+      type: 'object',
+      properties: { error: { type: 'string' } },
+      required: ['error'],
+    },
+    404: {
+      type: 'object',
+      properties: { error: { type: 'string' } },
+      required: ['error'],
+    },
+    409: {
+      type: 'object',
+      properties: { error: { type: 'string' } },
+      required: ['error'],
+    },
+    500: {
+      type: 'object',
+      properties: { error: { type: 'string' } },
+      required: ['error'],
+    },
+  },
+}
+
+export const updateProjectParticipantsSchema: Schema = {
+  description: 'Replace/update project participants',
+  tags: ['projects'],
+  params: {
+    type: 'object',
+    properties: {
+      projectId: { type: 'string' },
+    },
+    required: ['projectId'],
+  },
+  body: {
+    type: 'object',
+    properties: {
+      participants: {
+        type: 'array',
+        minItems: 1,
+        items: {
+          type: 'object',
+          properties: {
+            userId: { type: 'number' },
+            role: {
+              type: 'string',
+              enum: ['OWNER', 'EDITOR', 'VIEWER'],
+            },
+          },
+          required: ['userId', 'role'],
+          additionalProperties: false,
+        },
+      },
+    },
+    required: ['participants'],
+    additionalProperties: false,
+  },
+  response: {
+    200: {
+      type: 'object',
+      properties: {
+        success: { type: 'boolean' },
+        participants: {
+          type: 'array',
+          items: {
+            type: 'object',
+            properties: {
+              user: {
+                type: 'object',
+                properties: {
+                  id: { type: 'number' },
+                  name: { type: 'string' },
+                  surname: { type: 'string' },
+                  email: { type: 'string', format: 'email' },
+                },
+                required: ['id', 'name', 'surname', 'email'],
+              },
+              role: {
+                type: 'string',
+                enum: ['OWNER', 'EDITOR', 'VIEWER'],
+              },
+              joinedAt: { type: 'string', format: 'date-time' },
+            },
+            required: ['user', 'role', 'joinedAt'],
+          },
+        },
+      },
+      required: ['success', 'participants'],
+    },
+    400: {
+      type: 'object',
+      properties: { error: { type: 'string' } },
+      required: ['error'],
+    },
+    401: {
+      type: 'object',
+      properties: { error: { type: 'string' } },
+      required: ['error'],
+    },
+    403: {
+      type: 'object',
+      properties: { error: { type: 'string' } },
+      required: ['error'],
+    },
+    404: {
+      type: 'object',
+      properties: { error: { type: 'string' } },
+      required: ['error'],
+    },
+    409: {
+      type: 'object',
+      properties: { error: { type: 'string' } },
+      required: ['error'],
+    },
+    500: {
+      type: 'object',
+      properties: { error: { type: 'string' } },
+      required: ['error'],
+    },
+  },
+}
+
+
 export const projectSchemas = {
     getAllProjectsSchema: getAllProjectsSchema,
     getProjectByIdSchema: getProjectByIdSchema,
@@ -258,6 +441,9 @@ export const projectSchemas = {
     getOrgProjectsByNameSchema: getOrgProjectsByNameSchema,
     createProjectSchema: createProjectSchema,
     addProjectParticipantsSchema,
+    updateProjectSchema,
+    updateProjectParticipantsSchema
+
 };
 
 
