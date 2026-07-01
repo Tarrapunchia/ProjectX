@@ -118,9 +118,20 @@ export interface ProjectParticipant {
 	joinedAt: Date
 }
 
+export interface Task {
+	id: string,
+	status: string,
+	name: string,
+	description: string,
+	createdAt: Date,
+	closedAt: Date,
+	projectId: string
+}
+
 export interface ProjectDetailed extends Project {
 	organization: { id: number, name: string },
-	participants: ProjectParticipant[]
+	participants: ProjectParticipant[],
+	tasks?: Task[] | [];
 }
 
 export interface Organization
@@ -178,7 +189,7 @@ interface WebSocketContextType {
 	activeOrg: Organization | null;
 	setActiveOrg: React.Dispatch<React.SetStateAction<Organization | null>>;
 
-	projects: Project[] | [];
+	projects: ProjectDetailed[] | [];
 	setProjects: React.Dispatch<React.SetStateAction<Project[] | []>>;
 }
 
@@ -313,9 +324,27 @@ export const WebSocketProvider: React.FC<{ children: ReactNode }> = ({ children 
 
 	const loadProjects = async () => {
 		const response = await helpers.getter('/api/v1/projects', null);
-		if (response.success)
-			setProjects(response.data || []);
+		if (response.success) {
+			const fetchedProjects: ProjectDetailed[] = response.data || [];
+			setProjects(fetchedProjects);
+			loadAllProjectTasks(fetchedProjects.map(p => p.id));
+		}
 	}
+
+	const loadProjectTasks = async (projectId: number) => {
+		const response = await helpers.getter(`/api/v1/tasks/projTasks/${projectId}`, null);
+		if (response.success) {
+			setProjects(prev => prev.map(p =>
+				p.id === projectId
+					? { ...p, tasks: response.data || []}
+					: p
+			));
+		}
+	}
+
+	const loadAllProjectTasks = async (projectIds: number[]) => {
+		await Promise.all(projectIds.map(id => loadProjectTasks(id)));
+	};
 
 	const loadBlockedUsers = async () => {
         // Presupponendo che la tua API accetti lo status 'BLOCKED' come parametro
