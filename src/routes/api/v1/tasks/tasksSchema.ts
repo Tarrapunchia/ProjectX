@@ -128,9 +128,108 @@ const getUserTasksSchema: Schema = {
     },
 }
 
+export const updateTaskStatusSchema: Schema = {
+  description: 'Update task status. Every project participant can update task status.',
+  tags: ['tasks'],
+  params: {
+    type: 'object',
+    properties: {
+      taskId: { type: 'string' },
+    },
+    required: ['taskId'],
+  },
+  body: {
+    type: 'object',
+    properties: {
+      status: {
+        type: 'string',
+        enum: ['TODO', 'ACTIVE', 'REVIEW', 'CLOSED'],
+      },
+    },
+    required: ['status'],
+    additionalProperties: false,
+  },
+  response: {
+    200: {
+      type: 'object',
+      properties: {
+        success: { type: 'boolean' },
+        task: {
+          type: 'object',
+          properties: {
+            id: { type: 'number' },
+            name: { type: 'string' },
+            projectId: { type: 'number' },
+            status: {
+              type: 'string',
+              enum: ['TODO', 'ACTIVE', 'REVIEW', 'CLOSED'],
+            },
+            priority: {
+              type: 'string',
+              enum: ['NONE', 'LOW', 'MEDIUM', 'HIGH', 'CRITICAL'],
+            },
+            description: { type: 'string', nullable: true },
+            createdAt: { type: 'string', format: 'date-time' },
+            dueDate: { type: 'string', format: 'date-time', nullable: true },
+            closedAt: { type: 'string', format: 'date-time', nullable: true },
+          },
+          required: [
+            'id',
+            'name',
+            'projectId',
+            'status',
+            'priority',
+            'description',
+            'createdAt',
+            'dueDate',
+            'closedAt',
+          ],
+        },
+      },
+      required: ['success', 'task'],
+    },
+    400: {
+      type: 'object',
+      properties: {
+        error: { type: 'string' },
+      },
+      required: ['error'],
+    },
+    401: {
+      type: 'object',
+      properties: {
+        error: { type: 'string' },
+      },
+      required: ['error'],
+    },
+    403: {
+      type: 'object',
+      properties: {
+        error: { type: 'string' },
+      },
+      required: ['error'],
+    },
+    404: {
+      type: 'object',
+      properties: {
+        error: { type: 'string' },
+      },
+      required: ['error'],
+    },
+    500: {
+      type: 'object',
+      properties: {
+        error: { type: 'string' },
+      },
+      required: ['error'],
+    },
+  },
+}
+
 export const taskSchemas = {
     getProjTasksSchema: getProjTasksSchema,
     createTaskchema: createTaskchema,
     deleteTaskSchema: deleteTaskSchema,
     getUserTasksSchema,
+    updateTaskStatusSchema
 };
