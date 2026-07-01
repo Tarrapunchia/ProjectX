@@ -190,7 +190,9 @@ interface WebSocketContextType {
 	setActiveOrg: React.Dispatch<React.SetStateAction<Organization | null>>;
 
 	projects: ProjectDetailed[] | [];
-	setProjects: React.Dispatch<React.SetStateAction<Project[] | []>>;
+	setProjects: React.Dispatch<React.SetStateAction<ProjectDetailed[] | []>>;
+	projectParticipants: ProjectParticipant[] | [];
+	setProjectParticipants: React.Dispatch<React.SetStateAction<ProjectParticipant[] | []>>;
 }
 
 
@@ -214,6 +216,7 @@ export const WebSocketProvider: React.FC<{ children: ReactNode }> = ({ children 
 	const [organizations, setOrganizations] = useState<Organization[]>([]);
 	const [activeOrg, setActiveOrg] = useState<Organization | null>(null);
 	const [projects, setProjects] = useState<ProjectDetailed[] | []>([]);
+	const [projectParticipants, setProjectParticipants] = useState<ProjectParticipant[] | []>([]);
 
 	const refreshUser = useCallback(async () => {
         const res = await helpers.getter('/api/v1/users/activeUser', null);
@@ -832,7 +835,9 @@ export const WebSocketProvider: React.FC<{ children: ReactNode }> = ({ children 
 			setActiveOrg,
 			loadFriends,
 			projects,
-			setProjects
+			setProjects,
+			projectParticipants,
+			setProjectParticipants
 			}}
 		>
 			{children}

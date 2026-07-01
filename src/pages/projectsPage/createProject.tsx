@@ -1,6 +1,6 @@
 import { useState, useRef, type SetStateAction } from 'react';
-import { FiCheck, FiX } from 'react-icons/fi';
-import { useWebSocket, type ProjectDetailed } from '../../utilities/WebSocketContext';
+import { FiCheck, FiX, FiPlusCircle, FiUser } from 'react-icons/fi';
+import { useWebSocket, type ProjectDetailed, type ProjectParticipant } from '../../utilities/WebSocketContext';
 import helpers from '../../utilities/helpers';
 
 interface CreateProjectProps {
@@ -8,11 +8,14 @@ interface CreateProjectProps {
 }
 
 export const CreateProject = ({ setCreateProject }: CreateProjectProps) => {
-	const { activeOrg, setProjects } = useWebSocket();
+	const { activeOrg, setProjects, projectParticipants, setProjectParticipants } = useWebSocket();
 	const formRef = useRef<HTMLFormElement>(null);
 
 	const [errors, setErrors] = useState<string[]>([]);
 	const [isShaking, setIsShaking] = useState(false);
+
+	const [addMemberOpen, setAddMemberOpen] = useState(false);
+	const [selectedMembersIds, setSelectedMembersIds] = useState<Set<Number>>(new Set());
 
 	const handleClose = () => {
 		formRef.current?.reset();
@@ -135,6 +138,41 @@ export const CreateProject = ({ setCreateProject }: CreateProjectProps) => {
 		`;
 	}
 
+	const toggleMemberSelection = (memberId: number) => {
+		setSelectedMembersIds(prev => {
+			const next = new Set(prev);
+			if (next.has(memberId))
+				next.delete(memberId);
+			else
+				next.add(memberId)
+			return next;
+		});
+	}
+
+	const handleAddMember = async () => {
+		if (addMemberOpen)
+		{
+			const selectedMembers = activeOrg?.members?.filter(m => selectedMembersIds.has(m.id)) ?? [];
+			
+			const newParticipants: ProjectParticipant[] = selectedMembers.map(m => ({
+				user: {
+					id: m.id,
+					name: m.name,
+					surname: m.surname,
+					email: m.email
+				},
+				role: "Dev",
+				joinedAt: new Date()
+			}));
+
+			setProjectParticipants(newParticipants);
+		}
+		else
+			setSelectedMembersIds(new Set(projectParticipants.map(p => p.user.id)));
+
+		setAddMemberOpen(prev => !prev)
+	}
+
 	return (
 		<div 
 			onClick={handleClose}
@@ -170,28 +208,78 @@ export const CreateProject = ({ setCreateProject }: CreateProjectProps) => {
 						/>
 					</div>
 
-					<div className="flex flex-col pl-24">
-						<div className="text-2xl">Data di termine progetto</div>
-						<input
-							type="date"
-							name="closedAt"
-							min={getMinSelectableDate()}
-							onChange={() => handleInputChange('closedAt')}
-							className={`${getInputClasses('closedAt')} h-10 pr-2`}
-						/>
+					<div className="flex flex-row flex-wrap justify-center items-center space-x-[20%] w-full">
+						<div className="flex flex-col pb-10">
+							<div className="text-2xl">Data di termine progetto</div>
+							<input
+								type="date"
+								name="closedAt"
+								min={getMinSelectableDate()}
+								onChange={() => handleInputChange('closedAt')}
+								className={`${getInputClasses('closedAt')} h-10 pr-2 [&::-webkit-calendar-picker-indicator]:cursor-pointer`}
+							/>
+						</div>
+						<div className="flex flex-col border border-overlay-border-color rounded-sm h-60 w-100">
+							<button
+								type="button"
+								onClick={handleAddMember}
+								className="flex items-center justify-center cursor-pointer p-2 w-full text-xl border rounded-t-sm border-overlay-border-color transition-all duration-300 hover:border-owner-color hover:text-owner-color"
+							>
+								<FiPlusCircle className="mr-2" size={24}/>Aggiungi Membri
+							</button>
+							{addMemberOpen ? (
+								<div className="w-full h-full">
+									{activeOrg?.members?.map(m =>
+										<label
+											className="flex flex-row gap-x-2 p-2 border border-overlay-border-color text-lg transition-all duration-300 hover:border-owner-color hover:text-owner-color hover:cursor-pointer has-checked:border-text-main"
+											key={m.id}
+										>
+											<input
+												type="checkbox"
+												checked={selectedMembersIds.has(m.id)}
+												onChange={() => toggleMemberSelection(m.id)}
+												className="sr-only"
+											/>
+											{m.avatar ? (
+												<img className="w-8 h-8 rounded-full object-cover shrink-0" src={m.avatar} />
+											) : (
+												<img className="w-8 h-8 rounded-full object-cover shrink-0" src={"/avatar/default"} />
+											)}
+											<span className="truncate">{m.name} {m.surname}</span>
+										</label>
+									)}
+								</div>
+							) : (
+								projectParticipants.length > 0 ? (
+								<div className="flex flex-col text-lg">
+									{projectParticipants.map(p => 
+										<div className="flex justify-between border border-overlay-border-color p-2 hover:">
+											{p.user.name} {p.user.surname}
+											<div className={`${p.role}`}>{p.role}</div>
+										</div>
+									)}
+								</div>
+								) : (
+									<div className="flex flex-col items-center justify-center gap-2 w-full h-full font-light">
+										<FiUser size={48} stroke-width={1.5}/>
+										Nessun partecipante aggiunto
+									</div>
+								)
+							)}
+						</div>
 					</div>
 				</form>
 				<div className="flex-none flex flex-wrap justify-center pb-12 pt-12 text-2xl gap-4 sm:gap-8 md:gap-24 lg:gap-64 mx-4 sm:mx-12">
 					<button
 						onClick={handleConfirm}
-						className="flex items-center justify-center gap-2 w-50 border border-overlay-border-color rounded-sm p-2 transition-all duration-300 hover:border-owner-color hover:text-owner-color hover:scale-90 active:scale-110"
+						className="flex items-center justify-center cursor-pointer gap-2 w-50 border border-overlay-border-color rounded-sm p-2 transition-all duration-300 hover:border-owner-color hover:text-owner-color hover:scale-90 active:scale-110"
 					>
 						<FiCheck size={32}/>
 						Conferma
 					</button>
 					<button
 						onClick={handleClose}
-						className="flex items-center justify-center gap-2 w-50 border border-overlay-border-color rounded-sm p-2 transition-all duration-300 hover:border-owner-color hover:text-owner-color hover:scale-90 active:scale-110"
+						className="flex items-center justify-center cursor-pointer gap-2 w-50 border border-overlay-border-color rounded-sm p-2 transition-all duration-300 hover:border-owner-color hover:text-owner-color hover:scale-90 active:scale-110"
 					>
 						<FiX size={32} />
 						Annulla
@@ -201,35 +289,3 @@ export const CreateProject = ({ setCreateProject }: CreateProjectProps) => {
 		</div>
 	)
 }
-
-/* 
-	TODO
-
-	- gestire la creazione del progetto tramite l'api
-
-		'/api/v1/projects/addProject'
-		-d '{
-		"name": "string",
-		"orgId": 0,
-		"status": "string",
-		"description": "string"
-
-	- gestire anche i membri attivi sul progetto
-	- capire se bisogna aggiungere nel server i membri relativi al progetto
-
-	- per la creazione del progetto:
-
-		nome: input (string)
-		orgId: activeOrg.id (number)
-		status: TODO (string)
-		description: input (string)
-
-		capire se aggiungere una barra di ricerca degli utenti
-		relativi alla org attiva per poter aggiungere direttamente
-		i membri al progetto
-		
-			!!! COMUNICARE A FABIO !!!
-			il poster del progetto non gestisce i partecipanti al progetto
-			mentre il getter dei progetti restituisce i participants
-			non c'e' modo di salvare i participants di un progetto nel server
-*/
