@@ -29,22 +29,25 @@ export const ProfileMenu = ({ setActivePage }: ProfileMenuProps) => {
 				>
 					Visualizza profilo
 				</button>
-				<div 
-					onClick={ () => setCreateOpen(true) }
-					className="flex flex-col overflow-y-auto no-scrollbar bg-category-bg-color w-[90%] h-[55%] border rounded-md border-overlay-border-color">
-					<button className="flex p-2 gap-2 items-center justify-center border-b border-overlay-border-color hover:text-owner-color hover:cursor-pointer">
+				<div className="flex flex-col bg-category-bg-color w-[90%] h-[55%] border rounded-md border-overlay-border-color">
+					<button 
+						onClick={ () => setCreateOpen(true) }
+						className="flex p-2 gap-2 items-center justify-center border-b border-overlay-border-color hover:text-owner-color hover:cursor-pointer"
+					>
 						<FiPlusCircle size={24}/>
 						<span>
 							Aggiungi organizzazione
 						</span>
 					</button>
-					<div className="flex flex-col gap-2">
+					<div className="flex flex-col overflow-y-auto no-scrollbar text-xl">
 						{organizations
 							 .filter(o => o.ownerId === activeUser?.id)
 							 .map(o => (
-								 <span>
-									{o.name}
-								</span>
+								<button className="flex border border-overlay-border-color/50 w-full transition-all duration-300 hover:border-owner-color hover:rounded-xs hover:text-owner-color">
+									<span className="pl-1 py-1">
+										{o.name}
+									</span>
+								</button>
 							 ))
 						}
 					</div>
