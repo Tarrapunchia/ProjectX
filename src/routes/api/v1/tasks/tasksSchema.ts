@@ -43,6 +43,7 @@ const createTaskchema: Schema = {
             projId: { type: 'number' },
             status: { type: 'string' },
             description: { type: 'string' },
+            priority: { type: 'string' }
         },
         required: ['name', 'projId', 'status'],
     },
