@@ -1,11 +1,12 @@
 import fastify, { type FastifyInstance, type FastifyPluginAsync } from "fastify";
 import { getUserIdFromJWT } from "../../../../helpers/cookies.js";
 import { taskSchemas } from "./tasksSchema.js";
+import { Priority, type Status } from "@prisma/client";
 
 const Posters: FastifyPluginAsync = async (fastify: FastifyInstance, opts) => {
     // // POST /api/v1/tasks/addTask
     fastify.post<{
-    Body: { name: string; projId: number, status: 'TODO' | 'ACTIVE' | 'REVIEW' | 'CLOSED', description?: 'string' }
+    Body: { name: string; projId: number, status: Status, priority: Priority, description?: 'string' }
     }>(
     '/addTask',
     { schema: taskSchemas.createTaskchema },
@@ -16,7 +17,7 @@ const Posters: FastifyPluginAsync = async (fastify: FastifyInstance, opts) => {
             return { error: 'You must be logged in in order to create a Task' }
         }
 
-        const { name, projId, status, description } = req.body
+        const { name, projId, status, description, priority } = req.body
 
         if (!name || !projId) {
             res.code(400)
@@ -60,7 +61,8 @@ const Posters: FastifyPluginAsync = async (fastify: FastifyInstance, opts) => {
                         name,
                         projectId: projId,
                         status: status,
-                        description: description ?? ''
+                        description: description ?? '',
+                        priority: priority
                     },
                 })
 

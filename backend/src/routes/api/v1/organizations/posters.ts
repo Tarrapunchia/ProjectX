@@ -221,27 +221,49 @@ const Posters: FastifyPluginAsync = async (fastify: FastifyInstance, opts) => {
         }
 
         const existingInvitation = await fastify.prisma.organizationJoinRequest.findFirst({
-            where: {
+        where: {
             organizationId,
             requesterId: actorId,
             targetUserId: user.id,
-            status: 'PENDING',
-            },
-        });
+        },
+        })
+
+        let invitation
 
         if (existingInvitation) {
-            res.code(409);
-            return { error: 'Invitation already pending' };
+        if (existingInvitation.status === 'PENDING') {
+            res.code(409)
+            return { error: 'Invitation already pending' }
         }
 
-        const invitation = await fastify.prisma.organizationJoinRequest.create({
+        if (existingInvitation.status === 'ACCEPTED') {
+            res.code(409)
+            return { error: 'Invitation already accepted' }
+        }
+
+        if (existingInvitation.status === 'REJECTED') {
+            invitation = await fastify.prisma.organizationJoinRequest.update({
+            where: { id: existingInvitation.id },
+            data: {
+                status: 'PENDING',
+                requesterId: actorId,
+                createdAt: new Date(),
+            },
+            })
+        } else {
+            res.code(409)
+            return { error: `Invitation already ${existingInvitation.status}` }
+        }
+        } else {
+        invitation = await fastify.prisma.organizationJoinRequest.create({
             data: {
             organizationId,
             requesterId: actorId,
             targetUserId: user.id,
             status: 'PENDING',
             },
-        });
+        })
+        }
 
         const actor = await fastify.prisma.user.findUnique({
             where: { id: actorId },

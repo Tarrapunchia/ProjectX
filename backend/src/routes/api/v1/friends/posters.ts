@@ -451,10 +451,7 @@
           reply.code(out.code)
           return { error: out.error }
         }
-        await fastify.wsSendToUser(targetUserId, {
-          type: 'user:blocked',
-          blockedById : blockerId
-        })
+
         reply.code(200)
         return {
           success: true,
