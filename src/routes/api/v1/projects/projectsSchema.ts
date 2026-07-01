@@ -177,6 +177,7 @@ export const addProjectParticipantsSchema: Schema = {
               type: 'string',
               enum: ['OWNER', 'EDITOR', 'VIEWER'],
             },
+            joinedAt: { type: 'string', format: 'date-time' }
           },
           required: ['user', 'role'],
         },

@@ -120,7 +120,8 @@ const Posters: FastifyPluginAsync = async (fastify: FastifyInstance, opts) => {
                 surname: string,
                 email: string
             }
-            role: 'OWNER' | 'EDITOR' | 'VIEWER'
+            role: 'OWNER' | 'EDITOR' | 'VIEWER',
+            joinedAt: Date
         }>
     }
     }>(
