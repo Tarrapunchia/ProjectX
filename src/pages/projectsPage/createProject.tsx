@@ -8,7 +8,7 @@ interface CreateProjectProps {
 }
 
 export const CreateProject = ({ setCreateProject }: CreateProjectProps) => {
-	const { activeOrg, setProjects, projectParticipants, setProjectParticipants } = useWebSocket();
+	const { activeOrg, setProjects, projectParticipants, setProjectParticipants, activeUser } = useWebSocket();
 	const formRef = useRef<HTMLFormElement>(null);
 
 	const [errors, setErrors] = useState<string[]>([]);
@@ -117,10 +117,14 @@ export const CreateProject = ({ setCreateProject }: CreateProjectProps) => {
 					}
 					setProjects(prev => [...prev, newProj]);
 
-					const result = await helpers.poster(`/api/v1/projects/${res.data.id}/participants`, projectParticipants)
+					console.log("participants", projectParticipants);
+					if (projectParticipants.length > 0) {
+						const result = await helpers.poster(`/api/v1/projects/${res.data.id}/participants`, projectParticipants)
+						
+						if (result.success)
+							console.log("projectParticipants", result.data);
+					}
 				
-					if (result.success)
-						console.log("projectParticipants", result.data);
 				}
 			}
 	
@@ -167,7 +171,7 @@ export const CreateProject = ({ setCreateProject }: CreateProjectProps) => {
 					surname: m.surname,
 					email: m.email
 				},
-				role: "Dev",
+				role: "OWNER",
 				joinedAt: new Date()
 			}));
 
@@ -235,7 +239,9 @@ export const CreateProject = ({ setCreateProject }: CreateProjectProps) => {
 							</button>
 							{addMemberOpen ? (
 								<div className="w-full h-full">
-									{activeOrg?.members?.map(m =>
+									{activeOrg?.members 
+										?.filter(m => m.id !== activeUser?.id)
+										.map(m =>
 										<label
 											className="flex flex-row gap-x-2 p-2 border border-overlay-border-color text-lg transition-all duration-300 hover:border-owner-color hover:text-owner-color hover:cursor-pointer has-checked:border-text-main"
 											key={m.id}
@@ -259,7 +265,9 @@ export const CreateProject = ({ setCreateProject }: CreateProjectProps) => {
 								projectParticipants.length > 0 ? (
 								<div className="flex flex-col text-lg">
 									{projectParticipants.map(p => 
-										<div className="flex justify-between border border-overlay-border-color p-2 hover:">
+										<div
+											key={p.user.id}
+											className="flex justify-between border border-overlay-border-color p-2 hover:">
 											{p.user.name} {p.user.surname}
 											<div className={`${p.role}`}>{p.role}</div>
 										</div>
@@ -267,7 +275,7 @@ export const CreateProject = ({ setCreateProject }: CreateProjectProps) => {
 								</div>
 								) : (
 									<div className="flex flex-col items-center justify-center gap-2 w-full h-full font-light">
-										<FiUser size={48} stroke-width={1.5}/>
+										<FiUser size={48} strokeWidth={1.5}/>
 										Nessun partecipante aggiunto
 									</div>
 								)

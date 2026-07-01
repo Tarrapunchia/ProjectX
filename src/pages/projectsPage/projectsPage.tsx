@@ -23,8 +23,6 @@ const ProjectsPage: React.FC<ProjectsPageProps> = ({ setActivePage, setSelectedP
 		COMPLETED: false,
 	});
 
-	// const [Participations, setParticipations] = React.useState<Participation[]>()
-	// const [ParticipationFetched, setParticipationFetched] = React.useState<boolean>(false)
 	
 	const toggleCategory = (category: ProjectDetailed['status']) => {
 		setExpandedCategories(prev => ({
@@ -32,38 +30,6 @@ const ProjectsPage: React.FC<ProjectsPageProps> = ({ setActivePage, setSelectedP
 			[category]: !prev[category],
 		}));
 	};
-
-	// useEffect(() => {
-	// 	(async () => {
-	// 		try {
-	// 			const res = await fetch(
-	// 				`${BE_HOSTNAME}/api/v1/users/activeUsersProjects`, {
-	// 					method: 'GET',
-	// 					headers: { "Content-Type": "application/json" },
-	// 					credentials: "include",
-	// 				}
-	// 			)
-	// 			if (res.ok) {
-	// 				const parts: Participation[] = await res.json()
-	// 				setParticipations(parts)
-	// 			}
-	// 			setParticipationFetched(true)
-	// 		} catch (error) {
-	// 			console.log(`Error in fetching user infos: ${error}`)
-	// 		}
-	// 	})()
-	// }, []);
-
-	// let projList: ProjectInfo[]
-	// let taskList: ProjectTasks[]
-	// if (ParticipationFetched) { 
-	// 	projList = Participations?.map((p) => p.project) ?? []
-	// 	taskList = []
-	// }
-	// else {
-	// 	projList = MOCK_PROJECTS
-	// 	taskList = MOCK_TASKS
-	// }
 
 	const [selectedCard, setSelectedCard] = useState<ProjectDetailed | null>(null);
 	const [isExpanding, setIsExpanding] = useState(false);
@@ -100,7 +66,7 @@ const ProjectsPage: React.FC<ProjectsPageProps> = ({ setActivePage, setSelectedP
 					</button>
 				)}
 			</div>
-			<div className="flex flex-wrap gap-8">
+			<div className="flex flex-wrap items-start gap-8">
 				<Category label="TO DO" status="TODO" projList={projects}
 					isExpanded={expandedCategories['TODO']}
 					onToggle={() => toggleCategory('TODO')}
