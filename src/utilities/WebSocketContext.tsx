@@ -107,6 +107,22 @@ export interface Project
 	closedAt: Date
 }
 
+export interface ProjectParticipant {
+	user: {
+		id: number,
+		name: string,
+		surname: string,
+		email: string
+	},
+	role: string,
+	joinedAt: Date
+}
+
+export interface ProjectDetailed extends Project {
+	organization: { id: number, name: string },
+	participants: ProjectParticipant[]
+}
+
 export interface Organization
 {
 	id: number,
@@ -161,6 +177,9 @@ interface WebSocketContextType {
 	setOrganizations: React.Dispatch<React.SetStateAction<Organization[]>>;
 	activeOrg: Organization | null;
 	setActiveOrg: React.Dispatch<React.SetStateAction<Organization | null>>;
+
+	projects: Project[] | [];
+	setProjects: React.Dispatch<React.SetStateAction<Project[] | []>>;
 }
 
 
@@ -183,6 +202,7 @@ export const WebSocketProvider: React.FC<{ children: ReactNode }> = ({ children 
 	const [blockedUsers, setBlockedUsers] = useState<Friend[]>([]);
 	const [organizations, setOrganizations] = useState<Organization[]>([]);
 	const [activeOrg, setActiveOrg] = useState<Organization | null>(null);
+	const [projects, setProjects] = useState<ProjectDetailed[] | []>([]);
 
 	const refreshUser = useCallback(async () => {
         const res = await helpers.getter('/api/v1/users/activeUser', null);
@@ -291,6 +311,12 @@ export const WebSocketProvider: React.FC<{ children: ReactNode }> = ({ children 
 		setActiveOrg(null);
 	}
 
+	const loadProjects = async () => {
+		const response = await helpers.getter('/api/v1/projects', null);
+		if (response.success)
+			setProjects(response.data || []);
+	}
+
 	const loadBlockedUsers = async () => {
         // Presupponendo che la tua API accetti lo status 'BLOCKED' come parametro
         const response = await helpers.getter('/api/v1/friends/BLOCKED', null);
@@ -334,6 +360,7 @@ export const WebSocketProvider: React.FC<{ children: ReactNode }> = ({ children 
 				}
 
 				loadOrgs();
+				loadProjects();
 			}
 		};
 		refreshUser();
@@ -756,7 +783,9 @@ export const WebSocketProvider: React.FC<{ children: ReactNode }> = ({ children 
 			setOrganizations,
 			activeOrg,
 			setActiveOrg,
-			loadFriends
+			loadFriends,
+			projects,
+			setProjects
 			}}
 		>
 			{children}
