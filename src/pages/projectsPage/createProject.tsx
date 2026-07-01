@@ -15,7 +15,7 @@ export const CreateProject = ({ setCreateProject }: CreateProjectProps) => {
 	const [isShaking, setIsShaking] = useState(false);
 
 	const [addMemberOpen, setAddMemberOpen] = useState(false);
-	const [selectedMembersIds, setSelectedMembersIds] = useState<Set<Number>>(new Set());
+	const [selectedMembersIds, setSelectedMembersIds] = useState<Set<number>>(new Set());
 
 	const handleClose = () => {
 		formRef.current?.reset();
@@ -94,7 +94,8 @@ export const CreateProject = ({ setCreateProject }: CreateProjectProps) => {
 					name: String(data.name).trim(),
 					orgId: activeOrg.id,
 					status: "TODO",
-					description: String(data.description).trim()
+					description: String(data.description).trim(),
+					closedAt: closedAt
 				};
 	
 				const res = await helpers.poster('/api/v1/projects/addProject', apiPayload);
@@ -112,9 +113,14 @@ export const CreateProject = ({ setCreateProject }: CreateProjectProps) => {
 							id: activeOrg.id,
 							name: activeOrg.name
 						},
-						participants: []
+						participants: projectParticipants
 					}
 					setProjects(prev => [...prev, newProj]);
+
+					const result = await helpers.poster(`/api/v1/projects/${res.data.id}/participants`, projectParticipants)
+				
+					if (result.success)
+						console.log("projectParticipants", result.data);
 				}
 			}
 	
@@ -156,7 +162,7 @@ export const CreateProject = ({ setCreateProject }: CreateProjectProps) => {
 			
 			const newParticipants: ProjectParticipant[] = selectedMembers.map(m => ({
 				user: {
-					id: m.id,
+					id: Number(m.id),
 					name: m.name,
 					surname: m.surname,
 					email: m.email
@@ -182,15 +188,15 @@ export const CreateProject = ({ setCreateProject }: CreateProjectProps) => {
 				onClick={(e) => e.stopPropagation()}
 				className="flex flex-col bg-bg-color overflow-y-auto no-scrollbar w-[80%] h-[80%] max-w-300 rounded-xl border-overlay-border-color border"
 			>
-				<div className="flex-none flex items-center justify-center text-3xl pt-8 pb-20 px-12 line-clamp-2">
+				<div className="flex-none flex items-center justify-center text-3xl pt-8 pb-12 px-12 line-clamp-2">
 					Crea un nuovo progetto per {activeOrg?.name}
 				</div>
 
 				<form
 					ref={formRef}
-					className="flex-1 px-6 py-6 flex flex-wrap justify-start gap-x-24 gap-y-4"
+					className="flex-1 px-6 flex flex-wrap justify-start gap-x-24 gap-y-4"
 				>
-					<div className="flex flex-col pl-24">
+					<div className="flex flex-col pl-[10%]">
 						<div className="text-2xl">Nome Progetto</div>
 						<input
 							name="name"
