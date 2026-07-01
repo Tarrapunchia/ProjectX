@@ -131,6 +131,7 @@ interface WebSocketContextType {
 	openFloatingChat: (chat: FloatingChatInfo) => void;
 	closeFloatingChat: (roomId: string) => void;
 	friends: Friend[];
+	loadFriends: () => Promise<void>;
 	groups: Group[];
 	setGroups: React.Dispatch<React.SetStateAction<Group[]>>;
 	loadGroups: () => Promise<void>;
@@ -149,11 +150,11 @@ interface WebSocketContextType {
 	loadCalendar: () => Promise<void>;
 	alertThreshold: number; // Soglia in ore
   	updateAlertThreshold: (hours: number) => void;
-	activeUser: User | null; // L'oggetto profilo completo
+	activeUser: User | null;
 	setActiveUser: React.Dispatch<React.SetStateAction<User | null>>;
     refreshUser: () => Promise<void>;
 
-	blockedUsers: Friend[]; // <--- NUOVO
+	blockedUsers: Friend[];
     loadBlockedUsers: () => Promise<void>;
 
 	organizations: Organization[];
@@ -177,7 +178,7 @@ export const WebSocketProvider: React.FC<{ children: ReactNode }> = ({ children 
 	// const [chatNotifications, setChatNotifications] = useState<Record<string, {chatInfo: FloatingChatInfo; count: number}>>({});
 	const friendsRef = useRef<Friend[]>([]);
 	const groupsRef = useRef<Group[]>([]);
-	const [pendingRequests, setPendingRequests] = useState<FriendRequest[]>([]);
+	const [pendingRequests, setPendingRequests] = useState<PendingRequest[]>([]);
 	const [calendarEntries, setCalendarEntries] = useState<CalendarEntries | null>(null);
 	const [blockedUsers, setBlockedUsers] = useState<Friend[]>([]);
 	const [organizations, setOrganizations] = useState<Organization[]>([]);
