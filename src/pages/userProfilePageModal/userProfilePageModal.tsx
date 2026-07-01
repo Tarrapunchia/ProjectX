@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
-import { useTranslation } from 'react-i18next';
-import { X, Mail, Phone, Briefcase, MapPin, UserPlus, Ban, Unlock, Loader2 } from 'lucide-react';
+import { X, Mail, Phone, Briefcase, MapPin, UserPlus, Ban, Unlock, Loader2, Building } from 'lucide-react';
 import CONSTS from '../../data/consts';
 import helpers from "../../utilities/helpers";
+import { useWebSocket } from "../../utilities/WebSocketContext";
 
 export interface ModalUser {
     id: number;
@@ -36,8 +36,8 @@ const UserProfileModal: React.FC<UserProfileModalProps> = ({
     onAddFriend,
     onRefresh
 }) => {
-    const { t } = useTranslation();
     const [isActionLoading, setIsActionLoading] = useState(false);
+    const { activeOrg } = useWebSocket() as any;
 
     if (!isOpen || !user) return null;
 
@@ -47,7 +47,10 @@ const UserProfileModal: React.FC<UserProfileModalProps> = ({
 
     const hasValidString = (str?: string) => str && str.trim().length > 0;
 
-    const handleBlockUser = async () => {
+    const isAlreadyMember = activeOrg?.members?.some((member: any) => member.id === user.id) || false;
+
+    const handleBlockUser = async () => 
+    {
         if (!user) return;
         
         try {
@@ -69,7 +72,8 @@ const UserProfileModal: React.FC<UserProfileModalProps> = ({
         }
     };
 
-    const handleUnblockUser = async () => {
+    const handleUnblockUser = async () => 
+    {
         if (!user) return;
         
         try {
@@ -86,6 +90,30 @@ const UserProfileModal: React.FC<UserProfileModalProps> = ({
             
         } catch (error) {
             console.error("Errore durante lo sblocco dell'utente:", error);
+        } finally {
+            setIsActionLoading(false);
+        }
+    };
+
+    const handleInviteToOrg = async () =>
+    {
+        if (!user || !activeOrg) return;
+        
+        try 
+        {
+            setIsActionLoading(true);
+            const res = await helpers.poster(`/api/v1/organizations/${Number(activeOrg.id)}/invitations`, { userId: user.id });
+
+            if (!res.success) {
+                throw new Error(res.data?.error || 'Failed to send organization invitation');
+            }
+
+            console.log("Invito all'organizzazione inviato con successo:", res.data);
+            onClose();
+            if (onRefresh) onRefresh();
+            
+        } catch (error) {
+            console.error("Errore durante l'invio dell'invito all'organizzazione:", error);
         } finally {
             setIsActionLoading(false);
         }
@@ -140,8 +168,8 @@ const UserProfileModal: React.FC<UserProfileModalProps> = ({
                         <div className="w-full flex flex-col items-center mt-2 text-center max-w-sm">
                             <div className="bg-red-500/10 border border-red-500/20 rounded-xl p-4 mb-6 w-full text-red-400">
                                 <Ban size={24} className="mx-auto mb-2 opacity-80" />
-                                <p className="text-sm font-medium">{t("user_profile_modal.blocked_title")}</p>
-                                <p className="text-xs mt-1 opacity-70">{t("user_profile_modal.blocked_subtitle")}</p>
+                                <p className="text-sm font-medium">You have blocked this user.</p>
+                                <p className="text-xs mt-1 opacity-70">They cannot interact with you.</p>
                             </div>
                             <button
                                 onClick={handleUnblockUser}
@@ -149,7 +177,7 @@ const UserProfileModal: React.FC<UserProfileModalProps> = ({
                                 className="flex items-center justify-center w-full gap-2 bg-text-main text-side-bg-color px-5 py-2.5 rounded-xl hover:scale-105 transition-all shadow-sm text-sm font-bold cursor-pointer active:scale-95 disabled:opacity-50"
                             >
                                 {isActionLoading ? <Loader2 size={19} className="animate-spin" /> : <Unlock size={19} />}
-                                {t("user_profile_modal.btn_unblock")}
+                                Unblock User
                             </button>
                         </div>
                     ) : 
@@ -181,19 +209,33 @@ const UserProfileModal: React.FC<UserProfileModalProps> = ({
 
                             {!hasValidString(user.email) && !hasValidString(user.phone) && !hasValidString(fullAddress) && (
                                 <p className="text-zinc-500 text-center italic w-full">
-                                    {t("user_profile_modal.no_contact_info")}
+                                    No contact information provided.
                                 </p>
                             )}
+
+                            {/* BOTTONE INVITO ORGANIZZAZIONE */}
+                            {activeOrg && !isAlreadyMember && (
+                                <div className="mt-2 flex justify-center w-full">
+                                    <button
+                                        onClick={handleInviteToOrg}
+                                        disabled={isActionLoading}
+                                        className="flex items-center justify-center w-full gap-2 bg-transparent text-text-main border border-overlay-border-color px-5 py-2.5 rounded-xl hover:border-text-main transition-all shadow-sm text-sm font-bold cursor-pointer active:scale-95 disabled:opacity-50"
+                                    >
+                                        {isActionLoading ? <Loader2 size={19} className="animate-spin" /> : <Building size={19} />}
+                                        Invite to {activeOrg.name}
+                                    </button>
+                                </div>
+                            )}
                             
-                            {/* BOTTONE BLOCCO (Visibile solo per gli amici) */}
-                            <div className="mt-4 flex justify-center w-full">
+                            {/* BOTTONE BLOCCO */}
+                            <div className="mt-2 flex justify-center w-full">
                                 <button
                                     onClick={handleBlockUser}
                                     disabled={isActionLoading}
                                     className="flex items-center justify-center w-full gap-2 bg-red-500/30 text-white border border-red-500/20 px-5 py-2.5 rounded-xl hover:bg-red-500 hover:text-white transition-all shadow-sm text-sm font-bold cursor-pointer active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
                                 >
                                     {isActionLoading ? <Loader2 size={19} className="animate-spin" /> : <Ban size={19} />}
-                                    {t("user_profile_modal.btn_block")}
+                                    Block User
                                 </button>
                             </div>
 
@@ -204,21 +246,35 @@ const UserProfileModal: React.FC<UserProfileModalProps> = ({
                     (
                         <div className="w-full flex flex-col items-center mt-2 text-center max-w-sm">
                             <p className="text-base text-zinc-400 mb-8 leading-relaxed">
-                                {t("user_profile_modal.not_friends_msg", { name: user.name })} <br/>
-                                {t("user_profile_modal.not_friends_sub")}
+                                You are not friends with <span className="text-text-main font-medium">{user.name}</span>. <br/>
+                                Send a request to see their full contact details!
                             </p>
                             
-                            <button
-                                onClick={() => {
-                                    onAddFriend(user.id);
-                                    onClose();
-                                }}
-                                disabled={isActionLoading}
-                                className="flex items-center justify-center w-full gap-2 bg-owner-color text-white px-5 py-2.5 rounded-xl hover:scale-105 transition-all shadow-lg text-sm font-bold cursor-pointer active:scale-95 disabled:opacity-50"
-                            >
-                                <UserPlus size={19} />
-                                {t("user_profile_modal.btn_send_request")}
-                            </button>
+                            <div className="w-full flex flex-col gap-3">
+                                <button
+                                    onClick={() => {
+                                        onAddFriend(user.id);
+                                        onClose();
+                                    }}
+                                    disabled={isActionLoading}
+                                    className="flex items-center justify-center w-full gap-2 bg-owner-color text-white px-5 py-2.5 rounded-xl hover:scale-105 transition-all shadow-lg text-sm font-bold cursor-pointer active:scale-95 disabled:opacity-50"
+                                >
+                                    <UserPlus size={19} />
+                                    Send Friend Request
+                                </button>
+
+                                {/* BOTTONE INVITO ORGANIZZAZIONE */}
+                                {activeOrg && !isAlreadyMember && (
+                                    <button
+                                        onClick={handleInviteToOrg}
+                                        disabled={isActionLoading}
+                                        className="flex items-center justify-center w-full gap-2 bg-transparent text-text-main border border-overlay-border-color px-5 py-2.5 rounded-xl hover:border-text-main transition-all shadow-sm text-sm font-bold cursor-pointer active:scale-95 disabled:opacity-50"
+                                    >
+                                        {isActionLoading ? <Loader2 size={19} className="animate-spin" /> : <Building size={19} />}
+                                        Invite to {activeOrg.name}
+                                    </button>
+                                )}
+                            </div>
                         </div>
                     )}
 
