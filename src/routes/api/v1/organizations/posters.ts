@@ -158,7 +158,7 @@ const Posters: FastifyPluginAsync = async (fastify: FastifyInstance, opts) => {
 
     fastify.post<{
         Params: { id: string }
-        Body: { email: string }
+        Body: { userId: string }
     }>(
         '/:id/invitations',
         { schema: orgSchemas.inviteMember },
@@ -169,10 +169,10 @@ const Posters: FastifyPluginAsync = async (fastify: FastifyInstance, opts) => {
             return { error: 'invalid organization id' };
         }
 
-        const { email } = req.body;
-        if (!email) {
+        const { userId } = req.body;
+        if (Number.isNaN(userId)) {
             res.code(400);
-            return { error: 'email address is required' };
+            return { error: 'invalid user id' };
         }
 
         const actorId = getUserIdFromJWT(req, res, fastify);
@@ -197,7 +197,7 @@ const Posters: FastifyPluginAsync = async (fastify: FastifyInstance, opts) => {
         }
 
         const user = await fastify.prisma.user.findUnique({
-            where: { email },
+            where: { id: Number(userId) },
             select: { id: true, email: true, name: true, surname: true },
         });
 

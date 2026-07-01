@@ -357,14 +357,14 @@ const inviteMember: Schema = {
   params: {
     type: 'object',
     properties: {
-      id: { type: 'string' },
+      userId: { type: 'string' },
     },
     required: ['id'],
   },
   body: {
     type: 'object',
     properties: {
-      email: { type: 'string', format: 'email' },
+      id: { type: 'number' },
     },
     required: ['email'],
   },
