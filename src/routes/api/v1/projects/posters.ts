@@ -5,7 +5,7 @@ import { projectSchemas } from "./projectsSchema.js";
 const Posters: FastifyPluginAsync = async (fastify: FastifyInstance, opts) => {
     // // POST /api/v1/organizations/addProject
     fastify.post<{
-    Body: { name: string; orgId: number, status: 'TODO' | 'ACTIVE' | 'REVIEW' | 'CLOSED', description?: 'string', closedAt: Date }
+    Body: { name: string; orgId: number, status: 'TODO' | 'ACTIVE' | 'REVIEW' | 'CLOSED', description?: string, closedAt?: string }
     }>(
     '/addProject',
     { schema: projectSchemas.createProjectSchema },
@@ -50,8 +50,8 @@ const Posters: FastifyPluginAsync = async (fastify: FastifyInstance, opts) => {
                         name,
                         organizationId: orgId,
                         status: status,
-                        description: description ?? '',
-                        closedAt: closedAt
+                        description: description ?? null,
+                        closedAt: closedAt ? new Date(closedAt) : null
                     },
                 })
 

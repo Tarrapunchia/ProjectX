@@ -123,7 +123,7 @@ const createProjectSchema: Schema = {
             orgId: { type: 'number' },
             status: { type: 'string' },
             description: { type: 'string' },
-            closedAt: { type: 'string', format: 'date-time', nullable: 'true' },
+            closedAt: { type: 'string', format: 'date-time', nullable: true },
         },
         required: ['name', 'orgId', 'status'],
     },
