@@ -38,10 +38,15 @@ export const ProfileMenu = ({ setActivePage }: ProfileMenuProps) => {
 							Aggiungi organizzazione
 						</span>
 					</button>
-					<div>
-						{organizations.map(o => 
-							o.name
-						)}
+					<div className="flex flex-col gap-2">
+						{organizations
+							 .filter(o => o.ownerId === activeUser?.id)
+							 .map(o => (
+								 <span>
+									{o.name}
+								</span>
+							 ))
+						}
 					</div>
 				</div>
 			</div>

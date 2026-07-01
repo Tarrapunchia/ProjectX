@@ -117,8 +117,9 @@ export interface Organization
 	address: string,
 	cap: string,
 	state: string,
-	ownerId: number,
-	projects: Project[]
+	ownerId?: number,
+	projects: Project[],
+	members: User[]
 }
 
 interface WebSocketContextType {
@@ -156,7 +157,7 @@ interface WebSocketContextType {
     loadBlockedUsers: () => Promise<void>;
 
 	organizations: Organization[];
-	setOrganization: React.Dispatch<React.SetStateAction<Organization[]>>;
+	setOrganizations: React.Dispatch<React.SetStateAction<Organization[]>>;
 }
 
 
@@ -279,6 +280,12 @@ export const WebSocketProvider: React.FC<{ children: ReactNode }> = ({ children 
 		}
 	};
 
+	const loadOrgs = async () => {
+		const response = await helpers.getter('/api/v1/organizations', null);
+		if (response.success)
+			setOrganizations(response.data || []);
+	}
+
 	const loadBlockedUsers = async () => {
         // Presupponendo che la tua API accetti lo status 'BLOCKED' come parametro
         const response = await helpers.getter('/api/v1/friends/BLOCKED', null);
@@ -317,11 +324,11 @@ export const WebSocketProvider: React.FC<{ children: ReactNode }> = ({ children 
 				const groupRes = await helpers.getter('/api/v1/groups/joined', null);
 				if (groupRes.success) {
 					const joinedGroups: Group[] = groupRes.data.groups;
-					console.log("AAAAAAAAAAAAAA");
-					console.log(groupRes.data.groups);
 					setGroups(joinedGroups);
 					console.log(groups);
 				}
+
+				loadOrgs();
 			}
 		};
 		refreshUser();
