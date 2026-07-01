@@ -16,7 +16,6 @@ i18n
     interpolation: { escapeValue: false },
     
     backend: {
-      // Questo dice esattamente dove trovare i file
       loadPath: '/locales/{{lng}}/{{ns}}.json',
     },
   });

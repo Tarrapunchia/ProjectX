@@ -8,14 +8,16 @@ export default function NotificationsCenter()
     const { t } = useTranslation();
     const { pendingRequests, calendarEntries, alertThreshold, acceptRequest, rejectRequest } = useWebSocket();
 
-    const alerts = useMemo(() => {
+    const alerts = useMemo(() =>
+    {
         if (!calendarEntries) return [];
 
         const now = new Date();
         const limitDate = new Date(now.getTime() + alertThreshold * 60 * 60 * 1000);
         const list: any[] = [];
 
-        calendarEntries.tasks?.forEach(task => {
+        calendarEntries.tasks?.forEach(task =>
+        {
             if (task.dueDate && task.status !== "COMPLETED") {
                 const d = new Date(task.dueDate);
                 if (d >= now && d <= limitDate) {
@@ -80,13 +82,13 @@ export default function NotificationsCenter()
                                     
                                     <div className="flex gap-2">
                                         <button 
-                                            onClick={() => acceptRequest(req.id, req.reqType)}
+                                            onClick={() => acceptRequest(req.id, req.reqType, req.organization?.id.toString() || '')}
                                             className="flex-1 py-1.5 text-[10px] bg-green-600/10 text-green-500 border border-green-600/20 rounded-lg hover:bg-green-600 hover:text-white transition cursor-pointer"
                                         >
                                             {t("notifications.accept")}
                                         </button>
                                         <button 
-                                            onClick={() => rejectRequest(req.id, req.reqType)}
+                                            onClick={() => rejectRequest(req.id, req.reqType, req.organization?.id.toString() || '')}
                                             className="flex-1 py-1.5 text-[10px] bg-red-600/10 text-red-500 border border-red-600/20 rounded-lg hover:bg-red-600 hover:text-white transition cursor-pointer"
                                         >
                                             {t("notifications.decline")}

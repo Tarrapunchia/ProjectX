@@ -90,7 +90,7 @@ export interface PendingRequest
         email: string;
     };
     createdAt: string;
-    // Campi esclusivi per gli inviti org
+
     organization?: {
         id: number;
         name: string;
@@ -173,8 +173,8 @@ interface WebSocketContextType {
 	myUserId: number | null;
 
 	pendingRequests: PendingRequest[];
-    acceptRequest: (id: number, reqType: 'friend' | 'org') => Promise<void>;
-    rejectRequest: (id: number, reqType: 'friend' | 'org') => Promise<void>;
+    acceptRequest: (id: number, reqType: 'friend' | 'org', orgId: string) => Promise<void>;
+    rejectRequest: (id: number, reqType: 'friend' | 'org', orgId: string) => Promise<void>;
 
 	calendarEntries: CalendarEntries | null;
 	loadCalendar: () => Promise<void>;
@@ -201,7 +201,8 @@ interface WebSocketContextType {
 
 const WebSocketContext = createContext<WebSocketContextType | undefined>(undefined);
 
-export const WebSocketProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
+export const WebSocketProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
+{
 	const [socket, setSocket] = useState<WebSocket | null>(null);
 	const [isReady, setIsReady] = useState(false);
 	const [floatingChats, setFloatingChats] = useState<FloatingChatInfo[]>([]);
@@ -282,7 +283,7 @@ export const WebSocketProvider: React.FC<{ children: ReactNode }> = ({ children 
         setPendingRequests(combined);
     };
 
-	const acceptRequest = async (requestId: number, reqType: 'friend' | 'org') => 
+	const acceptRequest = async (requestId: number, reqType: 'friend' | 'org', orgid: string) => 
 	{
         setPendingRequests(prev => prev.filter(r => !(r.id === requestId && r.reqType === reqType)));
 
@@ -290,19 +291,19 @@ export const WebSocketProvider: React.FC<{ children: ReactNode }> = ({ children 
             const res = await helpers.poster(`/api/v1/friends/requests/${requestId}/accept`, {});
             if (res.success) loadFriends();
         } else {
-            const res = await helpers.poster(`/api/v1/organizations/10/invitations/${requestId}/accept`, {});
+            const res = await helpers.poster(`/api/v1/organizations/${orgid}/invitations/${requestId}/accept`, {});
             if (res.success) loadGroups();
         }
     };
 
-	const rejectRequest = async (requestId: number, reqType: 'friend' | 'org') => 
+	const rejectRequest = async (requestId: number, reqType: 'friend' | 'org', orgid: string) => 
 	{
         setPendingRequests(prev => prev.filter(r => !(r.id === requestId && r.reqType === reqType)));
 
         if (reqType === 'friend')
             await helpers.poster(`/api/v1/friends/requests/${requestId}/reject`, {});
         else
-            await helpers.poster(`/api/v1/invitations/${requestId}/reject`, {});
+            await helpers.poster(`/api/v1/organizations/${orgid}/invitations/${requestId}/reject`, {});
     };
 
 	const loadFriends = async () => {

@@ -77,7 +77,7 @@ export const CreateOrganization = ({ setCreateOpen, activeUser }: CreateOrganiza
 			
 			if (res?.success) {
 				const newOrg: Organization = {
-					id: Number(data.id),
+					id: Number(res.data.id),
 					name: String(data.name).trim(),
 					email: String(data.email).trim(),
 					phone: String(data.phone).trim(),
