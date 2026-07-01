@@ -123,6 +123,7 @@ const createProjectSchema: Schema = {
             orgId: { type: 'number' },
             status: { type: 'string' },
             description: { type: 'string' },
+            closedAt: { type: 'string', format: 'date-time' },
         },
         required: ['name', 'orgId', 'status'],
     },
@@ -144,6 +145,111 @@ const createProjectSchema: Schema = {
     },
 }
 
+export const addProjectParticipantsSchema: Schema = {
+  description: 'Add one or more participants to a project',
+  tags: ['projects'],
+  params: {
+    type: 'object',
+    properties: {
+      projectId: { type: 'string' },
+    },
+    required: ['projectId'],
+  },
+  body: {
+    type: 'object',
+    properties: {
+      participants: {
+        type: 'array',
+        minItems: 1,
+        items: {
+          type: 'object',
+          properties: {
+            userId: { type: 'number' },
+            role: {
+              type: 'string',
+              enum: ['OWNER', 'EDITOR', 'VIEWER'],
+            },
+          },
+          required: ['userId', 'role'],
+        },
+      },
+    },
+    required: ['participants'],
+  },
+  response: {
+    200: {
+      type: 'object',
+      properties: {
+        success: { type: 'boolean' },
+        participants: {
+          type: 'array',
+          items: {
+            type: 'object',
+            properties: {
+              user: {
+                type: 'object',
+                properties: {
+                  id: { type: 'number' },
+                  name: { type: 'string' },
+                  surname: { type: 'string' },
+                  email: { type: 'string', format: 'email' },
+                },
+                required: ['id', 'name', 'surname', 'email'],
+              },
+              role: { type: 'string' },
+              joinedAt: { type: 'string', format: 'date-time' },
+            },
+            required: ['user', 'role', 'joinedAt'],
+          },
+        },
+      },
+      required: ['success', 'participants'],
+    },
+    400: {
+      type: 'object',
+      properties: {
+        error: { type: 'string' },
+      },
+      required: ['error'],
+    },
+    401: {
+      type: 'object',
+      properties: {
+        error: { type: 'string' },
+      },
+      required: ['error'],
+    },
+    403: {
+      type: 'object',
+      properties: {
+        error: { type: 'string' },
+      },
+      required: ['error'],
+    },
+    404: {
+      type: 'object',
+      properties: {
+        error: { type: 'string' },
+      },
+      required: ['error'],
+    },
+    409: {
+      type: 'object',
+      properties: {
+        error: { type: 'string' },
+      },
+      required: ['error'],
+    },
+    500: {
+      type: 'object',
+      properties: {
+        error: { type: 'string' },
+      },
+      required: ['error'],
+    },
+  },
+}
+
 
 export const projectSchemas = {
     getAllProjectsSchema: getAllProjectsSchema,
@@ -151,7 +257,7 @@ export const projectSchemas = {
     getProjectRoom: getProjectRoom,
     getOrgProjectsByNameSchema: getOrgProjectsByNameSchema,
     createProjectSchema: createProjectSchema,
-
+    addProjectParticipantsSchema,
 };
 
 
