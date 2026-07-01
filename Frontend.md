@@ -90,7 +90,18 @@
 
 * avatarUrl sui gruppi per personalizzare l'immagine del gruppo
 
-* Quando un utente viene bloccato mandare dal server un messaggio all'utente bloccato: type: user:blocked, data: blockedById (id dell'utente bloccante)
-if (messageData.type === "user:blocked") {
-					setFriends(prev => prev.filter(f => f.id !== messageData.blockedById));
-				}
+*	manca il poster per aggiungere membri al progetto
+	l'ideale sarebbe poter aggiungere un array di
+	ProjectParticipant per poter aggiungere piu' membri
+	contemporaneamente in una sola chiamata
+
+	export interface ProjectParticipant {
+		user: {
+			id: number,
+			name: string,
+			surname: string,
+			email: string
+		},
+		role: string,
+		joinedAt: Date
+	}

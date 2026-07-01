@@ -146,7 +146,7 @@ export interface Organization
 	state: string,
 	ownerId?: number,
 	projects: Project[],
-	members: User[]
+	members?: User[]
 }
 
 interface WebSocketContextType {
@@ -317,9 +317,27 @@ export const WebSocketProvider: React.FC<{ children: ReactNode }> = ({ children 
 
 	const loadOrgs = async () => {
 		const response = await helpers.getter('/api/v1/organizations', null);
-		if (response.success)
-			setOrganizations(response.data || []);
+		if (response.success) {
+			const fetchedOrgs: Organization[] = response.data || [];
+			setOrganizations(fetchedOrgs);
+			loadAllOrgMembers(fetchedOrgs.map(o => o.id));
+		}
 		setActiveOrg(null);
+	}
+
+	const loadOrgMembers = async (orgId: number) => {
+		const response = await helpers.getter(`/api/v1/organizations/${orgId}/members`, null);
+		if (response.success) {
+			setOrganizations(prev => prev.map(org =>
+				org.id === orgId
+				? { ...org, members: response.data || [] }
+				: org
+			));
+		}
+	}
+
+	const loadAllOrgMembers = async (orgIds: number[]) => {
+		await Promise.all(orgIds.map(id => loadOrgMembers(id)));
 	}
 
 	const loadProjects = async () => {

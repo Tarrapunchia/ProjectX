@@ -54,7 +54,10 @@ export const CreateProject = ({ setCreateProject }: CreateProjectProps) => {
 		i membri al progetto
 		
 			!!! COMUNICARE A FABIO !!!
-			il poster non gestisce i partecipanti al progetto
+			il poster del progetto non gestisce i partecipanti al progetto
 			mentre il getter dei progetti restituisce i participants
 			non c'e' modo di salvare i participants di un progetto nel server
+
+			/api/v1/organizations/{id}/organization
+			non ritorna la lista dei membri
 */
