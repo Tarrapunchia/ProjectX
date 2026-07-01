@@ -18,7 +18,7 @@ export default function ProgressBar({ projectId, createdAt, closedAt, showDetail
 	const timePercent = end > start ? Math.min(Math.round(((now - start) / (end - start)) * 100), 100) : 0;
 
 	return (
-		<div className="w-[90%] px-[10px] mx-auto my-auto">
+		<div className="w-[90%] px-[10px] mx-auto mt-30 mb-15">
 			<div className="relative w-full h-[24px] bg-progressbar-bg rounded-[12px] mt-[20px] overflow-visible">
 				<div className="h-full bg-gradient-color rounded-xl transition-[width] duration-500 ease-in-out"
 					style={{ width: `${percent}%` }}

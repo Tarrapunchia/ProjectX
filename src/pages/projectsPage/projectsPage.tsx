@@ -124,7 +124,8 @@ const ProjectsPage: React.FC<ProjectsPageProps> = ({ setActivePage, setSelectedP
 								showDetails
 							/>
 
-							<div className="flex flex-col border border-overlay-border-color rounded-sm w-80 max-h-20 overflow-y-auto">
+							<div className="flex flex-col border border-overlay-border-color rounded-sm w-80 max-h-40 overflow-y-auto ml-10">
+								<span className="border-b border-overlay-border-color p-2 text-2xl">Membri</span>
 								{selectedCard.participants?.map(p => 
 									<div className="flex flex-row justify-between p-2 border-b border-overlay-border-color/50">
 										<div>
