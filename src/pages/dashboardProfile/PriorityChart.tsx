@@ -10,9 +10,9 @@ type Priority = "NONE" | "LOW" | "MEDIUM" | "HIGH" | "CRITICAL";
 
 const priorityColors: Record<Priority, string> = {
   NONE: "#45619e",
-  LOW: "#ef4444",
+  LOW: "#10b981",
   MEDIUM: "#f59e0b",
-  HIGH: "#10b981",
+  HIGH: "#ef4444",
   CRITICAL: "#7f1d1d",
 };
 

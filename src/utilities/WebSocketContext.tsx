@@ -118,6 +118,8 @@ export interface ProjectParticipant {
 	joinedAt: Date
 }
 
+export type Priority = "NONE" | "LOW" | "MEDIUM" | "HIGH" | "CRITICAL";
+
 export interface Task {
 	id: string,
 	status: string,
@@ -126,6 +128,7 @@ export interface Task {
 	createdAt: Date,
 	closedAt: Date,
 	projectId: string
+	priority: Priority
 }
 
 export interface ProjectDetailed extends Project {

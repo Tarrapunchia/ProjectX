@@ -15,7 +15,7 @@ interface ProjectsPageProps {
 }
 
 const ProjectsPage: React.FC<ProjectsPageProps> = ({ setActivePage, setSelectedProject }) => {
-	const { projects, setProjects, activeOrg } = useWebSocket();
+	const { projects, activeOrg } = useWebSocket();
 	const [expandedCategories, setExpandedCategories] = useState<Record<string, boolean>>({
 		TODO: false,
 		ACTIVE: false,
@@ -31,7 +31,8 @@ const ProjectsPage: React.FC<ProjectsPageProps> = ({ setActivePage, setSelectedP
 		}));
 	};
 
-	const [selectedCard, setSelectedCard] = useState<ProjectDetailed | null>(null);
+	const [selectedCardId, setSelectedCardId] = useState<number | null>(null);
+	const selectedCard = projects.find(p => p.id === selectedCardId) ?? null;
 	const [isExpanding, setIsExpanding] = useState(false);
 	const [cardPosition, setCardPosition] = useState({ top: 0, left: 0, width: 0, height: 0 });
 	const [createProject, setCreateProject] = useState(false);
@@ -45,13 +46,13 @@ const ProjectsPage: React.FC<ProjectsPageProps> = ({ setActivePage, setSelectedP
 			height: cardRect.height,
 		});
 
-		setSelectedCard(project);
+		setSelectedCardId(project.id);
 		setTimeout(() => setIsExpanding(true), 10);
 	};
 
 	const handleClose = () => {
 		setIsExpanding(false);
-		setTimeout(() => setSelectedCard(null), 400);
+		setTimeout(() => setSelectedCardId(null), 400);
 	}
 
 	return (
@@ -157,7 +158,9 @@ const ProjectsPage: React.FC<ProjectsPageProps> = ({ setActivePage, setSelectedP
 								</button>
 							</div>
 						</div>
-						<TaskCard projectID={Number(selectedCard.id)} taskList={selectedCard.tasks ?? []} />
+						<TaskCard
+							selectedProject={selectedCard}
+						/>
 					</div>
 				</div>
 			)}
