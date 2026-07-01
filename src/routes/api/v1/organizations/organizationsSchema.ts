@@ -364,9 +364,9 @@ const inviteMember: Schema = {
   body: {
     type: 'object',
     properties: {
-      id: { type: 'number' },
+      userId: { type: 'number' },
     },
-    required: ['id'],
+    required: ['userId'],
   },
   response: {
     201: {
