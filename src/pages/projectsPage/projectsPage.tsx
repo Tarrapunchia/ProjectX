@@ -109,7 +109,7 @@ const ProjectsPage: React.FC<ProjectsPageProps> = ({ setActivePage, setSelectedP
 							<div className="flex flex-wrap items-center w-full">
 								<h2 className="text-[50px] font-bold m-0 leading-tight">{selectedCard.name}</h2>
 								<p className="line-clamp-1 min-w-50 max-w-87.5 mr-5 ml-auto bg-owner-color text-center rounded-[5px] text-[20px] px-2">
-									Owner Infos
+									{selectedCard.organization.name}
 								</p>
 							</div>
 							
@@ -123,6 +123,19 @@ const ProjectsPage: React.FC<ProjectsPageProps> = ({ setActivePage, setSelectedP
 								closedAt={selectedCard.closedAt}
 								showDetails
 							/>
+
+							<div className="flex flex-col border border-overlay-border-color rounded-sm w-80 max-h-20 overflow-y-auto">
+								{selectedCard.participants?.map(p => 
+									<div className="flex flex-row justify-between p-2 border-b border-overlay-border-color/50">
+										<div>
+											{p.user.name} {p.user.surname}
+										</div>
+										<div>
+											{p.role}
+										</div>
+									</div>
+								)}
+							</div>
 
 							<div className="flex justify-between mt-auto mb-1.25 w-full">
 								<button 
