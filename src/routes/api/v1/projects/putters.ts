@@ -201,8 +201,13 @@ const Putters: FastifyPluginAsync = async (fastify: FastifyInstance, opts) => {
     Params: { projectId: string }
     Body: {
         participants: Array<{
-        userId: number
-        role: 'OWNER' | 'EDITOR' | 'VIEWER'
+            user: {
+                id: number,
+                name: string,
+                surname: string,
+                email: string
+            }
+            role: 'OWNER' | 'EDITOR' | 'VIEWER'
         }>
     }
     }>(
@@ -235,8 +240,8 @@ const Putters: FastifyPluginAsync = async (fastify: FastifyInstance, opts) => {
         const invalid = participants.find((p) => {
         return (
             !p ||
-            typeof p.userId !== 'number' ||
-            Number.isNaN(p.userId) ||
+            typeof p.user.id !== 'number' ||
+            Number.isNaN(p.user.id) ||
             !allowedRoles.includes(p.role as any)
         )
         })
@@ -247,7 +252,7 @@ const Putters: FastifyPluginAsync = async (fastify: FastifyInstance, opts) => {
         }
 
         const uniqueParticipants = Array.from(
-        new Map(participants.map((p) => [p.userId, p])).values()
+        new Map(participants.map((p) => [p.user.id, p])).values()
         )
 
         const hasOwner = uniqueParticipants.some((p) => p.role === 'OWNER')
@@ -267,7 +272,7 @@ const Putters: FastifyPluginAsync = async (fastify: FastifyInstance, opts) => {
 
             const organizationId = permission.project.organizationId
 
-            const userIds = uniqueParticipants.map((p) => p.userId)
+            const userIds = uniqueParticipants.map((p) => p.user.id)
 
             const users = await tx.user.findMany({
             where: {
@@ -283,14 +288,14 @@ const Putters: FastifyPluginAsync = async (fastify: FastifyInstance, opts) => {
             const existingUserIds = new Set(users.map((u: any) => u.id))
 
             const missingUser = uniqueParticipants.find((p) => {
-            return !existingUserIds.has(p.userId)
+            return !existingUserIds.has(p.user.id)
             })
 
             if (missingUser) {
             return {
                 ok: false as const,
                 code: 404,
-                error: `User ${missingUser.userId} not found`,
+                error: `User ${missingUser.user.id} not found`,
             }
             }
 
@@ -309,14 +314,14 @@ const Putters: FastifyPluginAsync = async (fastify: FastifyInstance, opts) => {
             const orgMemberIds = new Set(orgMembers.map((m: any) => m.userId))
 
             const notOrgMember = uniqueParticipants.find((p) => {
-            return !orgMemberIds.has(p.userId)
+            return !orgMemberIds.has(p.user.id)
             })
 
             if (notOrgMember) {
             return {
                 ok: false as const,
                 code: 403,
-                error: `User ${notOrgMember.userId} is not a member of the organization`,
+                error: `User ${notOrgMember.user.id} is not a member of the organization`,
             }
             }
 
@@ -379,7 +384,7 @@ const Putters: FastifyPluginAsync = async (fastify: FastifyInstance, opts) => {
                 where: {
                 projectId_userId: {
                     projectId,
-                    userId: p.userId,
+                    userId: p.user.id,
                 },
                 },
                 update: {
@@ -387,7 +392,7 @@ const Putters: FastifyPluginAsync = async (fastify: FastifyInstance, opts) => {
                 },
                 create: {
                 projectId,
-                userId: p.userId,
+                userId: p.user.id,
                 roleId: role.id,
                 },
             })

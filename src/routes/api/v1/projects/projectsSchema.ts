@@ -164,13 +164,21 @@ export const addProjectParticipantsSchema: Schema = {
         items: {
           type: 'object',
           properties: {
-            userId: { type: 'number' },
+            user: {
+                type: 'object',
+                properties: {
+                    id: { type: 'number' },
+                    name: { type: 'string' },
+                    surname: { type: 'string' },
+                    email: { type: 'string', format: 'email' },
+                }
+            },
             role: {
               type: 'string',
               enum: ['OWNER', 'EDITOR', 'VIEWER'],
             },
           },
-          required: ['userId', 'role'],
+          required: ['user', 'role'],
         },
       },
     },
@@ -354,13 +362,21 @@ export const updateProjectParticipantsSchema: Schema = {
         items: {
           type: 'object',
           properties: {
-            userId: { type: 'number' },
+            user: {
+                type: 'object',
+                properties: {
+                    id: { type: 'number' },
+                    name: { type: 'string' },
+                    surname: { type: 'string' },
+                    email: { type: 'string', format: 'email' },
+                }
+            },
             role: {
               type: 'string',
               enum: ['OWNER', 'EDITOR', 'VIEWER'],
             },
           },
-          required: ['userId', 'role'],
+          required: ['user', 'role'],
           additionalProperties: false,
         },
       },
