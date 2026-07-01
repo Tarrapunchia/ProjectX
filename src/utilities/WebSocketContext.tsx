@@ -755,7 +755,8 @@ export const WebSocketProvider: React.FC<{ children: ReactNode }> = ({ children 
 			organizations,
 			setOrganizations,
 			activeOrg,
-			setActiveOrg
+			setActiveOrg,
+			loadFriends
 			}}
 		>
 			{children}
