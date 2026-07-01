@@ -357,7 +357,7 @@ const inviteMember: Schema = {
   params: {
     type: 'object',
     properties: {
-      userId: { type: 'string' },
+      id: { type: 'string' },
     },
     required: ['id'],
   },
@@ -366,7 +366,7 @@ const inviteMember: Schema = {
     properties: {
       id: { type: 'number' },
     },
-    required: ['email'],
+    required: ['id'],
   },
   response: {
     201: {
