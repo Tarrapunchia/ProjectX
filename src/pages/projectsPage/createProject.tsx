@@ -26,3 +26,35 @@ export const CreateProject = ({ setCreateProject }: CreateProjectProps) => {
 		</div>
 	)
 }
+
+/* 
+	TODO
+
+	- gestire la creazione del progetto tramite l'api
+
+		'/api/v1/projects/addProject'
+		-d '{
+		"name": "string",
+		"orgId": 0,
+		"status": "string",
+		"description": "string"
+
+	- gestire anche i membri attivi sul progetto
+	- capire se bisogna aggiungere nel server i membri relativi al progetto
+
+	- per la creazione del progetto:
+
+		nome: input (string)
+		orgId: activeOrg.id (number)
+		status: TODO (string)
+		description: input (string)
+
+		capire se aggiungere una barra di ricerca degli utenti
+		relativi alla org attiva per poter aggiungere direttamente
+		i membri al progetto
+		
+			!!! COMUNICARE A FABIO !!!
+			il poster non gestisce i partecipanti al progetto
+			mentre il getter dei progetti restituisce i participants
+			non c'e' modo di salvare i participants di un progetto nel server
+*/
