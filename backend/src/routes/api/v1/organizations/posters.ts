@@ -158,7 +158,7 @@ const Posters: FastifyPluginAsync = async (fastify: FastifyInstance, opts) => {
 
     fastify.post<{
         Params: { id: string }
-        Body: { email: string }
+        Body: { userId: string }
     }>(
         '/:id/invitations',
         { schema: orgSchemas.inviteMember },
@@ -169,10 +169,10 @@ const Posters: FastifyPluginAsync = async (fastify: FastifyInstance, opts) => {
             return { error: 'invalid organization id' };
         }
 
-        const { email } = req.body;
-        if (!email) {
+        const { userId } = req.body;
+        if (Number.isNaN(userId)) {
             res.code(400);
-            return { error: 'email address is required' };
+            return { error: 'invalid user id' };
         }
 
         const actorId = getUserIdFromJWT(req, res, fastify);
@@ -197,7 +197,7 @@ const Posters: FastifyPluginAsync = async (fastify: FastifyInstance, opts) => {
         }
 
         const user = await fastify.prisma.user.findUnique({
-            where: { email },
+            where: { id: Number(userId) },
             select: { id: true, email: true, name: true, surname: true },
         });
 
@@ -366,6 +366,66 @@ const Posters: FastifyPluginAsync = async (fastify: FastifyInstance, opts) => {
       membership: result.membership,
     });
   })
+
+  fastify.post<{
+  Params: { id: string; requestId: string }
+}>(
+  '/:id/invitations/:requestId/reject',
+  { schema: orgSchemas.rejectInvitation },
+  async (req, res) => {
+    const authUser = getUserIdFromJWT(req, res, fastify)
+
+    const organizationId = Number(req.params.id)
+    const requestId = Number(req.params.requestId)
+
+    if (!authUser || Number.isNaN(organizationId) || Number.isNaN(requestId)) {
+      res.code(400)
+      return { error: 'Invalid organizationId or requestId' }
+    }
+
+    const invitation = await fastify.prisma.organizationJoinRequest.findUnique({
+      where: { id: requestId },
+    })
+
+    if (!invitation) {
+      res.code(404)
+      return { error: 'Invitation not found' }
+    }
+
+    if (invitation.organizationId !== organizationId) {
+      res.code(400)
+      return { error: 'Invitation does not belong to this organization' }
+    }
+
+    if (invitation.targetUserId !== authUser) {
+      res.code(403)
+      return { error: 'You are not allowed to reject this invitation' }
+    }
+
+    if (invitation.status !== 'PENDING') {
+      res.code(409)
+      return { error: `Invitation already ${invitation.status}` }
+    }
+
+    const updatedInvitation = await fastify.prisma.organizationJoinRequest.update({
+      where: { id: requestId },
+      data: { status: 'REJECTED' },
+    })
+
+    fastify.wsSendToUser(invitation.requesterId, {
+      type: 'organization:invitation:rejected',
+      organizationId,
+      requestId: invitation.id,
+      rejectedByUserId: authUser,
+      ts: Date.now(),
+    })
+
+    return res.code(200).send({
+      success: true,
+      invitation: updatedInvitation,
+    })
+  }
+)
 }
 
 export default Posters

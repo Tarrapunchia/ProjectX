@@ -123,7 +123,7 @@ const createProjectSchema: Schema = {
             orgId: { type: 'number' },
             status: { type: 'string' },
             description: { type: 'string' },
-            closedAt: { type: 'string', format: 'date-time' },
+            closedAt: { type: 'string', format: 'date-time', nullable: true },
         },
         required: ['name', 'orgId', 'status'],
     },
@@ -177,6 +177,7 @@ export const addProjectParticipantsSchema: Schema = {
               type: 'string',
               enum: ['OWNER', 'EDITOR', 'VIEWER'],
             },
+            joinedAt: { type: 'string', format: 'date-time' }
           },
           required: ['user', 'role'],
         },

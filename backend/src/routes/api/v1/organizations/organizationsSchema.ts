@@ -357,16 +357,16 @@ const inviteMember: Schema = {
   params: {
     type: 'object',
     properties: {
-      id: { type: 'integer' },
+      id: { type: 'string' },
     },
     required: ['id'],
   },
   body: {
     type: 'object',
     properties: {
-      email: { type: 'string', format: 'email' },
+      userId: { type: 'number' },
     },
-    required: ['email'],
+    required: ['userId'],
   },
   response: {
     201: {
@@ -534,6 +534,75 @@ const getPendingInvitations: Schema = {
   },
 };
 
+export const rejectInvitation: Schema = {
+  description: 'Reject an organization invitation',
+  tags: ['organizations'],
+  params: {
+    type: 'object',
+    properties: {
+      id: { type: 'string' },
+      requestId: { type: 'string' },
+    },
+    required: ['id', 'requestId'],
+  },
+  response: {
+    200: {
+      type: 'object',
+      properties: {
+        success: { type: 'boolean' },
+        invitation: {
+          type: 'object',
+          properties: {
+            id: { type: 'number' },
+            organizationId: { type: 'number' },
+            requesterId: { type: 'number' },
+            targetUserId: { type: 'number' },
+            status: { type: 'string' },
+            createdAt: { type: 'string', format: 'date-time' },
+          },
+          required: [
+            'id',
+            'organizationId',
+            'requesterId',
+            'targetUserId',
+            'status',
+            'createdAt',
+          ],
+        },
+      },
+      required: ['success', 'invitation'],
+    },
+    400: {
+      type: 'object',
+      properties: {
+        error: { type: 'string' },
+      },
+      required: ['error'],
+    },
+    403: {
+      type: 'object',
+      properties: {
+        error: { type: 'string' },
+      },
+      required: ['error'],
+    },
+    404: {
+      type: 'object',
+      properties: {
+        error: { type: 'string' },
+      },
+      required: ['error'],
+    },
+    409: {
+      type: 'object',
+      properties: {
+        error: { type: 'string' },
+      },
+      required: ['error'],
+    },
+  },
+}
+
 export const orgSchemas = {
     getAllOrgs: getAllOrgsSchema,
     getOrgProfile: getOrgProfileById,
@@ -546,4 +615,5 @@ export const orgSchemas = {
     inviteMember,
     acceptInvitation,
     getPendingInvitations,
+    rejectInvitation
 };

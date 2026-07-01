@@ -498,3 +498,150 @@ This README is intentionally written to be:
 - professionally structured
 - conservative in module claims
 - honest about scope and current limitations
+
+---
+
+## Technical Stack Addendum — Monitoring and Observability
+
+The project also includes a monitoring and observability stack based on:
+
+- **Prometheus**
+- **Grafana**
+- backend operational endpoints (`/health`, `/ready`, `/status`)
+- Docker Compose-based provisioning for the monitoring services
+- custom alert rules and a custom backend dashboard
+
+This monitoring layer extends the original containerized architecture and provides visibility over backend health, readiness, runtime performance, and request latency.
+
+---
+
+## Features List Addendum
+
+### 12. Monitoring and observability stack
+**Contributors:** Fabio Zucconi, Giulia Vigano  
+The project includes a DevOps monitoring layer built around Prometheus and Grafana. Prometheus scrapes the backend metrics endpoint, evaluates alert rules, and stores time-series data. Grafana automatically provisions a Prometheus datasource and loads a custom FT_TRANSCENDENCE backend monitoring dashboard showing service state, latency, throughput, memory usage, heap usage, event loop lag, GC activity, and operational endpoint metrics for `/health`, `/ready`, and `/status`.
+
+---
+
+## Modules Addendum
+
+This addendum supplements the module list above without removing or replacing any of the already listed modules.
+
+### Additional claimed module
+
+| Category | Module | Type | Points | Why we claim it | Main contributors |
+|---|---|---:|---:|---|---|
+| Devops | Monitoring system with Prometheus and Grafana | Major | 2 | Prometheus is configured to collect backend metrics, integrations are configured through Docker Compose and provisioning files, Grafana loads a custom FT_TRANSCENDENCE dashboard automatically, alert rules are configured, and access to Grafana is protected through credentials and controlled exposure | Fabio, Giulia |
+
+### Revised total after this addendum
+
+**22 points total**
+
+- Previous claimed total: **20 points**
+- Additional module in this addendum: **+2 points**
+- Revised claimed total: **22 points**
+
+---
+
+## Instructions Addendum — Monitoring Stack
+
+The monitoring stack is started together with the application through Docker Compose.
+
+### Monitoring services
+
+The Compose setup now includes:
+
+- `prometheus`
+- `grafana`
+
+### Monitoring configuration files
+
+Typical monitoring files used by the project include:
+
+```txt
+monitoring/prometheus/prometheus.yml
+monitoring/prometheus/alerts.yml
+monitoring/grafana/provisioning/datasources/datasource.yml
+monitoring/grafana/provisioning/dashboards/dashboard.yml
+monitoring/grafana/dashboards/ft_transcendence_backend_monitoring.json
+```
+
+### Startup
+
+From the repository root:
+
+```bash
+docker compose up --build
+```
+
+### Monitoring URLs
+
+Typical local URLs are:
+
+```txt
+Frontend:   https://localhost:8443
+Prometheus: http://localhost:9090
+Grafana:    http://localhost:3000
+```
+
+### Grafana access
+
+Grafana is configured with explicit credentials and with anonymous access disabled. The dashboard is provisioned automatically at startup.
+
+### What the dashboard shows
+
+The FT_TRANSCENDENCE backend dashboard includes:
+
+- backend UP/DOWN state
+- requests per second
+- P95 latency
+- resident memory
+- request rate by route
+- P95 latency by route
+- event loop lag
+- heap usage
+- GC duration rate
+- operational endpoint traffic for `/health`, `/ready`, and `/status`
+
+### Evaluation/demo flow for the monitoring module
+
+A practical evaluation demonstration can be:
+
+1. start the full stack with Docker Compose
+2. open Prometheus and verify that the backend scrape target is `UP`
+3. open Grafana and show the provisioned dashboard
+4. call `/health`, `/ready`, and `/status`
+5. refresh Grafana and show changes in traffic and latency graphs
+6. explain the configured alert rules and secure access to Grafana
+
+---
+
+## Technical Choices Addendum
+
+### Why Prometheus + Grafana
+Prometheus and Grafana were chosen because they integrate well with Fastify/Node.js metrics exposure and because they make it possible to demonstrate a real monitoring workflow rather than a passive status page only.
+
+Prometheus provides:
+- metric collection
+- rule evaluation
+- alerting support
+
+Grafana provides:
+- custom dashboards
+- readable operational views
+- a strong evaluation/demo interface for the DevOps monitoring module
+
+### Why this was a good fit for the project
+The backend already exposed Prometheus-style metrics and operational endpoints. Building on top of that foundation allowed the team to add a production-style monitoring layer without changing the core application architecture.
+
+---
+
+## Resources Addendum
+
+Additional references used for the monitoring module:
+
+- Prometheus documentation
+- Grafana documentation
+- Grafana provisioning documentation
+- PromQL query documentation
+- Fastify metrics plugin documentation

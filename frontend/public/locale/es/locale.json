@@ -1,0 +1,220 @@
+{
+  "howToUse": {
+    "navbar": {
+      "logo": "FT_TRANSCENDENCE",
+      "readme": "README",
+      "login": "Iniciar sesión"
+    },
+    "hero": {
+      "eyebrow": "Guía de usuario",
+      "title": "Cómo usar la webapp",
+      "description": "Esta página explica el flujo principal de la plataforma, desde el inicio de sesión hasta la gestión de proyectos y la colaboración en tiempo real."
+    },
+    "steps": [
+      {
+        "title": "1. Accede a la plataforma",
+        "text": "Inicia sesión con email y contraseña o mediante Google OAuth. Después de la autenticación, podrás acceder a tu panel personal."
+      },
+      {
+        "title": "2. Revisa el panel",
+        "text": "El panel muestra tu calendario, eventos, tareas, prioridades y resúmenes de las actividades relevantes."
+      },
+      {
+        "title": "3. Selecciona un proyecto",
+        "text": "Desde la sección Proyectos puedes consultar los proyectos según su estado: TODO, ACTIVE, REVIEW y COMPLETED."
+      },
+      {
+        "title": "4. Gestiona las tareas",
+        "text": "Cada proyecto puede contener tareas con prioridad, fecha límite, descripción y estado de progreso."
+      },
+      {
+        "title": "5. Usa documentos y archivos",
+        "text": "La sección Archivos te permite subir y consultar materiales vinculados a un proyecto o a una organización."
+      },
+      {
+        "title": "6. Colabora en tiempo real",
+        "text": "El sistema de chat usa WebSocket para soportar mensajes directos, salas de proyecto, notificaciones y comunicación en vivo."
+      }
+    ],
+    "tip": {
+      "title": "Consejo de uso",
+      "text": "Usa el panel como punto de partida y luego entra en el proyecto activo para trabajar en tareas, archivos, documentos y chat. De esta manera, la webapp funciona como un pequeño sistema similar a Jira integrado con comunicación en tiempo real."
+    }
+  },
+  "docsPage": {
+    "navbar": {
+      "logo": "FT_TRANSCENDENCE",
+      "howToUse": "Cómo usar",
+      "login": "Iniciar sesión"
+    },
+    "hero": {
+      "eyebrow": "Documentación",
+      "projectReadmeTitle": "Archivos README del proyecto",
+      "technicalReadmeTitle": "Archivos README técnicos",
+      "description": "Aquí puedes acceder a las páginas de documentación generadas a partir de los archivos Markdown guardados dentro de la carpeta public/docs."
+    },
+    "labels": {
+      "readme": "README"
+    },
+    "mainDoc": {
+      "slug": "main_es",
+      "title": "README del Proyecto",
+      "text": "Documentación completa del proyecto."
+    },
+    "techDocs": [
+      {
+        "slug": "backend_es",
+        "title": "README Backend",
+        "text": "Arquitectura Fastify, Prisma, autenticación, API REST y gestión de datos."
+      },
+      {
+        "slug": "frontend_es",
+        "title": "README Frontend",
+        "text": "Estructura React, routing, panel, componentes y llamadas a la API."
+      },
+      {
+        "slug": "containers_es",
+        "title": "README Contenedores",
+        "text": "Cómo se containerizó el proyecto."
+      }
+    ]
+  },
+  "landingPage": {
+    "navbar": {
+      "logo": "FT_TRANSCENDENCE",
+      "readme": "README",
+      "howToUse": "Cómo usar",
+      "login": "Iniciar sesión"
+    },
+    "hero": {
+      "eyebrow": "Gestión de proyectos · Tiempo real · Colaboración",
+      "title": {
+        "line1": "Una webapp colaborativa",
+        "highlight": " inspirada en Jira",
+        "line2": "para organizar proyectos, tareas y equipos."
+      },
+      "text": "FT_TRANSCENDENCE es una plataforma diseñada para gestionar organizaciones, proyectos, tareas, documentos, calendarios y comunicación en tiempo real. Su objetivo es ofrecer un panel centralizado donde los usuarios pueden supervisar el trabajo de su equipo, colaborar en proyectos y consultar el historial de actividades.",
+      "actions": {
+        "primary": "Entrar en la webapp",
+        "secondary": "Leer los archivos README"
+      }
+    },
+    "preview": {
+      "columns": [
+        {
+          "title": "TODO",
+          "tasks": [
+            "Configurar la organización",
+            "Definir las tareas del proyecto"
+          ]
+        },
+        {
+          "title": "ACTIVE",
+          "tasks": [
+            "Desarrollar el panel",
+            "Chat WebSocket"
+          ]
+        },
+        {
+          "title": "REVIEW",
+          "tasks": [
+            "Subida de archivos"
+          ]
+        },
+        {
+          "title": "DONE",
+          "tasks": [
+            "Autenticación"
+          ]
+        }
+      ]
+    },
+    "featuresSection": {
+      "eyebrow": "Funciones principales",
+      "title": "Cómo funciona la plataforma",
+      "description": "La webapp está dividida en módulos: autenticación, perfil de usuario, organizaciones, proyectos, tareas, documentos, calendario y chat."
+    },
+    "features": [
+      {
+        "title": "Organizaciones",
+        "text": "Crea y gestiona organizaciones, equipos y espacios de trabajo compartidos."
+      },
+      {
+        "title": "Proyectos",
+        "text": "Cada organización puede contener varios proyectos con estado, descripción, tareas y documentos."
+      },
+      {
+        "title": "Task board",
+        "text": "Gestiona las tareas con un flujo similar a Jira: TODO, ACTIVE, REVIEW y COMPLETED."
+      },
+      {
+        "title": "Chat en tiempo real",
+        "text": "Comunícate mediante mensajes directos y salas de proyecto basadas en WebSocket."
+      },
+      {
+        "title": "Documentos y archivos",
+        "text": "Sube y consulta archivos vinculados a organizaciones y proyectos."
+      },
+      {
+        "title": "Panel personal",
+        "text": "Visualiza el perfil, calendario, tareas, prioridades, eventos y estado de actividad."
+      }
+    ],
+    "workflowSection": {
+      "eyebrow": "Workflow",
+      "title": "Pipeline típica"
+    },
+    "workflow": [
+      {
+        "number": "01",
+        "title": "Inicio de sesión",
+        "text": "El usuario inicia sesión con email y contraseña o mediante Google OAuth."
+      },
+      {
+        "number": "02",
+        "title": "Panel",
+        "text": "Visualiza calendario, eventos, tareas, prioridades y resúmenes de actividades."
+      },
+      {
+        "number": "03",
+        "title": "Proyectos",
+        "text": "Selecciona un proyecto y visualiza tareas, documentos y detalles."
+      },
+      {
+        "number": "04",
+        "title": "Colaboración",
+        "text": "Usa chat en tiempo real, notificaciones y documentos compartidos."
+      }
+    ],
+    "cta": {
+      "title": "¿Quieres entender el proyecto desde un punto de vista técnico?",
+      "text": "Consulta los archivos README dedicados al backend, frontend, WebSocket y base de datos.",
+      "button": "Ir a la documentación"
+    }
+  },
+  "markdownDocPage": {
+    "navbar": {
+      "logo": "FT_TRANSCENDENCE",
+      "docs": "Documentación",
+      "howToUse": "Cómo usar",
+      "login": "Iniciar sesión"
+    },
+    "allowedDocs": {
+      "main_es": "README principal",
+      "backend_es": "README Backend",
+      "frontend_es": "README Frontend",
+      "containers_es": "README Contenedores"
+    },
+    "fallbackTitle": "README",
+    "invalidTitle": "Documento no válido.",
+    "header": {
+      "eyebrow": "README",
+      "description": "Este documento se renderiza dinámicamente a partir de un archivo Markdown guardado dentro de la carpeta public/docs."
+    },
+    "messages": {
+      "invalidDocument": "Documento no válido.",
+      "loading": "Cargando...",
+      "unableToLoad": "No se pudo cargar el archivo README:"
+    }
+  }
+}

@@ -1,97 +1,121 @@
-// import fastify, { type FastifyInstance, type FastifyPluginAsync } from "fastify";
-// import { getUserIdFromJWT } from "../../../../helpers/cookies.js";
-// import { orgSchemas } from "./projectsSchema.js";
+import fastify, { type FastifyInstance, type FastifyPluginAsync } from "fastify";
+import { getUserIdFromJWT } from "../../../../helpers/cookies.js";
+import { taskSchemas } from "./tasksSchema.js";
 
-// const Putters: FastifyPluginAsync = async (fastify: FastifyInstance, opts) => {
-// // PUT /api/v1/organizations/modifyOrganizationInfos
-//     fastify.put<{
-//         Body: {
-//             orgId: number
-//             name?: string | null
-//             email?: string | null
-//             phone?: string | null
-//             city?: string | null
-//             address?: string | null
-//             cap?: string | null
-//             state?: string | null
-//         }
-//         }>(
-//         '/modifyOrganizationInfos',
-//         { schema: orgSchemas.modifyOrgInfos },
-//         async (req, res) => {
-//             // Controllo se loggati (vedo se ho JWT nei session token)
-//             let ownerId = getUserIdFromJWT(req, res, fastify)
-//             if (!ownerId) {
-//                 res.code(400)
-//                 return { error: 'You must be logged in in order to modify an Organization' }
-//             }
+const Putters: FastifyPluginAsync = async (fastify: FastifyInstance, opts) => {
+// PUT /api/v1/organizations/modifyOrganizationInfos
+    fastify.put<{
+    Params: { taskId: string }
+    Body: {
+        status: 'TODO' | 'ACTIVE' | 'REVIEW' | 'CLOSED'
+    }
+    }>(
+    '/:taskId/status',
+    { schema: taskSchemas.updateTaskStatusSchema },
+    async (req, res) => {
+        const userId = getUserIdFromJWT(req, res, fastify)
 
-//             const existing = await fastify.prisma.user.findUnique({
-//                 where: { id: ownerId },
-//                 select: { id: true },
-//             })
-//             if (!existing) {
-//                 res.code(404)
-//                 return { error: 'User not found' }
-//             }
+        if (!userId) {
+        res.code(401)
+        return { error: 'You must be logged in in order to update task status' }
+        }
 
-//             const {
-//                 orgId,
-//                 name,
-//                 email,
-//                 phone,
-//                 city,
-//                 address,
-//                 cap,
-//                 state,
-//             } = req.body
+        const taskId = Number(req.params.taskId)
 
-//             const existingOrg = await fastify.prisma.organization.findUnique({
-//                 where: { id: orgId, ownerId: ownerId },
-//                 select: { id: true },
-//             })
-//             if (!existingOrg) {
-//                 res.code(404)
-//                 return { error: 'Organization not found / no rights to modify' }
-//             }
+        if (Number.isNaN(taskId)) {
+        res.code(400)
+        return { error: 'Invalid task id' }
+        }
 
+        const { status } = req.body
 
-//             const data: Record<string, any> = {}
-//             if (name !== undefined) data.name = name
-//             if (email !== undefined) data.email = email
-//             if (phone !== undefined) data.phone = phone
-//             if (city !== undefined) data.city = city
-//             if (address !== undefined) data.address = address
-//             if (cap !== undefined) data.cap = cap
-//             if (state !== undefined) data.state = state
+        const allowedStatus = ['TODO', 'ACTIVE', 'REVIEW', 'CLOSED'] as const
 
-//             if (Object.keys(data).length === 0) {
-//                 res.code(400)
-//                 return { error: 'No fields to update' }
-//             }
+        if (!status || !allowedStatus.includes(status)) {
+        res.code(400)
+        return { error: 'Invalid task status' }
+        }
 
-//             try {
-//                 const org = await fastify.prisma.organization.update({
-//                     where: { id: orgId },
-//                     data,
-//                 })
+        try {
+        const result = await fastify.prisma.$transaction(async (tx) => {
+            const task = await tx.task.findUnique({
+            where: { id: taskId },
+            select: {
+                id: true,
+                projectId: true,
+            },
+            })
 
-//                 res.code(200)
-//                 return org
-//             } catch (error: any) {
-//                 fastify.log.error(error)
+            if (!task) {
+            return {
+                ok: false as const,
+                code: 404,
+                error: 'Task not found',
+            }
+            }
 
-//                 // nome duplicato
-//                 if (error?.code === 'P2002') {
-//                     res.code(400)
-//                     return { error: 'Name already in use' }
-//                 }
+            const membership = await tx.projectParticipant.findUnique({
+            where: {
+                projectId_userId: {
+                projectId: task.projectId,
+                userId,
+                },
+            },
+            select: {
+                userId: true,
+            },
+            })
 
-//                 res.code(400)
-//                 return { error: 'Unable to update organization' }
-//             }
-//         }
-//     )
-// }
+            if (!membership) {
+            return {
+                ok: false as const,
+                code: 403,
+                error: 'You are not a participant of this project',
+            }
+            }
 
-// export default Putters
+            const updated = await tx.task.update({
+            where: { id: taskId },
+            data: {
+                status,
+                closedAt: status === 'CLOSED' ? new Date() : null,
+            },
+            select: {
+                id: true,
+                name: true,
+                projectId: true,
+                status: true,
+                priority: true,
+                description: true,
+                createdAt: true,
+                dueDate: true,
+                closedAt: true,
+            },
+            })
+
+            return {
+            ok: true as const,
+            task: updated,
+            }
+        })
+
+        if (!result.ok) {
+            res.code(result.code)
+            return { error: result.error }
+        }
+
+        res.code(200)
+        return {
+            success: true,
+            task: result.task,
+        }
+        } catch (error: any) {
+        fastify.log.error(error)
+        res.code(500)
+        return { error: 'Unable to update task status' }
+        }
+    }
+    )
+}
+
+export default Putters

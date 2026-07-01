@@ -1548,3 +1548,257 @@ Its modular structure makes each domain independent and easy to extend:
 - `websocketPlugin` powers realtime communication
 
 This backend is designed to support a complete collaborative workflow: users log in, join organizations, create projects, manage tasks, upload files, communicate in realtime, and track their work from a centralized frontend dashboard.
+
+---
+
+# Monitoring, Prometheus, and Grafana Addendum
+
+This section supplements the existing backend README without replacing any of the information above. It documents the monitoring and observability stack that was added on top of the existing Fastify + Prisma backend.
+
+## DevOps monitoring scope
+
+The backend is now part of a monitoring stack based on:
+
+- **Prometheus** for metrics collection and scraping
+- **Grafana** for dashboards and visualization
+- backend operational endpoints for service state checks
+- alert rules for critical and warning scenarios
+
+This monitoring layer complements the existing metrics endpoint exposed by `fastify-metrics`.
+
+---
+
+## Operational endpoints
+
+In addition to `/metrics`, the backend now exposes operational endpoints intended for health checking and readiness verification:
+
+```txt
+/health
+/ready
+/status
+```
+
+### `/health`
+Used as a liveness endpoint.
+
+Purpose:
+- verify that the backend process is alive
+- verify that Fastify is responding
+
+Typical response meaning:
+- `200 OK` means the backend process is running
+
+### `/ready`
+Used as a readiness endpoint.
+
+Purpose:
+- verify that the backend is actually ready to serve traffic
+- verify that Prisma can access a real application table
+- verify that the database layer is usable, not just that the process is alive
+
+Typical response meaning:
+- `200 OK` means the backend can access the database correctly
+- `503` means the service is alive but not ready to serve normal traffic
+
+### `/status`
+Used as a compact operational summary endpoint.
+
+Purpose:
+- expose runtime state in a simple JSON format
+- provide a small status snapshot for operators and for the monitoring dashboard
+- summarize environment, uptime, and database state
+
+---
+
+## Metrics and observability
+
+The backend already exposes Prometheus metrics at:
+
+```txt
+/metrics
+```
+
+Those metrics include:
+
+- Node.js process metrics
+- memory and CPU usage
+- heap usage
+- event loop lag
+- garbage collection metrics
+- HTTP request metrics
+- request duration histograms and summaries
+
+In particular, the metrics collected from the backend include request monitoring for:
+
+```txt
+/health
+/ready
+/status
+```
+
+This makes it possible to monitor both generic backend performance and the specific operational endpoints introduced for the DevOps module.
+
+---
+
+## Monitoring stack architecture
+
+The monitoring setup uses Docker Compose services for:
+
+- backend
+- frontend / nginx
+- Prometheus
+- Grafana
+
+### Prometheus responsibilities
+
+Prometheus is responsible for:
+
+- scraping `backend:5000/metrics`
+- evaluating alert rules
+- storing time-series metrics for later dashboard visualization
+
+### Grafana responsibilities
+
+Grafana is responsible for:
+
+- connecting to Prometheus as datasource
+- loading the preconfigured FT_TRANSCENDENCE dashboard
+- displaying backend operational and runtime panels
+- providing a visual interface for inspection during development and evaluation
+
+---
+
+## Prometheus configuration
+
+Prometheus is configured to scrape the backend metrics endpoint through an internal Docker network target similar to:
+
+```txt
+backend:5000
+```
+
+The scrape configuration includes:
+
+- Prometheus self-monitoring
+- backend metrics scraping
+- custom alert rule loading
+
+Configuration files are stored in the project monitoring folder, typically under:
+
+```txt
+monitoring/prometheus/prometheus.yml
+monitoring/prometheus/alerts.yml
+```
+
+---
+
+## Alerting rules
+
+The monitoring stack includes alert rules for backend operational issues.
+
+Examples of alerts configured for the project include:
+
+- backend down / scrape target unavailable
+- high backend memory usage
+- high event loop lag
+
+These rules allow the monitoring system to go beyond passive dashboards and actively detect degraded runtime conditions.
+
+---
+
+## Grafana provisioning
+
+Grafana is configured with automatic provisioning so that the datasource and dashboard are loaded without manual setup.
+
+Typical provisioning files:
+
+```txt
+monitoring/grafana/provisioning/datasources/datasource.yml
+monitoring/grafana/provisioning/dashboards/dashboard.yml
+monitoring/grafana/dashboards/ft_transcendence_backend_monitoring.json
+```
+
+This means that once Docker Compose starts the monitoring stack, Grafana automatically:
+
+1. creates the Prometheus datasource
+2. loads the FT_TRANSCENDENCE dashboard
+3. makes the dashboard available without manual import
+
+---
+
+## Dashboard contents
+
+The custom Grafana dashboard focuses on backend observability and includes panels such as:
+
+- backend up/down state
+- requests per second
+- P95 request latency
+- memory usage
+- request rate by route
+- latency by route
+- event loop lag
+- heap usage
+- garbage collection rate
+- operational endpoint rate and latency for `/health`, `/ready`, and `/status`
+
+This dashboard was designed specifically around the metric names exposed by the project backend, rather than relying only on a generic prebuilt Node.js dashboard.
+
+---
+
+## Security of the monitoring interface
+
+The monitoring stack also includes access protection for Grafana.
+
+The intended security measures include:
+
+- non-anonymous access
+- explicit admin credentials configured through environment variables
+- local-only binding for development access when appropriate
+
+This was added to align the monitoring setup with the subject requirement that Grafana access be secured.
+
+---
+
+## Running the monitoring stack
+
+When using the Docker Compose deployment path, the monitoring services are started together with the application stack.
+
+A typical command is:
+
+```bash
+docker compose up --build
+```
+
+Depending on the local setup, the following endpoints are then available:
+
+```txt
+Frontend:   https://localhost:8443
+Prometheus: http://localhost:9090
+Grafana:    http://localhost:3000
+```
+
+Prometheus can be used to verify targets through its UI, while Grafana provides the dashboard-based operational view.
+
+---
+
+## Operational verification flow
+
+A simple verification procedure for the monitoring stack is:
+
+1. start the full Docker Compose stack
+2. open Prometheus and verify that the `backend` target is `UP`
+3. open Grafana and verify that the FT_TRANSCENDENCE dashboard is loaded
+4. generate traffic against `/health`, `/ready`, and `/status`
+5. verify that graphs update in Grafana
+6. optionally simulate a degraded backend condition and observe alert behavior
+
+This makes the module easy to demonstrate during evaluation.
+
+---
+
+## Backend ownership for the monitoring module
+
+Main implementation owner:
+- **Fabio Zucconi (`fzucconi`)**
+
+Backend support / validation:
+- **Giulia Vigano (`gvigano`)**
