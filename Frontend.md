@@ -105,3 +105,7 @@
 		role: string,
 		joinedAt: Date
 	}
+
+* aggiungere closedAt al poster /api/v1/projects/addProject
+
+	closedAt: Date | null;

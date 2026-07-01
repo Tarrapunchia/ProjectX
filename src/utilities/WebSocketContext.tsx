@@ -104,7 +104,7 @@ export interface Project
 	status: string,
 	description: string,
 	createdAt: Date,
-	closedAt: Date
+	closedAt: Date | null
 }
 
 export interface ProjectParticipant {

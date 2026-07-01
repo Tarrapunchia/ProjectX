@@ -30,6 +30,7 @@
   color: var(--color-text);
   background-color: var(--color-bg);
   transition: background-color 0.3s, color 0.3s;
+  color-scheme: light;
 }
 
 .dark {
@@ -41,6 +42,8 @@
 	--color-focus-border: #ffffff;
 	--color-progressbar-bg: #ffffff;
 	--color-text: rgba(255, 255, 255, 0.87);
+
+	color-scheme: dark;
 }
 
 @keyframes shake {
