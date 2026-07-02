@@ -120,6 +120,9 @@ export interface ProjectParticipant {
 
 export type Priority = "NONE" | "LOW" | "MEDIUM" | "HIGH" | "CRITICAL";
 
+export type Role = "DEVELOPER" | "VIEWER";
+export const ROLES: Role[] = ["DEVELOPER", "VIEWER"];
+
 export interface Task {
 	id: string,
 	status: string,
@@ -724,6 +727,9 @@ export const WebSocketProvider: React.FC<{ children: ReactNode }> = ({ children 
 				if (messageData.type === "user:blocked") {
 					setFriends(prev => prev.filter(f => f.id !== messageData.blockedById));
 				}
+
+				if (messageData.type === "project:addedMember" || messageData.type === "project:modifiedProject")
+					loadProjects();
 
 			} catch (err) {
 				console.error("ws message error:", err);

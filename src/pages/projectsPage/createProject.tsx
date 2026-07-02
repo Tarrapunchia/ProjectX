@@ -1,6 +1,6 @@
 import { useState, useRef, type SetStateAction } from 'react';
 import { FiCheck, FiX, FiPlusCircle, FiUser } from 'react-icons/fi';
-import { useWebSocket, type ProjectDetailed, type ProjectParticipant } from '../../utilities/WebSocketContext';
+import { useWebSocket, type ProjectDetailed, type ProjectParticipant, ROLES, type Role } from '../../utilities/WebSocketContext';
 import helpers from '../../utilities/helpers';
 
 interface CreateProjectProps {
@@ -16,11 +16,15 @@ export const CreateProject = ({ setCreateProject }: CreateProjectProps) => {
 
 	const [addMemberOpen, setAddMemberOpen] = useState(false);
 	const [selectedMembersIds, setSelectedMembersIds] = useState<Set<number>>(new Set());
+	const [changeRoleFor, setChangeRoleFor] = useState<number | null>(null);
 
 	const handleClose = () => {
-		formRef.current?.reset();
-		setErrors([]);
-		setCreateProject(false);
+	formRef.current?.reset();
+	setErrors([]);
+	setSelectedMembersIds(new Set());
+	setProjectParticipants([]);
+	setAddMemberOpen(false);
+	setCreateProject(false);
 	}
 
 	const parseLocalDate = (dateStr: string): Date => {
@@ -102,8 +106,24 @@ export const CreateProject = ({ setCreateProject }: CreateProjectProps) => {
 				
 				if (res?.success) {
 					const now: Date = new Date();
+
+					const creatorAsParticipant: ProjectParticipant | null = activeUser ? {
+						user: {
+							id: activeUser.id,
+							name: activeUser.name,
+							surname: activeUser.surname,
+							email: activeUser.email
+						},
+						role: "OWNER",
+						joinedAt: now
+					} : null;
+
+					const allParticipants = creatorAsParticipant
+						? [creatorAsParticipant, ...projectParticipants]
+						: projectParticipants;
+
 					const newProj: ProjectDetailed = {
-						id: Date.now(),
+						id: res.data.id,
 						name: String(data.name).trim(),
 						status: "TODO",
 						description: String(data.description).trim(),
@@ -113,18 +133,19 @@ export const CreateProject = ({ setCreateProject }: CreateProjectProps) => {
 							id: activeOrg.id,
 							name: activeOrg.name
 						},
-						participants: projectParticipants
+						participants: allParticipants
 					}
 					setProjects(prev => [...prev, newProj]);
 
 					console.log("participants", projectParticipants);
 					if (projectParticipants.length > 0) {
-						const result = await helpers.poster(`/api/v1/projects/${res.data.id}/participants`, projectParticipants)
+						const result = await helpers.poster(`/api/v1/projects/${res.data.id}/participants`, {
+							participants: projectParticipants  // qui invece va bene SENZA il creatore, dato che il backend probabilmente lo aggiunge già da sé
+						})
 						
 						if (result.success)
 							console.log("projectParticipants", result.data);
 					}
-				
 				}
 			}
 	
@@ -171,7 +192,7 @@ export const CreateProject = ({ setCreateProject }: CreateProjectProps) => {
 					surname: m.surname,
 					email: m.email
 				},
-				role: "OWNER",
+				role: "VIEWER",
 				joinedAt: new Date()
 			}));
 
@@ -181,6 +202,17 @@ export const CreateProject = ({ setCreateProject }: CreateProjectProps) => {
 			setSelectedMembersIds(new Set(projectParticipants.map(p => p.user.id)));
 
 		setAddMemberOpen(prev => !prev)
+	}
+
+	const handleRoleChange = (participantId: number, newRole: Role) => {
+		setProjectParticipants(prev =>
+			prev.map(p =>
+				p.user.id === participantId
+					? { ...p, role: newRole }
+					: p
+			)
+		);
+		setChangeRoleFor(null);
 	}
 
 	return (
@@ -269,7 +301,28 @@ export const CreateProject = ({ setCreateProject }: CreateProjectProps) => {
 											key={p.user.id}
 											className="flex justify-between border border-overlay-border-color p-2 hover:">
 											{p.user.name} {p.user.surname}
-											<div className={`${p.role}`}>{p.role}</div>
+											<div
+												onClick={() => setChangeRoleFor(prev => prev === p.user.id ? null : p.user.id)}
+												className="hover:cursor-pointer relative"
+											>
+													{p.role}
+													{changeRoleFor === p.user.id && (
+														<div className="absolute top-full right-full translate-x-18 w-40 h-auto bg-bg-color border border-overlay-border-color rounded-sm z-10">
+															{ROLES.map(role =>
+																<div
+																	key={role}
+																	onClick={(e) => {
+																		e.stopPropagation();
+																		handleRoleChange(p.user.id, role);
+																	}}
+																	className="p-2 hover:bg-owner-color/20 transition-colors"
+																>
+																	{role}
+																</div>
+															)}
+														</div>
+													)}
+											</div>
 										</div>
 									)}
 								</div>
