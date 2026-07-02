@@ -3,7 +3,7 @@ import { getUserIdFromJWT } from "../../../../helpers/cookies.js";
 import { projectSchemas } from "./projectsSchema.js";
 
 const Posters: FastifyPluginAsync = async (fastify: FastifyInstance, opts) => {
-    // // POST /api/v1/organizations/addProject
+    // // POST /api/v1/projects/addProject
     fastify.post<{
     Body: { name: string; orgId: number, status: 'TODO' | 'ACTIVE' | 'REVIEW' | 'CLOSED', description?: string, closedAt?: string }
     }>(
@@ -90,6 +90,12 @@ const Posters: FastifyPluginAsync = async (fastify: FastifyInstance, opts) => {
                 return project
             })
 
+            fastify.wsSendToUser(
+                ownerId,
+                {
+                    type: 'project:modified',
+                    payload: null
+            })
             res.code(201)
             return created
         } catch (error: any) {
@@ -324,7 +330,21 @@ const Posters: FastifyPluginAsync = async (fastify: FastifyInstance, opts) => {
                 roleId: role.id,
                 },
             })
+            const participants = await tx.projectParticipant.findMany({
+                where: { projectId },
+                select: { userId: true }
+            })
+
+            participants.map((p) => {
+            fastify.wsSendToUser(
+                p.userId,
+                {
+                    type: 'project:modified',
+                    payload: null
+            })
+            })
             }
+
 
             const updatedParticipants = await tx.projectParticipant.findMany({
             where: { projectId },

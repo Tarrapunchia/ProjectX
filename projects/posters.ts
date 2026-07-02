@@ -325,6 +325,8 @@ const Posters: FastifyPluginAsync = async (fastify: FastifyInstance, opts) => {
             })
             }
 
+            fastify.
+
             const updatedParticipants = await tx.projectParticipant.findMany({
             where: { projectId },
             include: {
