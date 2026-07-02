@@ -21,7 +21,7 @@ const statusConfig: Record<string, { label: string, icon: any }> = {
     CLOSED: { label: "Closed", icon: CheckCircle2 },
 };
 
-const ROLE_OWNER = 7;
+const ROLE_OWNER = 1;
 
 const sortOptions = [
     { value: 'dueDate', icon: Calendar },

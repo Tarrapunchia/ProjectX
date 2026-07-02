@@ -147,6 +147,7 @@ function SignUp()
                     type="checkbox"
                     id="terms"
                     className="w-[15px] h-[15px] accent-black-500 cursor-pointer"
+					
                 />
                 <span className="text-[14px] text-text-main"> {t("signup.accept_text")} </span>
                 <span className="ml-2 text-[12px] text-text-main cursor-pointer hover:underline">{t("signup.terms_link")}</span>
