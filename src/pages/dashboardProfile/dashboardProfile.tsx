@@ -9,11 +9,13 @@ import { useLocation, useNavigate } from "react-router-dom";
 import FirstLogin from "../PopUpFirstLogin/firstLoginpage"
 import { Plus } from "lucide-react"
 import CreateEventModal from "../EventModal/CreateEventModal";
+import { useWebSocket } from "../../utilities/WebSocketContext";
 
 function DashboardProf() 
 {
     const { t } = useTranslation();
     const [tasksInfos, setTasksInfo] = useState<TaskInfos | null>(null)
+	const { setActiveUser } = useWebSocket();
     const [infoFetched, setInfoFetched] = useState<boolean>(false)
     const [isPopupOpen, setIsPopupOpen] = useState(false);
     const location = useLocation();
@@ -25,7 +27,8 @@ function DashboardProf()
         const { avatarFile, ...profileData } = formData;
 
         try {
-            if (avatarFile) {
+            if (avatarFile) 
+			{
                 const fileUploadData = new FormData();
                 fileUploadData.append("file", avatarFile);
 
@@ -42,6 +45,7 @@ function DashboardProf()
 
             if (success) {
                 console.log(t("dashboard.profile_updated"));
+				setActiveUser((prev: any) => prev ? { ...prev, ...profileData } : null);
             } else {
                 console.error(t("dashboard.error_fetching"));
             }
