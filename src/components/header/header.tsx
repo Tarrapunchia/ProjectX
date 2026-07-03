@@ -19,8 +19,8 @@ function Header({ setActivePage, selectedProject, className }: HeaderProps) {
     const activeUserId = activeUser?.id || null;
 
     // Via MOCK_USER. Se non c'è l'utente mettiamo l'immagine grigia di base
-    const avatarUrl = activeUser 
-        ? `${CONSTS.BE}/api/v1/users/${activeUser.id}/avatar?t=${new Date().getTime()}`
+    const avatarUrl = activeUser?.avatar
+        ? `${CONSTS.BE}/api/v1/users/${activeUser.id}/avatar`
         : '/placeholder-avatar.png';
 
     return (

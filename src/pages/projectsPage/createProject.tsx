@@ -284,11 +284,7 @@ export const CreateProject = ({ setCreateProject }: CreateProjectProps) => {
 												onChange={() => toggleMemberSelection(m.id)}
 												className="sr-only"
 											/>
-											{m.avatar ? (
-												<img className="w-8 h-8 rounded-full object-cover shrink-0" src={m.avatar} />
-											) : (
-												<img className="w-8 h-8 rounded-full object-cover shrink-0" src={"/avatar/default"} />
-											)}
+											<img className="w-8 h-8 rounded-full object-cover shrink-0" src={m.avatar} />
 											<span className="truncate">{m.name} {m.surname}</span>
 										</label>
 									)}

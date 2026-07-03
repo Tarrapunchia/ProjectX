@@ -14,8 +14,7 @@ export interface User {
 	createdAt: Date;
 	updatedAt: Date;
 	avatar: string;
-	organizations: void;
-	projects: void;
+	avatarUrl: any;
 	city: string;
 	address: string;
 	cap: string;
@@ -120,8 +119,8 @@ export interface ProjectParticipant {
 
 export type Priority = "NONE" | "LOW" | "MEDIUM" | "HIGH" | "CRITICAL";
 
-export type Role = "DEVELOPER" | "VIEWER";
-export const ROLES: Role[] = ["DEVELOPER", "VIEWER"];
+export type Role = "EDITOR" | "VIEWER";
+export const ROLES: Role[] = ["EDITOR", "VIEWER"];
 
 export interface Task {
 	id: string,
@@ -228,8 +227,31 @@ export const WebSocketProvider: React.FC<{ children: ReactNode }> = ({ children 
 	const refreshUser = useCallback(async () => {
         const res = await helpers.getter('/api/v1/users/activeUser', null);
         if (res.success) {
-            setMyUserId(res.data.id);
-            setActiveUser(res.data);
+			const resData = res.data;
+			let avatarUrl = '/placeholder-avatar.png';
+			const avatarRes = await helpers.getter(`/api/v1/users/${resData.id}/avatar`, null);
+			if (avatarRes.success)
+				avatarUrl = avatarRes.data;
+			const actUser: User = {
+				id: resData.id,
+				name: resData.name,
+				surname: resData.surname,
+				email: resData.email,
+				phone: resData.phone,
+				jobQualifier: resData.jobQualifier,
+				isLoggedIn: resData.isLoggedIn,
+				createdAt: resData.createdAt,
+				updatedAt: resData.updatedAt,
+				avatar: resData.avatar,
+				avatarUrl: avatarUrl,
+				city: resData.city,
+				address: resData.address,
+				cap: resData.cap,
+				state: resData.state
+
+			}
+			setMyUserId(res.data.id);
+            setActiveUser(actUser);
         }
     }, []);
 
@@ -728,7 +750,7 @@ export const WebSocketProvider: React.FC<{ children: ReactNode }> = ({ children 
 					setFriends(prev => prev.filter(f => f.id !== messageData.blockedById));
 				}
 
-				if (messageData.type === "project:addedMember" || messageData.type === "project:modifiedProject")
+				if (messageData.type === "project:modified")
 					loadProjects();
 
 			} catch (err) {
