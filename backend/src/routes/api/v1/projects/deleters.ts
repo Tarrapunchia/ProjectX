@@ -138,6 +138,20 @@ const Deleters: FastifyPluginAsync = async (fastify: FastifyInstance) => {
             });
           }
 
+          const participants = await tx.projectParticipant.findMany({
+                where: { projectId },
+                select: { userId: true }
+            })
+
+            participants.map((p) => {
+            fastify.wsSendToUser(
+                p.userId,
+                {
+                    type: 'project:modified',
+                    payload: null
+            })
+          })
+
           await tx.projectParticipant.deleteMany({
             where: { projectId },
           });

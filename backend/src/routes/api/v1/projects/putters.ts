@@ -159,6 +159,20 @@ const Putters: FastifyPluginAsync = async (fastify: FastifyInstance, opts) => {
             },
             })
 
+            const participants = await tx.projectParticipant.findMany({
+                where: { projectId },
+                select: { userId: true }
+            })
+
+            participants.map((p) => {
+            fastify.wsSendToUser(
+                p.userId,
+                {
+                    type: 'project:modified',
+                    payload: null
+            })
+            })
+
             return {
             ok: true as const,
             project: updatedProject,
@@ -418,6 +432,20 @@ const Putters: FastifyPluginAsync = async (fastify: FastifyInstance, opts) => {
             orderBy: {
                 createdAt: 'asc',
             },
+            })
+
+            const participants = await tx.projectParticipant.findMany({
+                where: { projectId },
+                select: { userId: true }
+            })
+
+            participants.map((p) => {
+            fastify.wsSendToUser(
+                p.userId,
+                {
+                    type: 'project:modified',
+                    payload: null
+            })
             })
 
             return {
