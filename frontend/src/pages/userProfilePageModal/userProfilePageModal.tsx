@@ -1,6 +1,9 @@
-import React from 'react';
-import { X, Mail, Phone, Briefcase, MapPin, UserPlus } from 'lucide-react';
+import React, { useState } from 'react';
+import { X, Mail, Phone, Briefcase, MapPin, UserPlus, Ban, Unlock, Loader2, Building } from 'lucide-react';
 import CONSTS from '../../data/consts';
+import helpers from "../../utilities/helpers";
+import { useWebSocket } from "../../utilities/WebSocketContext";
+import { Avatar } from '../../components/Avatar'
 
 export interface ModalUser {
     id: number;
@@ -20,50 +23,131 @@ interface UserProfileModalProps {
     onClose: () => void;
     user: ModalUser | null;
     isFriend: boolean;
+    isBlockedByMe?: boolean;
     onAddFriend: (userId: number) => void;
+    onRefresh?: () => void | Promise<void>;
 }
 
-const UserProfileModal: React.FC<UserProfileModalProps> = ({ isOpen, onClose, user, isFriend, onAddFriend }) => {
-    if (!isOpen || !user) return null;
+const UserProfileModal: React.FC<UserProfileModalProps> = ({ 
+    isOpen, 
+    onClose, 
+    user, 
+    isFriend, 
+    isBlockedByMe = false,
+    onAddFriend,
+    onRefresh
+}) => {
+    const [isActionLoading, setIsActionLoading] = useState(false);
+    const { activeOrg } = useWebSocket() as any;
+	const userAvatarUrl = `${CONSTS.BE}/api/v1/users/${user?.id}/avatar`;
+    
+	if (!isOpen || !user) return null;
 
     const fullAddress = isFriend 
         ? [user.address, user.city, user.state, user.cap].filter(Boolean).join(", ") 
         : "";
 
-    // Helper per capire se un campo esiste ed è valido
     const hasValidString = (str?: string) => str && str.trim().length > 0;
 
+    const isAlreadyMember = activeOrg?.members?.some((member: any) => member.id === user.id) || false;
+
+    const handleBlockUser = async () => 
+    {
+        if (!user) return;
+        
+        try {
+            setIsActionLoading(true);
+            const res = await helpers.poster('/api/v1/friends/block', { targetUserId: user.id });
+
+            if (!res.success) {
+                throw new Error(res.data?.error || 'Failed to block user');
+            }
+
+            console.log("Utente bloccato con successo:", res.data);
+            onClose();
+            if (onRefresh) onRefresh();
+            
+        } catch (error) {
+            console.error("Errore durante il blocco dell'utente:", error);
+        } finally {
+            setIsActionLoading(false);
+        }
+    };
+
+    const handleUnblockUser = async () => 
+    {
+        if (!user) return;
+        
+        try {
+            setIsActionLoading(true);
+            const res = await helpers.poster('/api/v1/friends/unblock', { targetUserId: user.id });
+
+            if (!res.success) {
+                throw new Error(res.data?.error || 'Failed to unblock user');
+            }
+
+            console.log("Utente sbloccato con successo:", res.data);
+            onClose();
+            if (onRefresh) onRefresh();
+            
+        } catch (error) {
+            console.error("Errore durante lo sblocco dell'utente:", error);
+        } finally {
+            setIsActionLoading(false);
+        }
+    };
+
+    const handleInviteToOrg = async () =>
+    {
+        if (!user || !activeOrg) return;
+        
+        try 
+        {
+            setIsActionLoading(true);
+            const res = await helpers.poster(`/api/v1/organizations/${Number(activeOrg.id)}/invitations`, { userId: user.id });
+
+            if (!res.success) {
+                throw new Error(res.data?.error || 'Failed to send organization invitation');
+            }
+
+            console.log("Invito all'organizzazione inviato con successo:", res.data);
+            onClose();
+            if (onRefresh) onRefresh();
+            
+        } catch (error) {
+            console.error("Errore durante l'invio dell'invito all'organizzazione:", error);
+        } finally {
+            setIsActionLoading(false);
+        }
+    };
+
     return (
-        // Overlay - Scurito leggermente (70%) e sfocatura più netta per isolare il modal
         <div 
             className="fixed inset-0 z-[100] flex items-center justify-center bg-black/70 backdrop-blur-md p-6" 
             onClick={onClose}
         >
-            {/* Contenitore principale */}
             <div 
                 className="bg-side-bg-color border border-overlay-border-color rounded-3xl shadow-2xl w-full max-w-lg overflow-hidden relative shrink-0" 
                 onClick={e => e.stopPropagation()}
             >
-                {/* Tasto Chiudi (X) */}
                 <button 
                     onClick={onClose} 
-                    className="absolute top-5 right-5 p-1.5 text-text-main rounded-full hover:scale-105 hover:border hover:border-text-main cursor-pointer"
+                    disabled={isActionLoading}
+                    className="absolute top-5 right-5 p-1.5 text-text-main rounded-full hover:scale-105 hover:border hover:border-text-main cursor-pointer disabled:opacity-50"
                 >
                     <X size={22} />
                 </button>
 
                 <div className="p-10 flex flex-col items-center">
                     
-                    {/* Avatar */}
                     <div className="w-28 h-28 md:w-32 md:h-32 rounded-full border border-overlay-border-color shadow-sm overflow-hidden bg-side-bg-color flex items-center justify-center mb-5 shrink-0">
-                        <img 
-                            src={`${CONSTS.BE}/api/v1/users/${user.id}/avatar`} 
-                            alt={`${user.name} avatar`} 
-                            className="w-full h-full object-cover"
-                        />
+						<Avatar
+							src={userAvatarUrl}
+							alt="P.IMG"
+							className="w-full h-full object-cover"
+						/>
                     </div>
 
-                    {/* Header: Nome, Cognome e Ruolo */}
                     <div className="text-center mb-8 w-full">
                         <h2 className="text-3xl font-bold text-text-main mb-1.5">
                             {user.name} {user.surname}
@@ -78,9 +162,27 @@ const UserProfileModal: React.FC<UserProfileModalProps> = ({ isOpen, onClose, us
                         )}
                     </div>
 
-                    {/* LOGICA: Amico vs Non Amico */}
-                    {isFriend ? (
-                        // Lista info amici (mostra solo ciò che esiste)
+                    {/* CONDIZIONE 1: L'UTENTE È BLOCCATO DA ME */}
+                    {isBlockedByMe ? (
+                        <div className="w-full flex flex-col items-center mt-2 text-center max-w-sm">
+                            <div className="bg-red-500/10 border border-red-500/20 rounded-xl p-4 mb-6 w-full text-red-400">
+                                <Ban size={24} className="mx-auto mb-2 opacity-80" />
+                                <p className="text-sm font-medium">You have blocked this user.</p>
+                                <p className="text-xs mt-1 opacity-70">They cannot interact with you.</p>
+                            </div>
+                            <button
+                                onClick={handleUnblockUser}
+                                disabled={isActionLoading}
+                                className="flex items-center justify-center w-full gap-2 bg-text-main text-side-bg-color px-5 py-2.5 rounded-xl hover:scale-105 transition-all shadow-sm text-sm font-bold cursor-pointer active:scale-95 disabled:opacity-50"
+                            >
+                                {isActionLoading ? <Loader2 size={19} className="animate-spin" /> : <Unlock size={19} />}
+                                Unblock User
+                            </button>
+                        </div>
+                    ) : 
+                    
+                    /* CONDIZIONE 2: L'UTENTE È MIO AMICO */
+                    isFriend ? (
                         <div className="w-full flex flex-col gap-y-4 text-sm text-text-main bg-bg-color p-8 rounded-2xl border border-overlay-border-color shadow-inner">
                             
                             {hasValidString(user.email) && (
@@ -104,31 +206,74 @@ const UserProfileModal: React.FC<UserProfileModalProps> = ({ isOpen, onClose, us
                                 </div>
                             )}
 
-                            {/* Se non ha inserito nessun dato, mostriamo un piccolo messaggio discreto */}
                             {!hasValidString(user.email) && !hasValidString(user.phone) && !hasValidString(fullAddress) && (
                                 <p className="text-zinc-500 text-center italic w-full">
                                     No contact information provided.
                                 </p>
                             )}
 
+                            {/* BOTTONE INVITO ORGANIZZAZIONE */}
+                            {activeOrg && !isAlreadyMember && (
+                                <div className="mt-2 flex justify-center w-full">
+                                    <button
+                                        onClick={handleInviteToOrg}
+                                        disabled={isActionLoading}
+                                        className="flex items-center justify-center w-full gap-2 bg-transparent text-text-main border border-overlay-border-color px-5 py-2.5 rounded-xl hover:border-text-main transition-all shadow-sm text-sm font-bold cursor-pointer active:scale-95 disabled:opacity-50"
+                                    >
+                                        {isActionLoading ? <Loader2 size={19} className="animate-spin" /> : <Building size={19} />}
+                                        Invite to {activeOrg.name}
+                                    </button>
+                                </div>
+                            )}
+                            
+                            {/* BOTTONE BLOCCO */}
+                            <div className="mt-2 flex justify-center w-full">
+                                <button
+                                    onClick={handleBlockUser}
+                                    disabled={isActionLoading}
+                                    className="flex items-center justify-center w-full gap-2 bg-red-500/30 text-white border border-red-500/20 px-5 py-2.5 rounded-xl hover:bg-red-500 hover:text-white transition-all shadow-sm text-sm font-bold cursor-pointer active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
+                                >
+                                    {isActionLoading ? <Loader2 size={19} className="animate-spin" /> : <Ban size={19} />}
+                                    Block User
+                                </button>
+                            </div>
+
                         </div>
-                    ) : (
-                        // Sezione non amici pulita e centrata
+                    ) : 
+                    
+                    /* CONDIZIONE 3: L'UTENTE NON È NÉ MIO AMICO NÉ BLOCCATO */
+                    (
                         <div className="w-full flex flex-col items-center mt-2 text-center max-w-sm">
                             <p className="text-base text-zinc-400 mb-8 leading-relaxed">
                                 You are not friends with <span className="text-text-main font-medium">{user.name}</span>. <br/>
                                 Send a request to see their full contact details!
                             </p>
-                            <button
-                                onClick={() => {
-                                    onAddFriend(user.id);
-                                    onClose();
-                                }}
-                                className="flex items-center gap-2 bg-owner-color text-white px-5 py-2.5 rounded-xl hover:scale-105 transition-all shadow-lg text-sm font-bold cursor-pointer active:scale-95"
-                            >
-                                <UserPlus size={19} />
-                                Send Friend Request
-                            </button>
+                            
+                            <div className="w-full flex flex-col gap-3">
+                                <button
+                                    onClick={() => {
+                                        onAddFriend(user.id);
+                                        onClose();
+                                    }}
+                                    disabled={isActionLoading}
+                                    className="flex items-center justify-center w-full gap-2 bg-owner-color text-white px-5 py-2.5 rounded-xl hover:scale-105 transition-all shadow-lg text-sm font-bold cursor-pointer active:scale-95 disabled:opacity-50"
+                                >
+                                    <UserPlus size={19} />
+                                    Send Friend Request
+                                </button>
+
+                                {/* BOTTONE INVITO ORGANIZZAZIONE */}
+                                {activeOrg && !isAlreadyMember && (
+                                    <button
+                                        onClick={handleInviteToOrg}
+                                        disabled={isActionLoading}
+                                        className="flex items-center justify-center w-full gap-2 bg-transparent text-text-main border border-overlay-border-color px-5 py-2.5 rounded-xl hover:border-text-main transition-all shadow-sm text-sm font-bold cursor-pointer active:scale-95 disabled:opacity-50"
+                                    >
+                                        {isActionLoading ? <Loader2 size={19} className="animate-spin" /> : <Building size={19} />}
+                                        Invite to {activeOrg.name}
+                                    </button>
+                                )}
+                            </div>
                         </div>
                     )}
 

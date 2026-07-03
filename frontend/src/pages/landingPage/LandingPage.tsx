@@ -1,44 +1,48 @@
 import { Link } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import "./landingPage.css";
 
-const features = [
-  {
-    title: "Organizations",
-    text: "Create and manage organizations, teams, and shared workspaces.",
-  },
-  {
-    title: "Projects",
-    text: "Each organization can contain multiple projects with status, description, tasks, and documents.",
-  },
-  {
-    title: "Task board",
-    text: "Manage work items in a Jira-like flow: TODO, ACTIVE, REVIEW, and COMPLETED.",
-  },
-  {
-    title: "Realtime chat",
-    text: "Communicate through direct messages and project rooms powered by WebSocket.",
-  },
-  {
-    title: "Documents and files",
-    text: "Upload and access files linked to organizations and projects.",
-  },
-  {
-    title: "Personal dashboard",
-    text: "View your profile, calendar, tasks, priorities, events, and activity status.",
-  },
-];
+type LandingFeature = {
+  title: string;
+  text: string;
+};
+
+type LandingWorkflowStep = {
+  number: string;
+  title: string;
+  text: string;
+};
+
+type LandingPreviewColumn = {
+  title: string;
+  tasks: string[];
+};
 
 function LandingPage() {
+  const { t } = useTranslation();
+
+  const features = t("landingPage.features", {
+    returnObjects: true,
+  }) as LandingFeature[];
+
+  const workflow = t("landingPage.workflow", {
+    returnObjects: true,
+  }) as LandingWorkflowStep[];
+
+  const previewColumns = t("landingPage.preview.columns", {
+    returnObjects: true,
+  }) as LandingPreviewColumn[];
+
   return (
     <div className="landing-page">
       <header className="landing-navbar">
-        <div className="landing-logo">FT_TRANSCENDENCE</div>
+        <div className="landing-logo">{t("landingPage.navbar.logo")}</div>
 
         <nav className="landing-nav-links">
-          <Link to="/docs">README</Link>
-          <Link to="/how-to-use">How to use</Link>
+          <Link to="/docs">{t("landingPage.navbar.readme")}</Link>
+          <Link to="/how-to-use">{t("landingPage.navbar.howToUse")}</Link>
           <Link to="/login" className="landing-login-btn">
-            Login
+            {t("landingPage.navbar.login")}
           </Link>
         </nav>
       </header>
@@ -47,30 +51,25 @@ function LandingPage() {
         <section className="landing-hero">
           <div className="landing-hero-content">
             <p className="landing-eyebrow">
-            Project Management · Realtime · Collaboration
+              {t("landingPage.hero.eyebrow")}
             </p>
 
             <h1>
-            A collaborative webapp
-            <span> inspired by Jira</span>
-            <br />
-            to organize projects, tasks, and teams.
+              {t("landingPage.hero.title.line1")}
+              <span>{t("landingPage.hero.title.highlight")}</span>
+              <br />
+              {t("landingPage.hero.title.line2")}
             </h1>
 
-            <p className="landing-hero-text">
-            FT_TRANSCENDENCE is a platform designed to manage organizations,
-            projects, tasks, documents, calendars, and realtime communication.
-            Its goal is to provide a centralized dashboard where users can track
-            their team’s work, collaborate on projects, and review activity history.
-            </p>
+            <p className="landing-hero-text">{t("landingPage.hero.text")}</p>
 
             <div className="landing-hero-actions">
-            <Link to="/login" className="landing-primary-btn">
-                Enter the webapp
-            </Link>
-            <Link to="/docs" className="landing-secondary-btn">
-                Read the README files
-            </Link>
+              <Link to="/login" className="landing-primary-btn">
+                {t("landingPage.hero.actions.primary")}
+              </Link>
+              <Link to="/docs" className="landing-secondary-btn">
+                {t("landingPage.hero.actions.secondary")}
+              </Link>
             </div>
           </div>
 
@@ -82,39 +81,35 @@ function LandingPage() {
             </div>
 
             <div className="preview-board">
-              <div className="preview-column">
-                <h3>TODO</h3>
-                <div className="preview-task">Setup organization</div>
-                <div className="preview-task">Define project tasks</div>
-              </div>
+              {previewColumns.map((column, index) => {
+                const columnClass =
+                  index === 1 ? "active" : index === 2 ? "review" : index === 3 ? "done" : "";
 
-              <div className="preview-column">
-                <h3>ACTIVE</h3>
-                <div className="preview-task active">Build dashboard</div>
-                <div className="preview-task active">WebSocket chat</div>
-              </div>
-
-              <div className="preview-column">
-                <h3>REVIEW</h3>
-                <div className="preview-task review">File upload</div>
-              </div>
-
-              <div className="preview-column">
-                <h3>DONE</h3>
-                <div className="preview-task done">Authentication</div>
-              </div>
+                return (
+                  <div key={column.title} className="preview-column">
+                    <h3>{column.title}</h3>
+                    {column.tasks.map((task) => (
+                      <div
+                        key={task}
+                        className={`preview-task${columnClass ? ` ${columnClass}` : ""}`}
+                      >
+                        {task}
+                      </div>
+                    ))}
+                  </div>
+                );
+              })}
             </div>
           </div>
         </section>
 
         <section className="landing-section">
           <div className="landing-section-header">
-            <p className="landing-eyebrow">Core features</p>
-            <h2>How the platform works</h2>
-            <p>
-            The webapp is divided into modules: authentication, user profile,
-            organizations, projects, tasks, documents, calendar, and chat.
+            <p className="landing-eyebrow">
+              {t("landingPage.featuresSection.eyebrow")}
             </p>
+            <h2>{t("landingPage.featuresSection.title")}</h2>
+            <p>{t("landingPage.featuresSection.description")}</p>
           </div>
 
           <div className="landing-features-grid">
@@ -129,45 +124,29 @@ function LandingPage() {
 
         <section className="landing-flow-section">
           <div className="landing-section-header">
-            <p className="landing-eyebrow">Workflow</p>
-            <h2>Typical Pipeline</h2>
+            <p className="landing-eyebrow">
+              {t("landingPage.workflowSection.eyebrow")}
+            </p>
+            <h2>{t("landingPage.workflowSection.title")}</h2>
           </div>
 
           <div className="landing-flow">
-            <div>
-                <span>01</span>
-                <h3>Login</h3>
-                <p>The user signs in with email/password or Google OAuth.</p>
-            </div>
-
-            <div>
-                <span>02</span>
-                <h3>Dashboard</h3>
-                <p>View calendar, events, tasks, priorities, and activity summaries.</p>
-            </div>
-
-            <div>
-                <span>03</span>
-                <h3>Projects</h3>
-                <p>Select a project and view its tasks, documents, and details.</p>
-            </div>
-
-            <div>
-                <span>04</span>
-                <h3>Collaboration</h3>
-                <p>Use realtime chat, notifications, and shared documents.</p>
-            </div>
+            {workflow.map((step) => (
+              <div key={step.number}>
+                <span>{step.number}</span>
+                <h3>{step.title}</h3>
+                <p>{step.text}</p>
+              </div>
+            ))}
           </div>
         </section>
 
         <section className="landing-cta">
-            <h2>Want to understand the project from a technical point of view?</h2>
-            <p>
-                Check the dedicated README files for the backend, frontend, WebSocket, and database.
-            </p>
-            <Link to="/docs" className="landing-primary-btn">
-                Go to documentation
-            </Link>
+          <h2>{t("landingPage.cta.title")}</h2>
+          <p>{t("landingPage.cta.text")}</p>
+          <Link to="/docs" className="landing-primary-btn">
+            {t("landingPage.cta.button")}
+          </Link>
         </section>
       </main>
     </div>

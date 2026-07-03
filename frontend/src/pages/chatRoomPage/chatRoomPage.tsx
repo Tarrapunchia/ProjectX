@@ -1,14 +1,13 @@
 import React, { useState, useEffect, useRef } from 'react';
-import type { ProjectInfo } from "../../data/types"
 import Connections from './connection';
 import { MessageBubble } from './messageBubble';
 import { ChatInput } from './chatInput';
-import { useWebSocket } from '../../utilities/WebSocketContext';
+import { useWebSocket, type ProjectDetailed } from '../../utilities/WebSocketContext';
 import consts from '../../data/consts';
 import helpers from '../../utilities/helpers';
 
 interface ChatPageProps {
-    selectedProject: ProjectInfo | null
+    selectedProject: ProjectDetailed | null
 }
 
 const ChatPage: React.FC<ChatPageProps> = ({ selectedProject }) => {

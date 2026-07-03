@@ -1,8 +1,8 @@
 import React, { useEffect } from 'react';
 import './chat.css';
-import type { ProjectInfo } from '../../data/types';
 import Connections from './connection'
 import consts from '../../data/consts';
+import type { ProjectDetailed } from '../../utilities/WebSocketContext';
 
 type Message = {
     id: number,
@@ -13,7 +13,7 @@ type Message = {
 }
 
 interface chatProps {
-    selectedProject: ProjectInfo | null
+    selectedProject: ProjectDetailed | null
 }
 
 const chat: React.FC<chatProps> = ({ selectedProject }) => {

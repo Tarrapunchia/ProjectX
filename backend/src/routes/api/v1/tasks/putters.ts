@@ -3,7 +3,7 @@ import { getUserIdFromJWT } from "../../../../helpers/cookies.js";
 import { taskSchemas } from "./tasksSchema.js";
 
 const Putters: FastifyPluginAsync = async (fastify: FastifyInstance, opts) => {
-// PUT /api/v1/organizations/modifyOrganizationInfos
+// PUT /api/v1/tasks/:taskId/status
     fastify.put<{
     Params: { taskId: string }
     Body: {
@@ -47,6 +47,7 @@ const Putters: FastifyPluginAsync = async (fastify: FastifyInstance, opts) => {
             })
 
             if (!task) {
+                console.log("AAAAAAAAAAAA NOT FOUND!")
             return {
                 ok: false as const,
                 code: 404,

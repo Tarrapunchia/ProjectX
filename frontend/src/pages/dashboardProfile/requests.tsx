@@ -1,26 +1,31 @@
 import { useMemo } from "react";
+import { useTranslation } from "react-i18next";
 import { useWebSocket } from "../../utilities/WebSocketContext";
 import { Bell, UserPlus, Clock, Calendar as CalendarIcon, AlertCircle } from "lucide-react";
+
 export default function NotificationsCenter() 
 {
+    const { t } = useTranslation();
     const { pendingRequests, calendarEntries, alertThreshold, acceptRequest, rejectRequest } = useWebSocket();
 
-    const alerts = useMemo(() => {
+    const alerts = useMemo(() =>
+    {
         if (!calendarEntries) return [];
 
         const now = new Date();
         const limitDate = new Date(now.getTime() + alertThreshold * 60 * 60 * 1000);
         const list: any[] = [];
 
-        calendarEntries.tasks?.forEach(task => {
+        calendarEntries.tasks?.forEach(task =>
+        {
             if (task.dueDate && task.status !== "COMPLETED") {
                 const d = new Date(task.dueDate);
                 if (d >= now && d <= limitDate) {
                     list.push({
                         id: `task-${task.id}`,
                         type: "deadline",
-                        title: "Upcoming Deadline",
-                        message: `Task "${task.name}" expires soon!`,
+                        title: t("notifications.deadline_title"),
+                        message: t("notifications.deadline_msg", { name: task.name }),
                         color: "text-orange-500"
                     });
                 }
@@ -33,54 +38,60 @@ export default function NotificationsCenter()
                 list.push({
                     id: `event-${event.id}`,
                     type: "event",
-                    title: "Upcoming Event",
-                    message: `Event "${event.name}" is starting soon!`,
+                    title: t("notifications.event_title"),
+                    message: t("notifications.event_msg", { name: event.name }),
                     color: "text-blue-500"
                 });
             }
         });
 
         return list;
-    }, [calendarEntries, alertThreshold]);
+    }, [calendarEntries, alertThreshold, t]);
 
     return (
         <div className="flex flex-col h-full overflow-hidden p-4">
             <h2 className="text-lg text-text-main font-semibold mb-6 flex items-center gap-2 shrink-0">
-                <Bell size={18} /> Notifications
+                <Bell size={18} /> {t("notifications.title")}
             </h2>
 
             <div className="flex-1 overflow-y-auto space-y-6 pr-1 custom-scrollbar">
                 
                 {pendingRequests.length > 0 && 
-				(
+                (
                     <section>
                         <h3 className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-3 flex items-center gap-2">
-                            <UserPlus size={12} /> Requests
+                            <UserPlus size={12} /> {t("notifications.requests")}
                         </h3>
                         <div className="space-y-2">
-							{pendingRequests.map((req) => (
+                            {pendingRequests.map((req) => (
                                 <div key={`${req.reqType}-${req.id}`} className="p-3 rounded-xl bg-side-bg-color border border-overlay-border-color shadow-sm">
                                     
-                                    {/* FIX BLINDATO CON OPTIONAL CHAINING (?.) */}
                                     <p className="text-text-main text-xs font-medium mb-2">
                                         {req.reqType === 'friend' 
-                                            ? `${req.sender?.name || 'Someone'} ${req.sender?.surname || ''} sent a friend request`
-                                            : `${req.sender?.name || 'Someone'} ${req.sender?.surname || ''} invited you to ${req.organization?.name || 'an organization'}`
+                                            ? t("notifications.friend_request", { 
+                                                name: req.sender?.name || t("notifications.someone"), 
+                                                surname: req.sender?.surname || "" 
+                                              })
+                                            : t("notifications.org_invite", { 
+                                                name: req.sender?.name || t("notifications.someone"), 
+                                                surname: req.sender?.surname || "",
+                                                orgName: req.organization?.name || t("notifications.an_org")
+                                              })
                                         }
                                     </p>
                                     
                                     <div className="flex gap-2">
                                         <button 
-                                            onClick={() => acceptRequest(req.id, req.reqType)}
+                                            onClick={() => acceptRequest(req.id, req.reqType, req.organization?.id.toString() || '')}
                                             className="flex-1 py-1.5 text-[10px] bg-green-600/10 text-green-500 border border-green-600/20 rounded-lg hover:bg-green-600 hover:text-white transition cursor-pointer"
                                         >
-                                            Accept
+                                            {t("notifications.accept")}
                                         </button>
                                         <button 
-                                            onClick={() => rejectRequest(req.id, req.reqType)}
+                                            onClick={() => rejectRequest(req.id, req.reqType, req.organization?.id.toString() || '')}
                                             className="flex-1 py-1.5 text-[10px] bg-red-600/10 text-red-500 border border-red-600/20 rounded-lg hover:bg-red-600 hover:text-white transition cursor-pointer"
                                         >
-                                            Decline
+                                            {t("notifications.decline")}
                                         </button>
                                     </div>
                                 </div>
@@ -91,7 +102,7 @@ export default function NotificationsCenter()
 
                 <section>
                     <h3 className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-3 flex items-center gap-2">
-                        <Clock size={12} /> Activity & Alerts
+                        <Clock size={12} /> {t("notifications.activity")}
                     </h3>
                     <div className="space-y-3">
                         {alerts.length > 0 ? (
@@ -108,7 +119,7 @@ export default function NotificationsCenter()
                             ))
                         ) : (
                             <p className="text-center text-gray-500 text-[11px] py-10 italic">
-                                No urgent alerts for now.
+                                {t("notifications.no_alerts")}
                             </p>
                         )}
                     </div>

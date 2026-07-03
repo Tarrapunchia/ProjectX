@@ -6,6 +6,7 @@ import LandingPage from "./pages/landingPage/LandingPage";
 import DocsPage from "./pages/docsPage/DocsPage";
 import MarkdownDocPage from "./pages/docsPage/MarkdownPage";
 import HowToUsePage from "./pages/howToUsePage/HowToUsePage";
+import './i18n';
 
 export default function App()
 {
@@ -16,8 +17,8 @@ export default function App()
       <Route path="/dashboard" element={<Dashboard />} />
       <Route path="/SignUp" element={<SignUp />} />
     
-      <Route path="/docs" element={<DocsPage />} />
-      <Route path="/docs/:slug" element={<MarkdownDocPage />} />
+      <Route path="/docss" element={<DocsPage />} />
+      <Route path="/docss/:slug" element={<MarkdownDocPage />} />
       <Route path="/how-to-use" element={<HowToUsePage />} />
     </Routes>
   );

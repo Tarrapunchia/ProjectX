@@ -1,69 +1,62 @@
 import { Link } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import "./docsPage.css";
 
-const mainDoc =   {
-    slug: "main",
-    title: "Project README",
-    text: "All in one.",
-}
-
-const techDocs = [
-
-  {
-    slug: "backend",
-    title: "Backend README",
-    text: "Fastify architecture, Prisma, authentication, REST APIs, and data management.",
-  },
-  {
-    slug: "frontend",
-    title: "Frontend README",
-    text: "React structure, routing, dashboard, components, and API calls.",
-  },
-  {
-    slug: "containers",
-    title: "Containers README",
-    text: "How the project was containerized.",
-  },
-];
+type DocCard = {
+  slug: string;
+  title: string;
+  text: string;
+};
 
 function DocsPage() {
+  const { t } = useTranslation();
+
+  const mainDoc = t("docsPage.mainDoc", {
+    returnObjects: true,
+  }) as DocCard;
+
+  const techDocs = t("docsPage.techDocs", {
+    returnObjects: true,
+  }) as DocCard[];
+
   return (
     <div className="docs-page">
       <header className="docs-navbar">
-        <Link to="/" className="docs-logo">FT_TRANSCENDENCE</Link>
+        <Link to="/" className="docs-logo">
+          {t("docsPage.navbar.logo")}
+        </Link>
         <nav>
-          <Link to="/how-to-use">How to use</Link>
-          <Link to="/login">Login</Link>
+          <Link to="/how-to-use">{t("docsPage.navbar.howToUse")}</Link>
+          <Link to="/login">{t("docsPage.navbar.login")}</Link>
         </nav>
       </header>
 
       <main className="docs-main">
         <section className="docs-hero">
-            <p className="docs-eyebrow">Documentation</p>
-            <h1>Project README files</h1>
+          <p className="docs-eyebrow">{t("docsPage.hero.eyebrow")}</p>
+          <h1>{t("docsPage.hero.projectReadmeTitle")}</h1>
         </section>
 
         <section className="docs-grid">
-            <Link key={mainDoc.slug} to={`/docs/${mainDoc.slug}`} className="docs-card">
-              <span>README</span>
-              <h2>{mainDoc.title}</h2>
-              <p>{mainDoc.text}</p>
-            </Link>
+          <Link key={mainDoc.slug} to={`/docs/${mainDoc.slug}`} className="docs-card">
+            <span>{t("docsPage.labels.readme")}</span>
+            <h2>{mainDoc.title}</h2>
+            <p>{mainDoc.text}</p>
+          </Link>
         </section>
-            <br></br>
+        <br />
 
         <section className="docs-hero">
-            <h1>Technical README files</h1>
-            <p>
-                Here you can access the documentation pages rendered from Markdown files
-                stored inside the <code>public/docs</code> folder.
-            </p>
+          <h1>{t("docsPage.hero.technicalReadmeTitle")}</h1>
+          <p>
+            {t("docsPage.hero.description")}
+          </p>
         </section>
 
         <section className="docs-grid">
           {techDocs.map((doc) => (
             <Link key={doc.slug} to={`/docs/${doc.slug}`} className="docs-card">
-              <span>README</span>
+              <span>{t("docsPage.labels.readme")}</span>
               <h2>{doc.title}</h2>
               <p>{doc.text}</p>
             </Link>

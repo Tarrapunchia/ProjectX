@@ -20,7 +20,6 @@ export const ChatButton = ({ isOpen, isDeleting, onClick }: ChatButtonProps) => 
 		{isDeleting? (
 			<FiTrash2
 				size={26}
-				// className={`transition-transform duration-300`}
 			/>
 		) : (
 			isOpen? ( <FiX size={26} /> ) : ( <FiMessageSquare size={26} /> )

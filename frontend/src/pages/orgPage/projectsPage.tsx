@@ -5,8 +5,8 @@ import type { Organization, ProjectInfo, ProjectTasks } from '../../data/types';
 import Category from './category';
 import ProgressBar from './progressBar';
 import TaskCard from './taskCard';
-import consts from '../../data/consts';
 // import helpers from './helpers';
+import consts from '../../data/consts';
 
 // per ora forzo orgId = 2
 const orgId = 2

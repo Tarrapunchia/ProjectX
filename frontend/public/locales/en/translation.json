@@ -1,0 +1,473 @@
+{
+  "howToUse": {
+    "navbar": {
+      "logo": "FT_TRANSCENDENCE",
+      "readme": "README",
+      "login": "Login"
+    },
+    "hero": {
+      "eyebrow": "User guide",
+      "title": "How to use the webapp",
+      "description": "This page explains the main workflow of the platform, from login to project management and real-time collaboration."
+    },
+    "steps": [
+      {
+        "title": "1. Sign in to the platform",
+        "text": "Log in with email and password or through Google OAuth. After authentication, you will be able to access your personal dashboard."
+      },
+      {
+        "title": "2. Check the dashboard",
+        "text": "The dashboard shows your calendar, events, tasks, priorities, and summaries of relevant activities."
+      },
+      {
+        "title": "3. Select a project",
+        "text": "From the Projects section, you can browse projects according to their status: TODO, ACTIVE, REVIEW, and COMPLETED."
+      },
+      {
+        "title": "4. Manage tasks",
+        "text": "Each project can contain tasks with priority, due date, description, and progress status."
+      },
+      {
+        "title": "5. Use documents and files",
+        "text": "The Files section allows you to upload and access materials linked to a project or organization."
+      },
+      {
+        "title": "6. Collaborate in real time",
+        "text": "The chat system uses WebSocket to support direct messages, project rooms, notifications, and live communication."
+      }
+    ],
+    "tip": {
+      "title": "Usage tip",
+      "text": "Use the dashboard as your starting point, then enter the active project to work on tasks, files, documents, and chat. In this way, the webapp works as a small Jira-like system integrated with real-time communication."
+    }
+  },
+  "docsPage": {
+    "navbar": {
+      "logo": "FT_TRANSCENDENCE",
+      "howToUse": "How to use",
+      "login": "Login"
+    },
+    "hero": {
+      "eyebrow": "Documentation",
+      "projectReadmeTitle": "Project README files",
+      "technicalReadmeTitle": "Technical README files",
+      "description": "Here you can access the documentation pages generated from the Markdown files stored inside the public/docs folder."
+    },
+    "labels": {
+      "readme": "README"
+    },
+    "mainDoc": {
+      "slug": "main",
+      "title": "Project README",
+      "text": "Complete project documentation."
+    },
+    "techDocs": [
+      {
+        "slug": "backend",
+        "title": "Backend README",
+        "text": "Fastify architecture, Prisma, authentication, REST APIs, and data management."
+      },
+      {
+        "slug": "frontend",
+        "title": "Frontend README",
+        "text": "React structure, routing, dashboard, components, and API calls."
+      },
+      {
+        "slug": "containers",
+        "title": "Containers README",
+        "text": "How the project was containerized."
+      }
+    ]
+  },
+  "landingPage": {
+    "navbar": {
+      "logo": "FT_TRANSCENDENCE",
+      "readme": "README",
+      "howToUse": "How to use",
+      "login": "Login"
+    },
+    "hero": {
+      "eyebrow": "Project Management · Real time · Collaboration",
+      "title": {
+        "line1": "A collaborative webapp",
+        "highlight": " inspired by Jira",
+        "line2": "to organize projects, tasks, and teams."
+      },
+      "text": "FT_TRANSCENDENCE is a platform designed to manage organizations, projects, tasks, documents, calendars, and real-time communication. Its goal is to provide a centralized dashboard where users can monitor their team's work, collaborate on projects, and review activity history.",
+      "actions": {
+        "primary": "Enter the webapp",
+        "secondary": "Read the README files"
+      }
+    },
+    "preview": {
+      "columns": [
+        {
+          "title": "TODO",
+          "tasks": [
+            "Set up the organization",
+            "Define project tasks"
+          ]
+        },
+        {
+          "title": "ACTIVE",
+          "tasks": [
+            "Build the dashboard",
+            "WebSocket chat"
+          ]
+        },
+        {
+          "title": "REVIEW",
+          "tasks": [
+            "File upload"
+          ]
+        },
+        {
+          "title": "DONE",
+          "tasks": [
+            "Authentication"
+          ]
+        }
+      ]
+    },
+    "featuresSection": {
+      "eyebrow": "Core features",
+      "title": "How the platform works",
+      "description": "The webapp is divided into modules: authentication, user profile, organizations, projects, tasks, documents, calendar, and chat."
+    },
+    "features": [
+      {
+        "title": "Organizations",
+        "text": "Create and manage organizations, teams, and shared workspaces."
+      },
+      {
+        "title": "Projects",
+        "text": "Each organization can contain multiple projects with status, description, tasks, and documents."
+      },
+      {
+        "title": "Task board",
+        "text": "Manage tasks with a Jira-like flow: TODO, ACTIVE, REVIEW, and COMPLETED."
+      },
+      {
+        "title": "Real-time chat",
+        "text": "Communicate through direct messages and project rooms powered by WebSocket."
+      },
+      {
+        "title": "Documents and files",
+        "text": "Upload and access files linked to organizations and projects."
+      },
+      {
+        "title": "Personal dashboard",
+        "text": "View profile, calendar, tasks, priorities, events, and activity status."
+      }
+    ],
+    "workflowSection": {
+      "eyebrow": "Workflow",
+      "title": "Typical pipeline"
+    },
+    "workflow": [
+      {
+        "number": "01",
+        "title": "Login",
+        "text": "The user signs in with email and password or through Google OAuth."
+      },
+      {
+        "number": "02",
+        "title": "Dashboard",
+        "text": "View calendar, events, tasks, priorities, and activity summaries."
+      },
+      {
+        "number": "03",
+        "title": "Projects",
+        "text": "Select a project and view tasks, documents, and details."
+      },
+      {
+        "number": "04",
+        "title": "Collaboration",
+        "text": "Use real-time chat, notifications, and shared documents."
+      }
+    ],
+    "cta": {
+      "title": "Do you want to understand the project from a technical point of view?",
+      "text": "Check the README files dedicated to backend, frontend, WebSocket, and database.",
+      "button": "Go to documentation"
+    }
+  },
+  "markdownDocPage": {
+    "navbar": {
+      "logo": "FT_TRANSCENDENCE",
+      "docs": "Documentation",
+      "howToUse": "How to use",
+      "login": "Login"
+    },
+    "allowedDocs": {
+      "main": "Main README",
+      "backend": "Backend README",
+      "frontend": "Frontend README",
+      "containers": "Containers README"
+    },
+    "fallbackTitle": "README",
+    "invalidTitle": "Invalid document.",
+    "header": {
+      "eyebrow": "README",
+      "description": "This document is dynamically rendered from a Markdown file stored inside the public/docs folder."
+    },
+    "messages": {
+      "invalidDocument": "Invalid document.",
+      "loading": "Loading...",
+      "unableToLoad": "Unable to load README file:"
+    }
+  },
+  "calendar": {
+    "loading": "Loading calendar...",
+    "modal": {
+      "start": "Start",
+      "status": "Status",
+      "type": "Type",
+      "description": "Description",
+      "modify": "Modify",
+      "delete": "Delete",
+      "deleting": "Deleting...",
+      "close": "Close"
+    }
+  },
+
+  "dashboard": {
+    "create_event": "Create Event",
+    "loading": "Loading...",
+    "error_fetching": "Error fetching tasks",
+    "profile_updated": "Profile updated!",
+    "avatar_upload_success": "Avatar upload successful!",
+    "avatar_upload_failed": "Avatar upload failed"
+  },
+
+  "priority_chart": {
+    "title": "Priority Distribution",
+    "empty": "Nothing to chart yet.",
+    "status": "Status",
+    "no_description": "No description.",
+    "priority": "Priority",
+    "no_tasks": "No tasks for these priorities"
+  },
+
+  "notifications": {
+    "title": "Notifications",
+    "requests": "Requests",
+    "activity": "Activity & Alerts",
+    "friend_request": "{{name}} {{surname}} sent a friend request",
+    "org_invite": "{{name}} {{surname}} invited you to {{orgName}}",
+    "someone": "Someone",
+    "an_org": "an organization",
+    "accept": "Accept",
+    "decline": "Decline",
+    "deadline_title": "Upcoming Deadline",
+    "deadline_msg": "Task \"{{name}}\" expires soon!",
+    "event_title": "Upcoming Event",
+    "event_msg": "Event \"{{name}}\" is starting soon!",
+    "no_alerts": "No urgent alerts for now."
+  },
+
+  "documents": {
+    "select_project": "Select a project.",
+    "project_documents": "Project Documents",
+    "upload_file": "Upload New File",
+    "no_preview": "No preview",
+    "no_documents": "There are no Documents to display for this project.",
+    "delete_confirm": "Are you sure you want to delete {{fileName}}?",
+    "delete_error": "Error during deletion",
+    "delete_button": "Delete File",
+    "download_button": "Download File"
+  },
+
+  "create_event_modal": {
+    "title": "New Event",
+    "placeholder_title": "Event Title",
+    "type_none": "None 😶",
+    "type_meeting": "Meeting 🤝",
+    "type_call": "Call 📞",
+    "type_conference": "Conference 🏛️",
+    "type_generic": "Generic 📅",
+    "description": "Description...",
+    "search_friend": "Search friend by name...",
+    "no_friends": "No friends found...",
+    "participants": "Participants ({{count}})",
+    "no_participants": "Select friends using the search bar above",
+    "creating": "Creating...",
+    "create": "Create Event",
+    "error": "Error: ",
+	"select_date": "Select date and time"
+  },
+
+  "modify_event_modal": {
+    "title": "Modify Event",
+    "placeholder_title": "Event Title",
+    "type_none": "None 😶",
+    "type_meeting": "Meeting 🤝",
+    "type_call": "Call 📞",
+    "type_conference": "Conference 🏛️",
+    "type_generic": "Generic 📅",
+    "description": "Description...",
+    "search_friend": "Search friend by name...",
+    "no_friends": "No friends found...",
+    "participants": "Participants ({{count}})",
+    "no_participants": "Select friends using the search bar above",
+    "updating": "Updating...",
+    "update": "Update Event",
+    "error": "Error: "
+  },
+
+  "library": {
+    "select_project": "Select a project.",
+    "project_files": "Project Files",
+    "upload_file": "Upload New File",
+    "no_files": "There are no files to display for this project.",
+    "file_name": "File Name",
+    "created_by": "Created By",
+    "date_created": "Date Created",
+    "extension": "Extension",
+    "size": "Size",
+    "delete_confirm": "Are you sure you want to delete {{fileName}}?",
+    "delete_error": "Error during deletion",
+    "delete_button": "Delete File",
+    "download_button": "Download File"
+  },
+
+  "login": {
+    "title": "Login to your account!",
+    "google_btn": "Sign In with Google",
+    "or": "OR",
+    "placeholder_email": "E-mail",
+    "placeholder_password": "Password",
+    "forgot_password": "Password forgotten?",
+    "not_member": "Not a member yet?",
+    "signup_link": "Sign-Up!",
+    "login_btn": "Login",
+    "err_wrong_credentials": "Wrong email or password",
+    "err_server": "Server error"
+  },
+
+  "profile_completion": {
+    "welcome": "Welcome!",
+    "title": "Finalize your professional profile",
+    "subtitle": "Please provide the following details to enhance your experience.",
+    "step_counter": "Step {{current}} of {{total}}",
+    "avatar_click_info": "Click the image to upload a profile picture",
+    "btn_back": "Back",
+    "btn_save": "Save and continue",
+    "btn_skip": "Skip",
+    "btn_next": "Next step",
+    "labels": {
+      "avatarFile": "Profile Picture",
+      "jobQualifier": "Profession",
+      "phone": "Phone Number",
+      "city": "City",
+      "address": "Residential Address",
+      "cap": "Cap",
+      "state": "State"
+    },
+    "placeholders": {
+      "jobQualifier": "e.g. Software Engineer, Designer...",
+      "phone": "e.g. +39 333 1234567",
+      "city": "e.g. London",
+      "address": "e.g. 123 Baker St",
+      "cap": "e.g. 51234",
+      "state": "e.g. Italy"
+    }
+  },
+
+  "profile": {
+    "page_title": "My Profile",
+    "loading": "Loading profile...",
+    "no_role": "No role specified",
+    "no_address": "No address provided",
+    "friends_title": "Friends",
+    "no_friends": "No friends found.",
+    "blocked_title": "Blocked Users",
+    "not_available": "N/A"
+  },
+
+  "settings": {
+    "page_title": "Account Settings",
+    "profile_info": "Profile Information",
+    "first_name": "First Name",
+    "last_name": "Last Name",
+    "email": "Email",
+    "profession": "Profession",
+    "phone": "Phone",
+    "city": "City",
+    "address": "Address",
+    "zip_code": "Zip Code",
+    "country_state": "Country/State",
+    "saving": "Saving...",
+    "saved": "Saved!",
+    "save_changes": "Save Changes",
+    "notif_alerts": "Notification Alerts",
+    "notif_subtitle": "Choose how early you want to be notified about upcoming deadlines and events.",
+    "alert_threshold": "Alert Threshold",
+    "hours_before": "{{hours}} hours before",
+    "local_notice": "* Currently applying locally. Changes affect the Notifications Center and Sidebar alerts instantly.",
+    "danger_zone": "Danger Zone",
+    "danger_subtitle": "Once you delete your account, there is no going back. Please be certain.",
+    "confirm_email": "Confirm your email",
+    "enter_password": "Enter your password",
+    "processing": "Processing...",
+    "delete_btn": "Permanently Delete Account",
+    "err_required": "Both email and password are required.",
+    "err_mismatch": "The email does not match your account.",
+    "err_failed": "Failed to delete account. Please try again.",
+    "err_unexpected": "An unexpected error occurred."
+  },
+
+  "signup": {
+    "title": "Create your account!",
+    "google_btn": "Sign Up with Google",
+    "or": "OR",
+    "placeholder_name": "Name",
+    "placeholder_surname": "Surname",
+    "placeholder_email": "E-mail",
+    "placeholder_password": "Password",
+    "placeholder_confirm_password": "Confirm Password",
+    "accept_text": "I accept",
+    "terms_link": "Terms and conditions!",
+    "signup_btn": "Sign Up",
+    "err_terms": "Please accept our terms and conditions",
+    "err_server": "Server error"
+  },
+
+  "tasks_library": {
+    "page_title": "Tasks Library",
+    "loading": "Loading tasks...",
+    "filter_projects": "Filter Projects ({{count}})",
+    "select_all": "(Select All)",
+    "only_owned": "Only Owned Projects",
+    "sort_label": "Sort: {{type}}",
+    "no_description": "No description.",
+    "created_at": "Created: {{date}}",
+    "due_date": "Due: {{date}}",
+    "no_tasks": "No tasks found matching your filters.",
+    "sort_options": {
+      "dueDate": "Due Date",
+      "priority": "Priority",
+      "alphabetical": "Alphabetical"
+    }
+  },
+
+  "user_profile_modal": {
+    "blocked_title": "You have blocked this user.",
+    "blocked_subtitle": "They cannot interact with you.",
+    "btn_unblock": "Unblock User",
+    "btn_block": "Block User",
+    "no_contact_info": "No contact information provided.",
+    "not_friends_msg": "You are not friends with {{name}}.",
+    "not_friends_sub": "Send a request to see their full contact details!",
+    "btn_send_request": "Send Friend Request"
+  },
+
+  "searchbar": {
+    "placeholder": "Search...",
+    "users_title": "Users",
+    "projects_title": "Projects",
+    "no_users": "No users found",
+    "no_projects": "No projects found",
+    "friend_badge": "Friend"
+  }
+}

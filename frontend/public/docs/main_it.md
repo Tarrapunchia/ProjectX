@@ -301,11 +301,12 @@ Il subject richiede almeno **14 punti** in moduli validati. Abbiamo mantenuto la
 | User Management | Advanced permissions system | Major | 2 | Accesso ai progetti basato sui ruoli con `OWNER / EDITOR / VIEWER` e permission check implementati | Fabio, Manuel, Ansi |
 | User Management | Organization system | Major | 2 | Organizations, membership, inviti e azioni scoped su organization sono implementati | Fabio, Manuel, Ansi |
 | User Experience | Advanced chat features, enhances the basic chat from "User interaction" | Minor | 1 | Possibilità di bloccare utenti dalla messaggistica, persistenza cronologia chat | Fabio, Manuel, Ansi, Giulia |
+| Devops | Monitoring system with Prometheus and Grafana | Major | 2 | Prometheus è configurato per raccogliere metriche backend, le integrazioni sono configurate tramite Docker Compose e file di provisioning, Grafana carica automaticamente una dashboard custom FT_TRANSCENDENCE, le alert rules sono configurate e l'accesso a Grafana è protetto tramite credenziali ed esposizione controllata | Fabio, Giulia |
 
 
 ### Totale
 
-**20 punti totali**
+**22 punti totali**
 
 - **Soglia obbligatoria:** 14 punti
 - **Totale dichiarato:** 20 punti
@@ -526,22 +527,6 @@ Il progetto include un layer DevOps di monitoraggio costruito attorno a Promethe
 ## Addendum moduli
 
 Questo addendum integra la lista moduli sopra senza rimuovere o sostituire alcun modulo già elencato.
-
-### Modulo aggiuntivo dichiarato
-
-| Categoria | Modulo | Tipo | Punti | Perché lo dichiariamo | Main contributors |
-|---|---|---:|---:|---|---|
-| Devops | Monitoring system with Prometheus and Grafana | Major | 2 | Prometheus è configurato per raccogliere metriche backend, le integrazioni sono configurate tramite Docker Compose e file di provisioning, Grafana carica automaticamente una dashboard custom FT_TRANSCENDENCE, le alert rules sono configurate e l'accesso a Grafana è protetto tramite credenziali ed esposizione controllata | Fabio, Giulia |
-
-### Totale rivisto dopo questo addendum
-
-**22 punti totali**
-
-- Totale dichiarato precedente: **20 punti**
-- Modulo aggiuntivo in questo addendum: **+2 punti**
-- Totale rivisto dichiarato: **22 punti**
-
----
 
 ## Addendum istruzioni — Monitoring Stack
 

@@ -301,10 +301,11 @@ El subject requiere al menos **14 puntos** en módulos validados. Mantuvimos la 
 | User Management | Advanced permissions system | Major | 2 | Acceso a proyectos basado en roles con `OWNER / EDITOR / VIEWER` y controles de permisos implementados | Fabio, Manuel, Ansi |
 | User Management | Organization system | Major | 2 | Organizations, memberships, invitaciones y acciones scoped sobre organización están implementadas | Fabio, Manuel, Ansi |
 | User Experience | Advanced chat features, enhances the basic chat from "User interaction" | Minor | 1 | Posibilidad de bloquear usuarios para que no te escriban, persistencia del historial de chat | Fabio, Manuel, Ansi, Giulia |
+| Devops | Monitoring system with Prometheus and Grafana | Major | 2 | Prometheus está configurado para recoger métricas del backend, las integraciones están configuradas mediante Docker Compose y archivos de provisioning, Grafana carga automáticamente un dashboard custom FT_TRANSCENDENCE, las reglas de alerta están configuradas y el acceso a Grafana está protegido con credenciales y exposición controlada | Fabio, Giulia |
 
 ### Total
 
-**20 puntos totales**
+**22 puntos totales**
 
 - **Umbral obligatorio:** 14 puntos
 - **Total declarado:** 20 puntos
@@ -519,26 +520,6 @@ Esta capa de monitorización amplía la arquitectura containerizada original y a
 ### 12. Monitoring and observability stack
 **Contributors:** Fabio Zucconi, Giulia Vigano  
 El proyecto incluye una capa DevOps de monitorización construida sobre Prometheus y Grafana. Prometheus hace scrape del endpoint de métricas del backend, evalúa reglas de alerta y almacena series temporales. Grafana provisiona automáticamente un datasource Prometheus y carga un dashboard custom FT_TRANSCENDENCE Backend Monitoring que muestra estado del servicio, latencia, throughput, uso de memoria, uso de heap, event loop lag, actividad de GC y métricas de los endpoints operativos `/health`, `/ready` y `/status`.
-
----
-
-## Addendum de módulos
-
-Este addendum complementa la lista de módulos anterior sin eliminar ni sustituir ninguno de los módulos ya listados.
-
-### Módulo adicional declarado
-
-| Categoría | Módulo | Tipo | Puntos | Por qué lo declaramos | Main contributors |
-|---|---|---:|---:|---|---|
-| Devops | Monitoring system with Prometheus and Grafana | Major | 2 | Prometheus está configurado para recoger métricas del backend, las integraciones están configuradas mediante Docker Compose y archivos de provisioning, Grafana carga automáticamente un dashboard custom FT_TRANSCENDENCE, las reglas de alerta están configuradas y el acceso a Grafana está protegido con credenciales y exposición controlada | Fabio, Giulia |
-
-### Total revisado después de este addendum
-
-**22 puntos totales**
-
-- Total declarado anterior: **20 puntos**
-- Módulo adicional en este addendum: **+2 puntos**
-- Total revisado declarado: **22 puntos**
 
 ---
 

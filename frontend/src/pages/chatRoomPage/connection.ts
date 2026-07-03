@@ -1,6 +1,6 @@
-import type { ProjectInfo } from "../../data/types";
+import type { ProjectDetailed } from "../../utilities/WebSocketContext";
 
-const getRoomId = async (serverUrl: string, project: ProjectInfo)
+const getRoomId = async (serverUrl: string, project: ProjectDetailed)
 : Promise<string> => {
         const res = await fetch(
             `${serverUrl}/api/v1/projects/room/${project.id}`,

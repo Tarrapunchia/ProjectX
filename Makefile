@@ -1,41 +1,32 @@
 define LAUNCH_BODY
-Usage: launching init.sh will generate the db and launch the webapp with nodemon, so you can easily update the whole webapp by changing and saving one of the ts files
-\nOther Scripts:\n
-\t- "build:ts": compile the src folder into the final js files\n
-\t- "build:ts:watch": compile the src folder into the final js files in watch mode\n
-\t- "build": build:ts + build:css\n
-\t- "start": launch the webapp\n
-\t- "dev": should update at every change of a ts file\n
-\t- "clean": rm -rf content of dist folder && rm package-lock.json && rm node_modules -> clean the folder for push\n\n
+Usage:\n
+\t- make: launch docker compose up\n
+\t- make reset-fe: remove and rebuild only the Frontend\n
+\t- make reset-be: remove and rebuild only the Backend\n
+\t- make fclean: clean the project\n
 endef
 export LAUNCH_BODY
 
-define USAGE_BODY
-API: check the swagger at '\docs', tests all the API endpoints
-First of all seed the db with /api/v1/users/seed
-Then you can test the endpoints (the db is empty otherwise)
-endef
-export USAGE_BODY
-
-dev:
-	@npm i
-	@chmod -x init.sh
+all:
 	@echo $$LAUNCH_BODY
-	@echo $$USAGE_BODY
 
-docker:
-	./init_certs.sh
-	docker build -t backend:latest .
-	docker run HTTPS=true --name backend -p 5000:5000 backend:latest
+build:
+	docker compose up
 
-docker-dev:
-	./init_certs.sh
-	docker build -t backend:latest .
-	docker run --name backend -p 5000:5000 backend:latest 
+reset-fe:
+	docker compose down
+	docker rmi transcendence-frontend:latest
+	docker compose up
+
+reset-be:
+	docker compose down
+	docker rmi transcendence-backend:latest
+	docker compose up 
 
 fclean:
-	@rm -rf ./node_modules
-	@rm -rf ./certs
-	@rm package-lock.json
-	@docker stop backend
-	@docker rm backend
+	docker compose down
+	docker rmi grafana/grafana:11.1.0 -f
+	docker rmi prom/prometheus:v2.53.0 -f
+	docker rmi transcendence-frontend:latest
+	docker rmi transcendence-backend:latest
+	docker system prune

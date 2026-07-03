@@ -81,7 +81,7 @@ const Posters: FastifyPluginAsync = async (fastify: FastifyInstance, opts) => {
                     await tx.projectParticipant.create({
                         data: {
                             projectId: project.id,
-                            userId: ownerId,
+                            userId: org.ownerId,
                             roleId: ownerRole.id,
                         },
                     })
@@ -116,301 +116,300 @@ const Posters: FastifyPluginAsync = async (fastify: FastifyInstance, opts) => {
         }
         }
     )
-    fastify.post<{
-    Params: { projectId: string }
-    Body: {
-        participants: Array<{
-            user: {
-                id: number,
-                name: string,
-                surname: string,
-                email: string
-            }
-            role: 'OWNER' | 'EDITOR' | 'VIEWER',
-            joinedAt: string
-        }>
+   fastify.post<{
+  Params: { projectId: string }
+  Body: {
+    participants: Array<{
+      user: {
+        id: number,
+        name: string,
+        surname: string,
+        email: string
+      }
+      role: 'OWNER' | 'EDITOR' | 'VIEWER',
+      joinedAt: string
+    }>
+  }
+}>(
+  '/:projectId/participants',
+  { schema: projectSchemas.addProjectParticipantsSchema },
+  async (req, reply) => {
+    const authUserId = getUserIdFromJWT(req, reply, fastify)
+
+    if (!authUserId) {
+      reply.code(401)
+      return { error: 'You must be logged in in order to add project participants' }
     }
-    }>(
-    '/:projectId/participants',
-    { schema: projectSchemas.addProjectParticipantsSchema },
-    async (req, reply) => {
-        const authUserId = getUserIdFromJWT(req, reply, fastify)
 
-        if (!authUserId) {
-        reply.code(401)
-        return { error: 'You must be logged in in order to add project participants' }
-        }
+    const projectId = Number(req.params.projectId)
 
-        const projectId = Number(req.params.projectId)
+    if (Number.isNaN(projectId)) {
+      reply.code(400)
+      return { error: 'Invalid project id' }
+    }
 
-        if (Number.isNaN(projectId)) {
-        reply.code(400)
-        return { error: 'Invalid project id' }
-        }
+    const requestedParticipants = req.body.participants
 
-        const { participants } = req.body
+    if (!Array.isArray(requestedParticipants) || requestedParticipants.length === 0) {
+      reply.code(400)
+      return { error: 'participants array is required' }
+    }
 
-        if (!Array.isArray(participants) || participants.length === 0) {
-        reply.code(400)
-        return { error: 'participants array is required' }
-        }
+    const allowedRoles = ['OWNER', 'EDITOR', 'VIEWER'] as const
 
-        const allowedRoles = ['OWNER', 'EDITOR', 'VIEWER'] as const
+    const invalid = requestedParticipants.find((p) => {
+      return (
+        !p ||
+        typeof p.user.id !== 'number' ||
+        Number.isNaN(p.user.id) ||
+        !allowedRoles.includes(p.role)
+      )
+    })
 
-        const invalid = participants.find((p) => {
-        return (
-            !p ||
-            typeof p.user.id !== 'number' ||
-            Number.isNaN(p.user.id) ||
-            !allowedRoles.includes(p.role as any)
-        )
+    if (invalid) {
+      reply.code(400)
+      return { error: 'Invalid participants payload' }
+    }
+
+    try {
+      const result = await fastify.prisma.$transaction(async (tx) => {
+        const project = await tx.project.findUnique({
+          where: { id: projectId },
+          select: {
+            id: true,
+            organizationId: true,
+          },
         })
 
-        if (invalid) {
-        reply.code(400)
-        return { error: 'Invalid participants payload' }
+        if (!project) {
+          return {
+            ok: false as const,
+            code: 404,
+            error: 'Project not found',
+          }
         }
 
-        try {
-        const result = await fastify.prisma.$transaction(async (tx) => {
-            const project = await tx.project.findUnique({
-            where: { id: projectId },
-            select: {
-                id: true,
-                organizationId: true,
+        const authMembership = await tx.projectParticipant.findUnique({
+          where: {
+            projectId_userId: {
+              projectId,
+              userId: authUserId,
             },
-            })
+          },
+          include: {
+            role: true,
+          },
+        })
 
-            if (!project) {
-            return {
-                ok: false as const,
-                code: 404,
-                error: 'Project not found',
-            }
-            }
+        if (!authMembership) {
+          return {
+            ok: false as const,
+            code: 403,
+            error: 'You are not a participant of this project',
+          }
+        }
 
-            const authMembership = await tx.projectParticipant.findUnique({
-            where: {
-                projectId_userId: {
-                projectId,
-                userId: authUserId,
-                },
+        if (authMembership.role.name !== 'OWNER' && authMembership.role.name !== 'EDITOR') {
+          return {
+            ok: false as const,
+            code: 403,
+            error: 'You do not have permission to add participants to this project',
+          }
+        }
+
+        const uniqueParticipants = Array.from(
+          new Map(requestedParticipants.map((p) => [p.user.id, p])).values()
+        )
+
+        const users = await tx.user.findMany({
+          where: {
+            id: {
+              in: uniqueParticipants.map((p) => p.user.id),
             },
-            include: {
-                role: true,
+          },
+          select: {
+            id: true,
+          },
+        })
+
+        const existingUserIds = new Set(users.map((u) => u.id))
+
+        const missingUser = uniqueParticipants.find((p) => !existingUserIds.has(p.user.id))
+
+        if (missingUser) {
+          return {
+            ok: false as const,
+            code: 404,
+            error: `User ${missingUser.user.id} not found`,
+          }
+        }
+
+        const orgMembers = await tx.organizationMember.findMany({
+          where: {
+            organizationId: project.organizationId,
+            userId: {
+              in: uniqueParticipants.map((p) => p.user.id),
             },
-            })
+          },
+          select: {
+            userId: true,
+          },
+        })
 
-            if (!authMembership) {
-            return {
-                ok: false as const,
-                code: 403,
-                error: 'You are not a participant of this project',
-            }
-            }
+        const orgMemberIds = new Set(orgMembers.map((m) => m.userId))
 
-            if (authMembership.role.name !== 'OWNER' && authMembership.role.name !== 'EDITOR') {
-            return {
-                ok: false as const,
-                code: 403,
-                error: 'You do not have permission to add participants to this project',
-            }
-            }
+        const notOrgMember = uniqueParticipants.find((p) => !orgMemberIds.has(p.user.id))
 
-            const uniqueParticipants = Array.from(
-            new Map(participants.map((p) => [p.user.id, p])).values()
-            )
+        if (notOrgMember) {
+          return {
+            ok: false as const,
+            code: 403,
+            error: `User ${notOrgMember.user.id} is not a member of the organization`,
+          }
+        }
 
-            const users = await tx.user.findMany({
-            where: {
-                id: {
-                in: uniqueParticipants.map((p) => p.user.id),
-                },
-            },
-            select: {
-                id: true,
-            },
-            })
-
-            const existingUserIds = new Set(users.map((u) => u.id))
-
-            const missingUser = uniqueParticipants.find((p) => !existingUserIds.has(p.user.id))
-
-            if (missingUser) {
-            return {
-                ok: false as const,
-                code: 404,
-                error: `User ${missingUser.user.id} not found`,
-            }
-            }
-
-            const orgMembers = await tx.organizationMember.findMany({
-            where: {
-                organizationId: project.organizationId,
-                userId: {
-                in: uniqueParticipants.map((p) => p.user.id),
-                },
-            },
-            select: {
-                userId: true,
-            },
-            })
-
-            const orgMemberIds = new Set(orgMembers.map((m) => m.userId))
-
-            const notOrgMember = uniqueParticipants.find((p) => !orgMemberIds.has(p.user.id))
-
-            if (notOrgMember) {
-            return {
-                ok: false as const,
-                code: 403,
-                error: `User ${notOrgMember.user.id} is not a member of the organization`,
-            }
-            }
-
-            const roles = await Promise.all(
-            allowedRoles.map((roleName) =>
-                tx.role.upsert({
-                where: { name: roleName },
-                update: {},
-                create: {
-                    name: roleName,
-                    permissions: {
-                    create:
-                        roleName === 'OWNER'
+        const roles = await Promise.all(
+          allowedRoles.map((roleName) =>
+            tx.role.upsert({
+              where: { name: roleName },
+              update: {},
+              create: {
+                name: roleName,
+                permissions: {
+                  create:
+                    roleName === 'OWNER'
+                      ? {
+                          bOwner: true,
+                          bModPermissions: true,
+                          bCreateTask: true,
+                          bEditTask: true,
+                          bCloseTask: true,
+                          bInvite: true,
+                          bRemoveUser: true,
+                        }
+                      : roleName === 'EDITOR'
                         ? {
-                            bOwner: true,
-                            bModPermissions: true,
                             bCreateTask: true,
                             bEditTask: true,
                             bCloseTask: true,
                             bInvite: true,
-                            bRemoveUser: true,
-                            }
-                        : roleName === 'EDITOR'
-                            ? {
-                                bCreateTask: true,
-                                bEditTask: true,
-                                bCloseTask: true,
-                                bInvite: true,
-                            }
-                            : {},
-                    },
+                          }
+                        : {},
                 },
-                })
-            )
-            )
+              },
+            })
+          )
+        )
 
-            const roleByName = new Map(roles.map((r) => [r.name, r]))
+        const roleByName = new Map(roles.map((r) => [r.name, r]))
 
-            for (const p of uniqueParticipants) {
-            const role = roleByName.get(p.role)
+        for (const p of uniqueParticipants) {
+          const role = roleByName.get(p.role)
 
-            if (!role) {
-                return {
-                ok: false as const,
-                code: 400,
-                error: `Invalid role ${p.role}`,
-                }
+          if (!role) {
+            return {
+              ok: false as const,
+              code: 400,
+              error: `Invalid role ${p.role}`,
             }
+          }
 
-            await tx.projectParticipant.upsert({
-                where: {
-                projectId_userId: {
-                    projectId,
-                    userId: p.user.id,
-                },
-                },
-                update: {
-                roleId: role.id,
-                },
-                create: {
+          await tx.projectParticipant.upsert({
+            where: {
+              projectId_userId: {
                 projectId,
                 userId: p.user.id,
-                roleId: role.id,
-                },
-            })
-            const participants = await tx.projectParticipant.findMany({
-                where: { projectId },
-                select: { userId: true }
-            })
-
-            participants.map((p) => {
-            fastify.wsSendToUser(
-                p.userId,
-                {
-                    type: 'project:modified',
-                    payload: null
-            })
-            })
-            }
-
-
-            const updatedParticipants = await tx.projectParticipant.findMany({
-            where: { projectId },
-            include: {
-                user: {
-                select: {
-                    id: true,
-                    name: true,
-                    surname: true,
-                    email: true,
-                },
-                },
-                role: {
-                select: {
-                    name: true,
-                },
-                },
+              },
             },
-            orderBy: {
-                createdAt: 'asc',
+            update: {
+              roleId: role.id,
             },
-            })
+            create: {
+              projectId,
+              userId: p.user.id,
+              roleId: role.id,
+            },
+          })
+        }
 
-            return {
-            ok: true as const,
-            participants: updatedParticipants.map((p) => ({
-                user: {
-                id: p.user.id,
-                name: p.user.name,
-                surname: p.user.surname,
-                email: p.user.email,
-                },
-                role: p.role.name,
-                joinedAt: p.createdAt,
-            })),
-            }
+        const recipientUserIds = await tx.projectParticipant.findMany({
+          where: { projectId },
+          select: { userId: true },
         })
 
-        if (!result.ok) {
-            reply.code(result.code)
-            return { error: result.error }
-        }
+        const updatedParticipants = await tx.projectParticipant.findMany({
+          where: { projectId },
+          include: {
+            user: {
+              select: {
+                id: true,
+                name: true,
+                surname: true,
+                email: true,
+              },
+            },
+            role: {
+              select: {
+                name: true,
+              },
+            },
+          },
+          orderBy: {
+            createdAt: 'asc',
+          },
+        })
 
-        reply.code(200)
         return {
-            success: true,
-            participants: result.participants,
+          ok: true as const,
+          notifyUserIds: recipientUserIds.map((p) => p.userId),
+          participants: updatedParticipants.map((p) => ({
+            user: {
+              id: p.user.id,
+              name: p.user.name,
+              surname: p.user.surname,
+              email: p.user.email,
+            },
+            role: p.role.name,
+            joinedAt: p.createdAt,
+          })),
         }
-        } catch (error: any) {
-        fastify.log.error(error)
+      })
 
-        if (error?.code === 'P2002') {
-            reply.code(409)
-            return { error: 'Duplicate project participant' }
-        }
+      if (!result.ok) {
+        reply.code(result.code)
+        return { error: result.error }
+      }
 
-        if (error?.code === 'P2003') {
-            reply.code(400)
-            return { error: 'Foreign key constraint failed' }
-        }
+      result.notifyUserIds.forEach((userId) => {
+        fastify.wsSendToUser(userId, {
+          type: 'project:modified',
+          payload: null,
+        })
+      })
 
-        reply.code(500)
-        return { error: 'Unable to add project participants' }
-        }
+      reply.code(200)
+      return {
+        success: true,
+        participants: result.participants,
+      }
+    } catch (error: any) {
+      fastify.log.error(error)
+
+      if (error?.code === 'P2002') {
+        reply.code(409)
+        return { error: 'Duplicate project participant' }
+      }
+
+      if (error?.code === 'P2003') {
+        reply.code(400)
+        return { error: 'Foreign key constraint failed' }
+      }
+
+      reply.code(500)
+      return { error: 'Unable to add project participants' }
     }
-    )
+  }
+)
 }
 
 export default Posters

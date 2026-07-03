@@ -1,5 +1,6 @@
 import { useNavigate } from "react-router-dom";
 import { useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
 import helpers from "../../utilities/helpers";
 
 declare global {
@@ -12,64 +13,61 @@ export let ws: WebSocket | null = null;
 
 function SignUp()
 {
+    const { t } = useTranslation();
     const [error, setError] = useState<string | null>(null);
-	const emailRef = useRef<HTMLInputElement>(null);
+    const emailRef = useRef<HTMLInputElement>(null);
     const pwRef = useRef<HTMLInputElement>(null);
-	const nameRef = useRef<HTMLInputElement>(null);
-	const surnameRef = useRef<HTMLInputElement>(null);
-	const reapetedpwRef = useRef<HTMLInputElement>(null);
+    const nameRef = useRef<HTMLInputElement>(null);
+    const surnameRef = useRef<HTMLInputElement>(null);
+    const reapetedpwRef = useRef<HTMLInputElement>(null);
     const termsRef = useRef<HTMLInputElement>(null);
     const navigate = useNavigate();
 
     async function handleLogin() 
-	{
-		const signUp_URL = "/api/v1/users/adduser";
-		try
-		{
-			const email = emailRef.current?.value
-			const password = pwRef.current?.value
-			const name	= nameRef.current?.value
-			const surname = surnameRef.current?.value
-			const passwordRepeat = reapetedpwRef.current?.value
+    {
+        const signUp_URL = "/api/v1/users/adduser";
+        try
+        {
+            const email = emailRef.current?.value
+            const password = pwRef.current?.value
+            const name  = nameRef.current?.value
+            const surname = surnameRef.current?.value
+            const passwordRepeat = reapetedpwRef.current?.value
             const isTermsAccepted = termsRef.current?.checked;
-            //Segnalare che sono obbligatori anche se non dovrebbero
-			const rand2 = Math.floor(Math.random() * 90) + 10;
-            const phone = `+1234567${rand2}`;
-			const jobQualifier = "developer"
 
             if (!isTermsAccepted) {
-                setError("Please accept our terms and conditions");
+                setError(t("signup.err_terms"));
                 return;
             }
             
-			const response = await helpers.poster(signUp_URL, { email, password, name, surname, passwordRepeat, phone, jobQualifier });
+            const response = await helpers.poster(signUp_URL, { email, password, name, surname, passwordRepeat});
 
-			if (!response.success) 
-			{
-				const errorMessage = response.data || 'Something went wrong';
+            if (!response.success) 
+            {
+                const errorMessage = response.data || 'Something went wrong';
                 setError(errorMessage);
                 return
             }
-		}
-		catch (error)
-		{
+        }
+        catch (error)
+        {
             console.log(error)
-            setError("Errore del server");
+            setError(t("signup.err_server"));
             return
         }
         
-		navigate("/dashboard", { state: { isFirstLogin: true } });
-	}
+        navigate("/dashboard", { state: { isFirstLogin: true } });
+    }
 
     function handleGoogleLogin()
-	{
-		window.location.href = "/auth/google";
-	}
+    {
+        window.location.href = "/auth/google";
+    }
 
     return (
     <div className="flex items-center justify-center min-h-screen w-screen bg-bg-color">
     <div className="flex flex-col items-center text-center gap-5 p-10 text-[8px] bg-side-bg-color rounded-[10px] shadow-[0_0_10px_rgba(0,0,0,0.5)] h-auto w-auto">
-        <h1 className="text-[30px] mb-[50px] text-text-main font-bold">Create your account!</h1>
+        <h1 className="text-[30px] mb-[50px] text-text-main font-bold">{t("signup.title")}</h1>
         <button
             onClick={handleGoogleLogin}
             className="
@@ -93,49 +91,45 @@ function SignUp()
                 <path fill="#34A853" d="M24 48c6.47 0 11.9-2.38 15.96-6.31l-7.31-5.66C30.71 37.78 27.54 39 24 39c-6.26 0-11.57-3.22-14.46-8.41l-7.98 6.18C6.51 42.62 14.62 48 24 48z"/>
             </svg>
 
-            <span className="text-[16px] text-text-login">Sign Up with Google</span>
+            <span className="text-[16px] text-text-login">{t("signup.google_btn")}</span>
         </button>
 
-        <span className="text-[14px] text-text-main"> OR </span>
+        <span className="text-[14px] text-text-main"> {t("signup.or")} </span>
 
         <div className="flex flex-col items-center text-center gap-3 w-[300px]">
 
             <input
                 ref={nameRef}
                 type="text"
-                placeholder="Name"
+                placeholder={t("signup.placeholder_name")}
                 className="mt-[5px] bg-white text-text-login border border-gray-300 p-[10px] text-[18px] rounded-[5px] w-[300px] min-h-[50px] transition-transform duration-200 ease-in-out focus:scale-105 outline-none"
-
             />
 
             <input
                 ref={surnameRef}
                 type="text"
-                placeholder="Surname"
+                placeholder={t("signup.placeholder_surname")}
                 className="mt-[5px] bg-white text-text-login border border-gray-300 p-[10px] text-[18px] rounded-[5px] w-[300px] min-h-[50px] transition-transform duration-200 ease-in-out focus:scale-105 outline-none"
-
             />
 
             <input
                 ref={emailRef}
                 type="text"
-                placeholder="E-mail"
+                placeholder={t("signup.placeholder_email")}
                 className="mt-[5px] bg-white text-text-login border border-gray-300 p-[10px] text-[18px] rounded-[5px] w-[300px] min-h-[50px] transition-transform duration-200 ease-in-out focus:scale-105 outline-none"
-
             />
 
             <input
                 ref={pwRef}
                 type="password"
-                placeholder="Password"
+                placeholder={t("signup.placeholder_password")}
                 className="mt-[5px] bg-white text-text-login border border-gray-300 p-[10px] text-[18px] rounded-[5px] w-[300px] min-h-[50px] transition-transform duration-200 ease-in-out focus:scale-105 outline-none"
-
             />
 
             <input
                 ref={reapetedpwRef}
                 type="password"
-                placeholder="Confirm Password"
+                placeholder={t("signup.placeholder_confirm_password")}
                 className="mt-[5px] bg-white text-text-login border border-gray-300 p-[10px] text-[18px] rounded-[5px] w-[300px] min-h-[50px] transition-transform duration-200 ease-in-out focus:scale-105 outline-none"
             />
 
@@ -153,9 +147,10 @@ function SignUp()
                     type="checkbox"
                     id="terms"
                     className="w-[15px] h-[15px] accent-black-500 cursor-pointer"
+					
                 />
-                <span className="text-[14px] text-text-main"> I accept </span>
-                <span className="ml-2 text-[12px] text-text-main cursor-pointer hover:underline">Terms and conditions!</span>
+                <span className="text-[14px] text-text-main"> {t("signup.accept_text")} </span>
+                <span className="ml-2 text-[12px] text-text-main cursor-pointer hover:underline">{t("signup.terms_link")}</span>
             </div>
 
             <button
@@ -175,12 +170,10 @@ function SignUp()
                     cursor-pointer
                 "
             >
-                Sign Up
+                {t("signup.signup_btn")}
             </button>
     </div>
     </div>
-
-
     )
 }
 

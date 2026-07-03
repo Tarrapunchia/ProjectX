@@ -40,6 +40,7 @@ export const ChatMenuPrivate = ({ friends, setActiveChat }: ChatMenuPrivateProps
 							onClick={() => {
 								const newChat: FloatingChatInfo = {
 									roomId: `private-${friend.id}`,
+									roomKey: null,
 									senderMail: friend.email,
 									type: 'private'
 								};

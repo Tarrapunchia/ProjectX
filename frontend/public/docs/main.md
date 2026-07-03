@@ -301,11 +301,12 @@ The subject requires at least **14 points** in validated modules. We kept the mo
 | User Management | Advanced permissions system | Major | 2 | Role-based project access with `OWNER / EDITOR / VIEWER` and permission checks is implemented | Fabio, Manuel, Ansi |
 | User Management | Organization system | Major | 2 | Organizations, memberships, invitations, and organization-scoped actions are implemented | Fabio, Manuel, Ansi |
 | User Experience | Advanced chat features, enhances the basic chat from "User interaction" | Minor | 1 | Ability to block users from messaging you, chat history persistence | Fabio, Manuel, Ansi, Giulia |
+| Devops | Monitoring system with Prometheus and Grafana | Major | 2 | Prometheus is configured to collect backend metrics, integrations are configured through Docker Compose and provisioning files, Grafana loads a custom FT_TRANSCENDENCE dashboard automatically, alert rules are configured, and access to Grafana is protected through credentials and controlled exposure | Fabio, Giulia |
 
 
 ### Total
 
-**20 points total**
+**22 points total**
 
 - **Mandatory threshold:** 14 points
 - **Claimed total:** 20 points
@@ -526,20 +527,6 @@ The project includes a DevOps monitoring layer built around Prometheus and Grafa
 ## Modules Addendum
 
 This addendum supplements the module list above without removing or replacing any of the already listed modules.
-
-### Additional claimed module
-
-| Category | Module | Type | Points | Why we claim it | Main contributors |
-|---|---|---:|---:|---|---|
-| Devops | Monitoring system with Prometheus and Grafana | Major | 2 | Prometheus is configured to collect backend metrics, integrations are configured through Docker Compose and provisioning files, Grafana loads a custom FT_TRANSCENDENCE dashboard automatically, alert rules are configured, and access to Grafana is protected through credentials and controlled exposure | Fabio, Giulia |
-
-### Revised total after this addendum
-
-**22 points total**
-
-- Previous claimed total: **20 points**
-- Additional module in this addendum: **+2 points**
-- Revised claimed total: **22 points**
 
 ---
 

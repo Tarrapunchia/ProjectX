@@ -1,0 +1,473 @@
+{
+  "howToUse": {
+    "navbar": {
+      "logo": "FT_TRANSCENDENCE",
+      "readme": "README",
+      "login": "Iniciar sesión"
+    },
+    "hero": {
+      "eyebrow": "Guía de usuario",
+      "title": "Cómo usar la webapp",
+      "description": "Esta página explica el flujo principal de la plataforma, desde el inicio de sesión hasta la gestión de proyectos y la colaboración en tiempo real."
+    },
+    "steps": [
+      {
+        "title": "1. Accede a la plataforma",
+        "text": "Inicia sesión con email y contraseña o mediante Google OAuth. Después de la autenticación, podrás acceder a tu panel personal."
+      },
+      {
+        "title": "2. Revisa el panel",
+        "text": "El panel muestra tu calendario, eventos, tareas, prioridades y resúmenes de las actividades relevantes."
+      },
+      {
+        "title": "3. Selecciona un proyecto",
+        "text": "Desde la sección Proyectos puedes consultar los proyectos según su estado: TODO, ACTIVE, REVIEW y COMPLETED."
+      },
+      {
+        "title": "4. Gestiona las tareas",
+        "text": "Cada proyecto puede contener tareas con prioridad, fecha límite, descripción y estado de progreso."
+      },
+      {
+        "title": "5. Usa documentos y archivos",
+        "text": "La sección Archivos te permite subir y consultar materiales vinculados a un proyecto o a una organización."
+      },
+      {
+        "title": "6. Colabora en tiempo real",
+        "text": "El sistema de chat usa WebSocket para soportar mensajes directos, salas de proyecto, notificaciones y comunicación en vivo."
+      }
+    ],
+    "tip": {
+      "title": "Consejo de uso",
+      "text": "Usa el panel como punto de partida y luego entra en el proyecto activo para trabajar en tareas, archivos, documentos y chat. De esta manera, la webapp funciona como un pequeño sistema similar a Jira integrado con comunicación en tiempo real."
+    }
+  },
+  "docsPage": {
+    "navbar": {
+      "logo": "FT_TRANSCENDENCE",
+      "howToUse": "Cómo usar",
+      "login": "Iniciar sesión"
+    },
+    "hero": {
+      "eyebrow": "Documentación",
+      "projectReadmeTitle": "Archivos README del proyecto",
+      "technicalReadmeTitle": "Archivos README técnicos",
+      "description": "Aquí puedes acceder a las páginas de documentación generadas a partir de los archivos Markdown guardados dentro de la carpeta public/docs."
+    },
+    "labels": {
+      "readme": "README"
+    },
+    "mainDoc": {
+      "slug": "main_es",
+      "title": "README del Proyecto",
+      "text": "Documentación completa del proyecto."
+    },
+    "techDocs": [
+      {
+        "slug": "backend_es",
+        "title": "README Backend",
+        "text": "Arquitectura Fastify, Prisma, autenticación, API REST y gestión de datos."
+      },
+      {
+        "slug": "frontend_es",
+        "title": "README Frontend",
+        "text": "Estructura React, routing, panel, componentes y llamadas a la API."
+      },
+      {
+        "slug": "containers_es",
+        "title": "README Contenedores",
+        "text": "Cómo se containerizó el proyecto."
+      }
+    ]
+  },
+  "landingPage": {
+    "navbar": {
+      "logo": "FT_TRANSCENDENCE",
+      "readme": "README",
+      "howToUse": "Cómo usar",
+      "login": "Iniciar sesión"
+    },
+    "hero": {
+      "eyebrow": "Gestión de proyectos · Tiempo real · Colaboración",
+      "title": {
+        "line1": "Una webapp colaborativa",
+        "highlight": " inspirada en Jira",
+        "line2": "para organizar proyectos, tareas y equipos."
+      },
+      "text": "FT_TRANSCENDENCE es una plataforma diseñada para gestionar organizaciones, proyectos, tareas, documentos, calendarios y comunicación en tiempo real. Su objetivo es ofrecer un panel centralizado donde los usuarios pueden supervisar el trabajo de su equipo, colaborar en proyectos y consultar el historial de actividades.",
+      "actions": {
+        "primary": "Entrar en la webapp",
+        "secondary": "Leer los archivos README"
+      }
+    },
+    "preview": {
+      "columns": [
+        {
+          "title": "TODO",
+          "tasks": [
+            "Configurar la organización",
+            "Definir las tareas del proyecto"
+          ]
+        },
+        {
+          "title": "ACTIVE",
+          "tasks": [
+            "Desarrollar el panel",
+            "Chat WebSocket"
+          ]
+        },
+        {
+          "title": "REVIEW",
+          "tasks": [
+            "Subida de archivos"
+          ]
+        },
+        {
+          "title": "DONE",
+          "tasks": [
+            "Autenticación"
+          ]
+        }
+      ]
+    },
+    "featuresSection": {
+      "eyebrow": "Funciones principales",
+      "title": "Cómo funciona la plataforma",
+      "description": "La webapp está dividida en módulos: autenticación, perfil de usuario, organizaciones, proyectos, tareas, documentos, calendario y chat."
+    },
+    "features": [
+      {
+        "title": "Organizaciones",
+        "text": "Crea y gestiona organizaciones, equipos y espacios de trabajo compartidos."
+      },
+      {
+        "title": "Proyectos",
+        "text": "Cada organización puede contener varios proyectos con estado, descripción, tareas y documentos."
+      },
+      {
+        "title": "Task board",
+        "text": "Gestiona las tareas con un flujo similar a Jira: TODO, ACTIVE, REVIEW y COMPLETED."
+      },
+      {
+        "title": "Chat en tiempo real",
+        "text": "Comunícate mediante mensajes directos y salas de proyecto basadas en WebSocket."
+      },
+      {
+        "title": "Documentos y archivos",
+        "text": "Sube y consulta archivos vinculados a organizaciones y proyectos."
+      },
+      {
+        "title": "Panel personal",
+        "text": "Visualiza el perfil, calendario, tareas, prioridades, eventos y estado de actividad."
+      }
+    ],
+    "workflowSection": {
+      "eyebrow": "Workflow",
+      "title": "Pipeline típica"
+    },
+    "workflow": [
+      {
+        "number": "01",
+        "title": "Inicio de sesión",
+        "text": "El usuario inicia sesión con email y contraseña o mediante Google OAuth."
+      },
+      {
+        "number": "02",
+        "title": "Panel",
+        "text": "Visualiza calendario, eventos, tareas, prioridades y resúmenes de actividades."
+      },
+      {
+        "number": "03",
+        "title": "Proyectos",
+        "text": "Selecciona un proyecto y visualiza tareas, documentos y detalles."
+      },
+      {
+        "number": "04",
+        "title": "Colaboración",
+        "text": "Usa chat en tiempo real, notificaciones y documentos compartidos."
+      }
+    ],
+    "cta": {
+      "title": "¿Quieres entender el proyecto desde un punto de vista técnico?",
+      "text": "Consulta los archivos README dedicados al backend, frontend, WebSocket y base de datos.",
+      "button": "Ir a la documentación"
+    }
+  },
+  "markdownDocPage": {
+    "navbar": {
+      "logo": "FT_TRANSCENDENCE",
+      "docs": "Documentación",
+      "howToUse": "Cómo usar",
+      "login": "Iniciar sesión"
+    },
+    "allowedDocs": {
+      "main_es": "README principal",
+      "backend_es": "README Backend",
+      "frontend_es": "README Frontend",
+      "containers_es": "README Contenedores"
+    },
+    "fallbackTitle": "README",
+    "invalidTitle": "Documento no válido.",
+    "header": {
+      "eyebrow": "README",
+      "description": "Este documento se renderiza dinámicamente a partir de un archivo Markdown guardado dentro de la carpeta public/docs."
+    },
+    "messages": {
+      "invalidDocument": "Documento no válido.",
+      "loading": "Cargando...",
+      "unableToLoad": "No se pudo cargar el archivo README:"
+    }
+  },
+    "calendar": {
+    "loading": "Cargando calendario...",
+    "modal": {
+      "start": "Inicio",
+      "status": "Estado",
+      "type": "Tipo",
+      "description": "Descripción",
+      "modify": "Modificar",
+      "delete": "Eliminar",
+      "deleting": "Eliminando...",
+      "close": "Cerrar"
+    }
+  },
+
+  "dashboard": {
+    "create_event": "Crear Evento",
+    "loading": "Cargando...",
+    "error_fetching": "Error al cargar las tareas",
+    "profile_updated": "¡Perfil actualizado!",
+    "avatar_upload_success": "¡Carga de avatar exitosa!",
+    "avatar_upload_failed": "Error al cargar el avatar"
+  },
+
+  "priority_chart": {
+    "title": "Distribución de Prioridad",
+    "empty": "Nada que mostrar todavía.",
+    "status": "Estado",
+    "no_description": "Sin descripción.",
+    "priority": "Prioridad",
+    "no_tasks": "No hay tareas para estas prioridades"
+  },
+
+  "notifications": {
+    "title": "Notificaciones",
+    "requests": "Solicitudes",
+    "activity": "Actividad y Alertas",
+    "friend_request": "{{name}} {{surname}} te envió una solicitud de amistad",
+    "org_invite": "{{name}} {{surname}} te invitó a {{orgName}}",
+    "someone": "Alguien",
+    "an_org": "una organización",
+    "accept": "Aceptar",
+    "decline": "Rechazar",
+    "deadline_title": "Fecha límite próxima",
+    "deadline_msg": "¡La tarea \"{{name}}\" vence pronto!",
+    "event_title": "Evento próximo",
+    "event_msg": "¡El evento \"{{name}}\" está por comenzar!",
+    "no_alerts": "No hay alertas urgentes por ahora."
+  },
+
+  "documents": {
+    "select_project": "Selecciona un proyecto.",
+    "project_documents": "Documentos del Proyecto",
+    "upload_file": "Subir Nuevo Archivo",
+    "no_preview": "Sin vista previa",
+    "no_documents": "No hay documentos para mostrar en este proyecto.",
+    "delete_confirm": "¿Estás seguro de que quieres eliminar {{fileName}}?",
+    "delete_error": "Error durante la eliminación",
+    "delete_button": "Eliminar Archivo",
+    "download_button": "Descargar Archivo"
+  },
+
+  "create_event_modal": {
+    "title": "Nuevo Evento",
+    "placeholder_title": "Título del evento",
+    "type_none": "Ninguno 😶",
+    "type_meeting": "Reunión 🤝",
+    "type_call": "Llamada 📞",
+    "type_conference": "Conferencia 🏛️",
+    "type_generic": "Genérico 📅",
+    "description": "Descripción...",
+    "search_friend": "Buscar amigo por nombre...",
+    "no_friends": "No se encontraron amigos...",
+    "participants": "Participantes ({{count}})",
+    "no_participants": "Selecciona amigos usando la barra de búsqueda de arriba",
+    "creating": "Creando...",
+    "create": "Crear Evento",
+    "error": "Error: ",
+	"select_date": "Seleccionar fecha y hora"
+  },
+
+  "modify_event_modal": {
+    "title": "Modificar Evento",
+    "placeholder_title": "Título del evento",
+    "type_none": "Ninguno 😶",
+    "type_meeting": "Reunión 🤝",
+    "type_call": "Llamada 📞",
+    "type_conference": "Conferencia 🏛️",
+    "type_generic": "Genérico 📅",
+    "description": "Descripción...",
+    "search_friend": "Buscar amigo por nombre...",
+    "no_friends": "No se encontraron amigos...",
+    "participants": "Participantes ({{count}})",
+    "no_participants": "Selecciona amigos usando la barra de búsqueda de arriba",
+    "updating": "Actualizando...",
+    "update": "Actualizar Evento",
+    "error": "Error: "
+  },
+
+  "library": {
+    "select_project": "Selecciona un proyecto.",
+    "project_files": "Archivos del Proyecto",
+    "upload_file": "Subir Nuevo Archivo",
+    "no_files": "No hay archivos para mostrar en este proyecto.",
+    "file_name": "Nombre del Archivo",
+    "created_by": "Creado por",
+    "date_created": "Fecha de Creación",
+    "extension": "Extensión",
+    "size": "Tamaño",
+    "delete_confirm": "¿Estás seguro de que quieres eliminar {{fileName}}?",
+    "delete_error": "Error durante la eliminación",
+    "delete_button": "Eliminar Archivo",
+    "download_button": "Descargar Archivo"
+  },
+
+  "login": {
+    "title": "¡Inicia sesión in tu cuenta!",
+    "google_btn": "Iniciar sesión con Google",
+    "or": "O",
+    "placeholder_email": "Correo electrónico",
+    "placeholder_password": "Contraseña",
+    "forgot_password": "¿Has olvidado tu contraseña?",
+    "not_member": "¿Aún no eres miembro?",
+    "signup_link": "¡Regístrate!",
+    "login_btn": "Iniciar sesión",
+    "err_wrong_credentials": "Correo electrónico o contraseña incorrectos",
+    "err_server": "Error del servidor"
+  },
+
+  "profile_completion": {
+    "welcome": "¡Bienvenido!",
+    "title": "Finaliza tu perfil profesional",
+    "subtitle": "Por favor, proporciona los siguientes detalles para mejorar tu experiencia.",
+    "step_counter": "Paso {{current}} de {{total}}",
+    "avatar_click_info": "Haz clic en la imagen para subir una foto de perfil",
+    "btn_back": "Atrás",
+    "btn_save": "Guardar y continuar",
+    "btn_skip": "Omitir",
+    "btn_next": "Siguiente paso",
+    "labels": {
+      "avatarFile": "Foto de Perfil",
+      "jobQualifier": "Profesión",
+      "phone": "Número de Teléfono",
+      "city": "Ciudad",
+      "address": "Dirección de Residencia",
+      "cap": "Código Postal",
+      "state": "Estado"
+    },
+    "placeholders": {
+      "jobQualifier": "ej. Software Engineer, Designer...",
+      "phone": "ej. +39 333 1234567",
+      "city": "ej. Madrid",
+      "address": "ej. Calle Mayor 123",
+      "cap": "ej. 28001",
+      "state": "ej. España"
+    }
+  },
+
+  "profile": {
+    "page_title": "Mi Perfil",
+    "loading": "Cargando perfil...",
+    "no_role": "Ningún rol especificado",
+    "no_address": "No se proporcionó dirección",
+    "friends_title": "Amigos",
+    "no_friends": "No se encontraron amigos.",
+    "blocked_title": "Usuarios Bloqueados",
+    "not_available": "N/A"
+  },
+
+  "settings": {
+    "page_title": "Ajustes de la Cuenta",
+    "profile_info": "Información del Perfil",
+    "first_name": "Nombre",
+    "last_name": "Apellido",
+    "email": "Correo electrónico",
+    "profession": "Profesión",
+    "phone": "Teléfono",
+    "city": "Ciudad",
+    "address": "Dirección",
+    "zip_code": "Código Postal",
+    "country_state": "País/Estado",
+    "saving": "Guardando...",
+    "saved": "¡Guardado!",
+    "save_changes": "Guardar Cambios",
+    "notif_alerts": "Alertas de Notificación",
+    "notif_subtitle": "Elija con cuánta anticipación desea ser notificado sobre las próximas fechas límites y eventos.",
+    "alert_threshold": "Umbral de Alerta",
+    "hours_before": "{{hours}} horas antes",
+    "local_notice": "* Se aplica localmente. Los cambios afectan el Centro de Notificaciones y las alertas de la barra lateral al instante.",
+    "danger_zone": "Zona de Peligro",
+    "danger_subtitle": "Una vez que elimines tu cuenta, no hay marcha atrás. Por favor, estate seguro.",
+    "confirm_email": "Confirma tu correo electrónico",
+    "enter_password": "Introduce tu contraseña",
+    "processing": "Procesando...",
+    "delete_btn": "Eliminar Cuenta Permanentemente",
+    "err_required": "Tanto el correo electrónico como la contraseña son obligatorios.",
+    "err_mismatch": "El correo electrónico no coincide con tu cuenta.",
+    "err_failed": "Error al eliminar la cuenta. Por favor, inténtelo de nuevo.",
+    "err_unexpected": "Ocurrió un error inesperado."
+  },
+
+  "signup": {
+    "title": "¡Crea tu cuenta!",
+    "google_btn": "Regístrate con Google",
+    "or": "O",
+    "placeholder_name": "Nombre",
+    "placeholder_surname": "Apellido",
+    "placeholder_email": "Correo electrónico",
+    "placeholder_password": "Contraseña",
+    "placeholder_confirm_password": "Confirmar contraseña",
+    "accept_text": "Acepto los",
+    "terms_link": "¡Términos y condiciones!",
+    "signup_btn": "Registrarse",
+    "err_terms": "Por favor, acepta nuestros términos y condiciones",
+    "err_server": "Error del servidor"
+  },
+
+  "tasks_library": {
+    "page_title": "Biblioteca de Tareas",
+    "loading": "Cargando tareas...",
+    "filter_projects": "Filtrar Proyectos ({{count}})",
+    "select_all": "(Seleccionar Todo)",
+    "only_owned": "Solo Proyectos Propios",
+    "sort_label": "Ordenar: {{type}}",
+    "no_description": "Sin descripción.",
+    "created_at": "Creado: {{date}}",
+    "due_date": "Vence: {{date}}",
+    "no_tasks": "No se encontraron tareas con los filtros seleccionados.",
+    "sort_options": {
+      "dueDate": "Fecha de Vencimiento",
+      "priority": "Prioridad",
+      "alphabetical": "Alfabético"
+    }
+  },
+
+  "user_profile_modal": {
+    "blocked_title": "Has bloqueado a este usuario.",
+    "blocked_subtitle": "No puede interactuar contigo.",
+    "btn_unblock": "Desbloquear Usuario",
+    "btn_block": "Bloquear Usuario",
+    "no_contact_info": "No se proporcionó información de contacto.",
+    "not_friends_msg": "No eres amigo de {{name}}.",
+    "not_friends_sub": "¡Envía una solicitud para ver sus datos de contacto completos!",
+    "btn_send_request": "Enviar Solicitud de Amistad"
+  },
+
+  "searchbar": {
+    "placeholder": "Buscar...",
+    "users_title": "Usuarios",
+    "projects_title": "Proyectos",
+    "no_users": "Ningún usuario encontrado",
+    "no_projects": "Ningún proyecto encontrado",
+    "friend_badge": "Amigo"
+  }
+}

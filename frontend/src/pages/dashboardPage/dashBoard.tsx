@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import Header from '../../components/header';
+import Header from '../../components/header/header';
 import Sidebar from '../../components/sidebar';
 import ProfilePage from '../profilePage/profilePage';
 import ProjectsPage from '../projectsPage/projectsPage';
@@ -9,15 +9,14 @@ import DocumentsPage from '../DocumentsPage/DocumentsPage';
 import LibraryPage from '../libraryPage/libraryPage'
 import SettingsPage from '../settingsPage/settingsPage';
 import TasksPage from '../tasksPages/tasksPages'
-import type { ProjectInfo } from '../../data/types';
-import { WebSocketProvider } from '../../utilities/WebSocketContext'
+import { WebSocketProvider, type ProjectDetailed } from '../../utilities/WebSocketContext'
 import FloatingChat from '../../components/FloatingChat/FloatingChat';
 
 function DashboardPage() {
     const [activePage, setActivePage] = useState(() => {
 		return localStorage.getItem('activePage') || 'dashboard';
 	});
-    const [selectedProject, setSelectedProject] = useState<ProjectInfo | null>(() => {
+    const [selectedProject, setSelectedProject] = useState<ProjectDetailed | null>(() => {
 		const saved = localStorage.getItem('selectedProject');
 		return saved ? JSON.parse(saved) : null;
 	});

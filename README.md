@@ -292,20 +292,26 @@ The subject requires at least **14 points** in validated modules. We kept the mo
 | Web | Allow users to interact with other users | Major | 2 | The project includes chat, profiles, and a friendship system | Fabio, Manuel, Ansi |
 | Web | Use an ORM for the database | Minor | 1 | Prisma is used throughout the backend | Fabio |
 | Web | File upload and management system | Minor | 1 | Upload, preview, download, and delete flows are implemented with access checks | Fabio, Ansi, Manuel |
+| Web |  Custom-made design system with reusable components | Minor | 1 | All done with custom components | Ansi, Manuel |
 | Web |  Implement advanced search functionality | Minor | 1 | For events, specifically | Ansi, Manuel, Fabio |
 | Web |  A complete notification system for all actions | Minor | 1 | GET, POST, PUT, DELETES | Fabio |
 | Accessibility and Internationalization | Support for at least 2 additional browser - Chrome, Firefox, Brave - | Minor | 1 | Full compatibility with at least 2 additional browsers  | Manuel, Ansi |
+| Accessibility and Internationalization | Support for multiple languages, at least 3 languages | Minor | 1 | Implement i18n (internationalization) system.
+  | Manuel, Ansi |
 | User Management | Standard user management and authentication | Major | 2 | Profile editing, avatar support, friendship presence, and secure login flows are implemented | Fabio, Manuel, Ansi |
 | User Management | Remote authentication with OAuth 2.0 | Minor | 1 | Google OAuth flow is implemented server-side and integrated into the UI | Fabio, Manuel, Ansi |
 | User Management | Advanced permissions system | Major | 2 | Role-based project access with `OWNER / EDITOR / VIEWER` and permission checks is implemented | Fabio, Manuel, Ansi |
 | User Management | Organization system | Major | 2 | Organizations, memberships, invitations, and organization-scoped actions are implemented | Fabio, Manuel, Ansi |
 | User Experience | Advanced chat features, enhances the basic chat from "User interaction" | Minor | 1 | Ability to block users from messaging you, chat history persistence | Fabio, Manuel, Ansi, Giulia |
+| Devops | Monitoring system with Prometheus and Grafana | Major | 2 | Prometheus is configured to collect backend metrics, integrations are configured through Docker Compose and provisioning files, Grafana loads a custom FT_TRANSCENDENCE dashboard automatically, alert rules are configured, and access to Grafana is protected through credentials and controlled exposure | Fabio, Giulia |
 
 
 ### Total
 
-**19 points total**
+**23 points total**
 
+- **Mandatory threshold:** 14 points
+- **Claimed total:** 20 points
 
 ### Modules deliberately not claimed
 
@@ -495,3 +501,136 @@ This README is intentionally written to be:
 - professionally structured
 - conservative in module claims
 - honest about scope and current limitations
+
+---
+
+## Technical Stack Addendum — Monitoring and Observability
+
+The project also includes a monitoring and observability stack based on:
+
+- **Prometheus**
+- **Grafana**
+- backend operational endpoints (`/health`, `/ready`, `/status`)
+- Docker Compose-based provisioning for the monitoring services
+- custom alert rules and a custom backend dashboard
+
+This monitoring layer extends the original containerized architecture and provides visibility over backend health, readiness, runtime performance, and request latency.
+
+---
+
+## Features List Addendum
+
+### 12. Monitoring and observability stack
+**Contributors:** Fabio Zucconi, Giulia Vigano  
+The project includes a DevOps monitoring layer built around Prometheus and Grafana. Prometheus scrapes the backend metrics endpoint, evaluates alert rules, and stores time-series data. Grafana automatically provisions a Prometheus datasource and loads a custom FT_TRANSCENDENCE backend monitoring dashboard showing service state, latency, throughput, memory usage, heap usage, event loop lag, GC activity, and operational endpoint metrics for `/health`, `/ready`, and `/status`.
+
+---
+
+## Modules Addendum
+
+This addendum supplements the module list above without removing or replacing any of the already listed modules.
+
+---
+
+## Instructions Addendum — Monitoring Stack
+
+The monitoring stack is started together with the application through Docker Compose.
+
+### Monitoring services
+
+The Compose setup now includes:
+
+- `prometheus`
+- `grafana`
+
+### Monitoring configuration files
+
+Typical monitoring files used by the project include:
+
+```txt
+monitoring/prometheus/prometheus.yml
+monitoring/prometheus/alerts.yml
+monitoring/grafana/provisioning/datasources/datasource.yml
+monitoring/grafana/provisioning/dashboards/dashboard.yml
+monitoring/grafana/dashboards/ft_transcendence_backend_monitoring.json
+```
+
+### Startup
+
+From the repository root:
+
+```bash
+docker compose up --build
+```
+
+### Monitoring URLs
+
+Typical local URLs are:
+
+```txt
+Frontend:   https://localhost:8443
+Prometheus: http://localhost:9090
+Grafana:    http://localhost:3000
+```
+
+### Grafana access
+
+Grafana is configured with explicit credentials and with anonymous access disabled. The dashboard is provisioned automatically at startup.
+
+### What the dashboard shows
+
+The FT_TRANSCENDENCE backend dashboard includes:
+
+- backend UP/DOWN state
+- requests per second
+- P95 latency
+- resident memory
+- request rate by route
+- P95 latency by route
+- event loop lag
+- heap usage
+- GC duration rate
+- operational endpoint traffic for `/health`, `/ready`, and `/status`
+
+### Evaluation/demo flow for the monitoring module
+
+A practical evaluation demonstration can be:
+
+1. start the full stack with Docker Compose
+2. open Prometheus and verify that the backend scrape target is `UP`
+3. open Grafana and show the provisioned dashboard
+4. call `/health`, `/ready`, and `/status`
+5. refresh Grafana and show changes in traffic and latency graphs
+6. explain the configured alert rules and secure access to Grafana
+
+---
+
+## Technical Choices Addendum
+
+### Why Prometheus + Grafana
+Prometheus and Grafana were chosen because they integrate well with Fastify/Node.js metrics exposure and because they make it possible to demonstrate a real monitoring workflow rather than a passive status page only.
+
+Prometheus provides:
+- metric collection
+- rule evaluation
+- alerting support
+
+Grafana provides:
+- custom dashboards
+- readable operational views
+- a strong evaluation/demo interface for the DevOps monitoring module
+
+### Why this was a good fit for the project
+The backend already exposed Prometheus-style metrics and operational endpoints. Building on top of that foundation allowed the team to add a production-style monitoring layer without changing the core application architecture.
+
+---
+
+## Resources Addendum
+
+Additional references used for the monitoring module:
+
+- Prometheus documentation
+- Grafana documentation
+- Grafana provisioning documentation
+- PromQL query documentation
+- Fastify metrics plugin documentation
