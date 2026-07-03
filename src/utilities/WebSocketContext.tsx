@@ -225,35 +225,34 @@ export const WebSocketProvider: React.FC<{ children: ReactNode }> = ({ children 
 	const [projectParticipants, setProjectParticipants] = useState<ProjectParticipant[] | []>([]);
 
 	const refreshUser = useCallback(async () => {
-        const res = await helpers.getter('/api/v1/users/activeUser', null);
-        if (res.success) {
-			const resData = res.data;
-			let avatarUrl = '/placeholder-avatar.png';
-			const avatarRes = await helpers.getter(`/api/v1/users/${resData.id}/avatar`, null);
-			if (avatarRes.success)
-				avatarUrl = avatarRes.data;
-			const actUser: User = {
-				id: resData.id,
-				name: resData.name,
-				surname: resData.surname,
-				email: resData.email,
-				phone: resData.phone,
-				jobQualifier: resData.jobQualifier,
-				isLoggedIn: resData.isLoggedIn,
-				createdAt: resData.createdAt,
-				updatedAt: resData.updatedAt,
-				avatar: resData.avatar,
-				avatarUrl: avatarUrl,
-				city: resData.city,
-				address: resData.address,
-				cap: resData.cap,
-				state: resData.state
+	const res = await helpers.getter('/api/v1/users/activeUser', null);
+	if (res.success) {
+		const resData = res.data;
 
-			}
-			setMyUserId(res.data.id);
-            setActiveUser(actUser);
-        }
-    }, []);
+		const avatarUrl = `${consts.BE}/api/v1/users/${resData.id}/avatar`;
+
+		const actUser: User = {
+			id: resData.id,
+			name: resData.name,
+			surname: resData.surname,
+			email: resData.email,
+			phone: resData.phone,
+			jobQualifier: resData.jobQualifier,
+			isLoggedIn: resData.isLoggedIn,
+			createdAt: resData.createdAt,
+			updatedAt: resData.updatedAt,
+			avatar: resData.avatar,
+			avatarUrl: avatarUrl,
+			city: resData.city,
+			address: resData.address,
+			cap: resData.cap,
+			state: resData.state
+		}
+
+		setMyUserId(res.data.id);
+		setActiveUser(actUser);
+	}
+}, []);
 
 	const [alertThreshold, setAlertThreshold] = useState<number>(() => 
 	{

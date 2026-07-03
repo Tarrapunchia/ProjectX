@@ -1,10 +1,10 @@
 import type { ProjectInfo } from '../../data/types';
 import { FiRepeat } from 'react-icons/fi';
 import { useState } from 'react';
-import CONSTS from '../../data/consts';
 import SearchBar from './SearchBar';
 import { ProfileMenu } from './profileMenu';
 import { useWebSocket } from '../../utilities/WebSocketContext';
+import { Avatar } from '../Avatar';
 
 interface HeaderProps {
     className?: string;
@@ -17,11 +17,6 @@ function Header({ setActivePage, selectedProject, className }: HeaderProps) {
     const [profileMenuOpen, setProfileMenuOpen] = useState(false);
 
     const activeUserId = activeUser?.id || null;
-
-    // Via MOCK_USER. Se non c'è l'utente mettiamo l'immagine grigia di base
-    const avatarUrl = activeUser?.avatar
-        ? `${CONSTS.BE}/api/v1/users/${activeUser.id}/avatar`
-        : '/placeholder-avatar.png';
 
     return (
         <header className={`${className} bg-side-bg-color text-white p-[15px_20px] flex items-center border-b border-overlay-border-color min-w-0`}>
@@ -44,15 +39,11 @@ function Header({ setActivePage, selectedProject, className }: HeaderProps) {
                     onClick={() => setProfileMenuOpen(!profileMenuOpen)}
                     className="flex items-center justify-center p-0! bg-transparent! border-none! cursor-pointer focus:outline-none! focus:border-none! active:border-none!"
                 >
-                    <img 
-                        src={avatarUrl} 
-                        alt="Foto profilo" 
-                        className="w-12.5 h-12.5 rounded-full object-cover hover:scale-110 transition-transform duration-300 block"
-                        onError={(e) => {
-                            // Se per qualche motivo il backend dà errore 404 sull'immagine, carichiamo il placeholder
-                            (e.target as HTMLImageElement).src = '/placeholder-avatar.png';
-                        }}
-                    />
+                    <Avatar
+						src={activeUser?.avatarUrl}
+						alt="P.IMG"
+						className="w-12.5 h-12.5 rounded-full object-cover hover:scale-110 transition-transform duration-300 block"
+					/>
                 </button>
                 { profileMenuOpen &&
                     <ProfileMenu

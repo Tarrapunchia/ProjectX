@@ -3,6 +3,7 @@ import { X, Mail, Phone, Briefcase, MapPin, UserPlus, Ban, Unlock, Loader2, Buil
 import CONSTS from '../../data/consts';
 import helpers from "../../utilities/helpers";
 import { useWebSocket } from "../../utilities/WebSocketContext";
+import { Avatar } from '../../components/Avatar'
 
 export interface ModalUser {
     id: number;
@@ -38,8 +39,9 @@ const UserProfileModal: React.FC<UserProfileModalProps> = ({
 }) => {
     const [isActionLoading, setIsActionLoading] = useState(false);
     const { activeOrg } = useWebSocket() as any;
-
-    if (!isOpen || !user) return null;
+	const userAvatarUrl = `${CONSTS.BE}/api/v1/users/${user?.id}/avatar`;
+    
+	if (!isOpen || !user) return null;
 
     const fullAddress = isFriend 
         ? [user.address, user.city, user.state, user.cap].filter(Boolean).join(", ") 
@@ -139,14 +141,11 @@ const UserProfileModal: React.FC<UserProfileModalProps> = ({
                 <div className="p-10 flex flex-col items-center">
                     
                     <div className="w-28 h-28 md:w-32 md:h-32 rounded-full border border-overlay-border-color shadow-sm overflow-hidden bg-side-bg-color flex items-center justify-center mb-5 shrink-0">
-                        <img 
-                            src={`${CONSTS.BE}/api/v1/users/${user.id}/avatar`} 
-                            alt={`${user.name} avatar`} 
-                            className="w-full h-full object-cover"
-                            onError={(e) => {
-                                (e.target as HTMLImageElement).src = '/default-avatar.png';
-                            }}
-                        />
+						<Avatar
+							src={userAvatarUrl}
+							alt="P.IMG"
+							className="w-full h-full object-cover"
+						/>
                     </div>
 
                     <div className="text-center mb-8 w-full">

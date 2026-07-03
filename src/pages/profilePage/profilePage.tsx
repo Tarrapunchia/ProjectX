@@ -4,6 +4,7 @@ import CONSTS from '../../data/consts';
 import { Mail, Phone, Briefcase, User as UserIcon, MapPin, Ban } from 'lucide-react';
 import { useWebSocket } from '../../utilities/WebSocketContext';
 import UserProfileModal, { type ModalUser } from '../userProfilePageModal/userProfilePageModal';
+import { Avatar } from '../../components/Avatar';
 
 const ProfilePage: React.FC = () => 
 {
@@ -60,11 +61,11 @@ const ProfilePage: React.FC = () =>
             <div className="flex flex-col md:flex-row gap-6 mb-12 shrink-0 items-start">
                 <div className="shrink-0 mx-auto md:mx-0">
                     <div className="w-28 h-28 md:w-32 md:h-32 rounded-full overflow-hidden flex items-center justify-center border-4 border-side-bg-color shadow-lg">
-                        <img 
-                            src={`${CONSTS.BE}/api/v1/users/${activeUser.id}/avatar?t=${new Date().getTime()}`} 
-                            alt="Profile Picture" 
-                            className="w-full h-full object-cover"
-                        />
+                        <Avatar
+							src={activeUser?.avatarUrl}
+							alt="P.IMG"
+							className="w-full h-full object-cover"
+						/>
                     </div>
                 </div>
 
