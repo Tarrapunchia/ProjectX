@@ -17,8 +17,8 @@ export default function App()
       <Route path="/dashboard" element={<Dashboard />} />
       <Route path="/SignUp" element={<SignUp />} />
     
-      <Route path="/docss" element={<DocsPage />} />
-      <Route path="/docss/:slug" element={<MarkdownDocPage />} />
+      <Route path="/docs" element={<DocsPage />} />
+      <Route path="/docs/:slug" element={<MarkdownDocPage />} />
       <Route path="/how-to-use" element={<HowToUsePage />} />
     </Routes>
   );

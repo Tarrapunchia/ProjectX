@@ -4,6 +4,7 @@ Usage:\n
 \t- make reset-fe: remove and rebuild only the Frontend\n
 \t- make reset-be: remove and rebuild only the Backend\n
 \t- make fclean: clean the project\n
+\t- make re: fclean + build\n
 endef
 export LAUNCH_BODY
 
@@ -30,3 +31,5 @@ fclean:
 	docker rmi transcendence-frontend:latest
 	docker rmi transcendence-backend:latest
 	docker system prune
+
+re: fclean build

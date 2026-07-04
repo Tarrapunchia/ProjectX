@@ -296,6 +296,7 @@ El subject requiere al menos **14 puntos** en módulos validados. Mantuvimos la 
 | Web |  Implement advanced search functionality | Minor | 1 | Para eventos, específicamente | Ansi, Manuel, Fabio |
 | Web |  A complete notification system for all actions | Minor | 1 | GET, POST, PUT, DELETES | Fabio |
 | Accessibility and Internationalization | Support for at least 2 additional browser - Chrome, Firefox, Brave - | Minor | 1 | Compatibilidad completa con al menos 2 navegadores adicionales | Manuel, Ansi |
+| Accessibility and Internationalization | Support for multiple languages, at least 3 languages | Minor | 1 | Implement i18n (internationalization) system. | Manuel, Ansi |
 | User Management | Standard user management and authentication | Major | 2 | Edición de perfil, soporte avatar, presencia de amigos y flujos de login seguros están implementados | Fabio, Manuel, Ansi |
 | User Management | Remote authentication with OAuth 2.0 | Minor | 1 | El flujo Google OAuth está implementado del lado servidor e integrado en la UI | Fabio, Manuel, Ansi |
 | User Management | Advanced permissions system | Major | 2 | Acceso a proyectos basado en roles con `OWNER / EDITOR / VIEWER` y controles de permisos implementados | Fabio, Manuel, Ansi |
@@ -305,10 +306,10 @@ El subject requiere al menos **14 puntos** en módulos validados. Mantuvimos la 
 
 ### Total
 
-**22 puntos totales**
+**23 puntos totales**
 
 - **Umbral obligatorio:** 14 puntos
-- **Total declarado:** 20 puntos
+- **Total declarado:** 23 puntos
 
 ### Módulos deliberadamente no declarados
 

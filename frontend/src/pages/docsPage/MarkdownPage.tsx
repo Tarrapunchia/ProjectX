@@ -11,9 +11,11 @@ function MarkdownDocPage() {
   const [content, setContent] = useState("");
   const [error, setError] = useState<string | null>(null);
 
-  const allowedDocs = t("markdownDocPage.allowedDocs", {
-    returnObjects: true,
-  }) as Record<string, string>;
+const allowedDocs = useMemo(() => {
+    return t("markdownDocPage.allowedDocs", {
+      returnObjects: true,
+    }) as Record<string, string>;
+  }, [t]);
 
   const title = useMemo(() => {
     if (!slug) return t("markdownDocPage.fallbackTitle");
@@ -26,12 +28,12 @@ function MarkdownDocPage() {
     async function loadMarkdown() {
       if (!slug || !allowedDocs[slug]) {
         setError(t("markdownDocPage.messages.invalidDocument"));
+        setContent("");
         return;
       }
 
       try {
         setError(null);
-        setContent("");
 
         const res = await fetch(`/docs/${slug}.md`);
 
@@ -56,7 +58,7 @@ function MarkdownDocPage() {
     return () => {
       cancelled = true;
     };
-  }, [allowedDocs, slug, t]);
+  }, [slug, allowedDocs, t]);
 
   return (
     <div className="markdown-page">
