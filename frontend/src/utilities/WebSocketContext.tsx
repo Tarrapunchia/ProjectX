@@ -499,6 +499,9 @@ export const WebSocketProvider: React.FC<{ children: ReactNode }> = ({ children 
                     });
                 }
 
+				if (messageData.type === "organization:invitation:accepted")
+					loadOrgs();
+
 				if (messageData.type === "friend:request:accepted") 
 				{
 					console.log(messageData)

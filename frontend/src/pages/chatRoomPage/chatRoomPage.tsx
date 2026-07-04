@@ -39,14 +39,29 @@ const ChatPage: React.FC<ChatPageProps> = ({ selectedProject }) => {
 							const messageData = JSON.parse(e.data);
 
 							if (messageData.type === "room:message" && messageData.roomId === id) {
-								const newMessage = {
-									id: messageData.payload.id || Date.now(),
-									senderMail: messageData.payload.senderMail,
-									content: messageData.payload.text,
-									timestamp: messageData.payload.timestamp || new Date().toISOString()
-								};
+								const senderId = messageData.fromUserId;
+								(async () => {
+									try {
+										const response = await helpers.getter(`/api/v1/users/${senderId}/profile`, null);
+										
+										if (response.success) {
+											console.log("SENDER DATA", response.data);
+											const newMessage = {
+												id: Date.now(),
+												senderMail: response.data.email,
+												content: messageData.payload.text,
+												timestamp: messageData.payload.timestamp || new Date().toISOString()
+											};
+	
+											if (!cancelled) setChatHistory((prev) => [...prev, newMessage]);
+										} else {
+											console.log("FAILED");
+										}
 
-								if (!cancelled) setChatHistory((prev) => [...prev, newMessage]);
+									} catch (err) {
+										console.error("Websocket senderUser error", err);
+									}
+								})();
 							}
 						} catch (err) {
 							console.error("WebSocket message parsing error:", err);
