@@ -284,7 +284,9 @@ export const CreateProject = ({ setCreateProject }: CreateProjectProps) => {
 												onChange={() => toggleMemberSelection(m.id)}
 												className="sr-only"
 											/>
-											<img className="w-8 h-8 rounded-full object-cover shrink-0" src={m.avatar} />
+											<div className="flex items-center justify-center w-8 h-8 rounded-full object-cover shrink-0 uppercase bg-overlay-border-color text-text-main">
+												{m.name.charAt(0)}{m.surname.charAt(0)}
+											</div>
 											<span className="truncate">{m.name} {m.surname}</span>
 										</label>
 									)}
