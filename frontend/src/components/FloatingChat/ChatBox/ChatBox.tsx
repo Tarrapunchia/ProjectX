@@ -17,7 +17,8 @@ interface ChatBoxProps {
 	onAvatarDragStart: (chat: FloatingChatInfo, clientX: number, clientY: number) => void;
 }
 
-export const ChatBox = memo(({ isOpen, isDragging, hiddenChatId, pos, friends, groups, activeChat, setActiveChat, onAvatarDragStart }: ChatBoxProps) => {
+export const ChatBox = memo(({ isOpen, isDragging, hiddenChatId, pos, friends, groups, activeChat, setActiveChat, onAvatarDragStart }: ChatBoxProps) => 
+{
 	const { floatingChats } = useWebSocket();
 	
 	const openDown = pos - (menuSize.y + 20) < 0;

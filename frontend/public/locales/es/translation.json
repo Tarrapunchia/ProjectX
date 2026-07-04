@@ -469,5 +469,156 @@
     "no_users": "Ningún usuario encontrado",
     "no_projects": "Ningún proyecto encontrado",
     "friend_badge": "Amigo"
+  },
+
+  "chat_menu_group": {
+    "search_groups": "Buscar grupos...",
+    "create_group": "Crear un nuevo grupo",
+    "no_groups_found": "Ningún grupo encontrado"
+  },
+
+  "chat_menu_group_create": {
+    "group_name_label": "Nombre del Grupo",
+    "group_name_placeholder": "Ingresa el nombre del grupo...",
+    "description_label": "Descripción",
+    "description_placeholder": "Ingresa la descripción del grupo...",
+    "confirm_btn": "Confirmar",
+    "cancel_btn": "Cancelar"
+  },
+
+  "chat_menu_private": {
+    "search_friends": "Buscar amigos...",
+    "online": "En línea",
+    "offline": "Desconectado",
+    "no_friends_found": "Ningún amigo encontrado"
+  },
+
+  "chat_group_options": {
+    "members": "{{count}} miembros",
+    "online": "En línea",
+    "offline": "Desconectado"
+  },
+
+  "chat_options_add": {
+    "search_friends": "Buscar amigos...",
+    "online": "En línea",
+    "offline": "Desconectado",
+    "no_friends_found": "Ningún amigo encontrado"
+  },
+
+  "chat_options_leave": {
+    "leave_prompt": "¿Quieres abandonar el grupo?",
+    "confirm": "Confirmar",
+    "cancel": "Cancelar"
+  },
+
+  "chat_window_group": {
+    "fallback_group_name": "Grupo",
+    "start_conversation": "Inicia la conversación...",
+    "type_message": "Escribe un mensaje..."
+  },
+
+  "chat_window_private": {
+    "fallback_user": "Usuario",
+    "online": "En línea",
+    "offline": "Desconectado",
+    "start_conversation": "Inicia la conversación...",
+    "type_message": "Escribe un mensaje..."
+  },
+
+  "create_organization": {
+    "title": "Crear una nueva organización",
+    "p_iva": "NIF/IVA",
+    "name": "Nombre",
+    "email": "Correo electrónico",
+    "phone": "Número de teléfono",
+    "city": "Ciudad",
+    "address": "Dirección",
+    "country": "País",
+    "cap": "Código postal",
+    "confirm": "Confirmar",
+    "cancel": "Cancelar",
+    "error_duplicate": "! Este NIF/IVA ya está registrado",
+    "error_email": "! El correo electrónico debe seguir el formato *@*.*"
+  },
+
+  "header": {
+    "change_project": "Cambiar Proyecto",
+    "dashboard": "Dashboard",
+    "profile_alt": "Imagen de perfil"
+  },
+
+  "profile_menu": {
+    "view_profile": "Ver perfil",
+    "add_organization": "Añadir organización"
+  },
+
+  "sidebar": {
+    "dashboard": "Dashboard",
+    "documents": "Documentos",
+    "tasks": "Tareas",
+    "team_chat": "Chat del Equipo",
+    "file_library": "Librería de Archivos",
+    "settings": "Ajustes",
+    "logout": "Cerrar sesión"
+  },
+
+  "chat_input": {
+    "placeholder": "Escribe un mensaje de equipo..."
+  },
+
+  "chat_page": {
+    "select_project": "Selecciona un proyecto.",
+    "team_chat": "Chat de equipo",
+    "loading": "Cargando..."
+  },
+
+  "create_project": {
+    "title": "Crear un nuevo proyecto para {{name}}",
+    "name": "Nombre del proyecto",
+    "description": "Descripción",
+    "deadline": "Fecha de finalización",
+    "add_members": "Añadir miembros",
+    "no_participants": "No hay participantes añadidos",
+    "confirm": "Confirmar",
+    "cancel": "Cancelar"
+  },
+
+  "projects_page": {
+    "title": "Proyectos",
+    "create_button": "Crear nuevo proyecto",
+    "categories": {
+      "todo": "TO DO",
+      "in_progress": "EN PROGRESO",
+      "code_review": "CODE REVIEW",
+      "done": "HECHO"
+    },
+    "modal": {
+      "description": "Descripción:",
+      "members": "Miembros",
+      "set_active": "Establecer proyecto activo",
+      "delete": "Eliminar proyecto",
+      "close": "Cerrar"
+    },
+    "delete_modal": {
+      "title": "¿Estás seguro de que quieres eliminar \"{{name}}\"?",
+      "warning": "El proceso es irreversible",
+      "confirm": "Confirmar",
+      "cancel": "Cancelar"
+    }
+  },
+
+  "task_card": {
+    "title": "Tareas",
+    "create_task": "Crear nueva tarea",
+    "na": "N/A",
+    "status": "Estado",
+    "form": {
+      "name": "Nombre",
+      "description": "Descripción",
+      "priority": "Prioridad",
+      "confirm": "Confirmar",
+      "cancel": "Cancelar"
+    }
   }
 }

@@ -39,7 +39,7 @@ function LandingPage() {
         <div className="landing-logo">{t("landingPage.navbar.logo")}</div>
 
         <nav className="landing-nav-links">
-          <Link to="/docs">{t("landingPage.navbar.readme")}</Link>
+          <Link to="/docss">{t("landingPage.navbar.readme")}</Link>
           <Link to="/how-to-use">{t("landingPage.navbar.howToUse")}</Link>
           <Link to="/login" className="landing-login-btn">
             {t("landingPage.navbar.login")}

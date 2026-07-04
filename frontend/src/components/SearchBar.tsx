@@ -4,6 +4,7 @@ import helpers from '../utilities/helpers';
 import { useWebSocket } from "../utilities/WebSocketContext";
 import CONSTS from '../data/consts';
 import UserProfileModal, { type ModalUser } from '../pages/userProfilePageModal/userProfilePageModal';
+import { useTranslation } from "react-i18next";
 
 interface SearchBarProps {
     activeUserId: string | number | null;
@@ -13,7 +14,7 @@ const SearchBar: React.FC<SearchBarProps> = ({ activeUserId }) =>
 {
     const [selectedUser, setSelectedUser] = useState<ModalUser | null>(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
-    
+    const { t } = useTranslation();
     const [query, setQuery] = useState('');
     const [results, setResults] = useState<{ users: any[], projects: any[] }>({ users: [], projects: [] });
     const [loading, setLoading] = useState(false);
@@ -74,7 +75,6 @@ const SearchBar: React.FC<SearchBarProps> = ({ activeUserId }) =>
                 helpers.getter(`/api/v1/users/activeUsersProjects`, null)
             ]);
 
-            // Escludiamo l'utente attivo dai risultati della ricerca
             const allUsers = usersRes.data || [];
             const filteredUsers = allUsers.filter((user: any) => user.id !== activeUserId);
 
@@ -101,7 +101,7 @@ const SearchBar: React.FC<SearchBarProps> = ({ activeUserId }) =>
     const handleUserClick = (user: any) => {
         setSelectedUser(user);
         setIsModalOpen(true);
-        setShowDropdown(false); // Chiude la tendina di ricerca
+        setShowDropdown(false);
     };
 
     return (
@@ -120,7 +120,7 @@ const SearchBar: React.FC<SearchBarProps> = ({ activeUserId }) =>
                 onFocus={() => {
                     if (query.length > 0) setShowDropdown(true);
                 }}
-                placeholder="Search..."
+                placeholder={t('search_bar.placeholder')}
                 className="w-[50%] pl-10 pr-4 py-2 bg-bg-color border border-overlay-border-color rounded-full text-sm text-text-main 
                 placeholder-slate-500 focus:outline-none focus:border-border-focus focus:w-full transition-all duration-200"
             />
@@ -131,7 +131,7 @@ const SearchBar: React.FC<SearchBarProps> = ({ activeUserId }) =>
                     
                     {/* Sezione Utenti */}
                     <div className="mb-2">
-                        <h3 className="text-xs font-semibold text-slate-500 px-3 py-1 uppercase">Utenti</h3>
+                        <h3 className="text-xs font-semibold text-slate-500 px-3 py-1 uppercase">{t('search_bar.users')}</h3>
                         {results.users.length > 0 ? results.users.map((user: any) => {
                             const isAlreadyFriend = friends.some((f: any) => f.id === user.id);
                             
@@ -156,19 +156,19 @@ const SearchBar: React.FC<SearchBarProps> = ({ activeUserId }) =>
                                     
                                     {isAlreadyFriend && (
                                         <span className="text-[10px] text-green-500 font-semibold px-2">
-                                            Friend
+                                            {t('search_bar.friend')}
                                         </span>
                                     )}
                                 </div>
                             );
-                        }) : <p className="text-xs text-text-main px-3">Nessun utente trovato</p>}
+                        }) : <p className="text-xs text-text-main px-3">{t('search_bar.no_users')}</p>}
                     </div>
 
                     <hr className="border-overlay-border-color my-2" />
 
                     {/* Sezione Progetti */}
                     <div>
-                        <h3 className="text-xs font-semibold text-slate-500 px-3 py-1 uppercase">Progetti</h3>
+                        <h3 className="text-xs font-semibold text-slate-500 px-3 py-1 uppercase">{t('search_bar.projects')}</h3>
                         {results.projects.length > 0 ? results.projects.map((project: any) => (
                             <div key={project.id} className="flex items-center gap-3 p-2 hover:bg-overlay-hover rounded-lg cursor-pointer transition-colors">
                                 <div className="w-8 h-8 rounded-lg bg-blue-900/30 text-blue-400 flex items-center justify-center">
@@ -176,7 +176,7 @@ const SearchBar: React.FC<SearchBarProps> = ({ activeUserId }) =>
                                 </div>
                                 <span className="text-sm text-text-main">{project.name}</span>
                             </div>
-                        )) : <p className="text-xs text-text-main px-3">Nessun progetto trovato</p>}
+                        )) : <p className="text-xs text-text-main px-3">{t('search_bar.no_projects')}</p>}
                     </div>
                 </div>
             )}

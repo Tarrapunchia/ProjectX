@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { useWebSocket } from "../utilities/WebSocketContext";
 import helpers from "../utilities/helpers";
 import { useNavigate } from "react-router-dom";
@@ -13,15 +14,16 @@ import {
 
 interface SidebarProps 
 {
-	className?: string;
-	activePage: string;
+    className?: string;
+    activePage: string;
     setActivePage: (page: string) => void;
 }
 
 function Sidebar({ activePage, setActivePage, className }: SidebarProps) 
 {
+    const { t } = useTranslation();
     const navigate = useNavigate();
-	const { pendingRequests } = useWebSocket(); 
+    const { pendingRequests } = useWebSocket(); 
     
     const pendingCount = pendingRequests.length;
     const hasPending = pendingCount > 0;
@@ -31,7 +33,7 @@ function Sidebar({ activePage, setActivePage, className }: SidebarProps)
         navigate('/');
     };
 
-const btnBase = "flex items-center justify-center lg:justify-start gap-3 !p-[10px] lg:!p-[10px_15px] text-text-main !border-none cursor-pointer !rounded-[10px] transition-all !outline-none w-full";
+    const btnBase = "flex items-center justify-center lg:justify-start gap-3 !p-[10px] lg:!p-[10px_15px] text-text-main !border-none cursor-pointer !rounded-[10px] transition-all !outline-none w-full";
     const btnHover = "hover:!bg-category-bg-color hover:!font-medium group";
 
     const getBtnClass = (pageName: string) => 
@@ -40,8 +42,8 @@ const btnBase = "flex items-center justify-center lg:justify-start gap-3 !p-[10p
         return `${btnBase} ${btnHover} ${isActive ? '!bg-category-bg-color !font-medium' : '!bg-side-bg-color'}`;
     };
 
-	const getIconColor = (pageName: string) => 
-	{
+    const getIconColor = (pageName: string) => 
+    {
         return activePage === pageName ? "text-owner-color" : "text-inherit";
     };
 
@@ -54,62 +56,62 @@ const btnBase = "flex items-center justify-center lg:justify-start gap-3 !p-[10p
             </div>
 
             <nav className="flex flex-col gap-2">
-                <button title="Dashboard" className={`${getBtnClass('dashboard')} relative`} onClick={() => setActivePage('dashboard')}>
+                <button title={t('sidebar.dashboard')} className={`${getBtnClass('dashboard')} relative`} onClick={() => setActivePage('dashboard')}>
                     <div className="relative flex items-center justify-center">
                         <LayoutDashboard size={20} className={`shrink-0 transition-colors ${getIconColor('dashboard')}`} />
-						{hasPending && (
+                        {hasPending && (
                             <span className="absolute -top-2 -right-2 flex items-center justify-center bg-red-600 text-white text-[10px] font-bold min-w-[16px] h-[16px] px-1 rounded-full border-2 border-side-bg-color">
                                 {pendingCount > 9 ? '9+' : pendingCount}
                             </span>
                         )}
                     </div>
                     <span className="hidden lg:block truncate !text-[18px] !font-light">
-                        Dashboard
+                        {t('sidebar.dashboard')}
                     </span>
                 </button>
 
-                <button title="Documents" className={`${getBtnClass('documents')} relative`} onClick={() => setActivePage('documents')}>
+                <button title={t('sidebar.documents')} className={`${getBtnClass('documents')} relative`} onClick={() => setActivePage('documents')}>
                     <FileText size={20} className={`shrink-0 transition-colors ${getIconColor('documents')}`} />
                     <span className="hidden lg:block truncate !text-[18px] !font-light">
-                        Documents
+                        {t('sidebar.documents')}
                     </span>
                 </button>
 
-                <button title="Tasks" className={`${getBtnClass('tasks')} relative`} onClick={() => setActivePage('tasks')}>
+                <button title={t('sidebar.tasks')} className={`${getBtnClass('tasks')} relative`} onClick={() => setActivePage('tasks')}>
                     <CheckSquare size={20} className={`shrink-0 transition-colors ${getIconColor('tasks')}`} />
                     <span className="hidden lg:block truncate !text-[18px] !font-light">
-                        Tasks
+                        {t('sidebar.tasks')}
                     </span>
                 </button>
 
-                <button title="Team Chat" className={`${getBtnClass('chat')} relative`} onClick={() => setActivePage('chat')}>
+                <button title={t('sidebar.team_chat')} className={`${getBtnClass('chat')} relative`} onClick={() => setActivePage('chat')}>
                     <MessageSquare size={20} className={`shrink-0 transition-colors ${getIconColor('chat')}`} />
                     <span className="hidden lg:block truncate !text-[18px] !font-light">
-                        Team Chat
+                        {t('sidebar.team_chat')}
                     </span>
                 </button>
 
-                <button title="File Library" className={`${getBtnClass('files')} relative`} onClick={() => setActivePage('files')}>
+                <button title={t('sidebar.file_library')} className={`${getBtnClass('files')} relative`} onClick={() => setActivePage('files')}>
                     <Library size={20} className={`shrink-0 transition-colors ${getIconColor('files')}`} />
                     <span className="hidden lg:block truncate !text-[18px] !font-light">
-                        File Library
+                        {t('sidebar.file_library')}
                     </span>
                 </button>
             </nav>
 
             <div className="mt-auto flex flex-col gap-2 mb-2 w-full min-w-0">
                 <button 
-                    title="Settings"
+                    title={t('sidebar.settings')}
                     className={`${getBtnClass('settings')} relative`} onClick={() => setActivePage('settings')}>
                     <Settings size={22} className={`shrink-0 transition-colors ${getIconColor('settings')}`} />
-                    <span className="hidden lg:block truncate !text-[18px] !font-light">Settings</span>
+                    <span className="hidden lg:block truncate !text-[18px] !font-light">{t('sidebar.settings')}</span>
                 </button>
                 <button 
-                    title="Logout"
+                    title={t('sidebar.logout')}
                     className={`${btnBase} ${btnHover} text-red-500! hover:text-red-400!`} 
                     onClick={handleLogout}>
                     <LogOut size={22} className="shrink-0" />
-                    <span className="hidden lg:block truncate !text-[18px] !font-light">Logout</span>
+                    <span className="hidden lg:block truncate !text-[18px] !font-light">{t('sidebar.logout')}</span>
                 </button>
             </div>
         </aside>

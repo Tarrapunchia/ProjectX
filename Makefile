@@ -15,7 +15,7 @@ build:
 
 reset-fe:
 	docker compose down
-	docker rmi transcendence-frontend:latest
+	docker rmi transcendence-frontend:latest || true
 	docker compose up
 
 reset-be:

@@ -469,6 +469,157 @@
     "no_users": "Nessun utente trovato",
     "no_projects": "Nessun progetto trovato",
     "friend_badge": "Amico"
+  },
+
+  "chat_menu_group": {
+    "search_groups": "Cerca gruppi...",
+    "create_group": "Crea un nuovo gruppo",
+    "no_groups_found": "Nessun gruppo trovato"
+  },
+
+  "chat_menu_group_create": {
+    "group_name_label": "Nome Gruppo",
+    "group_name_placeholder": "Inserisci nome gruppo...",
+    "description_label": "Descrizione",
+    "description_placeholder": "Inserisci descrizione gruppo...",
+    "confirm_btn": "Conferma",
+    "cancel_btn": "Annulla"
+  },
+
+  "chat_menu_private": {
+    "search_friends": "Cerca amici...",
+    "online": "Online",
+    "offline": "Offline",
+    "no_friends_found": "Nessun amico trovato"
+  },
+
+  "chat_group_options": {
+    "members": "{{count}} membri",
+    "online": "Online",
+    "offline": "Offline"
+  },
+
+  "chat_options_add": {
+    "search_friends": "Cerca amici...",
+    "online": "Online",
+    "offline": "Offline",
+    "no_friends_found": "Nessun amico trovato"
+  },
+
+  "chat_options_leave": {
+    "leave_prompt": "Vuoi abbandonare il gruppo?",
+    "confirm": "Conferma",
+    "cancel": "Annulla"
+  },
+
+  "chat_window_group": {
+    "fallback_group_name": "Gruppo",
+    "start_conversation": "Inizia la conversazione...",
+    "type_message": "Scrivi un messaggio..."
+  },
+
+  "chat_window_private": {
+    "fallback_user": "Utente",
+    "online": "Online",
+    "offline": "Offline",
+    "start_conversation": "Inizia la conversazione...",
+    "type_message": "Scrivi un messaggio..."
+  },
+
+  "create_organization": {
+    "title": "Crea una nuova organizzazione",
+    "p_iva": "P. IVA",
+    "name": "Nome",
+    "email": "Email",
+    "phone": "Numero di telefono",
+    "city": "Città",
+    "address": "Indirizzo",
+    "country": "Stato",
+    "cap": "Cap",
+    "confirm": "Conferma",
+    "cancel": "Annulla",
+    "error_duplicate": "! Questa P. Iva è già registrata",
+    "error_email": "! L'email deve seguire il formato *@*.*"
+  },
+
+  "header": {
+    "change_project": "Cambia Progetto",
+    "dashboard": "Dashboard",
+    "profile_alt": "Immagine profilo"
+  },
+
+  "profile_menu": {
+    "view_profile": "Visualizza profilo",
+    "add_organization": "Aggiungi organizzazione"
+  },
+
+  "sidebar": {
+    "dashboard": "Dashboard",
+    "documents": "Documenti",
+    "tasks": "Attività",
+    "team_chat": "Chat di Team",
+    "file_library": "Libreria File",
+    "settings": "Impostazioni",
+    "logout": "Logout"
+  },
+
+  "chat_input": {
+    "placeholder": "Scrivi un messaggio di team..."
+  },
+
+  "chat_page": {
+    "select_project": "Seleziona un progetto.",
+    "team_chat": "Team Chat",
+    "loading": "Caricamento..."
+  },
+
+  "create_project": {
+    "title": "Crea un nuovo progetto per {{name}}",
+    "name": "Nome Progetto",
+    "description": "Descrizione",
+    "deadline": "Data di termine progetto",
+    "add_members": "Aggiungi Membri",
+    "no_participants": "Nessun partecipante aggiunto",
+    "confirm": "Conferma",
+    "cancel": "Annulla"
+  },
+
+  "projects_page": {
+    "title": "Progetti",
+    "create_button": "Crea nuovo progetto",
+    "categories": {
+      "todo": "TO DO",
+      "in_progress": "IN PROGRESS",
+      "code_review": "CODE REVIEW",
+      "done": "DONE"
+    },
+    "modal": {
+      "description": "Descrizione:",
+      "members": "Membri",
+      "set_active": "Set Active Project",
+      "delete": "Elimina Progetto",
+      "close": "Chiudi"
+    },
+    "delete_modal": {
+      "title": "Sicuro di voler eliminare \"{{name}}\"?",
+      "warning": "Il processo è irreversibile",
+      "confirm": "Conferma",
+      "cancel": "Annulla"
+    }
+  },
+
+  "task_card": {
+    "title": "Tasks",
+    "create_task": "Crea nuova task",
+    "na": "N/D",
+    "status": "Stato",
+    "form": {
+      "name": "Nome",
+      "description": "Descrizione",
+      "priority": "Priorità",
+      "confirm": "Conferma",
+      "cancel": "Annulla"
+    }
   }
 
 }

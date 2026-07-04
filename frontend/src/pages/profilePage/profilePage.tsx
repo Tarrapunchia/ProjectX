@@ -10,14 +10,15 @@ const ProfilePage: React.FC = () =>
 {
     const { t } = useTranslation();
     
-    // Prendiamo TUTTO dal WebSocket Context. Niente più chiamate HTTP inutili qui.
     const { activeUser, friends, blockedUsers, loadBlockedUsers, loadFriends } = useWebSocket();
 
     const [selectedUser, setSelectedUser] = useState<ModalUser | null>(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [modalMode, setModalMode] = useState<'friend' | 'blocked'>('friend');
+    const avatarUrl = activeUser 
+            ? `${CONSTS.BE}/api/v1/users/${activeUser.id}/avatar?t=${new Date().getTime()}`
+            : '/placeholder-avatar.png';
 
-    // Quando blocchi/sblocchi dal modale, diciamo al WS di ricaricare le sue liste globali
     const handleGlobalAndLocalRefresh = async () => 
     {
         if (loadBlockedUsers) await loadBlockedUsers();
@@ -40,7 +41,6 @@ const ProfilePage: React.FC = () =>
         setIsModalOpen(true);
     };
 
-    // Finché il WS sta caricando l'utente attivo, mostriamo il loading
     if (!activeUser) {
         return (
             <div className="flex items-center justify-center h-full w-full bg-main-bg-color text-zinc-400">
@@ -62,7 +62,7 @@ const ProfilePage: React.FC = () =>
                 <div className="shrink-0 mx-auto md:mx-0">
                     <div className="w-28 h-28 md:w-32 md:h-32 rounded-full overflow-hidden flex items-center justify-center border-4 border-side-bg-color shadow-lg">
                         <Avatar
-							src={activeUser?.avatarUrl}
+							src={avatarUrl}
 							alt="P.IMG"
 							className="w-full h-full object-cover"
 						/>

@@ -22,7 +22,7 @@ type ProfileData = {
 export default function SettingsPage() 
 {
     const { t } = useTranslation();
-    const { activeUser, setActiveUser, alertThreshold, updateAlertThreshold } = useWebSocket();
+    const { activeUser, alertThreshold, updateAlertThreshold, refreshUser } = useWebSocket();
     const [savingProfile, setSavingProfile] = useState(false);
     const [saveSuccess, setSaveSuccess] = useState(false);
     const fileRef = useRef<HTMLInputElement | null>(null);
@@ -58,7 +58,6 @@ export default function SettingsPage()
                 state: activeUser.state || "",
                 avatar: activeUser.avatar || "",
             });
-            // Aggiungiamo un timestamp per forzare il refresh dell'immagine cacheata dal browser se l'avatar cambia
             setAvatarPreview(`${CONSTS.BE}/api/v1/users/${activeUser.id}/avatar?t=${new Date().getTime()}`);
         }
     }, [activeUser]);
@@ -104,10 +103,9 @@ export default function SettingsPage()
             {
                 setSaveSuccess(true);
                 setSelectedAvatarFile(null);
+                setProfile(profile);
                 
-                // Aggiorniamo l'utente globale nel Context solo localmente senza fare altre richieste
-                setActiveUser((prev: any) => prev ? { ...prev, ...profile } : null);
-
+                refreshUser();
                 setTimeout(() => setSaveSuccess(false), 3000);
             }
         } 
