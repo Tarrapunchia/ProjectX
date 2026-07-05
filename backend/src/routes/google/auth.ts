@@ -96,7 +96,7 @@ const AuthGoogle: FastifyPluginAsync = async (fastify: FastifyInstance, opts) =>
             setAuthCookie(res, token)
 
             
-            return res.redirect('https://localhost/dashboard');
+            return res.redirect('https://localhost:8443/dashboard');
             
             return res.send({
                 success: true,
