@@ -596,6 +596,10 @@
     "modal": {
       "description": "Description:",
       "members": "Members",
+      "no_participants": "No participants",
+      "manage_members": "Manage members",
+      "done": "Done",
+      "confirm_members": "Confirm",
       "set_active": "Set Active Project",
       "delete": "Delete Project",
       "close": "Close"
