@@ -53,6 +53,7 @@ function Header({ setActivePage, selectedProject, className }: HeaderProps)
                 { profileMenuOpen &&
                     <ProfileMenu
                         setActivePage={setActivePage}
+						setProfileMenuOpen={setProfileMenuOpen}
                     /> 
                 }
             </div>

@@ -589,13 +589,17 @@
     "create_button": "Crear nuevo proyecto",
     "categories": {
       "todo": "TO DO",
-      "in_progress": "EN PROGRESO",
+      "in_progress": "IN PROGRESS",
       "code_review": "CODE REVIEW",
-      "done": "HECHO"
+      "done": "DONE"
     },
     "modal": {
       "description": "Descripción:",
       "members": "Miembros",
+      "no_participants": "Ningún participante",
+      "manage_members": "Gestionar miembros",
+      "done": "Listo",
+      "confirm_members": "Confirmar",
       "set_active": "Establecer proyecto activo",
       "delete": "Eliminar proyecto",
       "close": "Cerrar"
