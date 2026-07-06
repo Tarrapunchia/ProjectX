@@ -4,8 +4,6 @@ import { useWebSocket } from "../../utilities/WebSocketContext";
 import helpers from "../../utilities/helpers";
 import { X, Search } from "lucide-react";
 import CONSTS from '../../data/consts';
-
-// Import per DatePicker
 import DatePicker, { registerLocale } from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { it, enGB as en, es } from 'date-fns/locale';

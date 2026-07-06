@@ -6,6 +6,7 @@ import LandingPage from "./pages/landingPage/LandingPage";
 import DocsPage from "./pages/docsPage/DocsPage";
 import MarkdownDocPage from "./pages/docsPage/MarkdownPage";
 import HowToUsePage from "./pages/howToUsePage/HowToUsePage";
+import { WebSocketProvider } from './utilities/WebSocketContext'
 import './i18n';
 
 export default function App()
@@ -14,7 +15,14 @@ export default function App()
     <Routes>
       <Route path="/" element={<LandingPage />} />
       <Route path="/login" element={<Login />} />
-      <Route path="/dashboard" element={<Dashboard />} />
+      <Route 
+        path="/dashboard" 
+        element={
+          <WebSocketProvider>
+            <Dashboard />
+          </WebSocketProvider>
+        } 
+      />
       <Route path="/SignUp" element={<SignUp />} />
     
       <Route path="/docs" element={<DocsPage />} />

@@ -624,6 +624,12 @@
       "confirm": "Conferma",
       "cancel": "Annulla"
     }
+  },
+
+  "notFound": {
+    "title": "Pagina non trovata",
+    "description": "Ops! Sembra che tu ti sia perso. La pagina che stai cercando non esiste o è stata spostata.",
+    "button": "Torna alla Home"
   }
 
 }

@@ -1,4 +1,4 @@
-.app-layout {
+/* .app-layout {
 	display: grid;
 	grid-template-areas:
 		"sidebar header"
@@ -14,4 +14,4 @@
 	grid-area: main;
 	padding: 20px;
 	overflow-y: auto;
-}
+} */

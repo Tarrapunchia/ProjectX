@@ -180,7 +180,7 @@ interface WebSocketContextType {
 
 	calendarEntries: CalendarEntries | null;
 	loadCalendar: () => Promise<void>;
-	alertThreshold: number; // Soglia in ore
+	alertThreshold: number;
   	updateAlertThreshold: (hours: number) => void;
 	activeUser: User | null;
 	setActiveUser: React.Dispatch<React.SetStateAction<User | null>>;
@@ -198,6 +198,7 @@ interface WebSocketContextType {
 	setProjects: React.Dispatch<React.SetStateAction<ProjectDetailed[] | []>>;
 	projectParticipants: ProjectParticipant[] | [];
 	setProjectParticipants: React.Dispatch<React.SetStateAction<ProjectParticipant[] | []>>;
+
 }
 
 
@@ -213,7 +214,6 @@ export const WebSocketProvider: React.FC<{ children: ReactNode }> = ({ children 
 	const [messages, setMessages] = useState<Record<string, ChatMessage[]>>({});
 	const [activeUser, setActiveUser] = useState<User | null>(null);
 	const [myUserId, setMyUserId] = useState<number | null>(null);
-	// const [chatNotifications, setChatNotifications] = useState<Record<string, {chatInfo: FloatingChatInfo; count: number}>>({});
 	const friendsRef = useRef<Friend[]>([]);
 	const groupsRef = useRef<Group[]>([]);
 	const [pendingRequests, setPendingRequests] = useState<PendingRequest[]>([]);
@@ -394,7 +394,6 @@ export const WebSocketProvider: React.FC<{ children: ReactNode }> = ({ children 
 	};
 
 	const loadBlockedUsers = async () => {
-        // Presupponendo che la tua API accetti lo status 'BLOCKED' come parametro
         const response = await helpers.getter('/api/v1/friends/BLOCKED', null);
         if (response.success) {
             setBlockedUsers(response.data.friends || response.data.blocked || []);
@@ -423,7 +422,6 @@ export const WebSocketProvider: React.FC<{ children: ReactNode }> = ({ children 
 
 				const blockedRes = await helpers.getter('/api/v1/friends/BLOCKED', null);
                 if (blockedRes.success) {
-                    // Dipende da come l'API chiama l'array nel JSON, adatta se serve
                     setBlockedUsers(blockedRes.data.friends || blockedRes.data.blocked || []); 
                 }
 

@@ -624,5 +624,11 @@
       "confirm": "Confirm",
       "cancel": "Cancel"
     }
+  },
+
+  "notFound": {
+    "title": "Page not found",
+    "description": "Oops! Looks like you got lost. The page you are looking for doesn't exist or has been moved.",
+    "button": "Back to Home"
   }
 }

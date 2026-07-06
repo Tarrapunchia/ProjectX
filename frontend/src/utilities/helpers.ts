@@ -92,8 +92,6 @@ const putter = async (api: string, body: any): Promise<{ success: boolean, data:
             const data = await res.json()
             return { success: true, data: data }
         }
-        
-        // In caso di errore (400, 401, 404, ecc.)
         const errorData = await res.json().catch(() => ({}));
         return { success: false, data: errorData.error || res.statusText }
         

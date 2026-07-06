@@ -624,5 +624,11 @@
       "confirm": "Confirmar",
       "cancel": "Cancelar"
     }
+  },
+
+  "notFound": {
+    "title": "Página no encontrada",
+    "description": "¡Ups! Parece que te has perdido. La página que buscas no existe o ha sido movida.",
+    "button": "Volver al Inicio"
   }
 }

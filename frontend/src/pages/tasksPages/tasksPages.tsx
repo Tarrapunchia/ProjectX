@@ -12,7 +12,6 @@ const priorityColors: Record<string, string> = {
     NONE: "#45619e", LOW: "#ef4444", MEDIUM: "#f59e0b", HIGH: "#10b981", CRITICAL: "#7f1d1d",
 };
 
-// Ripristinate le etichette originali hardcoded coerenti con l'app
 const statusConfig: Record<string, { label: string, icon: any }> = {
     TODO: { label: "To Do", icon: Clock },
     ACTIVE: { label: "Active", icon: AlertCircle },
@@ -101,7 +100,6 @@ export default function TasksLibrary() {
     ) => {
         const previousData = rawData;
 
-        // optimistic update
         setRawData(prev =>
             prev.map(item =>
                 item.project.id === projectId
@@ -125,7 +123,6 @@ export default function TasksLibrary() {
         if (!res.success) {
             console.error("Task status update failed:", res.data);
 
-            // rollback se il backend fallisce
             setRawData(previousData);
 
             alert(
