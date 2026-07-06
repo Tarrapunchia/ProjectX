@@ -33,11 +33,7 @@ export const ChatBoxPrivate = ({ friends, chat, activeChat, hiddenChatId, setAct
 						${isActive ? 'border-owner-color text-owner-color scale-110' : 'border-overlay-border-color'}`}
 		>
 			<div className="w-full h-full rounded-full bg-side-bg-color flex items-center justify-center overflow-hidden text-lg uppercase">
-				{friend?.avatarUrl && friend.avatarUrl !== '/avatar/default.png' ? (
-					<img src={friend.avatarUrl} className="w-full h-full object-cover" />
-				) : (
-					<span>{friend?.name.charAt(0)}{friend?.surname.charAt(0)}</span>
-				)}
+				<span>{friend?.name.charAt(0)}{friend?.surname.charAt(0)}</span>
 			</div>
 		</button>
 	)
