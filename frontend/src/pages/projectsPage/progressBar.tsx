@@ -1,5 +1,5 @@
 import { useTranslation } from 'react-i18next';
-import { MOCK_TASKS } from '../../data/mockData';
+import { useWebSocket  } from '../../utilities/WebSocketContext';
 
 interface ProgressBarProps {
     projectId: string;
@@ -10,7 +10,9 @@ interface ProgressBarProps {
 
 export default function ProgressBar({ projectId, createdAt, closedAt, showDetails = false }: ProgressBarProps) {
     const { i18n } = useTranslation();
-    const tasks = MOCK_TASKS.filter((t) => t.projectId === projectId);
+	const { projects } = useWebSocket();
+    const project = projects.find(p => String(p.id) === String(projectId));
+	const tasks = project?.tasks || [];
     const completed = tasks.filter((t) => t.status === 'COMPLETED').length;
     const percent = tasks.length > 0 ? Math.round((completed / tasks.length) * 100) : 0;
 
