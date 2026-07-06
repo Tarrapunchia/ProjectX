@@ -140,12 +140,9 @@ export const CreateProject = ({ setCreateProject }: CreateProjectProps) => {
                     setProjects(prev => [...prev, newProj]);
 
                     if (projectParticipants.length > 0) {
-                        const result = await helpers.poster(`/api/v1/projects/${res.data.id}/participants`, {
+                        await helpers.poster(`/api/v1/projects/${res.data.id}/participants`, {
                             participants: projectParticipants
                         })
-                        
-                        if (result.success)
-                            console.log("projectParticipants", result.data);
                     }
                 }
             }

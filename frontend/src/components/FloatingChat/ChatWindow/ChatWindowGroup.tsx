@@ -28,7 +28,6 @@ export const ChatWindowGroup = ({ isOpen, group, friends, scrollRef, inputRef, a
         if (!inputText.trim() || !myUserId || !group) return;
 
         const roomKey = group.chatRoom.key;
-        console.log(`send room id: ${roomId}`);
         const text = inputText.trim();
         
         send({

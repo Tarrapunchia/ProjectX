@@ -52,7 +52,7 @@ const ProjectsPage: React.FC<ProjectsPageProps> = ({ setActivePage, setSelectedP
 				}
 				setOrgFetched(true)
 			} catch (error) {
-				console.log(`Error in fetching org ${orgId} infos`)
+				console.error(`Error in fetching org ${orgId} infos`)
 			}
 		})()
 		return () => {  };

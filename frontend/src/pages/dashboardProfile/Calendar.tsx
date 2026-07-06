@@ -113,7 +113,6 @@ function Calendar()
                 throw new Error("Failed to delete event");
             }
 
-            console.log("Evento eliminato con successo");
             closeModal();
 
         } catch (error) {

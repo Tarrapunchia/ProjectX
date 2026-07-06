@@ -47,7 +47,6 @@ const ChatPage: React.FC<ChatPageProps> = ({ selectedProject }) => {
                                         const response = await helpers.getter(`/api/v1/users/${senderId}/profile`, null);
                                         
                                         if (response.success) {
-                                            console.log("SENDER DATA", response.data);
                                             const newMessage = {
                                                 id: Date.now(),
                                                 senderMail: response.data.email,
@@ -57,7 +56,6 @@ const ChatPage: React.FC<ChatPageProps> = ({ selectedProject }) => {
     
                                             if (!cancelled) setChatHistory((prev) => [...prev, newMessage]);
                                         } else {
-                                            console.log("FAILED");
                                         }
 
                                     } catch (err) {
@@ -101,7 +99,6 @@ const ChatPage: React.FC<ChatPageProps> = ({ selectedProject }) => {
         setChatHistory((prev) => [...prev, newMessage]);
 
         send({ type:"room:message", roomId:roomId, payload:{ text:content } });
-        console.log("Sending to backend", content);
     };
 
     if (!selectedProject)

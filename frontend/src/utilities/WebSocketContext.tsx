@@ -340,9 +340,7 @@ export const WebSocketProvider: React.FC<{ children: ReactNode }> = ({ children 
 		const response = await helpers.getter('/api/v1/groups/joined', null);
 		if (response.success) {
 			const joinedGroups: Group[] = response.data.groups;
-			console.log(joinedGroups);
 			setGroups(joinedGroups);
-			console.log("load groups response success");
 		}
 	};
 
@@ -404,7 +402,6 @@ export const WebSocketProvider: React.FC<{ children: ReactNode }> = ({ children 
     };
 
 	const openFloatingChat = (chat: FloatingChatInfo) => {
-		console.log(chat);
 		setFloatingChats(prev => {
 			if (prev.find(c => c.roomId === chat.roomId)) {
 				prev = prev.filter(c => c.roomId !== chat.roomId)
@@ -434,7 +431,6 @@ export const WebSocketProvider: React.FC<{ children: ReactNode }> = ({ children 
 				if (groupRes.success) {
 					const joinedGroups: Group[] = groupRes.data.groups;
 					setGroups(joinedGroups);
-					console.log(groups);
 				}
 
 				loadOrgs();
@@ -471,9 +467,6 @@ export const WebSocketProvider: React.FC<{ children: ReactNode }> = ({ children 
 			{
 				const messageData = JSON.parse(event.data);
 
-				console.log(messageData.type);
-				console.log(JSON.stringify(messageData, null, 2));
-
 				if (["task:updated", "task:created", "event:updated", "event:created"].includes(messageData.type)) 
 				{
         			loadCalendar();
@@ -504,7 +497,6 @@ export const WebSocketProvider: React.FC<{ children: ReactNode }> = ({ children 
 
 				if (messageData.type === "friend:request:accepted") 
 				{
-					console.log(messageData)
 					setPendingRequests(prev => prev.filter(r => r.id !== messageData.requestId));
 					loadFriends();
 				}
@@ -703,7 +695,6 @@ export const WebSocketProvider: React.FC<{ children: ReactNode }> = ({ children 
 				}
 
 				if (messageData.type === "room:message") {
-					console.log(messageData)
 					const roomKey = messageData.roomId;
 					const fromUserId = messageData.fromUserId;
 
@@ -778,7 +769,6 @@ export const WebSocketProvider: React.FC<{ children: ReactNode }> = ({ children 
 
 		const responseHistory = await helpers.getter(`/api/v1/messages/roomHistory?roomKey=${roomKey}`, null);
 
-		console.log(responseHistory);
 		if (responseHistory.success && responseHistory.data) {
 			const rawMessages: any[] = responseHistory.data.messages || [];
 
@@ -823,7 +813,6 @@ export const WebSocketProvider: React.FC<{ children: ReactNode }> = ({ children 
 	};
 
 	const send = (data: any) => {
-		console.log(data);
 		if (socket && socket.readyState === WebSocket.OPEN)
 			socket.send(JSON.stringify(data));
 		else

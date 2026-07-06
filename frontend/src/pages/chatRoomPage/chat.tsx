@@ -28,8 +28,6 @@ const chat: React.FC<chatProps> = ({ selectedProject }) => {
                 try {
                     const id = await Connections.getRoomId(consts.BE, selectedProject);
                     if (!cancelled) setRoomId(id);
-                    // console.log(`PRIMA ${id}`)
-                    // if (!cancelled) setRoomId(`proj:7:19`);
                     
                     const data = await Connections.getRoomHistory(consts.BE, id)
                     if (data.count != 0) {
@@ -37,7 +35,7 @@ const chat: React.FC<chatProps> = ({ selectedProject }) => {
                         setChatHistory(msgs)
                     }
                 } catch (e) {
-                    console.log(e);
+                    console.error(e);
                     if (!cancelled) setRoomId('');
                 }
             })();

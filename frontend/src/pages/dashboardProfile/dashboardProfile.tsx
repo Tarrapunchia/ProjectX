@@ -44,7 +44,6 @@ function DashboardProf()
             const { success } = await helpers.putter('/api/v1/users/modifyUserProfile', profileData);
 
             if (success) {
-                console.log(t("dashboard.profile_updated"));
 				setActiveUser((prev: any) => prev ? { ...prev, ...profileData } : null);
             } else {
                 console.error(t("dashboard.error_fetching"));
