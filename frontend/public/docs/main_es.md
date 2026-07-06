@@ -449,8 +449,6 @@ Limitaciones actuales:
 
 - no hay módulos de juego, ya que la dirección del proyecto es colaboración/productividad
 - no hay módulo de API key pública declarado
-- no hay módulo full analytics declarado
-- no hay módulo completo de accessibility/i18n declarado
 - las páginas de privacy policy y terms deberían finalizarse y enlazarse explícitamente desde la aplicación si no forman ya parte de la build final de evaluación
 - la ruta de contenedores/HTTPS debería probarse end-to-end en el entorno final de entrega
 

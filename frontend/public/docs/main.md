@@ -450,8 +450,6 @@ Current limitations include:
 
 - no game-related modules, since the project direction is collaborative/productivity oriented
 - no claimed public API key module
-- no claimed full analytics module
-- no claimed full accessibility/i18n module
 - privacy policy and terms pages should be finalized and linked explicitly from the application if they are not already part of the final evaluation build
 - the container/HTTPS deployment path should be tested end-to-end in the final submission environment
 

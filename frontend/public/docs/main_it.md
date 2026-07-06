@@ -450,8 +450,6 @@ Limitazioni attuali:
 
 - nessun modulo legato al gaming, perché il progetto è orientato a collaboration/productivity
 - nessun modulo public API key dichiarato
-- nessun modulo full analytics dichiarato
-- nessun modulo completo accessibility/i18n dichiarato
 - privacy policy e terms pages dovrebbero essere finalizzate e collegate esplicitamente dall'app se non sono già parte della build finale di evaluation
 - il path container/HTTPS dovrebbe essere testato end-to-end nell'ambiente finale di consegna
 
