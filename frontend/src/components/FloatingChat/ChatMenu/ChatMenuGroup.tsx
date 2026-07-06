@@ -20,7 +20,7 @@ export const ChatMenuGroup = ({ groups, setActiveChat }: ChatMenuGroupProps) => 
     ) || [];
 
     return (
-        <div className="flex flex-col">
+        <div className="flex flex-col h-full">
             <div className="px-2 pt-2 bg-bg-color">
                 <div className="relative flex items-center">
                     <FiSearch className="absolute left-3 text-gray-400" size={16} />
@@ -46,7 +46,7 @@ export const ChatMenuGroup = ({ groups, setActiveChat }: ChatMenuGroupProps) => 
                 </div>
             </div>
 
-            <div className="animate-fadeIn w-full space-y-1 p-2">
+            <div className="animate-fadeIn w-full space-y-1 p-2 flex-1 min-h-0 overflow-y-auto no-scrollbar">
                 {filteredGroups.length > 0 ? (
                     filteredGroups.map((group) => (
                         <div

@@ -22,9 +22,10 @@ export const ChatOptionsAdd = ({ setOpenOption, openOption, friends, group }: Ch
     ) || [];
 
     return (
-        <div className={`absolute origin-center w-full h-full z-20 bg-bg-color/90 transition-all duration-400
-                        ${openOption === 'add' ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}>
-            <div className="flex justify-end mt-3 mr-3">
+        <div className={`absolute flex flex-col origin-center w-full h-full z-20 bg-bg-color/90 transition-all duration-400
+                        ${openOption === 'add' ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}
+		>
+            <div className="flex justify-end mt-3 mr-3 shrink-0">
                 <button
                     onClick={() => setOpenOption(null)}
                     className="bg-bg-color rounded-full p-1 hover:cursor-pointer hover:text-owner-color hover:bg-side-bg-color transition-colors">
@@ -32,7 +33,7 @@ export const ChatOptionsAdd = ({ setOpenOption, openOption, friends, group }: Ch
                 </button>
             </div>
 
-            <div className="px-2 pt-2 bg-bg-color">
+            <div className="px-2 pt-2 bg-bg-color shrink-0">
                 <div className="relative flex items-center">
                     <FiSearch className="absolute left-3 text-gray-400" size={16} />
                     <input
@@ -45,8 +46,8 @@ export const ChatOptionsAdd = ({ setOpenOption, openOption, friends, group }: Ch
                 </div>
             </div>
 
-            <div className="overflow-y-auto no-scrollbar">
-                {filteredFriends.length > 0 ? (
+			<div className="flex-1 min-h-0 overflow-y-auto no-scrollbar">
+				{filteredFriends.length > 0 ? (
                     filteredFriends.map((friend) => (
                         <div
                             key={friend.id}
@@ -58,11 +59,7 @@ export const ChatOptionsAdd = ({ setOpenOption, openOption, friends, group }: Ch
                         >
                             <div className="relative shrink-0">     
                                 <div className=" w-10 h-10 rounded-full bg-overlay-border-color flex items-center justify-center text-text-main font-bold border border-overlay-border-color uppercase">
-                                    {friend.avatarUrl && friend.avatarUrl !== '/avatar/default.png' ? (
-                                        <img src={friend.avatarUrl} alt={friend.name} className="w-full h-full object-cover" />
-                                    ) : (
-                                        <span>{friend.name.charAt(0)}{friend.surname.charAt(0)}</span>
-                                    )}
+                                    <span>{friend.name.charAt(0)}{friend.surname.charAt(0)}</span>
                                 </div>
                                 <span className={`absolute bottom-0 right-0 w-3 h-3 rounded-full border-2 border-bg-color
                                             ${friend.isLoggedIn ? 'bg-green-500' : 'bg-gray-400'}`}

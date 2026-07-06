@@ -61,13 +61,9 @@ export const ChatWindowPrivate = ({ friend, roomId, scrollRef, inputRef, current
                     <div className="flex items-center gap-3">
                         <div className="relative">
                             <div className="w-9 h-9 rounded-full bg-overlay-border-color flex items-center justify-center overflow-hidden border border-overlay-border-color">
-                                    {friend?.avatarUrl && friend.avatarUrl !== '/avatar/default.png' ? (
-                                        <img src={friend.avatarUrl} className="w-full h-full object-cover" alt="" />
-                                    ) : (
-                                        <span className="text-xs font-bold uppercase">
-                                            {friend?.name.charAt(0)}{friend?.surname.charAt(0)}
-                                        </span>
-                                    )}
+								<span className="text-xs font-bold uppercase">
+									{friend?.name.charAt(0)}{friend?.surname.charAt(0)}
+								</span>
                             </div>
                             <span className={`absolute bottom-0 right-0 w-2.5 h-2.5 rounded-full border-2 border-side-bg-color ${friend?.isLoggedIn ? 'bg-green-500' : 'bg-gray-500'}`} />
                         </div>

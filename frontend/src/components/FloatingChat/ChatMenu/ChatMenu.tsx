@@ -81,7 +81,7 @@ export const ChatMenu = memo(({ isOpen, isDragging, pos, friends, groups, active
 					/>
 				</button>
 			</div>
-				<div className="flex-1 overflow-y-auto"> 
+				<div className="flex-1 min-h-0 overflow-hidden"> 
 				{activeTab === 'friends' ? (
 					<ChatMenuPrivate 
 						friends= {friends}

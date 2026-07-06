@@ -134,14 +134,10 @@ function FloatingChat() {
 							opacity: avatarHasMoved.current ? 1 : 0
 						}}
 						>
-							<div className="w-full h-full flex items-center justify-center text-owner-color font-bold">
-								{draggedFriend?.avatarUrl && draggedFriend.avatarUrl !== '/avatar/default.png' ? (
-									<img src={draggedFriend.avatarUrl} alt="" className="w-full h-full object-cover" />
-								) : (
-									<span className="text-lg uppercase">
-										{draggedFriend?.name?.charAt(0)}{draggedFriend?.surname?.charAt(0)}
-									</span>
-								)}
+							<div className="w-full h-full flex items-center justify-center text-owner-color font-bold">	
+								<span className="text-lg uppercase">
+									{draggedFriend?.name?.charAt(0)}{draggedFriend?.surname?.charAt(0)}
+								</span>
 							</div>
 						</div>
 					) : (

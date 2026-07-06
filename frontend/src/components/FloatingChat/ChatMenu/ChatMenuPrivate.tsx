@@ -21,7 +21,7 @@ export const ChatMenuPrivate = ({ friends, setActiveChat }: ChatMenuPrivateProps
     }) || [];
 
     return (
-        <div>
+        <div className="flex flex-col h-full">
             <div className="px-2 pt-2 bg-bg-color">
                 <div className="relative flex items-center">
                     <FiSearch className="absolute left-3 text-gray-400" size={16} />
@@ -34,7 +34,7 @@ export const ChatMenuPrivate = ({ friends, setActiveChat }: ChatMenuPrivateProps
                     />
                 </div>
             </div>
-            <div className="animate-fadeIn space-y-1 p-2">
+            <div className="animate-fadeIn space-y-1 p-2 overflow-y-auto no-scrollbar">
                 {filteredFriends.length > 0 ? (
                     filteredFriends.map((friend) => (
                         <div
@@ -53,11 +53,7 @@ export const ChatMenuPrivate = ({ friends, setActiveChat }: ChatMenuPrivateProps
                         >
                             <div className="relative shrink-0">     
                                 <div className=" w-10 h-10 rounded-full bg-overlay-border-color flex items-center justify-center text-text-main font-bold border border-overlay-border-color uppercase">
-                                    {friend.avatarUrl && friend.avatarUrl !== '/avatar/default.png' ? (
-                                        <img src={friend.avatarUrl} alt={friend.name} className="w-full h-full object-cover" />
-                                    ) : (
-                                        <span>{friend.name.charAt(0)}{friend.surname.charAt(0)}</span>
-                                    )}
+                                    <span>{friend.name.charAt(0)}{friend.surname.charAt(0)}</span>
                                 </div>
                                 <span className={`absolute bottom-0 right-0 w-3 h-3 rounded-full border-2 border-bg-color
                                             ${friend.isLoggedIn ? 'bg-green-500' : 'bg-gray-400'}`}

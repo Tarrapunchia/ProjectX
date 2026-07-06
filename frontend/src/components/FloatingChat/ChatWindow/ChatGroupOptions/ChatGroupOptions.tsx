@@ -27,14 +27,6 @@ export const ChatGroupOptions = ({ group, friends, activeChat, setActiveChat }: 
                         <FiUserPlus size={40} className="stroke-1"/>
                     </button>
                 </div>
-                {/* <div className="shadow-[0_0_10px_rgba(172,134,0,0.7)] rounded-md">
-                    <button 
-                        onClick={() => setOpenOption('edit')}
-                        className="border border-overlay-border-color p-1 rounded-md hover:cursor-pointer hover:border-owner-color hover:scale-110 transition-all"
-                    >
-                        <FiEdit size={40} className="stroke-1"/>
-                    </button>
-                </div> */}
                 <div className="shadow-[0_0_10px_rgba(172,134,0,0.7)] rounded-md">
                     <button 
                         onClick={() => setOpenOption('leave')}
@@ -47,7 +39,7 @@ export const ChatGroupOptions = ({ group, friends, activeChat, setActiveChat }: 
             <div className="flex items-center justify-start w-full ml-3 mt-4 font-thin">
                 {t('chat_group_options.members', { count: group?.participants.length || 0 })}
             </div>
-            <div className="animate-fadeIn space-y-1">
+            <div className="animate-fadeIn space-y-1 overflow-y-auto no-scrollbar">
                 {group?.participants.map(p => (
                     <div
                         key={p.user.id}
@@ -55,13 +47,9 @@ export const ChatGroupOptions = ({ group, friends, activeChat, setActiveChat }: 
                     >
                         <div className="relative shrink-0">
                             <div className="w-10 h-10 rounded-full bg-overlay-border-color flex items-center justify-center overflow-hidden border border-overlay-border-color">
-                                {p.user.avatarUrl && p.user.avatarUrl !== '/avatar/default.png' ? (
-                                    <img src={p.user.avatarUrl} className="w-full h-full object-cover" alt=""/>
-                                ) : (
-                                    <span className="font-bold uppercase">
-                                        {p.user.name.charAt(0)}{p.user.surname.charAt(0)}
-                                    </span>
-                                )}
+								<span className="font-bold uppercase">
+									{p.user.name.charAt(0)}{p.user.surname.charAt(0)}
+								</span>
                             </div>
                             <span className={`absolute bottom-0 right-0 w-3 h-3 rounded-full border-2 border-bg-color
                                     ${p.user.isLoggedIn ? 'bg-green-500' : 'bg-gray-400'}`}
