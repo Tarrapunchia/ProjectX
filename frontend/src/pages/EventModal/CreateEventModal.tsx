@@ -37,6 +37,14 @@ export default function CreateEventModal({ onClose }: { onClose: () => void })
         );
     }, [friends, searchTerm, selectedFriends]);
 
+	const filterPassedTime = (time: Date) => 
+	{
+        const currentDate = new Date();
+        const selectedDate = new Date(time);
+        
+        return currentDate.getTime() < selectedDate.getTime();
+    };
+
     const addFriend = (id: number) => 
     {
         if (!selectedFriends.includes(id))
@@ -106,12 +114,14 @@ export default function CreateEventModal({ onClose }: { onClose: () => void })
                                 <option value="GENERIC">{t("create_event_modal.type_generic")}</option>
                             </select>
 
-                            <DatePicker
+							<DatePicker
                                 selected={startDate}
                                 onChange={(date: Date | null) => setStartDate(date)}
                                 showTimeSelect
                                 dateFormat="Pp"
-                                locale={i18n.language}
+                                locale={i18n.language.substring(0, 2)} 
+                                minDate={new Date()} 
+                                filterTime={filterPassedTime} 
                                 className="w-full p-3 rounded-xl bg-bg-color border border-transparent outline-none cursor-pointer shadow-sm text-text-main"
                                 placeholderText={t("create_event_modal.select_date")}
                             />

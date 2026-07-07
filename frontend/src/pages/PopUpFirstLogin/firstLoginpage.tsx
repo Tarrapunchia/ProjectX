@@ -1,5 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { useTranslation } from "react-i18next";
+import { useWebSocket } from '../../utilities/WebSocketContext';
+import CONSTS from '../../data/consts';
 
 export interface ExtraProfileData 
 {
@@ -32,6 +34,7 @@ const STEPS =
 
 export default function ProfileCompletionModal({ isOpen, onClose, onSave }: Props) 
 {
+	const { activeUser } = useWebSocket();
     const { t } = useTranslation();
     const [shouldRender, setShouldRender] = useState(false);
     const [isExiting, setIsExiting] = useState(false);
@@ -49,6 +52,9 @@ export default function ProfileCompletionModal({ isOpen, onClose, onSave }: Prop
 
     const fileRef = useRef<HTMLInputElement | null>(null);
     const [avatarPreview, setAvatarPreview] = useState<string | undefined>(undefined);
+	const avatarUrl = activeUser 
+			? `${CONSTS.BE}/api/v1/users/${activeUser.id}/avatar?t=${new Date().getTime()}`
+			: '/placeholder-avatar.png';
 
     useEffect(() => 
     {
@@ -176,7 +182,7 @@ export default function ProfileCompletionModal({ isOpen, onClose, onSave }: Prop
                         <div className="flex flex-col items-center justify-center gap-4 py-2">
                             <div className="relative w-24 h-24 group">
                                 <img 
-                                    src={avatarPreview || "/placeholder-avatar.png"}
+                                    src={avatarPreview || avatarUrl}
                                     alt="avatar" 
                                     className="w-24 h-24 rounded-full object-cover border-2 border-overlay-border-color" 
                                 />

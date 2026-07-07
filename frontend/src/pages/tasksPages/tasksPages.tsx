@@ -9,7 +9,7 @@ const priorityWeight: Record<string, number> = {
 };
 
 const priorityColors: Record<string, string> = {
-    NONE: "#45619e", LOW: "#ef4444", MEDIUM: "#f59e0b", HIGH: "#10b981", CRITICAL: "#7f1d1d",
+    NONE: "#45619e", LOW: "#10b981", MEDIUM: "#f59e0b", HIGH: "#ef4444", CRITICAL: "#7f1d1d",
 };
 
 const statusConfig: Record<string, { label: string, icon: any }> = {

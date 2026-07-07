@@ -1,6 +1,6 @@
 define LAUNCH_BODY
 Usage:\n
-\t- make: launch docker compose up\n
+\t- make build: docker compose up\n
 \t- make reset-fe: remove and rebuild only the Frontend\n
 \t- make reset-be: remove and rebuild only the Backend\n
 \t- make resfresh: shuts down the containers and relaunch them after rebuilding\n

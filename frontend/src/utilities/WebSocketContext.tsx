@@ -742,7 +742,10 @@ export const WebSocketProvider: React.FC<{ children: ReactNode }> = ({ children 
 				}
 
 				if (messageData.type === "project:modified")
+				{
+					console.log("progetto_modificatooooooooooooooooo");
 					loadProjects();
+				}
 
 			} catch (err) {
 				console.error("ws message error:", err);

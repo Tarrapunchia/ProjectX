@@ -39,7 +39,6 @@ function Login()
 
         } catch (error) 
         {
-            console.error(error)
             setError(t("login.err_server"));
             return
         }

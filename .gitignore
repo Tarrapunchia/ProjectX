@@ -5,7 +5,7 @@
 package-lock.json
 /backend/dist
 /backend/certs
-# Keep environment variables out of version control
-# .env
+
+.env
 
 node_modules
