@@ -58,7 +58,7 @@ const locales = {
 function Calendar() 
 {
 	const { t, i18n } = useTranslation();
-    const { activeUser, calendarEntries } = useWebSocket();
+    const { activeUser, calendarEntries, loadCalendar } = useWebSocket();
     const [selectedEvent, setSelectedEvent] = useState<SelectedEvent | null>(null);
     const modalRef = useRef<HTMLDivElement | null>(null);
     const [isClosing, setIsClosing] = useState(false);
@@ -111,6 +111,10 @@ function Calendar()
 
             if (!response.success) {
                 throw new Error("Failed to delete event");
+            }
+
+			if (loadCalendar) {
+				loadCalendar();
             }
 
             closeModal();
