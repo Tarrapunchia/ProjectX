@@ -418,6 +418,7 @@
   },
 
   "signup": {
+	"err_empty_fields": "Tutti i campi sono obbligatori.",
     "title": "Crea il tuo account!",
     "google_btn": "Registrati con Google",
     "or": "OPPURE",
@@ -630,6 +631,26 @@
     "title": "Pagina non trovata",
     "description": "Ops! Sembra che tu ti sia perso. La pagina che stai cercando non esiste o è stata spostata.",
     "button": "Torna alla Home"
-  }
+  },
 
+  "terms": {
+    "title": "Termini di Servizio e Privacy Policy",
+    "last_updated": "Ultimo aggiornamento",
+    "educational": {
+      "title": "1. Progetto Formativo 42",
+      "content": "Questa applicazione è stata sviluppata esclusivamente come progetto didattico per la rete 42. Non è un prodotto commerciale e non è destinata a un uso in produzione. Il codice sorgente, l'infrastruttura e i servizi offerti sono da considerarsi parte di un esercizio accademico."
+    },
+    "data_usage": {
+      "title": "2. Raccolta e Uso dei Dati",
+      "content": "L'applicazione raccoglie esclusivamente i dati necessari per testare le funzionalità richieste dai subject del progetto (come nome, email, avatar, task e relazioni di amicizia). Questi dati vengono conservati in un database temporaneo a scopo puramente valutativo e di debug."
+    },
+    "warning": {
+      "title": "3. Avvertenza sui Dati Personali",
+      "content": "ATTENZIONE: Si prega categoricamente di NON inserire dati personali reali, password utilizzate su altri servizi, informazioni finanziarie o qualsiasi dato sensibile. Utilizza esclusivamente dati fittizi o account di test per la valutazione del progetto."
+    },
+    "privacy": {
+      "title": "4. Privacy e Sicurezza",
+      "content": "Essendo un ambiente di test, non è garantita la persistenza dei dati. Tutti i dati inseriti potrebbero essere eliminati in qualsiasi momento senza preavviso a seguito di reset del server o aggiornamenti dell'infrastruttura Docker. Nessun dato verrà mai ceduto o venduto a terze parti."
+    }
+  }
 }

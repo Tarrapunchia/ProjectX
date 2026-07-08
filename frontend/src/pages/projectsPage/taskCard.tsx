@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react'
+import { useState, useRef, useMemo } from 'react'
 import { useTranslation } from 'react-i18next';
 import { type ProjectDetailed, type Task, type Priority, useWebSocket } from "../../utilities/WebSocketContext";
 import helpers from '../../utilities/helpers'
@@ -7,9 +7,10 @@ interface TaskCardProps {
     selectedProject: ProjectDetailed;
 }
 
-export default function TaskCard ({ selectedProject } : TaskCardProps) {
+export default function TaskCard ({ selectedProject } : TaskCardProps) 
+{
     const { t, i18n } = useTranslation();
-    const { setProjects } = useWebSocket();
+    const { setProjects, activeUser } = useWebSocket();
     const inputRef = useRef<HTMLInputElement>(null);
     const textAreaRef = useRef<HTMLTextAreaElement>(null);
     const priorityRef = useRef<HTMLSelectElement>(null);
@@ -33,6 +34,16 @@ export default function TaskCard ({ selectedProject } : TaskCardProps) {
         const progress = ((now - start) / (end - start)) * 100;
         return Math.min(100, Math.max(0, Math.round(progress)));
     };
+
+	const canCreateTask = useMemo(() => 
+	{
+        if (!activeUser) 
+			return false;
+        
+        return selectedProject.participants.some(
+            (p: any) => p.user.id === activeUser.id && (p.role === "OWNER" || p.role === "EDITOR")
+        );
+    }, [selectedProject, activeUser]);
 
     const handleConfirm = async () => {
         const name = inputRef.current?.value.trim() ?? '';
@@ -83,12 +94,13 @@ export default function TaskCard ({ selectedProject } : TaskCardProps) {
     return (
         <div className="flex flex-col no-scrollbar items-center overflow-y-auto scrollbar-thin scrollbar-thumb-overlay-border-color scrollbar-track-transparent h-full">
             <span className="flex items-center justify-center w-full text-xl font-bold self-start ml-[5%] mb-4">{t('task_card.title')}</span>
-            <button
-                onClick={() => setCreateTaskOpen(true)}
-                className="border border-overlay-border-color rounded-sm p-2 w-[95%] ml-4 transition-all duration-300 hover:border-owner-color hover:text-owner-color hover:cursor-pointer"
-            >
-                {t('task_card.create_task')}
-            </button>
+			{canCreateTask && (
+                <button
+                    onClick={() => setCreateTaskOpen(true)}
+                    className="border border-overlay-border-color rounded-sm p-2 w-[95%] ml-4 transition-all duration-300 hover:border-owner-color hover:text-owner-color hover:cursor-pointer">
+                    {t('task_card.create_task')}
+                </button>
+            )}
             {taskList.map((task) => {
                 const progress = calcProgress(task.createdAt, task.closedAt);
                 return (

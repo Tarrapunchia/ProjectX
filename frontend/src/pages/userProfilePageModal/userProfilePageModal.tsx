@@ -38,7 +38,7 @@ const UserProfileModal: React.FC<UserProfileModalProps> = ({
     onRefresh
 }) => {
     const [isActionLoading, setIsActionLoading] = useState(false);
-    const { activeOrg } = useWebSocket() as any;
+    const { activeOrg, loadFriends } = useWebSocket() as any;
 	const userAvatarUrl = `${CONSTS.BE}/api/v1/users/${user?.id}/avatar`;
     
 	if (!isOpen || !user) return null;
@@ -70,11 +70,12 @@ const UserProfileModal: React.FC<UserProfileModalProps> = ({
         } catch (error) {
             console.error("Errore durante il blocco dell'utente:", error);
         } finally {
+			if (loadFriends) await loadFriends();
             setIsActionLoading(false);
         }
     };
 
-    const handleUnblockUser = async () => 
+    const handleUnblockUser = async () =>
     {
         if (!user) return;
         

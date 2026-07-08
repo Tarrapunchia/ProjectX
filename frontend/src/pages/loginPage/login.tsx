@@ -29,6 +29,11 @@ function Login()
             const email = emailRef.current?.value
             const password = pwRef.current?.value
 
+			if (!email || !password) {
+                setError(t("signup.err_empty_fields"));
+                return;
+            }
+
             const login = await helpers.poster(LOGIN_URL, { email, password });
 
             if (!login.success) 

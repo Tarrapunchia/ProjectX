@@ -452,6 +452,16 @@
           return { error: out.error }
         }
 
+		fastify.wsSendToUser(targetUserId, 
+		{
+          type: "user:blocked",
+          targetUserId: targetUserId,
+          actionByUserId: blockerId,
+          status: "BLOCKED",
+          friendshipId: out.friendship.id,
+          ts: Date.now(),
+        });
+
         reply.code(200)
         return {
           success: true,

@@ -133,7 +133,8 @@ export interface Task {
 	priority: Priority
 }
 
-export interface ProjectDetailed extends Project {
+export interface ProjectDetailed extends Project 
+{
 	organization: { id: number, name: string },
 	participants: ProjectParticipant[],
 	tasks?: Task[] | [];
@@ -738,12 +739,11 @@ export const WebSocketProvider: React.FC<{ children: ReactNode }> = ({ children 
 				}
 
 				if (messageData.type === "user:blocked") {
-					setFriends(prev => prev.filter(f => f.id !== messageData.blockedById));
+					loadFriends();
 				}
 
 				if (messageData.type === "project:modified")
 				{
-					console.log("progetto_modificatooooooooooooooooo");
 					loadProjects();
 				}
 

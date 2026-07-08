@@ -35,6 +35,11 @@ function SignUp()
             const passwordRepeat = reapetedpwRef.current?.value
             const isTermsAccepted = termsRef.current?.checked;
 
+			if (!email || !password || !name || !surname || !passwordRepeat) {
+                setError(t("signup.err_empty_fields"));
+                return;
+            }
+
             if (!isTermsAccepted) {
                 setError(t("signup.err_terms"));
                 return;
@@ -51,7 +56,6 @@ function SignUp()
         }
         catch (error)
         {
-            console.log(error)
             setError(t("signup.err_server"));
             return
         }
@@ -61,6 +65,13 @@ function SignUp()
 
     function handleGoogleLogin()
     {
+		const isTermsAccepted = termsRef.current?.checked;
+		
+		if (!isTermsAccepted) 
+		{
+            setError(t("signup.err_terms"));
+            return;
+        }
         window.location.href = "/auth/google";
     }
 
@@ -141,16 +152,26 @@ function SignUp()
 
         </div>
 
-            <div className="flex justify-center items-center mt-4 gap-1">
+			<div className="flex justify-center items-center mt-4 gap-1">
                 <input
                     ref={termsRef}
                     type="checkbox"
                     id="terms"
                     className="w-[15px] h-[15px] accent-black-500 cursor-pointer"
-					
                 />
-                <span className="text-[14px] text-text-main"> {t("signup.accept_text")} </span>
-                <span className="ml-2 text-[12px] text-text-main cursor-pointer hover:underline">{t("signup.terms_link")}</span>
+                
+                <label htmlFor="terms" className="text-[14px] text-text-main cursor-pointer"> 
+                    {t("signup.accept_text")} 
+                </label>
+                
+                <a 
+                    href="/terms-of-service" 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="ml-1 text-[12px] text-text-main cursor-pointer hover:underline"
+                >
+                    {t("signup.terms_link")}
+                </a>
             </div>
 
             <button
@@ -172,7 +193,7 @@ function SignUp()
             >
                 {t("signup.signup_btn")}
             </button>
-    </div>
+    	</div>
     </div>
     )
 }

@@ -418,6 +418,7 @@
   },
 
   "signup": {
+  	"err_empty_fields": "All fields are required.",
     "title": "Create your account!",
     "google_btn": "Sign Up with Google",
     "or": "OR",
@@ -630,5 +631,26 @@
     "title": "Page not found",
     "description": "Oops! Looks like you got lost. The page you are looking for doesn't exist or has been moved.",
     "button": "Back to Home"
+  },
+
+  "terms": {
+    "title": "Terms of Service & Privacy Policy",
+    "last_updated": "Last updated",
+    "educational": {
+      "title": "1. 42 Educational Project",
+      "content": "This application was developed exclusively as an educational project for the 42 network. It is not a commercial product and is not intended for production use. The source code, infrastructure, and services provided are to be considered part of an academic exercise."
+    },
+    "data_usage": {
+      "title": "2. Data Collection and Usage",
+      "content": "The application collects only the data necessary to test the functionalities required by the project subjects (such as name, email, avatar, tasks, and friendship relations). This data is stored in a temporary database purely for evaluation and debugging purposes."
+    },
+    "warning": {
+      "title": "3. Personal Data Warning",
+      "content": "WARNING: Please strictly DO NOT enter real personal data, passwords used on other services, financial information, or any sensitive data. Use exclusively dummy data or test accounts for the evaluation of the project."
+    },
+    "privacy": {
+      "title": "4. Privacy and Security",
+      "content": "As this is a testing environment, data persistence is not guaranteed. All entered data may be deleted at any time without notice due to server resets or Docker infrastructure updates. No data will ever be shared or sold to third parties."
+    }
   }
 }

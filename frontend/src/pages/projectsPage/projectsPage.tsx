@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { FiAlertTriangle, FiUser, FiUserPlus, FiCheck } from 'react-icons/fi';
 import Category from './category';
@@ -13,7 +13,8 @@ interface ProjectsPageProps {
     setSelectedProject: (project: ProjectDetailed) => void;
 }
 
-const ProjectsPage: React.FC<ProjectsPageProps> = ({ setActivePage, setSelectedProject }) => {
+const ProjectsPage: React.FC<ProjectsPageProps> = ({ setActivePage, setSelectedProject }) => 
+{
     const { t } = useTranslation();
     const { projects, activeOrg, activeUser, setProjects } = useWebSocket();
     const filteredProjects = projects.filter(proj =>
@@ -61,6 +62,15 @@ const ProjectsPage: React.FC<ProjectsPageProps> = ({ setActivePage, setSelectedP
         setSelectedCardId(project.id);
         setTimeout(() => setIsExpanding(true), 10);
     };
+
+	const canDeleteProject = useMemo(() => 
+	{
+        if (!activeUser || !selectedCard) return false;
+        
+        return selectedCard.participants.some(
+            (p: any) => p.user.id === activeUser.id && (p.role === "OWNER")
+        );
+    }, [selectedCard, activeUser]);
 
     const handleClose = () => {
         setIsExpanding(false);
@@ -345,15 +355,18 @@ const ProjectsPage: React.FC<ProjectsPageProps> = ({ setActivePage, setSelectedP
                                 >
                                     {t('projects_page.modal.set_active')}
                                 </button>
-                                <button
-                                    onClick={() => setDeleteProject(true)}
-                                    className="flex items-center justify-center gap-2 border border-overlay-border-color text-xl p-3 rounded-sm m-2 w-50 h-15 transition-all duration-300 hover:border-red-500 hover:scale-110 active:scale-90">
-                                    <FiAlertTriangle 
-                                        size={24}
-                                        className="text-red-500"
-                                    />
-                                    {t('projects_page.modal.delete')}
-                                </button>
+								{canDeleteProject && 
+								(
+									<button
+										onClick={() => setDeleteProject(true)}
+										className="flex items-center justify-center gap-2 border border-overlay-border-color text-xl p-3 rounded-sm m-2 w-50 h-15 transition-all duration-300 hover:border-red-500 hover:scale-110 active:scale-90">
+										<FiAlertTriangle 
+											size={24}
+											className="text-red-500"
+										/>
+										{t('projects_page.modal.delete')}
+									</button>
+								)}
                                 <button 
                                     className="border border-overlay-border-color text-xl p-3 rounded-sm m-2 w-50 h-15 transition-all duration-300 hover:border-owner-color hover:text-owner-color hover:scale-110 active:scale-90"
                                     onClick={handleClose}
@@ -405,14 +418,18 @@ const ProjectsPage: React.FC<ProjectsPageProps> = ({ setActivePage, setSelectedP
                         {t('projects_page.delete_modal.title', { name: selectedCard?.name || '' })}
                     </span>
                     <span className="flex items-center gap-2 p-2 font-light text-lg text-center"><FiAlertTriangle className="text-red-500"/>{t('projects_page.delete_modal.warning')}</span>
-                    <div className="flex flex-row gap-20 pt-10">
-                        <button
-                            onClick={handleDeleteProject}
-                            className="border border-overlay-border-color rounded-sm p-2 w-40 h-15 transition-all duration-300 hover:border-owner-color hover:text-owner-color hover:scale-110 active:scale-90">{t('projects_page.delete_modal.confirm')}</button>
-                        <button
-                            onClick={() => setDeleteProject(false)}
-                            className="border border-overlay-border-color rounded-sm p-2 w-40 h-15 transition-all duration-300 hover:border-owner-color hover:text-owner-color hover:scale-110 active:scale-90">{t('projects_page.delete_modal.cancel')}</button>
-                    </div>
+					<div className="flex flex-row gap-20 pt-10">
+						<button
+							onClick={handleDeleteProject}
+							className="border border-overlay-border-color rounded-sm p-2 w-40 h-15 transition-all duration-300 hover:border-owner-color hover:text-owner-color hover:scale-110 active:scale-90">
+							{t('projects_page.delete_modal.confirm')}
+						</button>
+						<button
+							onClick={() => setDeleteProject(false)}
+							className="border border-overlay-border-color rounded-sm p-2 w-40 h-15 transition-all duration-300 hover:border-owner-color hover:text-owner-color hover:scale-110 active:scale-90">
+							{t('projects_page.delete_modal.cancel')}
+						</button>
+					</div>
                 </div>
             </div>
         </div>

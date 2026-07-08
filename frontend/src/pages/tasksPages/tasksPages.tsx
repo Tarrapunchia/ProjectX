@@ -27,9 +27,10 @@ const sortOptions = [
     { value: 'alphabetical', icon: ArrowUpDown },
 ];
 
-export default function TasksLibrary() {
+export default function TasksLibrary() 
+{
     const { t, i18n } = useTranslation();
-    const { activeUser } = useWebSocket();
+    const {activeUser } = useWebSocket();
     const [rawData, setRawData] = useState<any[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [openDropdown, setOpenDropdown] = useState<string | null>(null);
@@ -116,7 +117,7 @@ export default function TasksLibrary() {
             )
         );
 
-        const res = await helpers.putter(`/api/v1/tasks/${taskId}/status`, {
+    const res = await helpers.putter(`/api/v1/tasks/${taskId}/status`, {
             status: newStatus
         });
 
@@ -132,6 +133,7 @@ export default function TasksLibrary() {
             );
         }
     };
+
     const formatDate = (date: Date | string | null | undefined) => {
         if (!date || date === "") return "N/A";
         const d = new Date(date);

@@ -7,6 +7,7 @@ import DocsPage from "./pages/docsPage/DocsPage";
 import MarkdownDocPage from "./pages/docsPage/MarkdownPage";
 import HowToUsePage from "./pages/howToUsePage/HowToUsePage";
 import { WebSocketProvider } from './utilities/WebSocketContext'
+import TermsOfService from './pages/TermsOfService/TermsOfService';
 import './i18n';
 
 export default function App()
@@ -28,6 +29,7 @@ export default function App()
       <Route path="/docs" element={<DocsPage />} />
       <Route path="/docs/:slug" element={<MarkdownDocPage />} />
       <Route path="/how-to-use" element={<HowToUsePage />} />
+	  <Route path="/terms-of-service" element={<TermsOfService />} />
     </Routes>
   );
 }

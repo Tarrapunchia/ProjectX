@@ -418,6 +418,7 @@
   },
 
   "signup": {
+	"err_empty_fields": "Todos los campos son obligatorios.",
     "title": "¡Crea tu cuenta!",
     "google_btn": "Regístrate con Google",
     "or": "O",
@@ -630,5 +631,26 @@
     "title": "Página no encontrada",
     "description": "¡Ups! Parece que te has perdido. La página que buscas no existe o ha sido movida.",
     "button": "Volver al Inicio"
+  },
+
+  "terms": {
+    "title": "Términos de Servicio y Política de Privacidad",
+    "last_updated": "Última actualización",
+    "educational": {
+      "title": "1. Proyecto Educativo 42",
+      "content": "Esta aplicación ha sido desarrollada exclusivamente como un proyecto educativo para la red 42. No es un producto comercial y no está destinada a un uso en producción. El código fuente, la infraestructura y los servicios ofrecidos deben considerarse parte de un ejercicio académico."
+    },
+    "data_usage": {
+      "title": "2. Recopilación y Uso de Datos",
+      "content": "La aplicación recopila exclusivamente los datos necesarios para probar las funcionalidades requeridas por los subjects del proyecto (como nombre, correo electrónico, avatar, tareas y relaciones de amistad). Estos datos se almacenan en una base de datos temporal con fines puramente de evaluación y depuración."
+    },
+    "warning": {
+      "title": "3. Advertencia sobre Datos Personales",
+      "content": "ATENCIÓN: Se ruega categóricamente NO introducir datos personales reales, contraseñas utilizadas en otros servicios, información financiera o cualquier dato sensible. Utiliza exclusivamente datos ficticios o cuentas de prueba para la evaluación del proyecto."
+    },
+    "privacy": {
+      "title": "4. Privacidad y Seguridad",
+      "content": "Al ser un entorno de prueba, no se garantiza la persistencia de los datos. Todos los datos introducidos podrían ser eliminados en cualquier momento sin previo aviso debido a reinicios del servidor o actualizaciones de la infraestructura Docker. Ningún dato será cedido o vendido a terceros."
+    }
   }
 }
