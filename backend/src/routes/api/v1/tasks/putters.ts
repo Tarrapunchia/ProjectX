@@ -47,7 +47,6 @@ const Putters: FastifyPluginAsync = async (fastify: FastifyInstance, opts) => {
             })
 
             if (!task) {
-                console.log("AAAAAAAAAAAA NOT FOUND!")
             return {
                 ok: false as const,
                 code: 404,
@@ -104,6 +103,23 @@ const Putters: FastifyPluginAsync = async (fastify: FastifyInstance, opts) => {
             res.code(result.code)
             return { error: result.error }
         }
+
+        const project = await fastify.prisma.project.findUnique({
+            where: { id: result.task.projectId},
+            select: { organizationId: true}
+        })
+        const orgMembers = await fastify.prisma.organizationMember.findMany({
+            where : { organizationId: project.organizationId}
+        })
+        
+        orgMembers.map((o: any) => {
+            fastify.wsSendToUser(
+                o.userId,
+                {
+                    type: 'project:modified',
+                    payload: null
+            })
+            })
 
         res.code(200)
         return {

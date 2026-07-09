@@ -433,23 +433,16 @@ const Putters: FastifyPluginAsync = async (fastify: FastifyInstance, opts) => {
                 createdAt: 'asc',
             },
             })
-            const newOrgMembers = await fastify.prisma.organizationMember.findMany({
+            const newOrgMembers = await tx.organizationMember.findMany({
                 where: { organizationId },
                 select: { userId: true }
-            })
-
-            newOrgMembers.map((o: any) => {
-            fastify.wsSendToUser(
-                o.userId,
-                {
-                    type: 'project:modified',
-                    payload: null
-            })
             })
 
 
             return {
             ok: true as const,
+            organizationId,
+            recipientIds: newOrgMembers.map((m: any) => m.userId),
             participants: updatedParticipants.map((p: any) => ({
                 user: {
                 id: p.user.id,
@@ -466,6 +459,17 @@ const Putters: FastifyPluginAsync = async (fastify: FastifyInstance, opts) => {
         if (!result.ok) {
             reply.code(result.code)
             return { error: result.error }
+        }
+
+        for (const recipientId of result.recipientIds) {
+            fastify.wsSendToUser(recipientId, {
+                type: 'project:participants:updated',
+                organizationId: result.organizationId,
+                projectId,
+                participants: result.participants,
+                updatedByUserId: authUserId,
+                ts: Date.now(),
+            })
         }
 
         reply.code(200)

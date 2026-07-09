@@ -4,5 +4,5 @@ node_modules
 dist
 certs
 # Keep environment variables out of version control
-# .env
+.env
 
