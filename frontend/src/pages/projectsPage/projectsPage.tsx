@@ -16,7 +16,7 @@ interface ProjectsPageProps {
 const ProjectsPage: React.FC<ProjectsPageProps> = ({ setActivePage, setSelectedProject }) => 
 {
     const { t } = useTranslation();
-    const { projects, activeOrg, activeUser, setProjects } = useWebSocket();
+    const { projects, activeOrg, activeUser, setProjects, organizations } = useWebSocket();
     const filteredProjects = projects.filter(proj =>
         proj.participants?.some(p => p.user.id === activeUser?.id)
     );
@@ -37,6 +37,7 @@ const ProjectsPage: React.FC<ProjectsPageProps> = ({ setActivePage, setSelectedP
 
     const [selectedCardId, setSelectedCardId] = useState<number | null>(null);
     const selectedCard = filteredProjects.find(p => p.id === selectedCardId) ?? null;
+    const selectedCardOrgMembers = organizations.find(o => o.id === selectedCard?.organization.id)?.members ?? [];
     const [isExpanding, setIsExpanding] = useState(false);
     const [cardPosition, setCardPosition] = useState({ top: 0, left: 0, width: 0, height: 0 });
     const [createProject, setCreateProject] = useState(false);
@@ -159,8 +160,8 @@ const ProjectsPage: React.FC<ProjectsPageProps> = ({ setActivePage, setSelectedP
         );
         const ownerParticipants = selectedCard.participants.filter(p => ownerIds.has(p.user.id));
 
-        const selectedMembers = activeOrg?.members
-            ?.filter(m => selectedMembersIds.has(m.id) && !ownerIds.has(m.id)) ?? [];
+        const selectedMembers = selectedCardOrgMembers
+            .filter(m => selectedMembersIds.has(m.id) && !ownerIds.has(m.id));
 
         const nonOwnerParticipants: ProjectParticipant[] = selectedMembers.map(m => {
             const existing = selectedCard.participants.find(p => p.user.id === m.id);
@@ -271,7 +272,7 @@ const ProjectsPage: React.FC<ProjectsPageProps> = ({ setActivePage, setSelectedP
 
                                 <div className="max-h-48 overflow-y-auto no-scrollbar">
                                     {addMemberOpen ? (
-                                        (activeOrg?.members ?? [])
+                                        selectedCardOrgMembers
                                             .filter(m => !selectedCard.participants.some(p => p.user.id === m.id && p.role === "OWNER"))
                                             .map(m => (
                                                 <label

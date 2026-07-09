@@ -466,6 +466,7 @@ export const WebSocketProvider: React.FC<{ children: ReactNode }> = ({ children 
 			{
 				const messageData = JSON.parse(event.data);
 
+				console.log(messageData.type);
 				if (["task:updated", "task:created", "event:updated", "event:created"].includes(messageData.type)) 
 				{
         			loadCalendar();
