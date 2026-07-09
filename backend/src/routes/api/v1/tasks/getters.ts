@@ -17,7 +17,6 @@ const Getters: FastifyPluginAsync = async (fastify: FastifyInstance, opts) => {
             res.code(400)
             return { error: 'invalid project id' }
         }
-        // TODO controllare se registrato ad organizzazione madre
 
         const project = await fastify.prisma.project.findUnique({
             where: { id },
@@ -39,7 +38,8 @@ const Getters: FastifyPluginAsync = async (fastify: FastifyInstance, opts) => {
                 status: t.status,
                 createdAt: t.createdAt,
                 closedAt: t.closedAt ?? null,
-                projectId: t.projectId
+                projectId: t.projectId,
+                priority: t.priority
             }))
 
         res.code(200)
