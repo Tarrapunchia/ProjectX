@@ -433,20 +433,20 @@ const Putters: FastifyPluginAsync = async (fastify: FastifyInstance, opts) => {
                 createdAt: 'asc',
             },
             })
-
-            const participants = await tx.projectParticipant.findMany({
-                where: { projectId },
+            const newOrgMembers = await fastify.prisma.organizationMember.findMany({
+                where: { organizationId },
                 select: { userId: true }
             })
 
-            participants.map((p) => {
+            newOrgMembers.map((o: any) => {
             fastify.wsSendToUser(
-                p.userId,
+                o.userId,
                 {
                     type: 'project:modified',
                     payload: null
             })
             })
+
 
             return {
             ok: true as const,
