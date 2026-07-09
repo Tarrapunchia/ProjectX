@@ -1,5 +1,5 @@
 import { FiRepeat } from 'react-icons/fi';
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import SearchBar from './SearchBar';
 import { ProfileMenu } from './profileMenu';
@@ -18,8 +18,12 @@ function Header({ setActivePage, selectedProject, className }: HeaderProps)
     const { t } = useTranslation();
     const { activeUser } = useWebSocket();
     const [profileMenuOpen, setProfileMenuOpen] = useState(false);
+    const avatarTimestamp = useMemo(() => {
+        return new Date().getTime();
+    }, [activeUser]); 
+
     const avatarUrl = activeUser 
-        ? `${CONSTS.BE}/api/v1/users/${activeUser.id}/avatar?t=${new Date().getTime()}`
+        ? `${CONSTS.BE}/api/v1/users/${activeUser.id}/avatar?t=${avatarTimestamp}`
         : '/placeholder-avatar.png';
     const activeUserId = activeUser?.id || null;
 

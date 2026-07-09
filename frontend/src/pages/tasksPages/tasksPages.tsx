@@ -30,7 +30,7 @@ const sortOptions = [
 export default function TasksLibrary() 
 {
     const { t, i18n } = useTranslation();
-    const {activeUser } = useWebSocket();
+    const {activeUser, projects } = useWebSocket();
     const [rawData, setRawData] = useState<any[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [openDropdown, setOpenDropdown] = useState<string | null>(null);
@@ -59,7 +59,7 @@ export default function TasksLibrary()
             }
             setIsLoading(false);
         })();
-    }, []);
+    }, [projects]);
 
     const projectsList = useMemo(() => rawData.map(item => ({ 
         id: item.project.id, name: item.project.name, isOwner: item.roleId === ROLE_OWNER 
@@ -117,7 +117,8 @@ export default function TasksLibrary()
             )
         );
 
-    const res = await helpers.putter(`/api/v1/tasks/${taskId}/status`, {
+    const res = await helpers.putter(`/api/v1/tasks/${taskId}/status`, 
+    {
             status: newStatus
         });
 
@@ -144,9 +145,7 @@ export default function TasksLibrary()
         let list: any[] = [];
         rawData.forEach(item => {
             item.project.tasks.forEach((task: any) => {
-                if (item.roleId === ROLE_OWNER || task.participants?.some((tp: any) => String(tp.participantId) === String(activeUser?.id))) {
                     list.push({ ...task, projectName: item.project.name, projectId: item.project.id, roleId: item.roleId });
-                }
             });
         });
         list = list.filter(t => selectedProjects.includes(t.projectId));

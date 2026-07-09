@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import CONSTS from '../../data/consts';
 import { Mail, Phone, Briefcase, User as UserIcon, MapPin, Ban } from 'lucide-react';
@@ -11,12 +11,12 @@ const ProfilePage: React.FC = () =>
     const { t } = useTranslation();
     
     const { activeUser, friends, blockedUsers, loadBlockedUsers, loadFriends } = useWebSocket();
-
+    const avatarTimestamp = useMemo(() => Date.now(), [activeUser]);
     const [selectedUser, setSelectedUser] = useState<ModalUser | null>(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [modalMode, setModalMode] = useState<'friend' | 'blocked'>('friend');
     const avatarUrl = activeUser 
-            ? `${CONSTS.BE}/api/v1/users/${activeUser.id}/avatar?t=${new Date().getTime()}`
+            ? `${CONSTS.BE}/api/v1/users/${activeUser.id}/avatar?t=${avatarTimestamp}`
             : '/placeholder-avatar.png';
 
     const handleGlobalAndLocalRefresh = async () => 

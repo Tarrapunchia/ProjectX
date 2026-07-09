@@ -21,12 +21,14 @@ type ProfileData = {
 
 export default function SettingsPage() 
 {
+    const [serverTimestamp, setServerTimestamp] = useState(() => Date.now());
     const { t } = useTranslation();
     const { activeUser, alertThreshold, updateAlertThreshold, refreshUser } = useWebSocket();
     const [savingProfile, setSavingProfile] = useState(false);
     const [saveSuccess, setSaveSuccess] = useState(false);
     const fileRef = useRef<HTMLInputElement | null>(null);
-    const [avatarPreview, setAvatarPreview] = useState<string | undefined>(activeUser?.avatar);
+    const [avatarPreview, setAvatarPreview] = useState<string | undefined>(
+        activeUser ? `${CONSTS.BE}/api/v1/users/${activeUser.id}/avatar?t=${serverTimestamp}` : undefined);
     const [selectedAvatarFile, setSelectedAvatarFile] = useState<File | null>(null);
 
     const [profile, setProfile] = useState<ProfileData>({
@@ -58,9 +60,11 @@ export default function SettingsPage()
                 state: activeUser.state || "",
                 avatar: activeUser.avatar || "",
             });
-            setAvatarPreview(`${CONSTS.BE}/api/v1/users/${activeUser.id}/avatar?t=${new Date().getTime()}`);
+            if (!selectedAvatarFile) {
+                setAvatarPreview(`${CONSTS.BE}/api/v1/users/${activeUser.id}/avatar?t=${serverTimestamp}`);
+            }
         }
-    }, [activeUser]);
+    }, [activeUser, serverTimestamp]);
 
     const handleProfileChange = (k: keyof ProfileData, v: any) => 
     {
@@ -102,9 +106,11 @@ export default function SettingsPage()
             if (res?.success) 
             {
                 setSaveSuccess(true);
-                setSelectedAvatarFile(null);
-                setProfile(profile);
                 
+                setSelectedAvatarFile(null);
+                setServerTimestamp(Date.now());
+                
+                setProfile(profile);
                 refreshUser();
                 setTimeout(() => setSaveSuccess(false), 3000);
             }
