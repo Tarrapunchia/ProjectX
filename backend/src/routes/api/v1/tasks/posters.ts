@@ -77,6 +77,29 @@ const Posters: FastifyPluginAsync = async (fastify: FastifyInstance, opts) => {
                 return task
             })
 
+        const project = await fastify.prisma.project.findUnique({
+            where: { id: projId},
+            select: { organizationId: true}
+        })
+
+        if (!project) {
+            res.code(404)
+            return { error: 'Project not found' }
+        }
+
+        const orgMembers = await fastify.prisma.organizationMember.findMany({
+            where : { organizationId: project.organizationId}
+        })
+        
+        orgMembers.map((o: any) => {
+            fastify.wsSendToUser(
+                o.userId,
+                {
+                    type: 'project:modified',
+                    payload: null
+            })
+            })
+
             res.code(201)
             return created
         } catch (error: any) {
