@@ -108,6 +108,12 @@ const Putters: FastifyPluginAsync = async (fastify: FastifyInstance, opts) => {
             where: { id: result.task.projectId},
             select: { organizationId: true}
         })
+
+        if (!project) {
+            res.code(404)
+            return { error: 'Project not found' }
+        }
+
         const orgMembers = await fastify.prisma.organizationMember.findMany({
             where : { organizationId: project.organizationId}
         })
