@@ -466,7 +466,6 @@ export const WebSocketProvider: React.FC<{ children: ReactNode }> = ({ children 
 			{
 				const messageData = JSON.parse(event.data);
 
-				console.log(messageData.type);
 				if (["task:updated", "task:created", "event:updated", "event:created"].includes(messageData.type)) 
 				{
         			loadCalendar();
@@ -743,7 +742,7 @@ export const WebSocketProvider: React.FC<{ children: ReactNode }> = ({ children 
 					loadFriends();
 				}
 
-				if (messageData.type === "project:modified")
+				if (messageData.type === "project:participants:updated" || messageData.type === "project:modified")
 				{
 					loadProjects();
 				}
