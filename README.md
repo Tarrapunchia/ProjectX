@@ -1,4 +1,4 @@
-*This project has been created as part of the 42 curriculum by fzucconi, mchiaram, aosmenaj, gvigano, specifically to complete it by finalizing the last assignment, [Ft_Transcendence](en.subject.pdf).*
+*This project has been created as part of the 42 curriculum by fzucconi, mchiaram, aosmenaj, gvigano, specifically to complete it by finalizing its last assignment, [Ft_Transcendence](en.subject.pdf).*
 
 | Name | GitHub | LinkedIn |
 | :--- | :--- | :--- |
