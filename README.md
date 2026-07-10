@@ -1,5 +1,13 @@
 *This project has been created as part of the 42 curriculum by fzucconi, mchiaram, aosmenaj, gvigano.*
 
+| Name | GitHub | LinkedIn |
+| :--- | :--- | :--- |
+| Fabio Zucconi | [@tarrapunchia](https://github.com/Tarrapunchia) | [Link with me](https://www.linkedin.com/in/fabio-zucconi-221b95173/) |
+| Ansi Aosmenaj | [@aosmenaj](https://github.com/aosmenaj) | [Link with me](https://www.linkedin.com/in/ansi-osmenaj-94a95020a/) |
+| Manuel Chiaramello | [@chiaramellomanuel](https://github.com/chiaramellomanuel) | [Link with me](https://www.linkedin.com/in/manuel-chiaramello/) |
+| Giulia Viganò | [@giuliavigano](https://github.com/giuliavigano) | [Link with me](https://www.linkedin.com/in/giulia-vigan%C3%B2-88219b402/) |
+
+
 # Project X — Collaborative Workspace Platform
 
 ## Description
