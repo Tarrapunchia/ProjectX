@@ -10,6 +10,21 @@
 
 # Project X — Collaborative Workspace Platform
 
+## Table of Contents
+1. [Description](#description)
+2. [Key Features](#key-features)
+3. [Team Information](#team-information)
+4. [Project Management](#project-management)
+5. [Technical Stack](#technical-stack)
+6. [Database Schema](#database-schema)
+7. [Features List](#features-list)
+8. [Modules](#modules)
+9. [Individual Contributions](#individual-contributions)
+10. [Instructions](#instructions)
+11. [Technical Choices and Rationale](#technical-choices-and-rationale)
+12. [Resources](#resources)
+13. [DevOps](#features-list-addendum) 
+
 ## Description
 
 **Project X** is a full-stack collaborative workspace platform built as the final Common Core project of the 42 curriculum. Instead of building a game-centered product, our team chose to design a productivity-oriented web application focused on **organizations, projects, tasks, events, files, chat, and real-time team collaboration**.
